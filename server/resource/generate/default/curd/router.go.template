@@ -1,4 +1,4 @@
-package genrouter
+package @{.templateGroup}
 
 import "@{.importController}"
 

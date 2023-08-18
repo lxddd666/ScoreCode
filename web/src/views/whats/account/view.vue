@@ -56,7 +56,7 @@
 import {computed, onMounted, ref} from 'vue';
 import {useRouter} from 'vue-router';
 import {useMessage} from 'naive-ui';
-import {View} from 'src/api/whats/account';
+import {View} from '@/api/whats/account';
 import {newState, options} from './model';
 import {getOptionLabel, getOptionTag} from '@/utils/hotgo';
 

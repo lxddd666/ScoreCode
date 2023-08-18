@@ -93,11 +93,6 @@ export const schemas = ref<FormSchema[]>([
 
 export const columns = [
   {
-    title: 'ID',
-    key: 'id',
-    sorter: true, // 单列排序
-  },
-  {
     title: '账号号码',
     key: 'account',
   },

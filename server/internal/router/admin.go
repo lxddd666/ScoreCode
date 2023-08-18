@@ -13,7 +13,8 @@ import (
 	"hotgo/internal/controller/admin/common"
 	"hotgo/internal/controller/admin/pay"
 	"hotgo/internal/controller/admin/sys"
-	"hotgo/internal/router/genrouter"
+	"hotgo/internal/router/auto"
+	_ "hotgo/internal/router/whats"
 	"hotgo/internal/service"
 	"hotgo/utility/simple"
 )
@@ -69,5 +70,5 @@ func Admin(ctx context.Context, group *ghttp.RouterGroup) {
 	})
 
 	// 注册生成路由
-	genrouter.Register(ctx, group)
+	auto.Register(ctx, group)
 }
