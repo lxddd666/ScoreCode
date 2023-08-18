@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/account/edit'])"
+            v-if="hasPermission(['/whatsAccount/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -50,7 +50,7 @@
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
             class="min-left-space"
-            v-if="hasPermission(['/account/delete'])"
+            v-if="hasPermission(['/whatsAccount/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -59,19 +59,7 @@
             </template>
             批量删除
           </n-button>
-          <n-button
-            type="primary"
-            @click="handleExport"
-            class="min-left-space"
-            v-if="hasPermission(['/account/delete'])"
-          >
-            <template #icon>
-              <n-icon>
-                <ExportOutlined />
-              </n-icon>
-            </template>
-            导出
-          </n-button>
+
         </template>
       </BasicTable>
     </n-card>
@@ -85,18 +73,18 @@
 </template>
 
 <script lang="ts" setup>
-import {h, reactive, ref} from 'vue';
-import {useDialog, useMessage} from 'naive-ui';
-import {BasicTable, TableAction} from '@/components/Table';
-import {BasicForm, useForm} from '@/components/Form';
-import {usePermission} from '@/hooks/web/usePermission';
-import {Delete, Export, List} from '@/api/whats/account';
-import {columns, newState, schemas, State} from './model';
-import {DeleteOutlined, ExportOutlined, PlusOutlined} from '@vicons/antd';
-import {useRouter} from 'vue-router';
-import Edit from './edit.vue';
-
-const { hasPermission } = usePermission();
+  import { h, reactive, ref } from 'vue';
+  import { useDialog, useMessage } from 'naive-ui';
+  import { BasicTable, TableAction } from '@/components/Table';
+  import { BasicForm, useForm } from '@/components/Form/index';
+  import { usePermission } from '@/hooks/web/usePermission';
+  import { List, Delete } from '@/api/whats/whatsAccount';
+  import { State, columns, schemas, options, newState } from './model';
+  import { PlusOutlined, DeleteOutlined } from '@vicons/antd';
+  import { useRouter } from 'vue-router';
+  import { getOptionLabel } from '@/utils/hotgo';
+  import Edit from './edit.vue';
+  const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
   const dialog = useDialog();
@@ -119,20 +107,20 @@ const { hasPermission } = usePermission();
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
-            auth: ['/account/edit'],
+            auth: ['/whatsAccount/edit'],
           },
 
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
-            auth: ['/account/delete'],
+            auth: ['/whatsAccount/delete'],
           },
         ],
         dropDownActions: [
           {
             label: '查看详情',
             key: 'view',
-            auth: ['/account/view'],
+            auth: ['/whatsAccount/view'],
           },
         ],
         select: (key) => {
@@ -173,7 +161,7 @@ const { hasPermission } = usePermission();
   }
 
   function handleView(record: Recordable) {
-    router.push({ name: 'accountView', params: { id: record.id } });
+    router.push({ name: 'whatsAccountView', params: { id: record.id } });
   }
 
   function handleEdit(record: Recordable) {
@@ -217,10 +205,7 @@ const { hasPermission } = usePermission();
     });
   }
 
-  function handleExport() {
-    message.loading('正在导出列表...', { duration: 1200 });
-    Export(searchFormRef.value?.formModel);
-  }
+
 
 
 </script>

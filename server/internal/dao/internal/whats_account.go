@@ -11,15 +11,15 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-// AccountDao is the data access object for table whats_account.
-type AccountDao struct {
-	table   string         // table is the underlying table name of the DAO.
-	group   string         // group is the database configuration group name of current DAO.
-	columns AccountColumns // columns contains all the column names of Table for convenient usage.
+// WhatsAccountDao is the data access object for table whats_account.
+type WhatsAccountDao struct {
+	table   string              // table is the underlying table name of the DAO.
+	group   string              // group is the database configuration group name of current DAO.
+	columns WhatsAccountColumns // columns contains all the column names of Table for convenient usage.
 }
 
-// AccountColumns defines and stores column names for table whats_account.
-type AccountColumns struct {
+// WhatsAccountColumns defines and stores column names for table whats_account.
+type WhatsAccountColumns struct {
 	Id            string //
 	Account       string // 账号号码
 	NickName      string // 账号昵称
@@ -33,8 +33,8 @@ type AccountColumns struct {
 	UpdatedAt     string // 更新时间
 }
 
-// accountColumns holds the columns for table whats_account.
-var accountColumns = AccountColumns{
+// whatsAccountColumns holds the columns for table whats_account.
+var whatsAccountColumns = WhatsAccountColumns{
 	Id:            "id",
 	Account:       "account",
 	NickName:      "nick_name",
@@ -48,37 +48,37 @@ var accountColumns = AccountColumns{
 	UpdatedAt:     "updated_at",
 }
 
-// NewAccountDao creates and returns a new DAO object for table data access.
-func NewAccountDao() *AccountDao {
-	return &AccountDao{
+// NewWhatsAccountDao creates and returns a new DAO object for table data access.
+func NewWhatsAccountDao() *WhatsAccountDao {
+	return &WhatsAccountDao{
 		group:   "default",
 		table:   "whats_account",
-		columns: accountColumns,
+		columns: whatsAccountColumns,
 	}
 }
 
 // DB retrieves and returns the underlying raw database management object of current DAO.
-func (dao *AccountDao) DB() gdb.DB {
+func (dao *WhatsAccountDao) DB() gdb.DB {
 	return g.DB(dao.group)
 }
 
 // Table returns the table name of current dao.
-func (dao *AccountDao) Table() string {
+func (dao *WhatsAccountDao) Table() string {
 	return dao.table
 }
 
 // Columns returns all column names of current dao.
-func (dao *AccountDao) Columns() AccountColumns {
+func (dao *WhatsAccountDao) Columns() WhatsAccountColumns {
 	return dao.columns
 }
 
 // Group returns the configuration group name of database of current dao.
-func (dao *AccountDao) Group() string {
+func (dao *WhatsAccountDao) Group() string {
 	return dao.group
 }
 
 // Ctx creates and returns the Model for current DAO, It automatically sets the context for current operation.
-func (dao *AccountDao) Ctx(ctx context.Context) *gdb.Model {
+func (dao *WhatsAccountDao) Ctx(ctx context.Context) *gdb.Model {
 	return dao.DB().Model(dao.table).Safe().Ctx(ctx)
 }
 
@@ -88,6 +88,6 @@ func (dao *AccountDao) Ctx(ctx context.Context) *gdb.Model {
 //
 // Note that, you should not Commit or Rollback the transaction in function f
 // as it is automatically handled by this function.
-func (dao *AccountDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
+func (dao *WhatsAccountDao) Transaction(ctx context.Context, f func(ctx context.Context, tx gdb.TX) error) (err error) {
 	return dao.Ctx(ctx).Transaction(ctx, f)
 }

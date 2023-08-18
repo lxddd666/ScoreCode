@@ -1,11 +1,14 @@
-import {h, ref} from 'vue';
-import {NTag} from 'naive-ui';
-import {cloneDeep} from 'lodash-es';
-import {FormSchema} from '@/components/Form';
-import {Dicts} from '@/api/dict/dict';
+import { h, ref } from 'vue';
+import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
+import { cloneDeep } from 'lodash-es';
+import { FormSchema } from '@/components/Form';
+import { Dicts } from '@/api/dict/dict';
 
-import {isNullObject} from '@/utils/is';
-import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import { isArray, isNullObject } from '@/utils/is';
+import { getFileExt } from '@/utils/urlUtils';
+import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
+import { validate } from '@/utils/validateUtil';
+import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
 
 
 export interface State {
@@ -49,20 +52,15 @@ export const options = ref<Options>({
 });
 
 export const rules = {
+  account: {
+    required: true,
+    trigger: ['blur', 'input'],
+    type: 'string',
+    message: '请输入账号号码',
+  },
 };
 
 export const schemas = ref<FormSchema[]>([
-  {
-    field: 'account',
-    component: 'NInput',
-    label: '账号号码',
-    componentProps: {
-      placeholder: '请输入账号',
-      onUpdateValue: (e: any) => {
-        console.log(e);
-      },
-    },
-  },
   {
     field: 'accountStatus',
     component: 'NSelect',
@@ -84,6 +82,19 @@ export const schemas = ref<FormSchema[]>([
     componentProps: {
       placeholder: '请选择是否在线',
       options: [],
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
+    field: 'createdAt',
+    component: 'NDatePicker',
+    label: '创建时间',
+    componentProps: {
+      type: 'datetimerange',
+      clearable: true,
+      shortcuts: defRangeShortcuts(),
       onUpdateValue: (e: any) => {
         console.log(e);
       },

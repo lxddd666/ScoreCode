@@ -53,14 +53,15 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, onMounted, ref} from 'vue';
-import {useRouter} from 'vue-router';
-import {useMessage} from 'naive-ui';
-import {View} from '@/api/whats/account';
-import {newState, options} from './model';
-import {getOptionLabel, getOptionTag} from '@/utils/hotgo';
+  import { computed, onMounted, ref } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { useMessage } from 'naive-ui';
+  import { View } from '@/api/whats/whatsAccount';
+  import { newState, options } from './model';
+  import { getOptionLabel, getOptionTag } from '@/utils/hotgo';
+  import { getFileExt } from '@/utils/urlUtils';
 
-const message = useMessage();
+  const message = useMessage();
   const router = useRouter();
   const id = Number(router.currentRoute.value.params.id);
   const formValue = ref(newState(null));

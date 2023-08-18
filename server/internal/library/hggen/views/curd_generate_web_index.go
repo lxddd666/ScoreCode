@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	IndexApiImport       = "  import {%v } from '@/api/%s';" // 这里将导入的包路径写死了，后面可以优化成根据配置动态读取
+	IndexApiImport       = "  import {%v } from '@/api/%s/%s';" // 这里将导入的包路径写死了，后面可以优化成根据配置动态读取
 	IndexApiAddonsImport = "  import {%v } from '@/api/addons/%s/%s';"
 	IndexIconsImport     = "  import {%v } from '@vicons/antd';"
 )
@@ -55,7 +55,7 @@ func (l *gCurd) webIndexTplData(ctx context.Context, in *CurdPreviewInput) (g.Ma
 	if in.Config.Application.Crud.Templates[in.In.GenTemplate].IsAddon {
 		data["apiImport"] = fmt.Sprintf(IndexApiAddonsImport, gstr.Implode(",", apiImport), in.In.AddonName, gstr.LcFirst(in.In.VarName))
 	} else {
-		data["apiImport"] = fmt.Sprintf(IndexApiImport, gstr.Implode(",", apiImport), gstr.LcFirst(in.In.VarName))
+		data["apiImport"] = fmt.Sprintf(IndexApiImport, gstr.Implode(",", apiImport), in.Config.Application.Crud.Templates[in.In.GenTemplate].MasterPackage, gstr.LcFirst(in.In.VarName))
 	}
 	if len(iconsImport) > 0 {
 		data["iconsImport"] = fmt.Sprintf(IndexIconsImport, gstr.Implode(",", iconsImport))

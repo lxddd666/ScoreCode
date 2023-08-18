@@ -190,7 +190,7 @@ func (l *gCurd) loadView(ctx context.Context, in *CurdPreviewInput) (err error) 
 		importService = "hotgo/addons/" + in.In.AddonName + "/service"
 	}
 
-	importWebApi := "@/api/" + gstr.LcFirst(in.In.VarName)
+	importWebApi := "@/api/" + temp.MasterPackage + "/" + gstr.LcFirst(in.In.VarName)
 	if temp.IsAddon {
 		importWebApi = "@/api/addons/" + in.In.AddonName + "/" + gstr.LcFirst(in.In.VarName)
 	}

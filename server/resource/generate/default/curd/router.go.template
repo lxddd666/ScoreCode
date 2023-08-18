@@ -1,7 +1,10 @@
 package @{.templateGroup}
 
-import "@{.importController}"
+import (
+	"@{.importController}"
+	"hotgo/internal/router/auto"
+)
 
 func init() {
-	LoginRequiredRouter = append(LoginRequiredRouter, @{.templateGroup}.@{.varName}) // @{.tableComment}
+	auto.LoginRequiredRouter = append(auto.LoginRequiredRouter, @{.templateGroup}.@{.varName}) // @{.tableComment}
 }

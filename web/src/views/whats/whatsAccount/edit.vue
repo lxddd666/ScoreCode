@@ -61,7 +61,7 @@
 
 <script lang="ts" setup>
   import { onMounted, ref, computed, watch } from 'vue';
-  import { Edit, View } from '@/api/whats/account';
+  import { Edit, View } from '@/api/whats/whatsAccount';
   import { rules, options, State, newState } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';

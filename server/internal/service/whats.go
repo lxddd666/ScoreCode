@@ -18,15 +18,13 @@ type (
 		// Model 小号管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
 		// List 获取小号管理列表
-		List(ctx context.Context, in *whatsin.AccountListInp) (list []*whatsin.AccountListModel, totalCount int, err error)
-		// Export 导出小号管理
-		Export(ctx context.Context, in *whatsin.AccountListInp) (err error)
+		List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error)
 		// Edit 修改/新增小号管理
-		Edit(ctx context.Context, in *whatsin.AccountEditInp) (err error)
+		Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error)
 		// Delete 删除小号管理
-		Delete(ctx context.Context, in *whatsin.AccountDeleteInp) (err error)
+		Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error)
 		// View 获取小号管理指定信息
-		View(ctx context.Context, in *whatsin.AccountViewInp) (res *whatsin.AccountViewModel, err error)
+		View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error)
 	}
 )
 

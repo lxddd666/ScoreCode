@@ -125,7 +125,7 @@ func (l *gCurd) generateWebEditScript(ctx context.Context, in *CurdPreviewInput)
 		if in.Config.Application.Crud.Templates[in.In.GenTemplate].IsAddon {
 			importBuffer.WriteString("  import { Edit, MaxSort, View } from '@/api/addons/" + in.In.AddonName + "/" + gstr.LcFirst(in.In.VarName) + "';\n")
 		} else {
-			importBuffer.WriteString("  import { Edit, MaxSort, View } from '@/api/" + gstr.LcFirst(in.In.VarName) + "';\n")
+			importBuffer.WriteString("  import { Edit, MaxSort, View } from '@/api/" + in.Config.Application.Crud.Templates[in.In.GenTemplate].MasterPackage + "/" + gstr.LcFirst(in.In.VarName) + "';\n")
 		}
 		setupBuffer.WriteString("  function loadForm(value) {\n    loading.value = true;\n\n    // 新增\n    if (value.id < 1) {\n      params.value = newState(value);\n      MaxSort()\n        .then((res) => {\n          params.value.sort = res.sort;\n        })\n        .finally(() => {\n          loading.value = false;\n        });\n      return;\n    }\n\n    // 编辑\n    View({ id: value.id })\n      .then((res) => {\n        params.value = res;\n      })\n      .finally(() => {\n        loading.value = false;\n      });\n  }\n\n  watch(\n    () => props.formParams,\n    (value) => {\n      loadForm(value);\n    }\n  );")
 	} else {
@@ -133,7 +133,7 @@ func (l *gCurd) generateWebEditScript(ctx context.Context, in *CurdPreviewInput)
 		if in.Config.Application.Crud.Templates[in.In.GenTemplate].IsAddon {
 			importBuffer.WriteString("  import { Edit, View } from '@/api/addons/" + in.In.AddonName + "/" + gstr.LcFirst(in.In.VarName) + "';\n")
 		} else {
-			importBuffer.WriteString("  import { Edit, View } from '@/api/" + gstr.LcFirst(in.In.VarName) + "';\n")
+			importBuffer.WriteString("  import { Edit, View } from '@/api/" + in.Config.Application.Crud.Templates[in.In.GenTemplate].MasterPackage + "/" + gstr.LcFirst(in.In.VarName) + "';\n")
 		}
 		setupBuffer.WriteString("  function loadForm(value) {\n    // 新增\n    if (value.id < 1) {\n      params.value = newState(value);\n      loading.value = false;\n      return;\n    }\n\n    loading.value = true;\n    // 编辑\n    View({ id: value.id })\n      .then((res) => {\n        params.value = res;\n      })\n      .finally(() => {\n        loading.value = false;\n      });\n  }\n\n  watch(\n    () => props.formParams,\n    (value) => {\n      loadForm(value);\n    }\n  );")
 	}

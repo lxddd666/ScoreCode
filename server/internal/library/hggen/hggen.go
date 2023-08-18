@@ -230,7 +230,18 @@ func Build(ctx context.Context, in *sysin.GenCodesBuildInp) (err error) {
 				DaoConfig: GetDaoConfig(in.DbName),
 				Config:    genConfig,
 			},
-			BeforeEvent: views.CurdBuildEvent{"runDao": Dao},
+			BeforeEvent: views.CurdBuildEvent{"runDao": func(ctx context.Context) (err error) {
+				for _, v := range daoConfig {
+					inp := defaultGenDaoInput
+					err = gconv.Scan(v, &inp)
+					if err != nil {
+						return
+					}
+					inp.Tables = in.TableName
+					doGenDaoForArray(ctx, -1, inp)
+				}
+				return
+			}},
 			AfterEvent: views.CurdBuildEvent{"runService": func(ctx context.Context) (err error) {
 				cfg := GetServiceConfig()
 				if err = ServiceWithCfg(ctx, cfg); err != nil {

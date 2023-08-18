@@ -9,8 +9,8 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// Account is the golang structure of table whats_account for DAO operations like Where/Data.
-type Account struct {
+// WhatsAccount is the golang structure of table whats_account for DAO operations like Where/Data.
+type WhatsAccount struct {
 	g.Meta        `orm:"table:whats_account, do:true"`
 	Id            interface{} //
 	Account       interface{} // 账号号码

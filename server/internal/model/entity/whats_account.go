@@ -8,8 +8,8 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// Account is the golang structure for table account.
-type Account struct {
+// WhatsAccount is the golang structure for table whats_account.
+type WhatsAccount struct {
 	Id            uint64      `json:"id"            description:""`
 	Account       string      `json:"account"       description:"账号号码"`
 	NickName      string      `json:"nickName"      description:"账号昵称"`

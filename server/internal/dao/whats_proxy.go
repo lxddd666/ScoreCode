@@ -8,19 +8,19 @@ import (
 	"hotgo/internal/dao/internal"
 )
 
-// internalAccountDao is internal type for wrapping internal DAO implements.
-type internalAccountDao = *internal.AccountDao
+// internalWhatsProxyDao is internal type for wrapping internal DAO implements.
+type internalWhatsProxyDao = *internal.WhatsProxyDao
 
-// accountDao is the data access object for table whats_account.
+// whatsProxyDao is the data access object for table whats_proxy.
 // You can define custom methods on it to extend its functionality as you wish.
-type accountDao struct {
-	internalAccountDao
+type whatsProxyDao struct {
+	internalWhatsProxyDao
 }
 
 var (
-	// Account is globally public accessible object for table whats_account operations.
-	Account = accountDao{
-		internal.NewAccountDao(),
+	// WhatsProxy is globally public accessible object for table whats_proxy operations.
+	WhatsProxy = whatsProxyDao{
+		internal.NewWhatsProxyDao(),
 	}
 )
 

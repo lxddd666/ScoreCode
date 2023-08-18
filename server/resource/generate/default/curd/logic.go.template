@@ -13,7 +13,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
-	"@{.importInput}"
+	@{.templateGroup}in "@{.importInput}"
 	"hotgo/internal/model/input/form"
 	"@{.importService}"
 	"hotgo/utility/convert"
