@@ -182,7 +182,7 @@ func (l *gCurd) loadView(ctx context.Context, in *CurdPreviewInput) (err error) 
 	if err != nil {
 		return
 	}
-	importApi := gfile.Join(gstr.Replace(temp.ApiPath, "./", modName+"/")+temp.MasterPackage, strings.ToLower(in.In.VarName))
+	importApi := gfile.Join(gstr.Replace(temp.ApiPath, "./", modName+"/")+temp.MasterPackage, gstr.CaseSnake(in.In.VarName))
 	importInput := gfile.Join(gstr.Replace(temp.InputPath, "./", modName+"/"), temp.MasterPackage)
 	importController := gfile.Join(gstr.Replace(temp.ControllerPath, "./", modName+"/"), temp.MasterPackage)
 	importService := "hotgo/internal/service"
@@ -353,7 +353,7 @@ func (l *gCurd) generateApiContent(ctx context.Context, in *CurdPreviewInput) (e
 	}
 
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.ApiPath, temp.MasterPackage), strings.ToLower(in.In.VarName), strings.ToLower(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.ApiPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip
@@ -385,7 +385,7 @@ func (l *gCurd) generateInputContent(ctx context.Context, in *CurdPreviewInput) 
 		return err
 	}
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.InputPath, temp.MasterPackage), convert.CamelCaseToUnderline(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.InputPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip
@@ -412,7 +412,7 @@ func (l *gCurd) generateControllerContent(ctx context.Context, in *CurdPreviewIn
 		return err
 	}
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.ControllerPath, temp.MasterPackage), convert.CamelCaseToUnderline(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.ControllerPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip
@@ -443,7 +443,7 @@ func (l *gCurd) generateLogicContent(ctx context.Context, in *CurdPreviewInput) 
 		return err
 	}
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.LogicPath, temp.MasterPackage), convert.CamelCaseToUnderline(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.LogicPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip
@@ -470,7 +470,7 @@ func (l *gCurd) generateRouterContent(ctx context.Context, in *CurdPreviewInput)
 	}
 
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.RouterPath, temp.MasterPackage), convert.CamelCaseToUnderline(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.RouterPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip

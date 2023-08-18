@@ -20,13 +20,19 @@
               </n-form-item>
             </n-col>
 
-            <n-col :span="6" style="min-width: 200px">
+            <n-col :span="4" style="min-width: 200px">
               <n-form-item label="实体命名" path="varName">
                 <n-input placeholder="请输入" v-model:value="formValue.varName" />
               </n-form-item>
             </n-col>
 
-            <n-col :span="6" style="min-width: 200px">
+            <n-col :span="4" style="min-width: 200px">
+              <n-form-item label="dao命名" path="daoName">
+                <n-input placeholder="请输入" v-model:value="formValue.daoName" />
+              </n-form-item>
+            </n-col>
+
+            <n-col :span="4" style="min-width: 200px">
               <n-form-item
                 label="数据库"
                 path="dbName"
