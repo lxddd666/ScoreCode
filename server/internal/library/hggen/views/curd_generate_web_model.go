@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/dao"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/utility/convert"
 )
@@ -87,9 +88,9 @@ func (l *gCurd) generateWebModelDictOptions(ctx context.Context, in *CurdPreview
 		return options, nil
 	}
 
-	err := g.Model("sys_dict_type").Ctx(ctx).
-		Fields("id", "type").
-		WhereIn("id", dictTypeIds).
+	err := g.Model(dao.SysDictType.Table()).Ctx(ctx).
+		Fields(dao.SysDictType.Columns().Id, dao.SysDictType.Columns().Type).
+		WhereIn(dao.SysDictType.Columns().Id, dictTypeIds).
 		Scan(&dictTypeList)
 	if err != nil {
 		return nil, err

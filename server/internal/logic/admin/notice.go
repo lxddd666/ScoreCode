@@ -300,7 +300,7 @@ func (s *sAdminNotice) UnreadCount(ctx context.Context, in *adminin.NoticeUnread
 		}
 
 		read, err := dao.AdminNoticeRead.Ctx(ctx).As("nr").
-			LeftJoin("admin_notice n", "nr.notice_id=n.id").
+			LeftJoin(dao.AdminNotice.Table()+" n", "nr.notice_id=n.id").
 			Where("n.type = ? and n.id IN(?)", t, in.MessageIds).
 			Where("nr.member_id", in.MemberId).
 			Count()
@@ -391,7 +391,7 @@ func (s *sAdminNotice) ReadAll(ctx context.Context, in *adminin.NoticeReadAllInp
 
 	array, err = dao.AdminNoticeRead.Ctx(ctx).As("nr").
 		Fields("nr.notice_id").
-		LeftJoin("admin_notice n", "nr.notice_id=n.id").
+		LeftJoin(dao.AdminNotice.Table()+" n", "nr.notice_id=n.id").
 		Where("n.type = ? and n.id IN(?)", in.Type, messageIds).
 		Where("nr.member_id", memberId).
 		Array()

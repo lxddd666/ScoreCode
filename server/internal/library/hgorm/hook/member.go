@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/dao"
 )
 
 // MemberInfo 后台用户信息
@@ -22,9 +23,9 @@ var MemberInfo = gdb.HookHandler{
 		for i, record := range result {
 			// 部门
 			if !record["dept_id"].IsEmpty() {
-				deptName, err := g.Model("admin_dept").Ctx(ctx).
-					Fields("name").
-					Where("id", record["dept_id"]).
+				deptName, err := g.Model(dao.AdminDept.Table()).Ctx(ctx).
+					Fields(dao.AdminDept.Columns().Name).
+					Where(dao.AdminDept.Columns().Id, record["dept_id"]).
 					Value()
 				if err != nil {
 					break
@@ -34,7 +35,7 @@ var MemberInfo = gdb.HookHandler{
 
 			// 角色
 			if !record["role_id"].IsEmpty() {
-				roleName, err := g.Model("admin_role").Ctx(ctx).
+				roleName, err := g.Model(dao.AdminRole.Table()).Ctx(ctx).
 					Fields("name").
 					Where("id", record["role_id"]).
 					Value()

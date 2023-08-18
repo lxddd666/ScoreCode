@@ -11,6 +11,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/api/admin/common"
 	"hotgo/internal/consts"
+	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/sysin"
@@ -53,7 +54,7 @@ func (c *cSms) SendBindEms(ctx context.Context, _ *common.SendBindEmsReq) (res *
 		return
 	}
 
-	if err = g.Model("admin_member").Fields("email").Where("id", memberId).Scan(&models); err != nil {
+	if err = g.Model(dao.AdminMember.Table()).Fields("email").Where("id", memberId).Scan(&models); err != nil {
 		return
 	}
 

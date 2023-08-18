@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/os/gtimer"
 	"hotgo/internal/consts"
+	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/utility/simple"
 	"sync"
@@ -75,7 +76,7 @@ func (s *sHook) lastAdminActive(r *ghttp.Request) {
 
 	if allow(member.Id) {
 		simple.SafeGo(ctx, func(ctx context.Context) {
-			_, err := g.Model("admin_member").
+			_, err := g.Model(dao.AdminMember.Table()).
 				Ctx(ctx).
 				Where("id", member.Id).
 				Data(g.Map{"last_active_at": gtime.Now()}).

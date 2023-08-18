@@ -11,6 +11,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/text/gstr"
 	"hotgo/internal/consts"
+	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/entity"
 	"hotgo/utility/tree"
@@ -55,7 +56,7 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 			return m
 		}
 
-		err := g.Model("admin_role").Where("id", co.User.RoleId).Scan(&role)
+		err := g.Model(dao.AdminRole.Table()).Where("id", co.User.RoleId).Scan(&role)
 		if err != nil {
 			g.Log().Panicf(ctx, "failed to role information err:%+v", err)
 		}
@@ -70,7 +71,7 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 		}
 
 		getDeptIds := func(in interface{}) []gdb.Value {
-			ds, err := g.Model("admin_member").Fields("id").Where("dept_id", in).Array()
+			ds, err := g.Model(dao.AdminMember.Table()).Fields("id").Where("dept_id", in).Array()
 			if err != nil {
 				g.Log().Panic(ctx, "failed to get member dept data")
 			}
@@ -106,9 +107,9 @@ func escapeFieldsToSlice(s string) []string {
 
 // GetDeptAndSub 获取指定部门的所有下级，含本部门
 func GetDeptAndSub(ctx context.Context, deptId int64) (ids []int64) {
-	array, err := g.Model("admin_dept").
-		WhereLike("tree", "%"+tree.GetIdLabel(deptId)+"%").
-		Fields("id").
+	array, err := g.Model(dao.AdminDept.Table()).
+		WhereLike(dao.AdminDept.Columns().Tree, "%"+tree.GetIdLabel(deptId)+"%").
+		Fields(dao.AdminDept.Columns().Id).
 		Array()
 	if err != nil {
 		g.Log().Panicf(ctx, "GetDeptAndSub err:%+v", err)
@@ -125,7 +126,7 @@ func GetDeptAndSub(ctx context.Context, deptId int64) (ids []int64) {
 
 // GetSelfAndSub 获取直属下级，包含自己
 func GetSelfAndSub(ctx context.Context, memberId int64) (ids []int64) {
-	array, err := g.Model("admin_member").
+	array, err := g.Model(dao.AdminMember.Table()).
 		Where("pid", memberId).
 		Fields("id").
 		Array()
@@ -144,7 +145,7 @@ func GetSelfAndSub(ctx context.Context, memberId int64) (ids []int64) {
 
 // GetSelfAndAllSub 获取全部下级，包含自己
 func GetSelfAndAllSub(ctx context.Context, memberId int64) (ids []int64) {
-	array, err := g.Model("admin_member").
+	array, err := g.Model(dao.AdminMember.Table()).
 		WhereLike("tree", "%"+tree.GetIdLabel(memberId)+"%").
 		Fields("id").
 		Array()

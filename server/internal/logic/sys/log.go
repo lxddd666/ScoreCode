@@ -95,7 +95,7 @@ func (s *sSysLog) Export(ctx context.Context, in *sysin.LogListInp) (err error) 
 
 // RealWrite 真实写入
 func (s *sSysLog) RealWrite(ctx context.Context, log entity.SysLog) (err error) {
-	_, err = dao.SysLog.Ctx(ctx).FieldsEx(dao.SysLog.Columns().Id).Data(log).Insert()
+	//_, err = dao.SysLog.Ctx(ctx).FieldsEx(dao.SysLog.Columns().Id).Data(log).Insert()
 	return
 }
 

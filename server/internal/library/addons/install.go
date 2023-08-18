@@ -24,7 +24,7 @@ type InstallRecord struct {
 }
 
 func GetModel(ctx context.Context) *gdb.Model {
-	return g.Model("sys_addons_install").Ctx(ctx)
+	return g.Model("hg_sys_addons_install").Ctx(ctx)
 }
 
 func ScanInstall(m Module) (record *InstallRecord, err error) {

@@ -59,6 +59,8 @@ func Init(ctx context.Context) {
 // LoggingServeLogHandler 服务日志处理
 // 需要将异常日志保存到服务日志时可以通过SetHandlers设置此方法
 func LoggingServeLogHandler(ctx context.Context, in *glog.HandlerInput) {
+	//按日志级别存储日志文件
+	in.Logger.SetFile(gstr.Trim(in.LevelFormat, "[]") + "-{Y-m-d}.log")
 	in.Next(ctx)
 
 	err := g.Try(ctx, func(ctx context.Context) {

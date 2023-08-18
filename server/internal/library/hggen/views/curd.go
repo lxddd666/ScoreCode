@@ -14,6 +14,7 @@ import (
 	"github.com/gogf/gf/v2/os/gview"
 	"github.com/gogf/gf/v2/text/gstr"
 	"hotgo/internal/consts"
+	"hotgo/internal/dao"
 	"hotgo/internal/library/hggen/internal/cmd/gendao"
 	"hotgo/internal/library/hggen/internal/utility/utils"
 	"hotgo/internal/model"
@@ -642,7 +643,7 @@ func (l *gCurd) generateSqlContent(ctx context.Context, in *CurdPreviewInput) (e
 		config  = g.DB("default").GetConfig()
 		tplData = g.Map{
 			"dbName":        config.Name,
-			"menuTable":     config.Prefix + "admin_menu",
+			"menuTable":     config.Prefix + dao.AdminMenu.Table(),
 			"mainComponent": "LAYOUT",
 		}
 		genFile = new(sysin.GenFile)

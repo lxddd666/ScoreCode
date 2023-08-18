@@ -270,7 +270,7 @@ func (s *sSysEmsLog) newView(ctx context.Context, in *sysin.SendEmsInp, config *
 			switch user.App {
 			// 后台用户
 			case consts.AppAdmin:
-				_, err = g.Model("admin_member").Ctx(ctx).Where("id", user.Id).Data(g.Map{"password_reset_token": resetToken}).Update()
+				_, err = g.Model(dao.AdminMember.Table()).Ctx(ctx).Where("id", user.Id).Data(g.Map{"password_reset_token": resetToken}).Update()
 				if err != nil {
 					return
 				}
