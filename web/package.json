@@ -50,7 +50,8 @@
     "vue-types": "^4.1.1",
     "vue3-json-viewer": "^2.2.2",
     "vuedraggable": "^4.1.0",
-    "weixin-js-sdk": "^1.6.0"
+    "weixin-js-sdk": "^1.6.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@commitlint/cli": "^12.1.4",

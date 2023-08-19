@@ -43,3 +43,10 @@ type DeleteReq struct {
 }
 
 type DeleteRes struct{}
+
+type UploadReq struct {
+	g.Meta `path:"/whatsAccount/upload" method:"post" tags:"小号管理" summary:"批量上传小号"`
+	List   []*whatsin.WhatsAccountUploadInp `json:"list" v:"required|array"`
+}
+
+type UploadRes struct{}

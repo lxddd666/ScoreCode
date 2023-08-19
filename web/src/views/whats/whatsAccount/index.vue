@@ -46,6 +46,19 @@
             添加
           </n-button>
           <n-button
+            type="primary"
+            @click="handleUpload"
+            class="min-left-space"
+            v-if="hasPermission(['/whatsAccount/edit'])"
+          >
+            <template #icon>
+              <n-icon>
+                <UploadOutlined />
+              </n-icon>
+            </template>
+            导入
+          </n-button>
+          <n-button
             type="error"
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
@@ -69,6 +82,8 @@
       :showModal="showModal"
       :formParams="formParams"
     />
+
+    <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
 </template>
 
@@ -80,10 +95,12 @@
   import { usePermission } from '@/hooks/web/usePermission';
   import { List, Delete } from '@/api/whats/whatsAccount';
   import { State, columns, schemas, options, newState } from './model';
-  import { PlusOutlined, DeleteOutlined } from '@vicons/antd';
+  import { PlusOutlined, DeleteOutlined,UploadOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
+  import FileUpload from "./upload.vue";
+  import {Attachment} from "@/components/FileChooser/src/model";
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -94,6 +111,8 @@
   const checkedIds = ref([]);
   const showModal = ref(false);
   const formParams = ref<State>();
+
+  const fileUploadRef = ref();
 
   const actionColumn = reactive({
     width: 300,
@@ -115,19 +134,12 @@
             onClick: handleDelete.bind(null, record),
             auth: ['/whatsAccount/delete'],
           },
-        ],
-        dropDownActions: [
           {
             label: '查看详情',
-            key: 'view',
+            onClick:  handleView.bind(null,record),
             auth: ['/whatsAccount/view'],
           },
         ],
-        select: (key) => {
-          if (key === 'view') {
-            return handleView(record);
-          }
-        },
       });
     },
   });
@@ -149,6 +161,10 @@
 
   function updateShowModal(value) {
     showModal.value = value;
+  }
+
+  function handleUpload() {
+    fileUploadRef.value.openModal();
   }
 
   function onCheckedRow(rowKeys) {
@@ -205,6 +221,11 @@
     });
   }
 
+  function handleFinishCall(result: Attachment, success: boolean) {
+    if (success) {
+      reloadTable();
+    }
+  }
 
 
 

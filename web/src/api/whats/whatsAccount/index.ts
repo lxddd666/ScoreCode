@@ -39,3 +39,12 @@ export function View(params) {
     params,
   });
 }
+
+// 上传小号
+export function Upload(params) {
+  return http.request({
+    url: '/whatsAccount/upload',
+    method: 'POST',
+    params,
+  });
+}

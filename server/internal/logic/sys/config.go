@@ -333,3 +333,9 @@ func (s *sSysConfig) ClusterSync(ctx context.Context, message *gredis.Message) {
 		g.Log().Errorf(ctx, "ClusterSync fail：%+v", err)
 	}
 }
+
+// GetWhatsConfig 获取whats配置
+func (s *sSysConfig) GetWhatsConfig(ctx context.Context) (conf *model.WhatsConfig, err error) {
+	err = g.Cfg().MustGet(ctx, "whats").Scan(&conf)
+	return
+}

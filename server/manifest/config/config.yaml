@@ -22,7 +22,7 @@ hotgo:
   serveLog:
     switch: true                                    # 日志开关，默认为true
     queue: true                                     # 是否启用队列，启用时需要配置队列信息，默认为true
-    levelFormat: ["WARN", "ERRO", "FATA", "PANI"]   # 需要记录的等级
+    levelFormat: [ "WARN", "ERRO", "FATA", "PANI" ]   # 需要记录的等级
 
 
 # gf配置，配置参考：https://goframe.org/pages/viewpage.action?pageId=44449486
@@ -113,15 +113,15 @@ logger:
 # Viewer. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114335
 viewer:
   paths: "resource/template"
-  defaultFile:  "index.html"
-  delimiters: ["@{", "}"]
-  homeLayout:     "home/index.html"
+  defaultFile: "index.html"
+  delimiters: [ "@{", "}" ]
+  homeLayout: "home/index.html"
 
 
 # 内容设置
 setting:
-  title:       "HotGo"
-  keywords:    "中后台解决方案,gf框架,vue3"
+  title: "HotGo"
+  keywords: "中后台解决方案,gf框架,vue3"
   description: "hotgo 是一个基于 goframe2，vue3，vite2，TypeScript，uniapp 的中后台解决方案，它可以帮助你快速搭建企业级中后台项目，相信不管是从新技术使用还是其他方面，都能帮助到你，持续更新中。"
 
 
@@ -155,19 +155,19 @@ router:
     # 前缀
     prefix: "/api"
     # 不需要验证登录的路由地址
-    exceptPath: []
+    exceptPath: [ ]
   # websocket
   websocket:
     # 前缀
     prefix: "/socket"
     # 不需要验证登录的路由地址
-    exceptLogin: []
+    exceptLogin: [ ]
   # 前台页面
   home:
     # 前缀
     prefix: "/home"
     # 不需要验证登录的路由地址
-    exceptPath: []
+    exceptPath: [ ]
 
 
 #缓存
@@ -239,10 +239,10 @@ jaeger:
 
 # 生成代码
 hggen:
-  allowedIPs: ["127.0.0.1", "*"]                                      # 白名单，*代表所有，只有允许的IP后台才能使用生成代码功能
+  allowedIPs: [ "127.0.0.1", "*" ]                                      # 白名单，*代表所有，只有允许的IP后台才能使用生成代码功能
   selectDbs: [ "default" ]                                            # 可选生成表的数据库配置名称，支持多库
-  disableTables : ["hg_sys_gen_codes","hg_admin_role_casbin"]         # 禁用的表，禁用以后将不会在选择表中看到
-  delimiters: ["@{", "}"]                                             # 模板引擎变量分隔符号
+  disableTables: [ "hg_sys_gen_codes","hg_admin_role_casbin" ]         # 禁用的表，禁用以后将不会在选择表中看到
+  delimiters: [ "@{", "}" ]                                             # 模板引擎变量分隔符号
   # 生成应用模型，所有生成模板允许自定义，可以参考default模板进行改造
   application:
     # CRUD模板
@@ -255,12 +255,12 @@ hggen:
           templatePath: "./resource/generate/default/curd"              # 模板路径
           apiPath: "./api/"                                        # goApi生成路径
           controllerPath: "./internal/controller/"             # 控制器生成路径
-          logicPath : "./internal/logic/"                            # 主要业务生成路径
+          logicPath: "./internal/logic/"                            # 主要业务生成路径
           inputPath: "./internal/model/input/"                     # 表单过滤器生成路径
-          routerPath : "./internal/router/"                    # 生成路由表路径
-          sqlPath : "./storage/data/generate"                           # 生成sql语句路径
+          routerPath: "./internal/router/"                    # 生成路由表路径
+          sqlPath: "./storage/data/generate"                           # 生成sql语句路径
           webApiPath: "../web/src/api/"                                  # webApi生成路径
-          webViewsPath : "../web/src/views/"                             # web页面生成路径
+          webViewsPath: "../web/src/views/"                             # web页面生成路径
 
         # 默认的插件包模板
         - group: "addon"                                                # 分组名称
@@ -269,12 +269,12 @@ hggen:
           templatePath: "./resource/generate/default/curd"              # 模板路径
           apiPath: "./addons/{$name}/api/admin"                         # goApi生成路径
           controllerPath: "./addons/{$name}/controller/admin/sys"       # 控制器生成路径
-          logicPath : "./addons/{$name}/logic/sys"                      # 主要业务生成路径
+          logicPath: "./addons/{$name}/logic/sys"                      # 主要业务生成路径
           inputPath: "./addons/{$name}/model/input/sysin"               # 表单过滤器生成路径
-          routerPath : "./addons/{$name}/router/genrouter"              # 生成路由表路径
-          sqlPath : "./storage/data/generate/addons"                    # 生成sql语句路径
+          routerPath: "./addons/{$name}/router/genrouter"              # 生成路由表路径
+          sqlPath: "./storage/data/generate/addons"                    # 生成sql语句路径
           webApiPath: "../web/src/api/addons/{$name}"                   # webApi生成路径
-          webViewsPath : "../web/src/views/addons/{$name}"              # web页面生成路径
+          webViewsPath: "../web/src/views/addons/{$name}"              # web页面生成路径
 
     # 关系树列表模板
     tree:
@@ -299,3 +299,8 @@ hggen:
     srcPath: "./resource/generate/default/addon"                    # 生成模板路径
     webApiPath: "../web/src/api/addons/{$name}"                     # webApi生成路径
     webViewsPath: "../web/src/views/addons/{$name}"                 # web页面生成路径
+
+whats:
+  aes:
+    key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
+    vi: "cL0bVYHAUCMGDsK2"

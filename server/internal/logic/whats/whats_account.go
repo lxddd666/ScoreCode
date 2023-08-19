@@ -2,15 +2,16 @@ package whats
 
 import (
 	"context"
-	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm"
-	"hotgo/internal/library/hgorm/handler"
-	whatsin "hotgo/internal/model/input/whats"
-	"hotgo/internal/service"
-
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/dao"
+	"hotgo/internal/library/hgorm"
+	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
+	whatsin "hotgo/internal/model/input/whats"
+	"hotgo/internal/service"
+	whats_util "hotgo/utility/whats"
 )
 
 type sWhatsAccount struct{}
@@ -40,11 +41,6 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	// 查询账号状态
 	if in.AccountStatus > 0 {
 		mod = mod.Where(dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
-	}
-
-	// 查询是否在线
-	if in.IsOnline > 0 {
-		mod = mod.Where(dao.WhatsAccount.Columns().IsOnline, in.IsOnline)
 	}
 
 	// 查询创建时间
@@ -110,4 +106,31 @@ func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewIn
 		return
 	}
 	return
+}
+
+func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error) {
+	accounts := make([]string, 0)
+	for _, inp := range in {
+		accounts = append(accounts, inp.Account)
+	}
+
+	var list []entity.WhatsAccount
+	whatsConfig, _ := service.SysConfig().GetWhatsConfig(ctx)
+	keyBytes := []byte(whatsConfig.Aes.Key)
+	viBytes := []byte(whatsConfig.Aes.Vi)
+	for _, inp := range in {
+		account := entity.WhatsAccount{
+			AccountStatus: 1,
+			IsOnline:      -1,
+		}
+		bytes, err := whats_util.AccountDetailToByte(inp, keyBytes, viBytes)
+		if err != nil {
+			return nil, err
+		}
+		account.Encryption = bytes
+		account.Account = inp.Account
+		list = append(list, account)
+	}
+	_, err = s.Model(ctx).OmitEmpty().Save(list)
+	return nil, err
 }

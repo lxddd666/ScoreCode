@@ -38,13 +38,13 @@
         </n-descriptions-item>
 
         <n-descriptions-item>
-          <template #label>备注</template>
-          <span v-html="formValue.comment"></span></n-descriptions-item>
+          <template #label>代理地址</template>
+          {{ formValue.proxyAddress }}
+        </n-descriptions-item>
 
         <n-descriptions-item>
-          <template #label>密钥</template>
-          {{ formValue.encryption }}
-        </n-descriptions-item>
+          <template #label>备注</template>
+          <span v-html="formValue.comment"></span></n-descriptions-item>
 
 
       </n-descriptions>

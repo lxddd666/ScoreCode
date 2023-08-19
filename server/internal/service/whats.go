@@ -25,6 +25,7 @@ type (
 		Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error)
 		// View 获取小号管理指定信息
 		View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error)
+		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
 	}
 )
 

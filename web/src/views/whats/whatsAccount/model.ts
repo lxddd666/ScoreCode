@@ -1,14 +1,12 @@
-import { h, ref } from 'vue';
-import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
-import { cloneDeep } from 'lodash-es';
-import { FormSchema } from '@/components/Form';
-import { Dicts } from '@/api/dict/dict';
+import {h, ref} from 'vue';
+import {NTag} from 'naive-ui';
+import {cloneDeep} from 'lodash-es';
+import {FormSchema} from '@/components/Form';
+import {Dicts} from '@/api/dict/dict';
 
-import { isArray, isNullObject } from '@/utils/is';
-import { getFileExt } from '@/utils/urlUtils';
-import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
-import { validate } from '@/utils/validateUtil';
-import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
+import {isNullObject} from '@/utils/is';
+import {defRangeShortcuts} from '@/utils/dateUtil';
+import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
 
 
 export interface State {
@@ -18,6 +16,7 @@ export interface State {
   avatar: string;
   accountStatus: number;
   isOnline: number;
+  proxyAddress: string;
   comment: string;
   encryption: string;
   deletedAt: string;
@@ -32,6 +31,7 @@ export const defaultState = {
   avatar: '',
   accountStatus: 1,
   isOnline: 1,
+  proxyAddress: '',
   comment: '',
   encryption: '',
   deletedAt: '',
@@ -51,16 +51,20 @@ export const options = ref<Options>({
   login_status: [],
 });
 
-export const rules = {
-  account: {
-    required: true,
-    trigger: ['blur', 'input'],
-    type: 'string',
-    message: '请输入账号号码',
-  },
-};
+export const rules = {};
 
 export const schemas = ref<FormSchema[]>([
+  {
+    field: 'id',
+    component: 'NInputNumber',
+    label: 'id',
+    componentProps: {
+      placeholder: '请输入id',
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
   {
     field: 'accountStatus',
     component: 'NSelect',
@@ -68,19 +72,6 @@ export const schemas = ref<FormSchema[]>([
     defaultValue: null,
     componentProps: {
       placeholder: '请选择账号状态',
-      options: [],
-      onUpdateValue: (e: any) => {
-        console.log(e);
-      },
-    },
-  },
-  {
-    field: 'isOnline',
-    component: 'NSelect',
-    label: '是否在线',
-    defaultValue: null,
-    componentProps: {
-      placeholder: '请选择是否在线',
       options: [],
       onUpdateValue: (e: any) => {
         console.log(e);
@@ -160,6 +151,10 @@ export const columns = [
     },
   },
   {
+    title: '代理地址',
+    key: 'proxyAddress',
+  },
+  {
     title: '备注',
     key: 'comment',
   },
@@ -173,12 +168,41 @@ export const columns = [
   },
 ];
 
+export const uploadColumns = [
+  {
+    title: '账号号码',
+    key: 'account',
+  },
+  {
+    title: '号码ID',
+    key: 'identify',
+  },
+  {
+    title: '公钥',
+    key: 'publicKey',
+  },
+  {
+    title: '私钥',
+    key: 'privateKey',
+  },
+  {
+    title: '消息公钥',
+    key: 'publicMsgKey',
+  },
+  {
+    title: '消息私钥',
+    key: 'privateMsgKey',
+  },
+
+
+];
+
 async function loadOptions() {
   options.value = await Dicts({
     types: [
       'account_status',
-    'login_status',
-   ],
+      'login_status',
+    ],
   });
   for (const item of schemas.value) {
     switch (item.field) {
@@ -188,7 +212,7 @@ async function loadOptions() {
       case 'isOnline':
         item.componentProps.options = options.value.login_status;
         break;
-     }
+    }
   }
 }
 

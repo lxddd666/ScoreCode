@@ -5,7 +5,6 @@ import (
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
@@ -16,8 +15,8 @@ type WhatsAccountUpdateFields struct {
 	Avatar        string `json:"avatar"        dc:"账号头像"`
 	AccountStatus int    `json:"accountStatus" dc:"账号状态"`
 	IsOnline      int    `json:"isOnline"      dc:"是否在线"`
+	ProxyAddress  string `json:"proxyAddress"  dc:"代理地址"`
 	Comment       string `json:"comment"       dc:"备注"`
-	Encryption    []byte `json:"encryption"    dc:"密钥"`
 }
 
 // WhatsAccountInsertFields 新增小号管理字段过滤
@@ -27,8 +26,8 @@ type WhatsAccountInsertFields struct {
 	Avatar        string `json:"avatar"        dc:"账号头像"`
 	AccountStatus int    `json:"accountStatus" dc:"账号状态"`
 	IsOnline      int    `json:"isOnline"      dc:"是否在线"`
+	ProxyAddress  string `json:"proxyAddress"  dc:"代理地址"`
 	Comment       string `json:"comment"       dc:"备注"`
-	Encryption    []byte `json:"encryption"    dc:"密钥"`
 }
 
 // WhatsAccountEditInp 修改/新增小号管理
@@ -37,10 +36,6 @@ type WhatsAccountEditInp struct {
 }
 
 func (in *WhatsAccountEditInp) Filter(ctx context.Context) (err error) {
-	// 验证账号号码
-	if err := g.Validator().Rules("required").Data(in.Account).Messages("账号号码不能为空").Run(ctx); err != nil {
-		return err.Current()
-	}
 
 	return
 }
@@ -76,7 +71,6 @@ type WhatsAccountListInp struct {
 	form.PageReq
 	Id            int64         `json:"id"            dc:"id"`
 	AccountStatus int           `json:"accountStatus" dc:"账号状态"`
-	IsOnline      int           `json:"isOnline"      dc:"是否在线"`
 	CreatedAt     []*gtime.Time `json:"createdAt"     dc:"创建时间"`
 }
 
@@ -91,7 +85,23 @@ type WhatsAccountListModel struct {
 	Avatar        string      `json:"avatar"        dc:"账号头像"`
 	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
 	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
+	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     dc:"更新时间"`
 }
+
+type WhatsAccountUploadInp struct {
+	Account       string `json:"account" dc:"帐号"`
+	PublicKey     string `json:"publicKey" dc:"公钥"`
+	PrivateKey    string `json:"privateKey" dc:"私钥"`
+	PublicMsgKey  string `json:"publicMsgKey" dc:"消息公钥"`
+	PrivateMsgKey string `json:"privateMsgKey" dc:"消息私钥"`
+	Identify      string `json:"identify" dc:"号码ID"`
+}
+
+func (in *WhatsAccountUploadInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type WhatsAccountUploadModel struct{}

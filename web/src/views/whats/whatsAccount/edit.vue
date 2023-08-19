@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
   <div>
     <n-spin :show="loading" description="请稍候...">
@@ -38,12 +39,12 @@
             <n-select v-model:value="params.isOnline" :options="options.login_status" />
           </n-form-item>
 
-          <n-form-item label="备注" path="comment">
-            <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
+          <n-form-item label="代理地址" path="proxyAddress">
+          <n-input placeholder="请输入代理地址" v-model:value="params.proxyAddress" />
           </n-form-item>
 
-          <n-form-item label="密钥" path="encryption">
-          <n-input placeholder="请输入密钥" v-model:value="params.encryption" />
+          <n-form-item label="备注" path="comment">
+            <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
           </n-form-item>
 
 

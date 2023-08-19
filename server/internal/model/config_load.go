@@ -119,3 +119,13 @@ type TokenConfig struct {
 	MaxRefreshTimes int64  `json:"maxRefreshTimes"`
 	MultiLogin      bool   `json:"multiLogin"`
 }
+
+// WhatsConfig whats配置
+type WhatsConfig struct {
+	Aes *AesConfig
+}
+
+type AesConfig struct {
+	Key string `json:"key"`
+	Vi  string `json:"vi"`
+}

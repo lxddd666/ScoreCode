@@ -1,4 +1,4 @@
-import { VNode } from '@vue/runtime-core';
+import {VNode} from '@vue/runtime-core';
 
 export type Attachment = {
   id: number;
@@ -35,7 +35,7 @@ export interface KindOption {
   disabled: boolean;
 }
 
-export type FileType = 'image' | 'doc' | 'audio' | 'video' | 'zip' | 'other' | 'default';
+export type FileType = 'image' | 'doc' | 'audio' | 'video' | 'zip' | 'other' | 'default' | 'xlsx';
 
 export function getFileType(fileType: string): string {
   switch (fileType) {
@@ -49,9 +49,20 @@ export function getFileType(fileType: string): string {
       return '视频';
     case 'zip':
       return '压缩包';
+    case 'xlsx':
+      return 'excel表格';
     case 'other':
     case 'default':
       return '文件';
   }
   return '文件';
+}
+
+//获取文件后缀
+export function getFileExtension(filename) {
+  const lastDotPosition = filename.lastIndexOf('.');
+  if (lastDotPosition == -1) {
+    return ''; // No extension found
+  }
+  return filename.substring(lastDotPosition + 1);
 }

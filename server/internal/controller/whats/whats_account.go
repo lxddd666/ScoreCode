@@ -48,3 +48,10 @@ func (c *cWhatsAccount) Delete(ctx context.Context, req *whatsaccount.DeleteReq)
 	err = service.WhatsAccount().Delete(ctx, &req.WhatsAccountDeleteInp)
 	return
 }
+
+// Upload 上传小号
+func (c *cWhatsAccount) Upload(ctx context.Context, req *whatsaccount.UploadReq) (res *whatsaccount.UploadRes, err error) {
+	result, err := service.WhatsAccount().Upload(ctx, req.List)
+	res = (*whatsaccount.UploadRes)(result)
+	return
+}

@@ -40,7 +40,7 @@ type Conn struct {
 	Heartbeat int64      // 心跳
 	FirstTime int64      // 首次连接时间
 
-	writeChan chan []byte  // 发数据
+	writeChan chan []byte  // 发数据/upload/file
 	closeFlag *gtype.Bool  // 关闭标签
 	logger    *glog.Logger // 日志处理器
 	msgParser *MsgParser   // 消息处理器
