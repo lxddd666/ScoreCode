@@ -16,6 +16,7 @@ type WhatsAccount struct {
 	Avatar        string      `json:"avatar"        description:"账号头像"`
 	AccountStatus int         `json:"accountStatus" description:"账号状态"`
 	IsOnline      int         `json:"isOnline"      description:"是否在线"`
+	ProxyAddress  string      `json:"proxyAddress"  description:"代理地址"`
 	Comment       string      `json:"comment"       description:"备注"`
 	Encryption    []byte      `json:"encryption"    description:"密钥"`
 	DeletedAt     *gtime.Time `json:"deletedAt"     description:"删除时间"`

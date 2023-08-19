@@ -26,6 +26,7 @@ type WhatsAccountColumns struct {
 	Avatar        string // 账号头像
 	AccountStatus string // 账号状态
 	IsOnline      string // 是否在线
+	ProxyAddress  string // 代理地址
 	Comment       string // 备注
 	Encryption    string // 密钥
 	DeletedAt     string // 删除时间
@@ -41,6 +42,7 @@ var whatsAccountColumns = WhatsAccountColumns{
 	Avatar:        "avatar",
 	AccountStatus: "account_status",
 	IsOnline:      "is_online",
+	ProxyAddress:  "proxy_address",
 	Comment:       "comment",
 	Encryption:    "encryption",
 	DeletedAt:     "deleted_at",

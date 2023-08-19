@@ -108,6 +108,7 @@ func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewIn
 	return
 }
 
+// Upload 上传小号
 func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error) {
 	accounts := make([]string, 0)
 	for _, inp := range in {
@@ -119,10 +120,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 	keyBytes := []byte(whatsConfig.Aes.Key)
 	viBytes := []byte(whatsConfig.Aes.Vi)
 	for _, inp := range in {
-		account := entity.WhatsAccount{
-			AccountStatus: 1,
-			IsOnline:      -1,
-		}
+		account := entity.WhatsAccount{}
 		bytes, err := whats_util.AccountDetailToByte(inp, keyBytes, viBytes)
 		if err != nil {
 			return nil, err
@@ -131,6 +129,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		account.Account = inp.Account
 		list = append(list, account)
 	}
-	_, err = s.Model(ctx).OmitEmpty().Save(list)
+	columns := dao.WhatsAccount.Columns()
+	_, err = s.Model(ctx).Fields(columns.Account, columns.Encryption).Save(list)
 	return nil, err
 }
