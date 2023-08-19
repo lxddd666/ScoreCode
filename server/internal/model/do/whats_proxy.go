@@ -18,7 +18,7 @@ type WhatsProxy struct {
 	MaxConnections interface{} // 最大连接数
 	Region         interface{} // 地区
 	Comment        interface{} // 备注
-	State          interface{} // 状态(1可以用，-1不可用)
+	Status         interface{} // 状态(1正常, 2停用)
 	DeletedAt      *gtime.Time // 删除时间
 	CreatedAt      *gtime.Time // 创建时间
 	UpdatedAt      *gtime.Time // 更新时间

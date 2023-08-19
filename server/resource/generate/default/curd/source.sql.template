@@ -22,7 +22,7 @@ SET @now := now();
 
 -- 菜单页面
 -- 列表
-INSERT INTO `@{.menuTable}` (`id`, `pid`, `title`, `name`, `path`, `icon`, `type`, `redirect`, `permissions`, `permission_name`, `component`, `always_show`, `active_menu`, `is_root`, `is_frame`, `frame_src`, `keep_alive`, `hidden`, `affix`, `level`, `tree`, `sort`, `remark`, `status`, `created_at`, `updated_at`) VALUES (NULL, '@{.options.Menu.Pid}', '@{.tableComment}', '@{.varName | LcFirst}Index', '@{.varName | LcFirst}/index', '', '2', '', '/@{.apiPrefix}/list', '', '/@{.componentPrefix}/index', '1', '', '0', '0', '', '0', '0', '0', '2', '', '10', '', '1', @now, @now);
+INSERT INTO `@{.menuTable}` (`id`, `pid`, `title`, `name`, `path`, `icon`, `type`, `redirect`, `permissions`, `permission_name`, `component`, `always_show`, `active_menu`, `is_root`, `is_frame`, `frame_src`, `keep_alive`, `hidden`, `affix`, `level`, `tree`, `sort`, `remark`, `status`, `created_at`, `updated_at`) VALUES (NULL, '@{.options.Menu.Pid}', '@{.tableComment}', '@{.varName | LcFirst}Index', '@{.varName | LcFirst}/index', '@{.options.Menu.Icon}', '2', '', '/@{.apiPrefix}/list', '', '/@{.componentPrefix}/index', '1', '', '0', '0', '', '0', '0', '0', '2', '', '10', '', '1', @now, @now);
 
 
 SET @listId = LAST_INSERT_ID();

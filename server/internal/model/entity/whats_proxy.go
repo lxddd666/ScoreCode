@@ -16,7 +16,7 @@ type WhatsProxy struct {
 	MaxConnections int         `json:"maxConnections" description:"最大连接数"`
 	Region         string      `json:"region"         description:"地区"`
 	Comment        string      `json:"comment"        description:"备注"`
-	State          int         `json:"state"          description:"状态(1可以用，-1不可用)"`
+	Status         int         `json:"status"         description:"状态(1正常, 2停用)"`
 	DeletedAt      *gtime.Time `json:"deletedAt"      description:"删除时间"`
 	CreatedAt      *gtime.Time `json:"createdAt"      description:"创建时间"`
 	UpdatedAt      *gtime.Time `json:"updatedAt"      description:"更新时间"`

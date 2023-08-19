@@ -2,7 +2,7 @@
   <div>
     <n-card :bordered="false" class="proCard">
       <div class="n-layout-page-header">
-        <n-card :bordered="false" title="小号管理">
+        <n-card :bordered="false" title="代理管理">
           <!--  这是系统自动生成的CURD表格，你可以将此行注释改为表格的描述 -->
         </n-card>
       </div>
@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/edit'])"
+            v-if="hasPermission(['/whatsProxy/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -46,24 +46,11 @@
             添加
           </n-button>
           <n-button
-            type="primary"
-            @click="handleUpload"
-            class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/edit'])"
-          >
-            <template #icon>
-              <n-icon>
-                <UploadOutlined />
-              </n-icon>
-            </template>
-            导入
-          </n-button>
-          <n-button
             type="error"
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
             class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/delete'])"
+            v-if="hasPermission(['/whatsProxy/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -72,7 +59,19 @@
             </template>
             批量删除
           </n-button>
-
+          <n-button
+            type="primary"
+            @click="handleExport"
+            class="min-left-space"
+            v-if="hasPermission(['/whatsProxy/delete'])"
+          >
+            <template #icon>
+              <n-icon>
+                <ExportOutlined />
+              </n-icon>
+            </template>
+            导出
+          </n-button>
         </template>
       </BasicTable>
     </n-card>
@@ -82,8 +81,6 @@
       :showModal="showModal"
       :formParams="formParams"
     />
-
-    <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
 </template>
 
@@ -93,13 +90,12 @@
   import { BasicTable, TableAction } from '@/components/Table';
   import { BasicForm, useForm } from '@/components/Form/index';
   import { usePermission } from '@/hooks/web/usePermission';
-  import { List, Delete } from '@/api/whats/whatsAccount';
+  import { List, Export, Delete, Status } from '@/api/whats/whatsProxy';
   import { State, columns, schemas, options, newState } from './model';
-  import { PlusOutlined, DeleteOutlined,UploadOutlined } from '@vicons/antd';
+  import { PlusOutlined, ExportOutlined, DeleteOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
+  import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
-  import FileUpload from "./upload.vue";
-  import {Attachment} from "@/components/FileChooser/src/model";
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -110,8 +106,6 @@
   const checkedIds = ref([]);
   const showModal = ref(false);
   const formParams = ref<State>();
-
-  const fileUploadRef = ref();
 
   const actionColumn = reactive({
     width: 300,
@@ -125,20 +119,42 @@
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
-            auth: ['/whatsAccount/edit'],
+            auth: ['/whatsProxy/edit'],
           },
-
+          {
+            label: '禁用',
+            onClick: handleStatus.bind(null, record, 2),
+            ifShow: () => {
+              return record.status === 1;
+            },
+            auth: ['/whatsProxy/status'],
+          },
+          {
+            label: '启用',
+            onClick: handleStatus.bind(null, record, 1),
+            ifShow: () => {
+              return record.status === 2;
+            },
+            auth: ['/whatsProxy/status'],
+          },
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
-            auth: ['/whatsAccount/delete'],
-          },
-          {
-            label: '查看详情',
-            onClick:  handleView.bind(null,record),
-            auth: ['/whatsAccount/view'],
+            auth: ['/whatsProxy/delete'],
           },
         ],
+        dropDownActions: [
+          {
+            label: '查看详情',
+            key: 'view',
+            auth: ['/whatsProxy/view'],
+          },
+        ],
+        select: (key) => {
+          if (key === 'view') {
+            return handleView(record);
+          }
+        },
       });
     },
   });
@@ -162,10 +178,6 @@
     showModal.value = value;
   }
 
-  function handleUpload() {
-    fileUploadRef.value.openModal();
-  }
-
   function onCheckedRow(rowKeys) {
     batchDeleteDisabled.value = rowKeys.length <= 0;
     checkedIds.value = rowKeys;
@@ -176,7 +188,7 @@
   }
 
   function handleView(record: Recordable) {
-    router.push({ name: 'whatsAccountView', params: { id: record.id } });
+    router.push({ name: 'whatsProxyView', query: { id: record.id, address: record.address } });
   }
 
   function handleEdit(record: Recordable) {
@@ -220,14 +232,19 @@
     });
   }
 
-  function handleFinishCall(result: Attachment, success: boolean) {
-    if (success) {
-      reloadTable();
-    }
+  function handleExport() {
+    message.loading('正在导出列表...', { duration: 1200 });
+    Export(searchFormRef.value?.formModel);
   }
 
-
-
+  function handleStatus(record: Recordable, status: number) {
+    Status({ id: record.id, status: status }).then((_res) => {
+      message.success('设为' + getOptionLabel(options.value.sys_normal_disable, status) + '成功');
+      setTimeout(() => {
+        reloadTable();
+      });
+    });
+  }
 </script>
 
 <style lang="less" scoped></style>

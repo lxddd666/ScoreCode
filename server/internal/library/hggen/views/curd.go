@@ -195,7 +195,7 @@ func (l *gCurd) loadView(ctx context.Context, in *CurdPreviewInput) (err error) 
 		importWebApi = "@/api/addons/" + in.In.AddonName + "/" + gstr.LcFirst(in.In.VarName)
 	}
 
-	componentPrefix := gstr.LcFirst(in.In.VarName)
+	componentPrefix := temp.MasterPackage + "/" + gstr.LcFirst(in.In.VarName)
 	if temp.IsAddon {
 		componentPrefix = "addons/" + in.In.AddonName + "/" + componentPrefix
 	}

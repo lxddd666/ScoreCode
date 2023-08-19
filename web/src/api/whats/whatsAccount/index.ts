@@ -48,3 +48,12 @@ export function Upload(params) {
     params,
   });
 }
+
+// 解除绑定
+export function UnBind(params) {
+  return http.request({
+    url: '/whatsAccount/unBind',
+    method: 'POST',
+    params,
+  });
+}

@@ -1,4 +1,3 @@
-<!--suppress ALL -->
 <template>
   <div>
     <n-spin :show="loading" description="请稍候...">
@@ -19,29 +18,25 @@
           :label-width="80"
           class="py-4"
         >
-          <n-form-item label="账号号码" path="account">
-          <n-input placeholder="请输入账号号码" v-model:value="params.account" />
+          <n-form-item label="代理地址" path="address">
+          <n-input placeholder="请输入代理地址" v-model:value="params.address" />
           </n-form-item>
 
-          <n-form-item label="账号昵称" path="nickName">
-          <n-input placeholder="请输入账号昵称" v-model:value="params.nickName" />
+
+          <n-form-item label="最大连接" path="maxConnections">
+            <n-input-number placeholder="请输入最大连接" v-model:value="params.maxConnections" />
           </n-form-item>
 
-          <n-form-item label="账号头像" path="avatar">
-            <n-input type="textarea" placeholder="账号头像" v-model:value="params.avatar" />
+          <n-form-item label="地区" path="region">
+            <n-input type="text" placeholder="地区" v-model:value="params.region" />
           </n-form-item>
-
-          <n-form-item label="账号状态" path="accountStatus">
-            <n-select v-model:value="params.accountStatus" :options="options.account_status" />
-          </n-form-item>
-
-          <n-form-item label="是否在线" path="isOnline">
-            <n-select v-model:value="params.isOnline" :options="options.login_status" />
-          </n-form-item>
-
 
           <n-form-item label="备注" path="comment">
             <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
+          </n-form-item>
+
+          <n-form-item label="状态" path="status">
+            <n-select v-model:value="params.status" :options="options.sys_normal_disable" />
           </n-form-item>
 
 
@@ -59,7 +54,7 @@
 
 <script lang="ts" setup>
   import { onMounted, ref, computed, watch } from 'vue';
-  import { Edit, View } from '@/api/whats/whatsAccount';
+  import { Edit, View } from '@/api/whats/whatsProxy';
   import { rules, options, State, newState } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';

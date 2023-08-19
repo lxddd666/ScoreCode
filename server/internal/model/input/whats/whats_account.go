@@ -69,9 +69,9 @@ type WhatsAccountViewModel struct {
 // WhatsAccountListInp 获取小号管理列表
 type WhatsAccountListInp struct {
 	form.PageReq
-	Id            int64         `json:"id"            dc:"id"`
 	AccountStatus int           `json:"accountStatus" dc:"账号状态"`
 	CreatedAt     []*gtime.Time `json:"createdAt"     dc:"创建时间"`
+	ProxyAddress  string        `json:"proxyAddress"            dc:"代理地址"`
 }
 
 func (in *WhatsAccountListInp) Filter(ctx context.Context) (err error) {
@@ -105,3 +105,15 @@ func (in *WhatsAccountUploadInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsAccountUploadModel struct{}
+
+// WhatsAccountUnBindInp 解绑代理
+type WhatsAccountUnBindInp struct {
+	Id           interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	ProxyAddress string      `json:"proxyAddress" v:"required#代理地址不能为空" dc:"代理地址"`
+}
+
+func (in *WhatsAccountUnBindInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type WhatsAccountUnBindModel struct{}

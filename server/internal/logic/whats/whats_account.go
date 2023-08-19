@@ -8,6 +8,7 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/service"
@@ -33,14 +34,14 @@ func (s *sWhatsAccount) Model(ctx context.Context, option ...*handler.Option) *g
 func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
-	// 查询id
-	if in.Id > 0 {
-		mod = mod.Where(dao.WhatsAccount.Columns().Id, in.Id)
-	}
-
 	// 查询账号状态
 	if in.AccountStatus > 0 {
 		mod = mod.Where(dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
+	}
+
+	// 查询id
+	if in.ProxyAddress != "" {
+		mod = mod.Where(dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress)
 	}
 
 	// 查询创建时间
@@ -123,7 +124,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		account := entity.WhatsAccount{}
 		bytes, err := whats_util.AccountDetailToByte(inp, keyBytes, viBytes)
 		if err != nil {
-			return nil, err
+			return nil, gerror.Wrap(err, "上传小号失败，请稍后重试！")
 		}
 		account.Encryption = bytes
 		account.Account = inp.Account
@@ -131,5 +132,29 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 	}
 	columns := dao.WhatsAccount.Columns()
 	_, err = s.Model(ctx).Fields(columns.Account, columns.Encryption).Save(list)
+	return nil, gerror.Wrap(err, "上传小号失败，请稍后重试！")
+}
+
+// UnBind 解绑代理
+func (s *sWhatsAccount) UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error) {
+	//解除绑定
+	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = tx.Model(dao.WhatsAccount.Table()).WherePri(in.Id).Update(do.WhatsAccount{ProxyAddress: ""})
+		if err != nil {
+			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		}
+		//查询绑定该代理的小号数量
+		count, err := tx.Model(dao.WhatsAccount.Table()).Where(do.WhatsAccount{ProxyAddress: in.ProxyAddress}).Count()
+		if err != nil {
+			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		}
+		//修改代理绑定数量
+		_, err = tx.Model(dao.WhatsProxy.Table()).Where(do.WhatsProxy{Address: in.ProxyAddress}).Update(do.WhatsProxy{ConnectedCount: count})
+		if err != nil {
+			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		}
+		return
+	})
 	return nil, err
+
 }

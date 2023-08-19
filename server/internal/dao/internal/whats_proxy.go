@@ -26,7 +26,7 @@ type WhatsProxyColumns struct {
 	MaxConnections string // 最大连接数
 	Region         string // 地区
 	Comment        string // 备注
-	State          string // 状态(1可以用，-1不可用)
+	Status         string // 状态(1正常, 2停用)
 	DeletedAt      string // 删除时间
 	CreatedAt      string // 创建时间
 	UpdatedAt      string // 更新时间
@@ -40,7 +40,7 @@ var whatsProxyColumns = WhatsProxyColumns{
 	MaxConnections: "max_connections",
 	Region:         "region",
 	Comment:        "comment",
-	State:          "state",
+	Status:         "status",
 	DeletedAt:      "deleted_at",
 	CreatedAt:      "created_at",
 	UpdatedAt:      "updated_at",

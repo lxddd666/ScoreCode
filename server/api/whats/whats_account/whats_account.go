@@ -50,3 +50,11 @@ type UploadReq struct {
 }
 
 type UploadRes struct{}
+
+// UnBindReq 绑定代理
+type UnBindReq struct {
+	g.Meta `path:"/whatsAccount/unBind" method:"post" tags:"小号管理" summary:"绑定代理"`
+	whatsin.WhatsAccountUnBindInp
+}
+
+type UnBindRes struct{}
