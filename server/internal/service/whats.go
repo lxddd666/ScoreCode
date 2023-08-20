@@ -30,6 +30,20 @@ type (
 		// UnBind 解绑代理
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
 	}
+	IWhatsMsg interface {
+		// Model 消息记录ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取消息记录列表
+		List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list []*whatsin.WhatsMsgListModel, totalCount int, err error)
+		// Export 导出消息记录
+		Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (err error)
+		// Edit 修改/新增消息记录
+		Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err error)
+		// Delete 删除消息记录
+		Delete(ctx context.Context, in *whatsin.WhatsMsgDeleteInp) (err error)
+		// View 获取消息记录指定信息
+		View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res *whatsin.WhatsMsgViewModel, err error)
+	}
 	IWhatsProxy interface {
 		// Model 代理管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -50,8 +64,20 @@ type (
 
 var (
 	localWhatsAccount IWhatsAccount
+	localWhatsMsg     IWhatsMsg
 	localWhatsProxy   IWhatsProxy
 )
+
+func WhatsProxy() IWhatsProxy {
+	if localWhatsProxy == nil {
+		panic("implement not found for interface IWhatsProxy, forgot register?")
+	}
+	return localWhatsProxy
+}
+
+func RegisterWhatsProxy(i IWhatsProxy) {
+	localWhatsProxy = i
+}
 
 func WhatsAccount() IWhatsAccount {
 	if localWhatsAccount == nil {
@@ -64,13 +90,13 @@ func RegisterWhatsAccount(i IWhatsAccount) {
 	localWhatsAccount = i
 }
 
-func WhatsProxy() IWhatsProxy {
-	if localWhatsProxy == nil {
-		panic("implement not found for interface IWhatsProxy, forgot register?")
+func WhatsMsg() IWhatsMsg {
+	if localWhatsMsg == nil {
+		panic("implement not found for interface IWhatsMsg, forgot register?")
 	}
-	return localWhatsProxy
+	return localWhatsMsg
 }
 
-func RegisterWhatsProxy(i IWhatsProxy) {
-	localWhatsProxy = i
+func RegisterWhatsMsg(i IWhatsMsg) {
+	localWhatsMsg = i
 }
