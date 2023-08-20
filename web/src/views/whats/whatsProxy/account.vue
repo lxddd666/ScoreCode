@@ -27,8 +27,8 @@
         <template #tableTitle>
           <n-button
             type="error"
-            @click="handleBatchDelete"
-            :disabled="batchBindDisabled"
+            @click="handleBatchUnbind"
+            :disabled="batchUnBindDisabled"
             class="min-left-space"
             v-if="hasPermission(['/whatsAccount/delete'])"
           >
@@ -66,7 +66,7 @@ const { hasPermission } = usePermission();
   const dialog = useDialog();
   const message = useMessage();
   const searchFormRef = ref<any>({});
-  const batchBindDisabled = ref(true);
+  const batchUnBindDisabled = ref(true);
   const checkedIds = ref([]);
   const showModal = ref(false);
   const formParams = ref<State>();
@@ -93,7 +93,7 @@ const { hasPermission } = usePermission();
     showModal.value = value;
   }
 function onCheckedRow(rowKeys) {
-    batchBindDisabled.value = rowKeys.length <= 0;
+    batchUnBindDisabled.value = rowKeys.length <= 0;
     checkedIds.value = rowKeys;
   }
 
@@ -101,7 +101,7 @@ function onCheckedRow(rowKeys) {
     actionRef.value.reload();
   }
 
-  function handleBatchDelete() {
+  function handleBatchUnbind() {
     dialog.warning({
       title: '警告',
       content: '你确定要解绑吗？',
