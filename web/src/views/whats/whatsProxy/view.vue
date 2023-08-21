@@ -41,7 +41,7 @@
       </n-descriptions>
     </n-card>
 
-    <n-card :bordered="false" class="proCard mt-4" size="small" :segmented="{ content: true }" title="关联小号">
+    <n-card :bordered="false" class="proCard mt-4" size="small" :segmented="{ content: true }" title="关联帐号">
       <AccountTable @reloadView="reloadView"></AccountTable>
     </n-card>
 

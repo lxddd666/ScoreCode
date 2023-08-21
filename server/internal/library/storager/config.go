@@ -9,6 +9,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/dao"
 	"hotgo/internal/model"
 )
 
@@ -23,5 +24,5 @@ func GetConfig() *model.UploadConfig {
 }
 
 func GetModel(ctx context.Context) *gdb.Model {
-	return g.Model("sys_attachment").Ctx(ctx)
+	return g.Model(dao.SysAttachment.Table()).Ctx(ctx)
 }

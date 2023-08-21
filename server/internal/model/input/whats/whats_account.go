@@ -8,7 +8,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// WhatsAccountUpdateFields 修改小号管理字段过滤
+// WhatsAccountUpdateFields 修改帐号管理字段过滤
 type WhatsAccountUpdateFields struct {
 	Account       string `json:"account"       dc:"账号号码"`
 	NickName      string `json:"nickName"      dc:"账号昵称"`
@@ -19,7 +19,7 @@ type WhatsAccountUpdateFields struct {
 	Comment       string `json:"comment"       dc:"备注"`
 }
 
-// WhatsAccountInsertFields 新增小号管理字段过滤
+// WhatsAccountInsertFields 新增帐号管理字段过滤
 type WhatsAccountInsertFields struct {
 	Account       string `json:"account"       dc:"账号号码"`
 	NickName      string `json:"nickName"      dc:"账号昵称"`
@@ -30,9 +30,15 @@ type WhatsAccountInsertFields struct {
 	Comment       string `json:"comment"       dc:"备注"`
 }
 
-// WhatsAccountEditInp 修改/新增小号管理
+// WhatsAccountEditInp 修改/新增帐号管理
 type WhatsAccountEditInp struct {
-	entity.WhatsAccount
+	Id            uint64 `json:"id"            dc:""`
+	Account       string `json:"account"       dc:"账号号码"`
+	NickName      string `json:"nickName"      dc:"账号昵称"`
+	Avatar        string `json:"avatar"        dc:"账号头像"`
+	AccountStatus int    `json:"accountStatus" dc:"账号状态"`
+	IsOnline      int    `json:"isOnline"      dc:"是否在线"`
+	Comment       string `json:"comment"       dc:"备注"`
 }
 
 func (in *WhatsAccountEditInp) Filter(ctx context.Context) (err error) {
@@ -42,7 +48,7 @@ func (in *WhatsAccountEditInp) Filter(ctx context.Context) (err error) {
 
 type WhatsAccountEditModel struct{}
 
-// WhatsAccountDeleteInp 删除小号管理
+// WhatsAccountDeleteInp 删除帐号管理
 type WhatsAccountDeleteInp struct {
 	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
 }
@@ -53,7 +59,7 @@ func (in *WhatsAccountDeleteInp) Filter(ctx context.Context) (err error) {
 
 type WhatsAccountDeleteModel struct{}
 
-// WhatsAccountViewInp 获取指定小号管理信息
+// WhatsAccountViewInp 获取指定帐号管理信息
 type WhatsAccountViewInp struct {
 	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
 }
@@ -66,7 +72,7 @@ type WhatsAccountViewModel struct {
 	entity.WhatsAccount
 }
 
-// WhatsAccountListInp 获取小号管理列表
+// WhatsAccountListInp 获取帐号管理列表
 type WhatsAccountListInp struct {
 	form.PageReq
 	AccountStatus int           `json:"accountStatus" dc:"账号状态"`
@@ -108,8 +114,8 @@ type WhatsAccountUploadModel struct{}
 
 // WhatsAccountUnBindInp 解绑代理
 type WhatsAccountUnBindInp struct {
-	Id           interface{} `json:"id" v:"required#id不能为空" dc:"id"`
-	ProxyAddress string      `json:"proxyAddress" v:"required#代理地址不能为空" dc:"代理地址"`
+	Id           []int  `json:"id" example:"[1,2]" v:"required#id不能为空" dc:"id,可以是数组"`
+	ProxyAddress string `json:"proxyAddress" v:"required#代理地址不能为空" dc:"代理地址"`
 }
 
 func (in *WhatsAccountUnBindInp) Filter(ctx context.Context) (err error) {

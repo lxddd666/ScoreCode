@@ -6,5 +6,5 @@ import (
 )
 
 func init() {
-	auto.LoginRequiredRouter = append(auto.LoginRequiredRouter, whats.WhatsAccount) // 帐号管理
+	auto.LoginRequiredRouter = append(auto.LoginRequiredRouter, whats.WhatsArts) // whats相关API
 }

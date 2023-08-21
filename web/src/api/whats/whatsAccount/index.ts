@@ -1,6 +1,6 @@
 import { http, jumpExport } from '@/utils/http/axios';
 
-// 获取小号管理列表
+// 获取帐号管理列表
 export function List(params) {
   return http.request({
     url: '/whatsAccount/list',
@@ -9,7 +9,7 @@ export function List(params) {
   });
 }
 
-// 删除/批量删除小号管理
+// 删除/批量删除帐号管理
 export function Delete(params) {
   return http.request({
     url: '/whatsAccount/delete',
@@ -19,7 +19,7 @@ export function Delete(params) {
 }
 
 
-// 添加/编辑小号管理
+// 添加/编辑帐号管理
 export function Edit(params) {
   return http.request({
     url: '/whatsAccount/edit',
@@ -31,7 +31,7 @@ export function Edit(params) {
 
 
 
-// 获取小号管理指定详情
+// 获取帐号管理指定详情
 export function View(params) {
   return http.request({
     url: '/whatsAccount/view',
@@ -40,7 +40,7 @@ export function View(params) {
   });
 }
 
-// 上传小号
+// 上传帐号
 export function Upload(params) {
   return http.request({
     url: '/whatsAccount/upload',
@@ -48,6 +48,25 @@ export function Upload(params) {
     params,
   });
 }
+
+// 登录/批量登录帐号
+export function Login(params) {
+  return http.request({
+    url: '/whats/login',
+    method: 'POST',
+    params,
+  });
+}
+
+// 发送消息
+export function SendMsg(params) {
+  return http.request({
+    url: '/whats/sendMsg',
+    method: 'POST',
+    params,
+  });
+}
+
 
 // 解除绑定
 export function UnBind(params) {

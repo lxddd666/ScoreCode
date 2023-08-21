@@ -8,7 +8,7 @@ package queue
 import (
 	"context"
 	"fmt"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
@@ -241,7 +241,7 @@ func (consumer *KaConsumer) ConsumeClaim(session sarama.ConsumerGroupSession, cl
 	// NOTE:
 	// Do not move the code below to a goroutine.
 	// The `ConsumeClaim` itself is called within a goroutine, see:
-	// https://github.com/Shopify/sarama/blob/master/consumer_group.go#L27-L29
+	// https://github.com/IBM/sarama/blob/master/consumer_group.go#L27-L29
 	// `ConsumeClaim` 方法已经是 goroutine 调用 不要在该方法内进行 goroutine
 	for message := range claim.Messages() {
 		consumer.receiveDoFun(MqMsg{

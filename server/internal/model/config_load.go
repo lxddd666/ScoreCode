@@ -122,10 +122,15 @@ type TokenConfig struct {
 
 // WhatsConfig whats配置
 type WhatsConfig struct {
-	Aes *AesConfig
+	Aes     *WhatsAesConfig   `json:"aes"`
+	GrpcEnv map[string]string `json:"grpcEnv" yaml:"grpc_env"`
 }
 
-type AesConfig struct {
+// WhatsAesConfig aes加密信息
+type WhatsAesConfig struct {
 	Key string `json:"key"`
 	Vi  string `json:"vi"`
+}
+
+type WhatsManagerConfig struct {
 }

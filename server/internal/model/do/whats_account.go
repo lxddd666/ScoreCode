@@ -19,6 +19,7 @@ type WhatsAccount struct {
 	AccountStatus interface{} // 账号状态
 	IsOnline      interface{} // 是否在线
 	ProxyAddress  interface{} // 代理地址
+	LastLoginTime *gtime.Time // 上次登录时间
 	Comment       interface{} // 备注
 	Encryption    []byte      // 密钥
 	DeletedAt     *gtime.Time // 删除时间

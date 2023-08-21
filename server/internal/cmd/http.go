@@ -9,12 +9,14 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/net/goai"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/addons"
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/hggen"
 	"hotgo/internal/library/payment"
+	"hotgo/internal/model"
 	"hotgo/internal/router"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
@@ -45,7 +47,9 @@ var (
 			s.BindHookHandler("/*any", ghttp.HookAfterOutput, service.Hook().AfterOutput)
 
 			s.Group("/", func(group *ghttp.RouterGroup) {
-
+				group.GET("/swagger", func(r *ghttp.Request) {
+					r.Response.Write(consts.SwaggerUIPageContent)
+				})
 				// 注册全局中间件
 				group.Middleware(
 					service.Middleware().Ctx,             // 初始化请求上下文，一般需要第一个进行加载，后续中间件存在依赖关系
@@ -94,7 +98,7 @@ var (
 			payment.RegisterNotifyCallMap(map[string]payment.NotifyCallFunc{
 				consts.OrderGroupAdminOrder: service.AdminOrder().PayNotify, // 后台充值订单
 			})
-
+			enhanceOpenAPIDoc(s)
 			serverWg.Add(1)
 
 			// 信号监听
@@ -109,9 +113,45 @@ var (
 				serverWg.Done()
 			}()
 
-			// Just run the server.
 			s.Run()
+			// Just run the server.
+			//if err := s.Start(); err != nil {
+			//	s.Logger().Fatalf(ctx, `%+v`, err)
+			//}
+			//// APIDoc
+			//
+			//ghttp.Wait()
 			return
 		},
 	}
 )
+
+func enhanceOpenAPIDoc(s *ghttp.Server) {
+
+	openapi := s.GetOpenApi()
+	openapi.Config.CommonResponse = model.Response{}
+	openapi.Config.CommonResponseDataField = `Data`
+	openapi.Components = goai.Components{
+		SecuritySchemes: goai.SecuritySchemes{
+			"apiKey": goai.SecuritySchemeRef{
+				Ref: "",
+				Value: &goai.SecurityScheme{
+					// 此处type是openApi的规定，详见 https://swagger.io/docs/specification/authentication/api-keys/
+					Type: "apiKey",
+					In:   "header",
+					Name: "Authorization",
+				},
+			},
+		},
+	}
+	// API description.
+	openapi.Info = goai.Info{
+		Title:       consts.OpenAPITitle,
+		Description: consts.OpenAPIDescription,
+		Contact: &goai.Contact{
+			Name: consts.OpenAPIContactName,
+			URL:  consts.OpenAPIContactUrl,
+		},
+	}
+	openapi.Security = &goai.SecurityRequirements{goai.SecurityRequirement{"apiKey": []string{}}}
+}

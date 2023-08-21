@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+option go_package = "./protobuf";
+
+// 定义动作枚举
+enum Action {
+  LOGIN = 0;
+  LOGOUT = 1;
+  SEND_MESSAGE = 2;
+  SEND_GROUP_MESSAGE = 3;
+  SYNC_ACCOUNT_KEY = 4; // 添加同步帐号密钥动作
+  GET_PREKEYBUNDLE = 5;
+  SYNC_CONTACTS = 6;
+  PING_PONG = 7;
+}
+
+
+// 定义普通动作消息
+//message OrdinaryAction {
+//  repeated uint64 account_ids = 1; // 帐号的数组
+//}
+
+message OrdinaryAction {
+  map<uint64, loginDetail> login_detail = 1;
+}
+
+message loginDetail {
+  string proxyUrl = 1;
+}
+
+// 定义密钥数据
+message KeyData {
+  bytes privatekey = 1;
+  bytes privateMsgKey = 2;
+  bytes resumptionSecret = 3;
+  bytes publickey = 4;
+  bytes publicMsgKey = 5;
+  bytes clientPayload = 6;
+  bytes identify = 7;
+}
+
+// 定义同步帐号密钥动作消息
+message SyncAccountKeyAction {
+  map<uint64, KeyData> key_data = 1;
+}
+
+
+// 定义总的消息
+message RequestMessage {
+  Action action = 1; // 动作字段
+
+  oneof action_detail {
+    OrdinaryAction ordinary_action = 2;
+    SyncAccountKeyAction sync_account_key_action = 3;
+    QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
+    SendMessageDetail  sendmessage_detail = 8 ;
+    string  ping_message = 9;
+  }
+}
+
+message UintkeyUintvalue {
+  uint64 key = 1;
+  repeated uint64 values = 2;
+}
+
+message UintkeyStringvalue {
+  uint64 key = 1;
+  repeated string values = 2;
+}
+
+message SendMessageAction {
+  map<uint64, UintkeyStringvalue> send_data = 1;
+}
+
+message SendMessageDetail {
+  repeated SendMessageAction details = 1;
+}
+
+message QueryPreKeyBundleDetail {
+  repeated UintkeyUintvalue details = 1;
+}
+
+
+// 定义动作的返回状态枚举
+enum ActionResult {
+  ALL_SUCCESS = 0;
+  PARTIAL_SUCCESS = 1;
+  ALL_FAIL = 2;
+  ALL_UNKNOWN = 3;
+  PONG = 4;
+}
+
+// 定义单个帐号的执行状态枚举
+enum AccountStatus {
+  SUCCESS = 0;   //成功
+  FAIL = 1;      //失败
+  UNKNOWN = 2;   //未知
+  NOT_EXIST = 3; //账号不存在
+  SEAL = 403; //登录失败，已封号
+  PERMISSION = 401; // 登录失败，权限错误
+}
+
+// 定义返回消息
+message ResponseMessage {
+  ActionResult action_result = 1; // 动作的返回状态
+  map<string, AccountStatus> account_status = 2; // 帐号的执行状态字典
+  string   pong_message = 3;
+  oneof callbackInfo {
+    LoginCallbacks login_callbacks = 4;
+    TextMsgCallbacks text_msg_callbacks = 5;
+    ReadMsgCallbacks read_msg_callbacks = 6;
+  }
+}
+message LoginCallbacks{
+  repeated LoginCallback results = 1;
+}
+message LoginCallback{
+  uint64 userJid = 1;
+  AccountStatus loginStatus = 2;
+  string proxyUrl = 3;
+  string comment = 4;
+}
+
+message TextMsgCallbacks{
+  repeated TextMsgCallback results = 1;
+}
+message TextMsgCallback{
+  uint64 sender = 1;     //发送人
+  uint64 receiver = 2;  //接收人
+  string sendText = 3; //消息内容
+  int64 sendTime = 4;  //发送时间
+  string reqId = 5; //请求id
+  bool  read = 6 ;//已读
+}
+
+message ReadMsgCallbacks{
+  repeated ReadMsgCallback results = 1;
+}
+
+message ReadMsgCallback{
+  string reqId = 1;
+}
+
+service Arthas {
+  rpc connect(RequestMessage) returns(ResponseMessage);
+}
+
+service ArthasStream {
+  rpc connect(stream RequestMessage) returns(stream ResponseMessage);
+}
+

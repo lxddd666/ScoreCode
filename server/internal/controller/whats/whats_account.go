@@ -12,7 +12,7 @@ var (
 
 type cWhatsAccount struct{}
 
-// List 查看小号管理列表
+// List 查看帐号管理列表
 func (c *cWhatsAccount) List(ctx context.Context, req *whatsaccount.ListReq) (res *whatsaccount.ListRes, err error) {
 	list, totalCount, err := service.WhatsAccount().List(ctx, &req.WhatsAccountListInp)
 	if err != nil {
@@ -25,13 +25,13 @@ func (c *cWhatsAccount) List(ctx context.Context, req *whatsaccount.ListReq) (re
 	return
 }
 
-// Edit 更新小号管理
+// Edit 更新帐号管理
 func (c *cWhatsAccount) Edit(ctx context.Context, req *whatsaccount.EditReq) (res *whatsaccount.EditRes, err error) {
 	err = service.WhatsAccount().Edit(ctx, &req.WhatsAccountEditInp)
 	return
 }
 
-// View 获取指定小号管理信息
+// View 获取指定帐号管理信息
 func (c *cWhatsAccount) View(ctx context.Context, req *whatsaccount.ViewReq) (res *whatsaccount.ViewRes, err error) {
 	data, err := service.WhatsAccount().View(ctx, &req.WhatsAccountViewInp)
 	if err != nil {
@@ -43,13 +43,13 @@ func (c *cWhatsAccount) View(ctx context.Context, req *whatsaccount.ViewReq) (re
 	return
 }
 
-// Delete 删除小号管理
+// Delete 删除帐号管理
 func (c *cWhatsAccount) Delete(ctx context.Context, req *whatsaccount.DeleteReq) (res *whatsaccount.DeleteRes, err error) {
 	err = service.WhatsAccount().Delete(ctx, &req.WhatsAccountDeleteInp)
 	return
 }
 
-// Upload 上传小号
+// Upload 上传帐号
 func (c *cWhatsAccount) Upload(ctx context.Context, req *whatsaccount.UploadReq) (res *whatsaccount.UploadRes, err error) {
 	result, err := service.WhatsAccount().Upload(ctx, req.List)
 	res = (*whatsaccount.UploadRes)(result)
