@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="n-layout-page-header">
-      <n-card :bordered="false" title="小号管理详情"> <!-- CURD详情页--> </n-card>
+      <n-card :bordered="false" title="帐号管理详情"> <!-- CURD详情页--> </n-card>
     </div>
     <n-card :bordered="false" class="proCard mt-4" size="small" :segmented="{ content: true }">
       <n-descriptions label-placement="left" class="py-2" column="4">

@@ -16,6 +16,7 @@ import (
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/hggen"
 	"hotgo/internal/library/payment"
+	"hotgo/internal/model"
 	"hotgo/internal/router"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
@@ -46,6 +47,9 @@ var (
 			s.BindHookHandler("/*any", ghttp.HookAfterOutput, service.Hook().AfterOutput)
 
 			s.Group("/", func(group *ghttp.RouterGroup) {
+				group.GET("/swagger", func(r *ghttp.Request) {
+					r.Response.Write(consts.SwaggerUIPageContent)
+				})
 				// 注册全局中间件
 				group.Middleware(
 					service.Middleware().Ctx,             // 初始化请求上下文，一般需要第一个进行加载，后续中间件存在依赖关系
@@ -94,9 +98,7 @@ var (
 			payment.RegisterNotifyCallMap(map[string]payment.NotifyCallFunc{
 				consts.OrderGroupAdminOrder: service.AdminOrder().PayNotify, // 后台充值订单
 			})
-			// APIDoc
 			enhanceOpenAPIDoc(s)
-
 			serverWg.Add(1)
 
 			// 信号监听
@@ -111,20 +113,24 @@ var (
 				serverWg.Done()
 			}()
 
-			// Just run the server.
 			s.Run()
+			// Just run the server.
+			//if err := s.Start(); err != nil {
+			//	s.Logger().Fatalf(ctx, `%+v`, err)
+			//}
+			//// APIDoc
+			//
+			//ghttp.Wait()
 			return
 		},
 	}
 )
 
 func enhanceOpenAPIDoc(s *ghttp.Server) {
-	s.Group("/", func(group *ghttp.RouterGroup) {
-		group.GET("/swagger", func(r *ghttp.Request) {
-			r.Response.Write(consts.SwaggerUIPageContent)
-		})
-	})
+
 	openapi := s.GetOpenApi()
+	openapi.Config.CommonResponse = model.Response{}
+	openapi.Config.CommonResponseDataField = `Data`
 	openapi.Components = goai.Components{
 		SecuritySchemes: goai.SecuritySchemes{
 			"apiKey": goai.SecuritySchemeRef{
@@ -147,4 +153,5 @@ func enhanceOpenAPIDoc(s *ghttp.Server) {
 			URL:  consts.OpenAPIContactUrl,
 		},
 	}
+	openapi.Security = &goai.SecurityRequirements{goai.SecurityRequirement{"apiKey": []string{}}}
 }

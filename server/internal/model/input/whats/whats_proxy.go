@@ -84,6 +84,8 @@ type WhatsProxyListModel struct {
 	Address        string      `json:"address"        dc:"代理地址"`
 	ConnectedCount int         `json:"connectedCount" dc:"已连接数"`
 	MaxConnections int         `json:"maxConnections" dc:"最大连接"`
+	AssignedCount  int         `json:"assignedCount"  dc:"已分配账号数量"`
+	LongTermCount  int         `json:"longTermCount"  dc:"长期未登录数量"`
 	Region         string      `json:"region"         dc:"地区"`
 	Comment        string      `json:"comment"        dc:"备注"`
 	Status         int         `json:"status"         dc:"状态"`

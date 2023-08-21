@@ -12,9 +12,9 @@ func (in *WhatsLoginInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsMsgInp struct {
-	Sender     uint64   `json:"sender"`
-	Receiver   uint64   `json:"receiver"`
-	TextMsg    []string `json:"textMsgBody" dc:"文本消息"`
+	Sender     uint64   `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
+	Receiver   uint64   `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
+	TextMsg    []string `json:"textMsg" dc:"文本消息"`
 	PictureMsg [][]byte `json:"pictureMsg" dc:"图片消息"`
 	VideoMsg   [][]byte `json:"videoMsg" dc:"视频消息"`
 }

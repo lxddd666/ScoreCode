@@ -44,7 +44,7 @@ func (s *sWhatsArts) Login(ctx context.Context, users []string) (err error) {
 		return err
 	}
 	g.Log().Info(ctx, "同步结果：", syncRes.GetActionResult().String())
-	req := login(ctx, accounts)
+	req := s.login(ctx, accounts)
 	loginRes, err := c.Connect(ctx, req)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []entity.Whats
 	return req, nil
 }
 
-func login(ctx context.Context, accounts []entity.WhatsAccount) *protobuf.RequestMessage {
+func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) *protobuf.RequestMessage {
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	for _, item := range accounts {
 		ld := &protobuf.LoginDetail{
@@ -112,29 +112,27 @@ func login(ctx context.Context, accounts []entity.WhatsAccount) *protobuf.Reques
 }
 
 // SendMsg 发送消息
-func (s *sWhatsArts) SendMsg(ctx context.Context, msg []*whatsin.WhatsMsgInp) (res string, err error) {
+func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
 	c := protobuf.NewArthasClient(conn)
 	syncContactReq := whatsin.SyncContactReq{
 		Values: make([]uint64, 0),
 	}
-	for _, item := range msg {
-		syncContactReq.Key = item.Sender
-		syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
-		if len(item.TextMsg) > 0 {
-			//2.同步通讯录
-			syncContactMsg := s.syncContact(syncContactReq)
-			artsRes, err := c.Connect(ctx, syncContactMsg)
-			if err != nil {
-				return "", err
-			}
-			requestMessage := s.sendTextMessage(item)
-			artsRes, err = c.Connect(ctx, requestMessage)
-			if err != nil {
-				return "", err
-			}
-			g.Log().Info(ctx, artsRes.GetActionResult().String())
+	syncContactReq.Key = item.Sender
+	syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
+	if len(item.TextMsg) > 0 {
+		//2.同步通讯录
+		syncContactMsg := s.syncContact(syncContactReq)
+		artsRes, err := c.Connect(ctx, syncContactMsg)
+		if err != nil {
+			return "", err
 		}
+		requestMessage := s.sendTextMessage(item)
+		artsRes, err = c.Connect(ctx, requestMessage)
+		if err != nil {
+			return "", err
+		}
+		g.Log().Info(ctx, artsRes.GetActionResult().String())
 	}
 
 	return

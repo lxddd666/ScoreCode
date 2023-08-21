@@ -17,17 +17,17 @@ import (
 
 type (
 	IWhatsAccount interface {
-		// Model 小号管理ORM模型
+		// Model 帐号管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取小号管理列表
+		// List 获取帐号管理列表
 		List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error)
-		// Edit 修改/新增小号管理
+		// Edit 修改/新增帐号管理
 		Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error)
-		// Delete 删除小号管理
+		// Delete 删除帐号管理
 		Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error)
-		// View 获取小号管理指定信息
+		// View 获取帐号管理指定信息
 		View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error)
-		// Upload 上传小号
+		// Upload 上传帐号
 		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
 		// UnBind 解绑代理
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
@@ -38,7 +38,7 @@ type (
 		// Login whats登录
 		Login(ctx context.Context, users []string) (err error)
 		// SendMsg whats发送消息
-		SendMsg(ctx context.Context, msg []*whatsin.WhatsMsgInp) (res string, err error)
+		SendMsg(ctx context.Context, msg *whatsin.WhatsMsgInp) (res string, err error)
 	}
 	IWhatsMsg interface {
 		// Model 消息记录ORM模型

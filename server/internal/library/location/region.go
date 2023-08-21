@@ -12,12 +12,13 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
+	"hotgo/internal/dao"
 	"hotgo/internal/model/entity"
 	"hotgo/utility/tree"
 )
 
 func GetModel(ctx context.Context) *gdb.Model {
-	return g.Model("sys_provinces").Ctx(ctx)
+	return g.Model(dao.SysProvinces.Table()).Ctx(ctx)
 }
 
 // ParseSimpleRegion 通过地区ID解析地区名称，自动加入上级地区

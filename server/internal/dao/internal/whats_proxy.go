@@ -22,8 +22,10 @@ type WhatsProxyDao struct {
 type WhatsProxyColumns struct {
 	Id             string //
 	Address        string // 代理地址
-	ConnectedCount string // 已连接数
 	MaxConnections string // 最大连接数
+	ConnectedCount string // 已连接数
+	AssignedCount  string // 已分配账号数量
+	LongTermCount  string // 长期未登录数量
 	Region         string // 地区
 	Comment        string // 备注
 	Status         string // 状态(1正常, 2停用)
@@ -36,8 +38,10 @@ type WhatsProxyColumns struct {
 var whatsProxyColumns = WhatsProxyColumns{
 	Id:             "id",
 	Address:        "address",
-	ConnectedCount: "connected_count",
 	MaxConnections: "max_connections",
+	ConnectedCount: "connected_count",
+	AssignedCount:  "assigned_count",
+	LongTermCount:  "long_term_count",
 	Region:         "region",
 	Comment:        "comment",
 	Status:         "status",

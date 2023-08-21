@@ -124,6 +124,8 @@ github.com/gogf/gf/contrib/rpc/grpcx/v2 v2.5.2 h1:3/9tGmVoQHTGm/YZ6/6UywnAG4I/60
 github.com/gogf/gf/contrib/rpc/grpcx/v2 v2.5.2/go.mod h1:TQBg9NNf03eUNS19TVOtis2n7T2wjfiXUh0m0sHdUY0=
 github.com/gogf/gf/contrib/trace/jaeger/v2 v2.4.4 h1:c3Ra9uhi5YU73vGHE2d1GCTGci8BAhbmJxbF+dRPedo=
 github.com/gogf/gf/contrib/trace/jaeger/v2 v2.4.4/go.mod h1:gw64aC/Sa+N+qr5qsUZ0gCs6Ep9FEVEePa/6Xv59wf4=
+github.com/gogf/gf/contrib/trace/jaeger/v2 v2.5.2 h1:Aqgr/wlZT1iO1+eCoUQiNEqJM2VllHLXGPH3x0fuqlE=
+github.com/gogf/gf/contrib/trace/jaeger/v2 v2.5.2/go.mod h1:+WE25pafL/4PNz5T3iwkMqvyk8l2nDWfRYVfq3aXnIk=
 github.com/gogf/gf/v2 v2.4.4/go.mod h1:tsbmtwcAl2chcYoq/fP9W2FZf06aw4i89X34nbSHo9Y=
 github.com/gogf/gf/v2 v2.5.2 h1:fACJE7DJH6iTGHGhgiNY1uuZIZtr2IqQkJ52E+wBnt8=
 github.com/gogf/gf/v2 v2.5.2/go.mod h1:7yf5qp0BznfsYx7Sw49m3mQvBsHpwAjJk3Q9ZnKoUEc=

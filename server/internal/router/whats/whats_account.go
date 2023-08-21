@@ -6,5 +6,5 @@ import (
 )
 
 func init() {
-	auto.LoginRequiredRouter = append(auto.LoginRequiredRouter, whats.WhatsAccount) // 小号管理
+	auto.LoginRequiredRouter = append(auto.LoginRequiredRouter, whats.WhatsAccount) // 帐号管理
 }

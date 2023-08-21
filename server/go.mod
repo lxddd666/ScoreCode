@@ -17,7 +17,7 @@ require (
 	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.2
 	github.com/gogf/gf/contrib/registry/etcd/v2 v2.5.2
 	github.com/gogf/gf/contrib/rpc/grpcx/v2 v2.5.2
-	github.com/gogf/gf/contrib/trace/jaeger/v2 v2.4.4
+	github.com/gogf/gf/contrib/trace/jaeger/v2 v2.5.2
 	github.com/gogf/gf/v2 v2.5.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gorilla/websocket v1.5.0
