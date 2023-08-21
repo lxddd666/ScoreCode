@@ -32,7 +32,13 @@ type WhatsAccountInsertFields struct {
 
 // WhatsAccountEditInp 修改/新增小号管理
 type WhatsAccountEditInp struct {
-	entity.WhatsAccount
+	Id            uint64 `json:"id"            dc:""`
+	Account       string `json:"account"       dc:"账号号码"`
+	NickName      string `json:"nickName"      dc:"账号昵称"`
+	Avatar        string `json:"avatar"        dc:"账号头像"`
+	AccountStatus int    `json:"accountStatus" dc:"账号状态"`
+	IsOnline      int    `json:"isOnline"      dc:"是否在线"`
+	Comment       string `json:"comment"       dc:"备注"`
 }
 
 func (in *WhatsAccountEditInp) Filter(ctx context.Context) (err error) {

@@ -2,21 +2,30 @@ package whats
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm"
-	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/input/form"
-	whatsin "hotgo/internal/model/input/whats"
-	"hotgo/internal/service"
-	"hotgo/utility/convert"
-	"hotgo/utility/excel"
-
+	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
+	"hotgo/internal/consts"
+	"hotgo/internal/dao"
+	"hotgo/internal/library/hgorm"
+	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/queue"
+	"hotgo/internal/model/callback"
+	"hotgo/internal/model/entity"
+	"hotgo/internal/model/input/form"
+	whatsin "hotgo/internal/model/input/whats"
+	"hotgo/internal/service"
+	"hotgo/internal/websocket"
+	"hotgo/utility/convert"
+	"hotgo/utility/excel"
 )
 
 type sWhatsMsg struct{}
@@ -133,4 +142,93 @@ func (s *sWhatsMsg) View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res 
 		return
 	}
 	return
+}
+
+// TextMsgCallback 文本消息回调
+func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error) {
+	callbackRes := make([]callback.TextMsgCallbackRes, 0)
+	err = gjson.Unmarshal(res.Body, &callbackRes)
+	if err != nil {
+		return err
+	}
+	g.Log().Info(ctx, "kafka textMsgCallback: ", callbackRes)
+	var msgList = make([]entity.WhatsMsg, 0)
+	unreadMap := make(map[string]interface{})
+	for _, item := range callbackRes {
+		item := entity.WhatsMsg{
+			Initiator:     item.Initiator,
+			Sender:        item.Sender,
+			Receiver:      item.Receiver,
+			SendMsg:       []byte(item.SendText),
+			TranslatedMsg: []byte(item.SendText),
+			MsgType:       1,
+			SendTime:      &item.SendTime,
+			Read:          1, //默认是已读
+			Comment:       "",
+			ReqId:         item.ReqId,
+		}
+		msgList = append(msgList, item)
+		unreadMap[item.ReqId] = 1
+	}
+	_, err = g.Redis().HSet(ctx, consts.MsgReadReqKey, unreadMap)
+	if err != nil {
+		return err
+	}
+	if len(msgList) > 0 {
+		go s.sendToUser(ctx, msgList)
+		//入库
+		_, err = s.Model(ctx).Insert(msgList)
+	}
+	return err
+}
+
+func (s *sWhatsMsg) sendToUser(ctx context.Context, msgList []entity.WhatsMsg) {
+	// 自定义排序数组，降序排序(SortedIntArray管理的数据是升序)
+	a := garray.NewSortedArray(func(v1, v2 interface{}) int {
+		if (v1.(entity.WhatsMsg)).SendTime.Before((v2.(entity.WhatsMsg)).SendTime) {
+			return 1
+		}
+		if (v1.(entity.WhatsMsg)).SendTime.After((v2.(entity.WhatsMsg)).SendTime) {
+			return -1
+		}
+		return 0
+	})
+
+	for _, msg := range msgList {
+		a.Add(msg)
+
+	}
+	//按消息发送时间推送给前端
+	a.Iterator(func(_ int, msg interface{}) bool {
+
+		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, gconv.String(msg.(entity.WhatsMsg).Initiator))
+		if err != nil {
+			return true
+		}
+		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
+			Event:     "textMsg",
+			Data:      msg,
+			Code:      gcode.CodeOK.Code(),
+			ErrorMsg:  "",
+			Timestamp: gtime.Now().Unix(),
+		})
+		return true
+	})
+}
+
+// ReadMsgCallback 已读消息回到
+func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error) {
+	callbackRes := make([]callback.ReadMsgCallbackRes, 0)
+	err = json.Unmarshal(res.Body, &callbackRes)
+	if err != nil {
+		return err
+	}
+	g.Log().Info(ctx, "kafka readMsgCallback: ", callbackRes)
+
+	reqIds := make([]string, 0)
+	for _, item := range callbackRes {
+		reqIds = append(reqIds, item.ReqId)
+	}
+	_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
+	return err
 }

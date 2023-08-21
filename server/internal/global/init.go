@@ -8,6 +8,8 @@ package global
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/contrib/registry/etcd/v2"
+	"github.com/gogf/gf/contrib/rpc/grpcx/v2"
 	"github.com/gogf/gf/contrib/trace/jaeger/v2"
 	"github.com/gogf/gf/v2"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -17,6 +19,7 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/text/gstr"
+	etcd3 "go.etcd.io/etcd/client/v3"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/cache"
 	"hotgo/internal/library/queue"
@@ -39,6 +42,9 @@ func Init(ctx context.Context) {
 	}
 
 	fmt.Printf("欢迎使用HotGo！\r\n当前运行环境：%v, 运行根路径为：%v \r\nHotGo版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
+
+	// 初始化注册中心
+	InitRegister(ctx)
 
 	// 初始化链路追踪
 	InitTrace(ctx)
@@ -136,4 +142,18 @@ func InitTrace(ctx context.Context) {
 		_ = tp.Shutdown(ctx)
 		g.Log().Debug(ctx, "jaeger closed ..")
 	})
+}
+
+// InitRegister 初始化注册中心
+func InitRegister(ctx context.Context) {
+	var config etcd3.Config
+	err := g.Cfg().MustGet(ctx, "etcd").Scan(&config)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+	clientV3, err := etcd3.New(config)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+	grpcx.Resolver.Register(etcd.NewWithClient(clientV3))
 }

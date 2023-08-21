@@ -63,7 +63,7 @@
             type="primary"
             @click="handleExport"
             class="min-left-space"
-            v-if="hasPermission(['/whatsProxy/delete'])"
+            v-if="hasPermission(['/whatsProxy/view'])"
           >
             <template #icon>
               <n-icon>
@@ -144,6 +144,16 @@
           },
         ],
         dropDownActions: [
+          {
+            label: '绑定小号',
+            key: 'bind',
+            auth: ['/whatsProxy/bind'],
+          },
+          {
+            label: '解绑小号',
+            key: 'unBind',
+            auth: ['/whatsProxy/unBind'],
+          },
           {
             label: '查看详情',
             key: 'view',

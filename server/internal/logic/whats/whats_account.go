@@ -5,14 +5,18 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	whatsin "hotgo/internal/model/input/whats"
+	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
 	whats_util "hotgo/utility/whats"
+	"strconv"
 )
 
 type sWhatsAccount struct{}
@@ -157,4 +161,30 @@ func (s *sWhatsAccount) UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBi
 	})
 	return nil, err
 
+}
+
+// LoginCallback 登录回调处理
+func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error {
+	accountColumns := dao.WhatsAccount.Columns()
+	for _, item := range res {
+		userJid := strconv.FormatUint(item.UserJid, 10)
+		accountStatus := 1
+		isOnline := -1
+		//如果小号在线记录小号登录所使用的代理
+		if protobuf.AccountStatus(item.LoginStatus) != protobuf.AccountStatus_SUCCESS {
+			//如果失败,删除redis
+			_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+			accountStatus = int(item.LoginStatus)
+		} else {
+			accountStatus = 1
+			isOnline = 1
+		}
+		//更新登录状态
+		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(do.WhatsAccount{
+			AccountStatus: accountStatus,
+			IsOnline:      isOnline,
+			Comment:       item.Comment,
+		})
+	}
+	return nil
 }

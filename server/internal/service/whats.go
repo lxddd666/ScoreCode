@@ -8,6 +8,8 @@ package service
 import (
 	"context"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/queue"
+	"hotgo/internal/model/callback"
 	whatsin "hotgo/internal/model/input/whats"
 
 	"github.com/gogf/gf/v2/database/gdb"
@@ -29,6 +31,14 @@ type (
 		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
 		// UnBind 解绑代理
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
+		// LoginCallback 登录回调处理
+		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
+	}
+	IWhatsArts interface {
+		// Login whats登录
+		Login(ctx context.Context, users []string) (err error)
+		// SendMsg whats发送消息
+		SendMsg(ctx context.Context, msg []*whatsin.WhatsMsgInp) (res string, err error)
 	}
 	IWhatsMsg interface {
 		// Model 消息记录ORM模型
@@ -43,6 +53,10 @@ type (
 		Delete(ctx context.Context, in *whatsin.WhatsMsgDeleteInp) (err error)
 		// View 获取消息记录指定信息
 		View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res *whatsin.WhatsMsgViewModel, err error)
+		// TextMsgCallback 文本消息回调
+		TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
+		// ReadMsgCallback 已读消息回到
+		ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
 	}
 	IWhatsProxy interface {
 		// Model 代理管理ORM模型
@@ -63,10 +77,33 @@ type (
 )
 
 var (
-	localWhatsAccount IWhatsAccount
+	localWhatsArts    IWhatsArts
 	localWhatsMsg     IWhatsMsg
 	localWhatsProxy   IWhatsProxy
+	localWhatsAccount IWhatsAccount
 )
+
+func WhatsArts() IWhatsArts {
+	if localWhatsArts == nil {
+		panic("implement not found for interface IWhatsArts, forgot register?")
+	}
+	return localWhatsArts
+}
+
+func RegisterWhatsArts(i IWhatsArts) {
+	localWhatsArts = i
+}
+
+func WhatsMsg() IWhatsMsg {
+	if localWhatsMsg == nil {
+		panic("implement not found for interface IWhatsMsg, forgot register?")
+	}
+	return localWhatsMsg
+}
+
+func RegisterWhatsMsg(i IWhatsMsg) {
+	localWhatsMsg = i
+}
 
 func WhatsProxy() IWhatsProxy {
 	if localWhatsProxy == nil {
@@ -88,15 +125,4 @@ func WhatsAccount() IWhatsAccount {
 
 func RegisterWhatsAccount(i IWhatsAccount) {
 	localWhatsAccount = i
-}
-
-func WhatsMsg() IWhatsMsg {
-	if localWhatsMsg == nil {
-		panic("implement not found for interface IWhatsMsg, forgot register?")
-	}
-	return localWhatsMsg
-}
-
-func RegisterWhatsMsg(i IWhatsMsg) {
-	localWhatsMsg = i
 }
