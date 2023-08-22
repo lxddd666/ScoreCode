@@ -138,7 +138,6 @@ func InitTrace(ctx context.Context) {
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 	}
-
 	simple.Event().Register(consts.EventServerClose, func(ctx context.Context, args ...interface{}) {
 		_ = tp.Shutdown(ctx)
 		g.Log().Debug(ctx, "jaeger closed ..")
