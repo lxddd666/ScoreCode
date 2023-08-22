@@ -14,7 +14,7 @@ type cWhatsArts struct{}
 
 // Login 登录帐号
 func (c *cWhatsArts) Login(ctx context.Context, req *whatsarts.WhatsLoginReq) (res *whatsarts.WhatsLoginRes, err error) {
-	err = service.WhatsArts().Login(ctx, req.Users)
+	err = service.WhatsArts().Login(ctx, req.Ids)
 	data := `登录中，请查看登录状态`
 	res = (*whatsarts.WhatsLoginRes)(&data)
 	return

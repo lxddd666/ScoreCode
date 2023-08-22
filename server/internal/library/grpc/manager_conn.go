@@ -5,20 +5,16 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"google.golang.org/grpc"
+	"time"
 )
 
 var (
 	ctx         = gctx.GetInitCtx()
-	managerName = g.Cfg().MustGet(ctx, "whats.manager.managerName").String()
+	managerName = g.Cfg().MustGet(ctx, "whats.manager.name").String()
 )
 
 func GetManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(managerName)
-	defer func(conn *grpc.ClientConn) {
-		err := conn.Close()
-		if err != nil {
-			g.Log().Fatal(ctx, err)
-		}
-	}(conn)
+	conn := grpcx.Client.MustNewGrpcClientConn(managerName, grpc.WithTimeout(15*time.Second))
+
 	return conn
 }

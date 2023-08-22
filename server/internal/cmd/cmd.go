@@ -38,10 +38,6 @@ var (
 		>> 释放casbin权限，用于清理无效的权限设置  [go run main.go tools -m=casbin -a1=refresh]
 
 		---------------------------------------------------------------------------------
-		更多
-       	github地址：https://github.com/bufanyun/hotgo
-		文档地址：https://github.com/bufanyun/hotgo/tree/v2.0/docs/guide-zh-CN	
-		HotGo框架交流1群：190966648
     `,
 	}
 
