@@ -27,3 +27,7 @@ type SyncContactReq struct {
 	Key    uint64   `json:"key"`
 	Values []uint64 `json:"values"`
 }
+
+type GetUserHeadImageReq struct {
+	Account uint64
+}

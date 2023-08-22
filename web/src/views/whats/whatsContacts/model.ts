@@ -1,14 +1,8 @@
-import { h, ref } from 'vue';
-import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
-import { cloneDeep } from 'lodash-es';
-import { FormSchema } from '@/components/Form';
-import { Dicts } from '@/api/dict/dict';
-
-import { isArray, isNullObject } from '@/utils/is';
-import { getFileExt } from '@/utils/urlUtils';
-import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
-import { validate } from '@/utils/validateUtil';
-import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
+import {ref} from 'vue';
+import {cloneDeep} from 'lodash-es';
+import {FormSchema} from '@/components/Form';
+import {defRangeShortcuts} from '@/utils/dateUtil';
+import {validate} from '@/utils/validateUtil';
 
 
 export interface State {

@@ -173,3 +173,15 @@ func (s *sWhatsArts) syncContact(syncContactReq whatsin.SyncContactReq) *protobu
 	}
 	return req
 }
+
+func (s *sWhatsArts) GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage {
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_GET_USER_HEAD_IMAGE,
+		ActionDetail: &protobuf.RequestMessage_GetUserHeadImage{
+			GetUserHeadImage: &protobuf.GetUserHeadImageAction{
+				Account: userHeadImageReq.Account,
+			},
+		},
+	}
+	return req
+}
