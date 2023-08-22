@@ -8,7 +8,7 @@ enum Action {
   LOGOUT = 1;
   SEND_MESSAGE = 2;
   SEND_GROUP_MESSAGE = 3;
-  SYNC_ACCOUNT_KEY = 4; // 添加同步帐号密钥动作
+  SYNC_ACCOUNT_KEY = 4; // 添加同步账号密钥动作
   GET_PREKEYBUNDLE = 5;
   SYNC_CONTACTS = 6;
   PING_PONG = 7;
@@ -17,7 +17,7 @@ enum Action {
 
 // 定义普通动作消息
 //message OrdinaryAction {
-//  repeated uint64 account_ids = 1; // 帐号的数组
+//  repeated uint64 account_ids = 1; // 账号的数组
 //}
 
 message OrdinaryAction {
@@ -39,7 +39,7 @@ message KeyData {
   bytes identify = 7;
 }
 
-// 定义同步帐号密钥动作消息
+// 定义同步账号密钥动作消息
 message SyncAccountKeyAction {
   map<uint64, KeyData> key_data = 1;
 }
@@ -90,7 +90,7 @@ enum ActionResult {
   PONG = 4;
 }
 
-// 定义单个帐号的执行状态枚举
+// 定义单个账号的执行状态枚举
 enum AccountStatus {
   SUCCESS = 0;   //成功
   FAIL = 1;      //失败
@@ -103,7 +103,7 @@ enum AccountStatus {
 // 定义返回消息
 message ResponseMessage {
   ActionResult action_result = 1; // 动作的返回状态
-  map<string, AccountStatus> account_status = 2; // 帐号的执行状态字典
+  map<string, AccountStatus> account_status = 2; // 账号的执行状态字典
   string   pong_message = 3;
   oneof callbackInfo {
     LoginCallbacks login_callbacks = 4;

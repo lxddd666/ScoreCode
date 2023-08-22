@@ -176,7 +176,7 @@ function customRequest({
     const weldmachine = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
     //中英文映射
     var columnMapping = {
-      '帐号': 'account',
+      '账号': 'account',
       '号码ID': 'identify',
       '公钥': 'publicKey',
       '私钥': 'privateKey',

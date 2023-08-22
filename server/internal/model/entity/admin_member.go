@@ -15,7 +15,7 @@ type AdminMember struct {
 	DeptId             int64       `json:"deptId"             description:"部门ID"`
 	RoleId             int64       `json:"roleId"             description:"角色ID"`
 	RealName           string      `json:"realName"           description:"真实姓名"`
-	Username           string      `json:"username"           description:"帐号"`
+	Username           string      `json:"username"           description:"账号"`
 	PasswordHash       string      `json:"passwordHash"       description:"密码"`
 	Salt               string      `json:"salt"               description:"密码盐"`
 	PasswordResetToken string      `json:"passwordResetToken" description:"密码重置令牌"`
