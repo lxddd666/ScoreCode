@@ -8,7 +8,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// WhatsAccountUpdateFields 修改帐号管理字段过滤
+// WhatsAccountUpdateFields 修改账号管理字段过滤
 type WhatsAccountUpdateFields struct {
 	Account       string `json:"account"       dc:"账号号码"`
 	NickName      string `json:"nickName"      dc:"账号昵称"`
@@ -19,7 +19,7 @@ type WhatsAccountUpdateFields struct {
 	Comment       string `json:"comment"       dc:"备注"`
 }
 
-// WhatsAccountInsertFields 新增帐号管理字段过滤
+// WhatsAccountInsertFields 新增账号管理字段过滤
 type WhatsAccountInsertFields struct {
 	Account       string `json:"account"       dc:"账号号码"`
 	NickName      string `json:"nickName"      dc:"账号昵称"`
@@ -30,7 +30,7 @@ type WhatsAccountInsertFields struct {
 	Comment       string `json:"comment"       dc:"备注"`
 }
 
-// WhatsAccountEditInp 修改/新增帐号管理
+// WhatsAccountEditInp 修改/新增账号管理
 type WhatsAccountEditInp struct {
 	Id            uint64 `json:"id"            dc:""`
 	Account       string `json:"account"       dc:"账号号码"`
@@ -48,7 +48,7 @@ func (in *WhatsAccountEditInp) Filter(ctx context.Context) (err error) {
 
 type WhatsAccountEditModel struct{}
 
-// WhatsAccountDeleteInp 删除帐号管理
+// WhatsAccountDeleteInp 删除账号管理
 type WhatsAccountDeleteInp struct {
 	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
 }
@@ -59,7 +59,7 @@ func (in *WhatsAccountDeleteInp) Filter(ctx context.Context) (err error) {
 
 type WhatsAccountDeleteModel struct{}
 
-// WhatsAccountViewInp 获取指定帐号管理信息
+// WhatsAccountViewInp 获取指定账号管理信息
 type WhatsAccountViewInp struct {
 	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
 }
@@ -72,7 +72,7 @@ type WhatsAccountViewModel struct {
 	entity.WhatsAccount
 }
 
-// WhatsAccountListInp 获取帐号管理列表
+// WhatsAccountListInp 获取账号管理列表
 type WhatsAccountListInp struct {
 	form.PageReq
 	AccountStatus int           `json:"accountStatus" dc:"账号状态"`
@@ -99,7 +99,7 @@ type WhatsAccountListModel struct {
 }
 
 type WhatsAccountUploadInp struct {
-	Account       string `json:"account" dc:"帐号"`
+	Account       string `json:"account" dc:"账号"`
 	PublicKey     string `json:"publicKey" dc:"公钥"`
 	PrivateKey    string `json:"privateKey" dc:"私钥"`
 	PublicMsgKey  string `json:"publicMsgKey" dc:"消息公钥"`

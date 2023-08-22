@@ -92,7 +92,7 @@ const { hasPermission } = usePermission();
   function updateShowModal(value) {
     showModal.value = value;
   }
-function onCheckedRow(rowKeys) {
+  function onCheckedRow(rowKeys) {
     batchUnBindDisabled.value = rowKeys.length <= 0;
     checkedIds.value = rowKeys;
   }

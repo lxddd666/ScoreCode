@@ -67,7 +67,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 		return
 	}
 
-	if err = mod.Fields(whatsin.WhatsMsgListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsMsg.Columns().Id).Scan(&list); err != nil {
+	if err = mod.Fields(whatsin.WhatsMsgListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsMsg.Columns().UpdatedAt).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
 		return
 	}

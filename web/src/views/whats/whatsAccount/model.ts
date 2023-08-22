@@ -55,13 +55,11 @@ export const rules = {};
 
 export const schemas = ref<FormSchema[]>([
   {
-    field: 'createdAt',
-    component: 'NDatePicker',
-    label: '创建时间',
+    field: 'account',
+    component: 'NInput',
+    label: '账号号码',
     componentProps: {
-      type: 'datetimerange',
-      clearable: true,
-      shortcuts: defRangeShortcuts(),
+      placeholder: '请输入账号号码',
       onUpdateValue: (e: any) => {
         console.log(e);
       },
@@ -91,6 +89,20 @@ export const schemas = ref<FormSchema[]>([
       },
     },
   },
+  {
+    field: 'createdAt',
+    component: 'NDatePicker',
+    label: '创建时间',
+    componentProps: {
+      type: 'datetimerange',
+      clearable: true,
+      shortcuts: defRangeShortcuts(),
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+
 
 ]);
 

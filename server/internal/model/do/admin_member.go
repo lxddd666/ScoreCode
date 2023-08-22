@@ -17,7 +17,7 @@ type AdminMember struct {
 	DeptId             interface{} // 部门ID
 	RoleId             interface{} // 角色ID
 	RealName           interface{} // 真实姓名
-	Username           interface{} // 帐号
+	Username           interface{} // 账号
 	PasswordHash       interface{} // 密码
 	Salt               interface{} // 密码盐
 	PasswordResetToken interface{} // 密码重置令牌

@@ -63,7 +63,7 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 		return
 	}
 
-	if err = mod.Fields(whatsin.WhatsProxyListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsProxy.Columns().Id).Scan(&list); err != nil {
+	if err = mod.Fields(whatsin.WhatsProxyListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsProxy.Columns().UpdatedAt).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取代理管理列表失败，请稍后重试！")
 		return
 	}
