@@ -1,7 +1,7 @@
 import { http, jumpExport } from '@/utils/http/axios';
 
 // 获取@{.tableComment}列表
-export function List(params) {
+export function List(params: any) {
   return http.request({
     url: '/@{.apiPrefix}/list',
     method: 'get',
@@ -10,7 +10,7 @@ export function List(params) {
 }
 @{ if eq .options.Step.HasDel true }
 // 删除/批量删除@{.tableComment}
-export function Delete(params) {
+export function Delete(params: any) {
   return http.request({
     url: '/@{.apiPrefix}/delete',
     method: 'POST',
@@ -20,7 +20,7 @@ export function Delete(params) {
 @{end}
 @{ if eq .options.Step.HasEdit true }
 // 添加/编辑@{.tableComment}
-export function Edit(params) {
+export function Edit(params: any) {
   return http.request({
     url: '/@{.apiPrefix}/edit',
     method: 'POST',
@@ -30,7 +30,7 @@ export function Edit(params) {
 @{end}
 @{ if eq .options.Step.HasStatus true }
 // 修改@{.tableComment}状态
-export function Status(params) {
+export function Status(params: any) {
   return http.request({
     url: '/@{.apiPrefix}/status',
     method: 'POST',
@@ -40,7 +40,7 @@ export function Status(params) {
 @{end}
 @{ if eq .options.Step.HasSwitch true }
 // 操作@{.tableComment}开关
-export function Switch(params) {
+export function Switch(params: any) {
   return http.request({
     url: '/@{.apiPrefix}/switch',
     method: 'POST',
@@ -50,7 +50,7 @@ export function Switch(params) {
 @{end}
 @{ if or (eq .options.Step.HasView true) (eq .options.Step.HasEdit true) }
 // 获取@{.tableComment}指定详情
-export function View(params) {
+export function View(params: any) {
   return http.request({
     url: '/@{.apiPrefix}/view',
     method: 'GET',
@@ -69,7 +69,7 @@ export function MaxSort() {
 @{end}
 @{ if eq .options.Step.HasExport true }
 // 导出@{.tableComment}
-export function Export(params) {
+export function Export(params: any) {
   jumpExport('/@{.apiPrefix}/export', params);
 }
 @{end}

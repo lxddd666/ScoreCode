@@ -5,7 +5,7 @@ import {FormSchema} from '@/components/Form';
 import {Dicts} from '@/api/dict/dict';
 
 import {isNullObject} from '@/utils/is';
-import {defRangeShortcuts} from '@/utils/dateUtil';
+import {defRangeShortcuts, formatBefore} from '@/utils/dateUtil';
 import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
 
 
@@ -152,20 +152,23 @@ export const columns = [
     },
   },
   {
+    title: '最近活跃',
+    key: 'lastLoginTime',
+    width: 100,
+    render(row) {
+      if (row.lastLoginTime === null) {
+        return '从未登录';
+      }
+      return formatBefore(new Date(row.lastLoginTime));
+    },
+  },
+  {
     title: '代理地址',
     key: 'proxyAddress',
   },
   {
     title: '备注',
     key: 'comment',
-  },
-  {
-    title: '创建时间',
-    key: 'createdAt',
-  },
-  {
-    title: '更新时间',
-    key: 'updatedAt',
   },
 ];
 

@@ -362,14 +362,6 @@
         label: '重置密码',
         key: 0,
       },
-      {
-        label: '变更余额',
-        key: 100,
-      },
-      {
-        label: '变更积分',
-        key: 101,
-      },
     ];
 
     if (userStore.loginConfig?.loginRegisterSwitch === 1) {

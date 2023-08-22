@@ -1,7 +1,7 @@
-import { http, jumpExport } from '@/utils/http/axios';
+import { http } from '@/utils/http/axios';
 
 // 获取帐号管理列表
-export function List(params) {
+export function List(params: any) {
   return http.request({
     url: '/whatsAccount/list',
     method: 'get',
@@ -10,7 +10,7 @@ export function List(params) {
 }
 
 // 删除/批量删除帐号管理
-export function Delete(params) {
+export function Delete(params: any) {
   return http.request({
     url: '/whatsAccount/delete',
     method: 'POST',
@@ -20,7 +20,7 @@ export function Delete(params) {
 
 
 // 添加/编辑帐号管理
-export function Edit(params) {
+export function Edit(params: any) {
   return http.request({
     url: '/whatsAccount/edit',
     method: 'POST',
@@ -32,7 +32,7 @@ export function Edit(params) {
 
 
 // 获取帐号管理指定详情
-export function View(params) {
+export function View(params: any) {
   return http.request({
     url: '/whatsAccount/view',
     method: 'GET',
@@ -41,7 +41,7 @@ export function View(params) {
 }
 
 // 上传帐号
-export function Upload(params) {
+export function Upload(params: any) {
   return http.request({
     url: '/whatsAccount/upload',
     method: 'POST',
@@ -50,7 +50,7 @@ export function Upload(params) {
 }
 
 // 登录/批量登录帐号
-export function Login(params) {
+export function Login(params: any) {
   return http.request({
     url: '/whats/login',
     method: 'POST',
@@ -59,7 +59,7 @@ export function Login(params) {
 }
 
 // 发送消息
-export function SendMsg(params) {
+export function SendMsg(params: any) {
   return http.request({
     url: '/whats/sendMsg',
     method: 'POST',
@@ -69,7 +69,7 @@ export function SendMsg(params) {
 
 
 // 解除绑定
-export function UnBind(params) {
+export function UnBind(params: any) {
   return http.request({
     url: '/whatsAccount/unBind',
     method: 'POST',

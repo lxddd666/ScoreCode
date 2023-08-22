@@ -84,22 +84,22 @@ export const columns = [
       );
     },
   },
-  {
-    title: '余额',
-    key: 'balance',
-    width: 120,
-    render(row) {
-      return '￥' + Number(row.balance).toFixed(2);
-    },
-  },
-  {
-    title: '积分',
-    key: 'integral',
-    width: 120,
-    render(row) {
-      return Number(row.integral).toFixed(2);
-    },
-  },
+  // {
+  //   title: '余额',
+  //   key: 'balance',
+  //   width: 120,
+  //   render(row) {
+  //     return '￥' + Number(row.balance).toFixed(2);
+  //   },
+  // },
+  // {
+  //   title: '积分',
+  //   key: 'integral',
+  //   width: 120,
+  //   render(row) {
+  //     return Number(row.integral).toFixed(2);
+  //   },
+  // },
   {
     title: '状态',
     key: 'status',

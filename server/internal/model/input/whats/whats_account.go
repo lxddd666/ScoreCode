@@ -92,6 +92,7 @@ type WhatsAccountListModel struct {
 	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
 	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
 	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
+	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"最近活跃"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     dc:"更新时间"`
