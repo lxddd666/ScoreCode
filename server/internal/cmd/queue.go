@@ -11,6 +11,7 @@ import (
 	"hotgo/internal/global"
 	"hotgo/internal/library/queue"
 	_ "hotgo/internal/queues"
+	_ "hotgo/internal/queues/whats"
 	"hotgo/utility/simple"
 )
 

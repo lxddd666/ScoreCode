@@ -36,7 +36,7 @@ type (
 	}
 	IWhatsArts interface {
 		// Login whats登录
-		Login(ctx context.Context, users []string) (err error)
+		Login(ctx context.Context, ids []int) (err error)
 		// SendMsg whats发送消息
 		SendMsg(ctx context.Context, msg *whatsin.WhatsMsgInp) (res string, err error)
 	}

@@ -8,7 +8,7 @@ import (
 // WhatsLoginReq whats登录
 type WhatsLoginReq struct {
 	g.Meta `path:"/whats/login" method:"post" tags:"whats-api" summary:"whats登录"`
-	Users  []string `json:"users" v:"required#请选择登录账号|array#登录账号为数组格式" dc:"登录账号"`
+	Ids    []int `json:"ids" v:"required#请选择登录账号|array#登录账号为数组格式" dc:"登录账号"`
 }
 
 type WhatsLoginRes string

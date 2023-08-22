@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"github.com/gogf/gf/v2/frame/g"
+	grpc2 "google.golang.org/grpc"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
@@ -29,13 +29,19 @@ func init() {
 }
 
 // Login 登录whats
-func (s *sWhatsArts) Login(ctx context.Context, users []string) (err error) {
+func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	var accounts []entity.WhatsAccount
-	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).Where(do.WhatsAccount{Account: users}).Scan(&accounts)
+	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).WherePri(ids).Scan(&accounts)
 	if err != nil {
 		return err
 	}
 	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
 	c := protobuf.NewArthasClient(conn)
 
 	accountKeys, err := s.syncAccountKey(ctx, accounts)
@@ -51,8 +57,8 @@ func (s *sWhatsArts) Login(ctx context.Context, users []string) (err error) {
 	}
 	userId := contexts.GetUserId(ctx)
 	usernameMap := map[string]interface{}{}
-	for _, username := range users {
-		usernameMap[username] = userId
+	for _, item := range accounts {
+		usernameMap[item.Account] = userId
 	}
 	_, _ = g.Redis().HSet(ctx, consts.LoginAccountKey, usernameMap)
 	g.Log().Info(ctx, "登录结果：", loginRes.GetActionResult().String())
@@ -114,6 +120,12 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) 
 // SendMsg 发送消息
 func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
 	c := protobuf.NewArthasClient(conn)
 	syncContactReq := whatsin.SyncContactReq{
 		Values: make([]uint64, 0),

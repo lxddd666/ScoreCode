@@ -223,9 +223,9 @@ redis:
 # etcd
 etcd:
   endpoints:
-    - 101.35.51.132:31140
+    - 8.219.159.49:43279
   username: "root"
-  password: "hzi9%WLVtrrrzt@RFfe"
+  password: "HpIF14zNxvNBvGsg_Au"
 
 
 # Database. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114245
@@ -314,7 +314,7 @@ whats:
   grpc_env:
     GF_GSVC_PREFIX: service
     GF_GSVC_DEPLOYMENT: dev
-    GF_GSVC_NAMESPACE: env
-    GF_GSVC_VERSION: "1.0"
+    GF_GSVC_NAMESPACE: ns
+    GF_GSVC_VERSION: "latest"
   manager:
     name: arts_manager
