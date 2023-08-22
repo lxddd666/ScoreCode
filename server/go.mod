@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/IBM/sarama v1.40.1
+	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.2
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/tea v1.1.20
@@ -53,6 +54,7 @@ require (
 	github.com/alibabacloud-go/tea-utils v1.3.1 // indirect
 	github.com/alibabacloud-go/tea-xml v1.1.2 // indirect
 	github.com/aliyun/credentials-go v1.1.2 // indirect
+	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20220106215444-fb4bf637b56d // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/clbanning/mxj v1.8.4 // indirect

@@ -31,7 +31,7 @@ func (s *sTCPServer) OnExampleHello(ctx context.Context, req *servmsg.ExampleHel
 		return
 	}
 
-	data.Desc = fmt.Sprintf("Hello %v, 你的APPID：%v，当前HotGo版本：%v，你成功请求了`servmsg.ExampleHelloReq`接口！", req.Name, conn.Auth.AppId, consts.VersionApp)
+	data.Desc = fmt.Sprintf("Hello %v, 你的APPID：%v，当前Grata版本：%v，你成功请求了`servmsg.ExampleHelloReq`接口！", req.Name, conn.Auth.AppId, consts.VersionApp)
 	data.Timestamp = gtime.Now()
 	res.Data = data
 	_ = conn.Send(ctx, res)
@@ -40,7 +40,7 @@ func (s *sTCPServer) OnExampleHello(ctx context.Context, req *servmsg.ExampleHel
 // OnExampleRPCHello 一个rpc请求例子
 func (s *sTCPServer) OnExampleRPCHello(ctx context.Context, req *servmsg.ExampleRPCHelloReq) (res *servmsg.ExampleRPCHelloRes, err error) {
 	var data = new(servmsgin.ExampleHelloModel)
-	data.Desc = fmt.Sprintf("Hello %v, 当前HotGo版本：%v，你成功请求了`servmsg.ExampleRPCHelloReq`接口！", req.Name, consts.VersionApp)
+	data.Desc = fmt.Sprintf("Hello %v, 当前Grata版本：%v，你成功请求了`servmsg.ExampleRPCHelloReq`接口！", req.Name, consts.VersionApp)
 	data.Timestamp = gtime.Now()
 
 	res = new(servmsg.ExampleRPCHelloRes)
