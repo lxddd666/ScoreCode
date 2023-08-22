@@ -182,9 +182,9 @@ func (l *gCurd) loadView(ctx context.Context, in *CurdPreviewInput) (err error) 
 	if err != nil {
 		return
 	}
-	importApi := gfile.Join(gstr.Replace(temp.ApiPath, "./", modName+"/")+temp.MasterPackage, gstr.CaseSnake(in.In.VarName))
-	importInput := gfile.Join(gstr.Replace(temp.InputPath, "./", modName+"/"), temp.MasterPackage)
-	importController := gfile.Join(gstr.Replace(temp.ControllerPath, "./", modName+"/"), temp.MasterPackage)
+	importApi := gstr.Replace(temp.ApiPath, "./", modName+"/") + temp.MasterPackage + gstr.CaseSnake(in.In.VarName)
+	importInput := gstr.Replace(temp.InputPath, "./", modName+"/") + temp.MasterPackage
+	importController := gstr.Replace(temp.ControllerPath, "./", modName+"/") + temp.MasterPackage
 	importService := "hotgo/internal/service"
 	if temp.IsAddon {
 		importService = "hotgo/addons/" + in.In.AddonName + "/service"
