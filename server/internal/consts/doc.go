@@ -25,7 +25,7 @@ const (
   <script>
     window.onload = () => {
       window.ui = SwaggerUIBundle({
-        url: '/api.json',
+        url: '/docs/api.json',
         dom_id: '#swagger-ui',
         presets: [
           SwaggerUIBundle.presets.apis,
