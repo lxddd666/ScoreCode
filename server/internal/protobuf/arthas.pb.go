@@ -28,7 +28,7 @@ const (
 	Action_LOGOUT             Action = 1
 	Action_SEND_MESSAGE       Action = 2
 	Action_SEND_GROUP_MESSAGE Action = 3
-	Action_SYNC_ACCOUNT_KEY   Action = 4 // 添加同步帐号密钥动作
+	Action_SYNC_ACCOUNT_KEY   Action = 4 // 添加同步账号密钥动作
 	Action_GET_PREKEYBUNDLE   Action = 5
 	Action_SYNC_CONTACTS      Action = 6
 	Action_PING_PONG          Action = 7
@@ -141,7 +141,7 @@ func (ActionResult) EnumDescriptor() ([]byte, []int) {
 	return file_protobuf_arthas_proto_rawDescGZIP(), []int{1}
 }
 
-// 定义单个帐号的执行状态枚举
+// 定义单个账号的执行状态枚举
 type AccountStatus int32
 
 const (
@@ -390,7 +390,7 @@ func (x *KeyData) GetIdentify() []byte {
 	return nil
 }
 
-// 定义同步帐号密钥动作消息
+// 定义同步账号密钥动作消息
 type SyncAccountKeyAction struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -827,7 +827,7 @@ type ResponseMessage struct {
 	unknownFields protoimpl.UnknownFields
 
 	ActionResult  ActionResult             `protobuf:"varint,1,opt,name=action_result,json=actionResult,proto3,enum=ActionResult" json:"action_result,omitempty"`                                                                                             // 动作的返回状态
-	AccountStatus map[string]AccountStatus `protobuf:"bytes,2,rep,name=account_status,json=accountStatus,proto3" json:"account_status,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3,enum=AccountStatus"` // 帐号的执行状态字典
+	AccountStatus map[string]AccountStatus `protobuf:"bytes,2,rep,name=account_status,json=accountStatus,proto3" json:"account_status,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3,enum=AccountStatus"` // 账号的执行状态字典
 	PongMessage   string                   `protobuf:"bytes,3,opt,name=pong_message,json=pongMessage,proto3" json:"pong_message,omitempty"`
 	// Types that are assignable to CallbackInfo:
 	//	*ResponseMessage_LoginCallbacks

@@ -24,7 +24,7 @@ type AdminMemberColumns struct {
 	DeptId             string // 部门ID
 	RoleId             string // 角色ID
 	RealName           string // 真实姓名
-	Username           string // 帐号
+	Username           string // 账号
 	PasswordHash       string // 密码
 	Salt               string // 密码盐
 	PasswordResetToken string // 密码重置令牌

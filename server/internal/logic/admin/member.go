@@ -447,7 +447,7 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 	}
 
 	if in.Username == "" {
-		err = gerror.New("帐号不能为空")
+		err = gerror.New("账号不能为空")
 		return
 	}
 

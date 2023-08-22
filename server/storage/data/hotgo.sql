@@ -168,7 +168,7 @@ CREATE TABLE `hg_admin_member`  (
   `dept_id` bigint(20) NULL DEFAULT 0 COMMENT '部门ID',
   `role_id` bigint(20) NULL DEFAULT 10 COMMENT '角色ID',
   `real_name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '' COMMENT '真实姓名',
-  `username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '帐号',
+  `username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '账号',
   `password_hash` char(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL DEFAULT '' COMMENT '密码',
   `salt` char(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '密码盐',
   `password_reset_token` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT '' COMMENT '密码重置令牌',
@@ -436,7 +436,7 @@ INSERT INTO `hg_admin_menu` VALUES (2308, 2098, '保存生成配置', 'genCodesE
 INSERT INTO `hg_admin_menu` VALUES (2309, 2229, '更新插件配置', 'addonsUpgrade', '', '', 3, '', '/addons/upgrade', '', '', 1, '', 0, 2, '', 0, 0, 0, 3, '', 10, '', 1, '2023-08-16 10:54:31', '2023-08-16 11:15:50');
 INSERT INTO `hg_admin_menu` VALUES (2310, 2229, '卸载插件', 'addonsUninstall', '', '', 3, '', '/addons/uninstall', '', '', 1, '', 0, 2, '', 0, 0, 0, 3, '', 10, '', 1, '2023-08-16 10:54:31', '2023-08-16 11:15:50');
 INSERT INTO `hg_admin_menu` VALUES (2311, 0, 'whats管理', 'Whats', '/whats', 'WhatsAppOutlined', 1, '/org/account', '', '', 'LAYOUT', 1, '', 0, 2, '', 0, 0, 0, 1, '', 10, '', 1, '2023-08-18 15:50:21', '2023-08-18 15:50:37');
-INSERT INTO `hg_admin_menu` VALUES (2323, 2311, '帐号管理', 'whatsAccountIndex', 'whatsAccount/index', 'TeamOutlined', 2, '', '/whatsAccount/list', '', '/whats/whatsAccount/index', 1, '', 0, 0, '', 0, 0, 0, 2, '', 1, '', 1, '2023-08-18 17:26:05', '2023-08-21 22:41:41');
+INSERT INTO `hg_admin_menu` VALUES (2323, 2311, '账号管理', 'whatsAccountIndex', 'whatsAccount/index', 'TeamOutlined', 2, '', '/whatsAccount/list', '', '/whats/whatsAccount/index', 1, '', 0, 0, '', 0, 0, 0, 2, '', 1, '', 1, '2023-08-18 17:26:05', '2023-08-21 22:41:41');
 INSERT INTO `hg_admin_menu` VALUES (2324, 2311, '小号管理详情', 'whatsAccountView', 'whatsAccount/view/:id?', '', 2, '', '/whatsAccount/view', '', '/whats/whatsAccount/view', 0, 'whatsAccountIndex', 0, 0, '', 0, 1, 0, 2, '', 20, '', 1, '2023-08-18 17:26:05', '2023-08-19 01:45:53');
 INSERT INTO `hg_admin_menu` VALUES (2325, 2323, '编辑/新增小号管理', 'whatsAccountEdit', '', '', 3, '', '/whatsAccount/edit', '', '', 1, '', 0, 0, '', 0, 1, 0, 3, '', 10, '', 1, '2023-08-18 17:26:05', '2023-08-18 17:26:05');
 INSERT INTO `hg_admin_menu` VALUES (2326, 2323, '删除小号管理', 'whatsAccountDelete', '', '', 3, '', '/whatsAccount/delete', '', '', 1, '', 0, 0, '', 0, 0, 0, 3, '', 10, '', 1, '2023-08-18 17:26:05', '2023-08-18 17:26:05');
