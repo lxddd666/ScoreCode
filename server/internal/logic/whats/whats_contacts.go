@@ -152,3 +152,9 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 	}
 	return nil
 }
+
+// Upload 上传联系人信息
+func (s *sWhatsContacts) Upload(ctx context.Context, list []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error) {
+	_, err = s.Model(ctx).Data(list).Save()
+	return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+}

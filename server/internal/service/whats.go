@@ -93,6 +93,8 @@ type (
 		View(ctx context.Context, in *whatsin.WhatsContactsViewInp) (res *whatsin.WhatsContactsViewModel, err error)
 		// SyncContactCallback 同步联系人回调
 		SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error)
+		// Upload 上传联系人信息
+		Upload(ctx context.Context, in []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error)
 	}
 )
 
