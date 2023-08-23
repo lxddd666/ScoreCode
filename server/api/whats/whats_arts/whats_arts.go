@@ -20,3 +20,10 @@ type WhatsSendMsgReq struct {
 }
 
 type WhatsSendMsgRes string
+
+type WhatsSendVcardMsgReq struct {
+	g.Meta `path:"/whats/sendVcardMsg" method:"post" tags:"whats-api" summary:"whats发送名片"`
+	*whatsin.WhatVcardMsgInp
+}
+
+type WhatsSendVcardMsgRes string
