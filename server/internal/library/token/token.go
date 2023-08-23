@@ -17,6 +17,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/golang-jwt/jwt/v5"
 	"hotgo/internal/consts"
+	"hotgo/internal/global"
 	"hotgo/internal/library/cache"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model"
@@ -291,7 +292,7 @@ func GetAuthorization(r *ghttp.Request) string {
 
 // GetAuthKey 认证key
 func GetAuthKey(token string) string {
-	return gmd5.MustEncryptString("hotgo" + token)
+	return gmd5.MustEncryptString(global.AppName + token)
 }
 
 // GetTokenKey 令牌缓存key

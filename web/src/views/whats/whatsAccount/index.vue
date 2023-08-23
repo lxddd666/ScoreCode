@@ -2,7 +2,7 @@
   <div>
     <n-card :bordered="false" class="proCard">
       <div class="n-layout-page-header">
-        <n-card :bordered="false" title="帐号管理">
+        <n-card :bordered="false" title="账号管理">
           <!--  这是系统自动生成的CURD表格，你可以将此行注释改为表格的描述 -->
         </n-card>
       </div>

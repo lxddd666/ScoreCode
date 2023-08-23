@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
@@ -29,12 +30,12 @@ func init() {
 	service.RegisterWhatsAccount(NewWhatsAccount())
 }
 
-// Model 帐号管理ORM模型
+// Model 账号ORM模型
 func (s *sWhatsAccount) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
 	return handler.Model(dao.WhatsAccount.Ctx(ctx), option...)
 }
 
-// List 获取帐号管理列表
+// List 获取账号列表
 func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
@@ -55,7 +56,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取帐号管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, "获取账号管理数据行失败，请稍后重试！")
 		return
 	}
 
@@ -63,14 +64,14 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 		return
 	}
 
-	if err = mod.Fields(whatsin.WhatsAccountListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsAccount.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取帐号管理列表失败，请稍后重试！")
+	if err = mod.Fields(whatsin.WhatsAccountListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsAccount.Columns().UpdatedAt).Scan(&list); err != nil {
+		err = gerror.Wrap(err, "获取账号管理列表失败，请稍后重试！")
 		return
 	}
 	return
 }
 
-// Edit 修改/新增帐号管理
+// Edit 修改/新增账号管理
 func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error) {
 	// 验证'Account'唯一
 	if err = hgorm.IsUnique(ctx, &dao.WhatsAccount, g.Map{dao.WhatsAccount.Columns().Account: in.Account}, "账号号码已存在", in.Id); err != nil {
@@ -81,7 +82,7 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsAccountUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改帐号管理失败，请稍后重试！")
+			err = gerror.Wrap(err, "修改账号管理失败，请稍后重试！")
 		}
 		return
 	}
@@ -90,30 +91,30 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(whatsin.WhatsAccountInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增帐号管理失败，请稍后重试！")
+		err = gerror.Wrap(err, "新增账号管理失败，请稍后重试！")
 	}
 	return
 }
 
-// Delete 删除帐号管理
+// Delete 删除账号管理
 func (s *sWhatsAccount) Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除帐号管理失败，请稍后重试！")
+		err = gerror.Wrap(err, "删除账号管理失败，请稍后重试！")
 		return
 	}
 	return
 }
 
-// View 获取帐号管理指定信息
+// View 获取账号管理指定信息
 func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取帐号管理信息，请稍后重试！")
+		err = gerror.Wrap(err, "获取账号管理信息，请稍后重试！")
 		return
 	}
 	return
 }
 
-// Upload 上传帐号
+// Upload 上传账号
 func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error) {
 	accounts := make([]string, 0)
 	for _, inp := range in {
@@ -128,7 +129,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		account := entity.WhatsAccount{}
 		bytes, err := whats_util.AccountDetailToByte(inp, keyBytes, viBytes)
 		if err != nil {
-			return nil, gerror.Wrap(err, "上传帐号失败，请稍后重试！")
+			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 		}
 		account.Encryption = bytes
 		account.Account = inp.Account
@@ -136,7 +137,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 	}
 	columns := dao.WhatsAccount.Columns()
 	_, err = s.Model(ctx).Fields(columns.Account, columns.Encryption).Save(list)
-	return nil, gerror.Wrap(err, "上传帐号失败，请稍后重试！")
+	return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 }
 
 // UnBind 解绑代理
@@ -147,7 +148,7 @@ func (s *sWhatsAccount) UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBi
 		if err != nil {
 			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
 		}
-		//查询绑定该代理的帐号数量
+		//查询绑定该代理的账号数量
 		count, err := tx.Model(dao.WhatsAccount.Table()).Where(do.WhatsAccount{ProxyAddress: in.ProxyAddress}).Count()
 		if err != nil {
 			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
@@ -168,23 +169,24 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
 		userJid := strconv.FormatUint(item.UserJid, 10)
-		accountStatus := 1
-		isOnline := -1
-		//如果帐号在线记录帐号登录所使用的代理
+
+		data := do.WhatsAccount{
+			AccountStatus: 0,
+			IsOnline:      -1,
+			Comment:       item.Comment,
+		}
+		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.LoginStatus) != protobuf.AccountStatus_SUCCESS {
 			//如果失败,删除redis
 			_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
-			accountStatus = int(item.LoginStatus)
+			data.AccountStatus = int(item.LoginStatus)
 		} else {
-			accountStatus = 1
-			isOnline = 1
+			data.IsOnline = 1
+			data.LastLoginTime = gtime.Now()
+
 		}
 		//更新登录状态
-		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(do.WhatsAccount{
-			AccountStatus: accountStatus,
-			IsOnline:      isOnline,
-			Comment:       item.Comment,
-		})
+		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 	}
 	return nil
 }

@@ -11,12 +11,35 @@ import (
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
 	whatsin "hotgo/internal/model/input/whats"
-	"hotgo/internal/protobuf"
 
 	"github.com/gogf/gf/v2/database/gdb"
 )
 
 type (
+	IWhatsAccount interface {
+		// Model 账号管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取账号管理列表
+		List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error)
+		// Edit 修改/新增账号管理
+		Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error)
+		// Delete 删除账号管理
+		Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error)
+		// View 获取账号管理指定信息
+		View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error)
+		// Upload 上传账号
+		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
+		// UnBind 解绑代理
+		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
+		// LoginCallback 登录回调处理
+		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
+	}
+	IWhatsArts interface {
+		// Login whats登录
+		Login(ctx context.Context, ids []int) (err error)
+		// SendMsg whats发送消息
+		SendMsg(ctx context.Context, msg *whatsin.WhatsMsgInp) (res string, err error)
+	}
 	IWhatsMsg interface {
 		// Model 消息记录ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -51,31 +74,6 @@ type (
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
 	}
-	IWhatsAccount interface {
-		// Model 帐号管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取帐号管理列表
-		List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error)
-		// Edit 修改/新增帐号管理
-		Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error)
-		// Delete 删除帐号管理
-		Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error)
-		// View 获取帐号管理指定信息
-		View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error)
-		// Upload 上传帐号
-		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
-		// UnBind 解绑代理
-		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
-		// LoginCallback 登录回调处理
-		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
-	}
-	IWhatsArts interface {
-		// Login 登录whats
-		Login(ctx context.Context, users []string) (err error)
-		// SendMsg 发送消息
-		SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error)
-		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
-	}
 	IWhatsContacts interface {
 		// Model 联系人管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -89,6 +87,8 @@ type (
 		Delete(ctx context.Context, in *whatsin.WhatsContactsDeleteInp) (err error)
 		// View 获取联系人管理指定信息
 		View(ctx context.Context, in *whatsin.WhatsContactsViewInp) (res *whatsin.WhatsContactsViewModel, err error)
+		// SyncContactCallback 同步联系人回调
+		SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error)
 	}
 )
 
@@ -99,17 +99,6 @@ var (
 	localWhatsAccount  IWhatsAccount
 	localWhatsArts     IWhatsArts
 )
-
-func WhatsAccount() IWhatsAccount {
-	if localWhatsAccount == nil {
-		panic("implement not found for interface IWhatsAccount, forgot register?")
-	}
-	return localWhatsAccount
-}
-
-func RegisterWhatsAccount(i IWhatsAccount) {
-	localWhatsAccount = i
-}
 
 func WhatsArts() IWhatsArts {
 	if localWhatsArts == nil {
@@ -153,4 +142,15 @@ func WhatsProxy() IWhatsProxy {
 
 func RegisterWhatsProxy(i IWhatsProxy) {
 	localWhatsProxy = i
+}
+
+func WhatsAccount() IWhatsAccount {
+	if localWhatsAccount == nil {
+		panic("implement not found for interface IWhatsAccount, forgot register?")
+	}
+	return localWhatsAccount
+}
+
+func RegisterWhatsAccount(i IWhatsAccount) {
+	localWhatsAccount = i
 }

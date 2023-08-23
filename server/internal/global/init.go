@@ -15,6 +15,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/genv"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -41,7 +42,7 @@ func Init(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf("欢迎使用HotGo！\r\n当前运行环境：%v, 运行根路径为：%v \r\nHotGo版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
+	fmt.Printf("欢迎使用HotGo！\r\n当前运行环境：%v, 运行根路径为：%v \r\nGrata版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
 
 	// 初始化注册中心
 	InitRegister(ctx)
@@ -137,7 +138,6 @@ func InitTrace(ctx context.Context) {
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 	}
-
 	simple.Event().Register(consts.EventServerClose, func(ctx context.Context, args ...interface{}) {
 		_ = tp.Shutdown(ctx)
 		g.Log().Debug(ctx, "jaeger closed ..")
@@ -150,10 +150,17 @@ func InitRegister(ctx context.Context) {
 	err := g.Cfg().MustGet(ctx, "etcd").Scan(&config)
 	if err != nil {
 		g.Log().Fatal(ctx, err)
+		return
 	}
 	clientV3, err := etcd3.New(config)
 	if err != nil {
 		g.Log().Fatal(ctx, err)
+		return
 	}
+	conf, err := service.SysConfig().GetWhatsConfig(ctx)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+	_ = genv.SetMap(conf.GrpcEnv)
 	grpcx.Resolver.Register(etcd.NewWithClient(clientV3))
 }

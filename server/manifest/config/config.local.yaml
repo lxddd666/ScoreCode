@@ -206,7 +206,7 @@ queue:
     address: "127.0.0.1:9876"                         # broker地址+端口
     logLevel: "all"                                   # 系统日志级别，可选：all|close|debug|info|warn|error|fatal
   kafka:
-    address: "101.35.51.132:30092"                         # kafka地址+端口
+    address: "10.8.5.21:9092"                         # kafka地址+端口
     version: "3.3.1"                                # kafka专属配置，默认2.0.0.0
     randClient: true                                  # 开启随机生成clientID，可以实现启动多实例同时一起消费相同topic，加速消费能力的特性，默认为true
     multiConsumer: true                               # 是否支持创建多个消费者
@@ -215,17 +215,17 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "103.205.6.236:32456"
+    address: "10.8.5.21:6379"
     db: "2"
-    pass: "sLAGAU1JHQpI"
+    pass: ""
     idleTimeout: "20"
 
 # etcd
 etcd:
   endpoints:
-    - 8.219.159.49:43279
-  username: "root"
-  password: "HpIF14zNxvNBvGsg_Au"
+    - 10.8.5.21:2379
+  username: ""
+  password: ""
 
 
 # Database. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114245
@@ -234,14 +234,14 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:root:hY7iaIFYHHJu!@tcp(103.205.6.236:32698)/hotgo?loc=Local&parseTime=true"
+    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
     debug: true
 
 
 # 链路追踪
 jaeger:
-  switch: false                                   # 链路追踪开关，可选：true|false，默认为false
-  endpoint: "127.0.0.1:6831"                      # jaeger-agent上报地址
+  switch: true                                   # 链路追踪开关，可选：true|false，默认为false
+  endpoint: "10.8.5.21:6831"                      # jaeger-agent上报地址
 
 
 # 生成代码

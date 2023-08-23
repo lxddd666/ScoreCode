@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/callback"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"strconv"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -35,7 +38,6 @@ func (s *sWhatsContacts) Model(ctx context.Context, option ...*handler.Option) *
 // List 获取联系人管理列表
 func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
-
 	// 查询id
 	if in.Id > 0 {
 		mod = mod.Where(dao.WhatsContacts.Columns().Id, in.Id)
@@ -127,4 +129,26 @@ func (s *sWhatsContacts) View(ctx context.Context, in *whatsin.WhatsContactsView
 		return
 	}
 	return
+}
+
+// SyncContactCallback Callback 同步联系人回调
+func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error) {
+	var list []entity.WhatsAccountContacts
+	for _, item := range res {
+		if item.Status == "in" {
+			ac := entity.WhatsAccountContacts{
+				Account: strconv.FormatUint(item.AccountDb, 10),
+				Phone:   item.Synchro,
+			}
+			list = append(list, ac)
+		}
+	}
+	// 插入联表中
+	if len(list) > 0 {
+		_, err = handler.Model(dao.WhatsAccountContacts.Ctx(ctx)).Save(list)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
