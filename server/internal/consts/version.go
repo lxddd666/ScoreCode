@@ -5,7 +5,7 @@
 // @License  https://github.com/bufanyun/hotgo/blob/master/LICENSE
 package consts
 
-// VersionApp HotGo版本
+// VersionApp Grata版本
 const (
 	VersionApp = "2.8.4"
 )
