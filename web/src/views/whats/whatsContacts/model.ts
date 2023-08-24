@@ -92,6 +92,43 @@ export const schemas = ref<FormSchema[]>([
 
 ]);
 
+export const uploadColumns = [
+  {
+    title: '姓名',
+    key: 'name',
+  },
+  {
+    title: '手机号',
+    key: 'phone',
+  },
+  {
+    title: '头像',
+    key: 'avatar',
+  },
+  {
+    title: '邮箱',
+    key: 'email',
+  },
+  {
+    title: '地址',
+    key: 'address',
+  },
+  {
+    title: '组织',
+    key: 'orgId',
+  },
+  {
+    title: '部门',
+    key: 'deptId',
+  },
+  {
+    title: '备注',
+    key: 'comment',
+  },
+
+
+];
+
 export const columns = [
   {
     title: 'id',

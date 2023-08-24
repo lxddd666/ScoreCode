@@ -117,6 +117,34 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) 
 	return req
 }
 
+func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error) {
+	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
+	c := protobuf.NewArthasClient(conn)
+	syncContactReq := whatsin.SyncContactReq{
+		Values: make([]uint64, 0),
+	}
+	syncContactReq.Key = msg.Sender
+	syncContactReq.Values = append(syncContactReq.Values, msg.Receiver)
+	//2.同步通讯录
+	syncContactMsg := s.syncContact(syncContactReq)
+	artsRes, err := c.Connect(ctx, syncContactMsg)
+	g.Log().Info(ctx, artsRes.GetActionResult().String())
+
+	sendMsg := s.sendVCardMessage(msg)
+	artsRes, err = c.Connect(ctx, sendMsg)
+	if err != nil {
+		return "", err
+	}
+	g.Log().Info(ctx, artsRes.GetActionResult().String())
+	return
+}
+
 // SendMsg 发送消息
 func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
@@ -192,6 +220,38 @@ func (s *sWhatsArts) GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageR
 		ActionDetail: &protobuf.RequestMessage_GetUserHeadImage{
 			GetUserHeadImage: &protobuf.GetUserHeadImageAction{
 				Account: userHeadImageReq.Account,
+			},
+		},
+	}
+	return req
+}
+
+func (s *sWhatsArts) sendVCardMessage(contant *whatsin.WhatVcardMsgInp) *protobuf.RequestMessage {
+	vcard := contant.Vcard
+	sendData := make(map[uint64]*protobuf.VCard)
+	sendData[contant.Sender] = &protobuf.VCard{
+		Version:     vcard.Version,
+		Prodid:      vcard.Prodid,
+		Fn:          vcard.Fn,
+		Org:         vcard.Org,
+		Tel:         vcard.Tel,
+		XWaBizName:  vcard.XWaBizName,
+		End:         vcard.End,
+		DisplayName: vcard.DisplayName,
+		Family:      vcard.Family,
+		Given:       vcard.Given,
+		Prefixes:    vcard.Prefixes,
+		Language:    vcard.Language,
+	}
+	//tmp.SendData = sendData
+
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_SEND_VCARD_MESSAGE,
+		ActionDetail: &protobuf.RequestMessage_SendVcardMessage{
+			SendVcardMessage: &protobuf.SendVCardMsgAction{
+				VcardData: sendData,
+				Sender:    contant.Sender,
+				Receiver:  contant.Receiver,
 			},
 		},
 	}

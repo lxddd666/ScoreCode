@@ -51,3 +51,11 @@ type DeleteReq struct {
 }
 
 type DeleteRes struct{}
+
+// UploadReq 上传联系人
+type UploadReq struct {
+	g.Meta `path:"/whatsContacts/upload" method:"post" tags:"联系人管理" summary:"批量上传联系人信息"`
+	List   []*whatsin.WhatsContactsUploadInp `json:"list" v:"required|array"`
+}
+
+type UploadRes struct{}

@@ -40,6 +40,15 @@ export function View(params) {
   });
 }
 
+// 上传账号
+export function Upload(params: any) {
+  return http.request({
+    url: '/whatsContacts/upload',
+    method: 'POST',
+    params,
+  });
+}
+
 
 
 // 导出联系人管理

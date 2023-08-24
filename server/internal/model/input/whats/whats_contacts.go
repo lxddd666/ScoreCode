@@ -90,6 +90,22 @@ type WhatsContactsListInp struct {
 	CreatedAt []*gtime.Time `json:"createdAt" dc:"创建时间"`
 }
 
+// WhatsContactsUploadInp 导入
+type WhatsContactsUploadInp struct {
+	Name    string `json:"name" dc:"联系人姓名"`
+	Phone   string `json:"phone" dc:"联系人电话"`
+	Avatar  []byte `json:"avatar" dc:"联系人头像"`
+	Email   string `json:"email" dc:"联系人邮箱"`
+	Address string `json:"address" dc:"联系人地址"`
+	OrgId   uint64 `json:"orgId" dc:"组织id"`
+	DeptId  uint64 `json:"deptId" dc:"部门id"`
+	Comment string `json:"comment" dc:"备注"`
+}
+
+func (in *WhatsContactsUploadInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
 func (in *WhatsContactsListInp) Filter(ctx context.Context) (err error) {
 	return
 }
@@ -122,3 +138,5 @@ type WhatsContactsExportModel struct {
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
 	UpdatedAt *gtime.Time `json:"updatedAt" dc:"更新时间"`
 }
+
+type WhatsContactsUploadModel struct{}

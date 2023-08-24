@@ -31,6 +31,13 @@ func (c *cWhatsContacts) Export(ctx context.Context, req *whatscontacts.ExportRe
 	return
 }
 
+// Upload 上传账号
+func (c *cWhatsContacts) Upload(ctx context.Context, req *whatscontacts.UploadReq) (res *whatscontacts.UploadRes, err error) {
+	result, err := service.WhatsContacts().Upload(ctx, req.List)
+	res = (*whatscontacts.UploadRes)(result)
+	return
+}
+
 // Edit 更新联系人管理
 func (c *cWhatsContacts) Edit(ctx context.Context, req *whatscontacts.EditReq) (res *whatscontacts.EditRes, err error) {
 	err = service.WhatsContacts().Edit(ctx, &req.WhatsContactsEditInp)

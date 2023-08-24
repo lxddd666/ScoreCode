@@ -11,8 +11,8 @@ const (
 	QueueLoginLogTopic         = `login_log`   // 登录日志
 	QueueServeLogTopic         = `serve_log`   // 服务日志
 	QueueWhatsLoginTopic       = `login`       // whats登录回调
-	QueueWhatsSyncContactTopic = `syncContact` //同步通讯录回调
-	QueueWhatsReadMsgTopic     = `read`        //已读消息回调
+	QueueWhatsSyncContactTopic = `syncContact` // 同步通讯录回调
+	QueueWhatsReadMsgTopic     = `read`        // 已读消息回调
 	QueueWhatsTextMsgTopic     = `textMsg`     // 发送文本消息回调
-
+	QueueWhatsLogoutTopic      = `logout`      // 登出日志
 )

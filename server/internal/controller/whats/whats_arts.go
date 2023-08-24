@@ -26,3 +26,10 @@ func (c *cWhatsArts) SendMsg(ctx context.Context, req *whatsarts.WhatsSendMsgReq
 	res = (*whatsarts.WhatsSendMsgRes)(&data)
 	return
 }
+
+// SendVcardMsg 发送名片
+func (c *cWhatsArts) SendVcardMsg(ctx context.Context, req *whatsarts.WhatsSendVcardMsgReq) (res *whatsarts.WhatsSendVcardMsgRes, err error) {
+	data, err := service.WhatsArts().SendVcardMsg(ctx, req.WhatVcardMsgInp)
+	res = (*whatsarts.WhatsSendVcardMsgRes)(&data)
+	return
+}

@@ -33,12 +33,16 @@ type (
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
 		// LoginCallback 登录回调处理
 		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
+		// LogoutCallback 登出回调处理
+		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
 	}
 	IWhatsArts interface {
 		// Login whats登录
 		Login(ctx context.Context, ids []int) (err error)
 		// SendMsg whats发送消息
 		SendMsg(ctx context.Context, msg *whatsin.WhatsMsgInp) (res string, err error)
+		// SendVcardMsg whats发送名片
+		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 	}
 	IWhatsMsg interface {
 		// Model 消息记录ORM模型
@@ -89,6 +93,8 @@ type (
 		View(ctx context.Context, in *whatsin.WhatsContactsViewInp) (res *whatsin.WhatsContactsViewModel, err error)
 		// SyncContactCallback 同步联系人回调
 		SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error)
+		// Upload 上传联系人信息
+		Upload(ctx context.Context, in []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error)
 	}
 )
 
