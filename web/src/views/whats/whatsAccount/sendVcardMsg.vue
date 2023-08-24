@@ -16,7 +16,7 @@
           :rules="rules"
           ref="formRef"
           label-placement="left"
-          :label-width="80"
+          :label-width="120"
           class="py-4"
         >
           <n-form-item label="发送人" path="sender">
