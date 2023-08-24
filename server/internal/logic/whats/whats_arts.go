@@ -3,7 +3,9 @@ package whats
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	grpc2 "google.golang.org/grpc"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
@@ -126,18 +128,31 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 		}
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactReq := whatsin.SyncContactReq{
-		Values: make([]uint64, 0),
+
+	syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, msg.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(msg.Receiver))
+	if err != nil {
+		return "", err
 	}
-	syncContactReq.Key = msg.Sender
-	syncContactReq.Values = append(syncContactReq.Values, msg.Receiver)
-	//2.同步通讯录
-	syncContactMsg := s.syncContact(syncContactReq)
-	artsRes, err := c.Connect(ctx, syncContactMsg)
-	g.Log().Info(ctx, artsRes.GetActionResult().String())
+	if flag != 1 {
+		// 该联系人未同步
+		syncContactReq := whatsin.SyncContactReq{
+			Values: make([]uint64, 0),
+		}
+		syncContactReq.Key = msg.Sender
+		syncContactReq.Values = append(syncContactReq.Values, msg.Receiver)
+
+		//2.同步通讯录
+		syncContactMsg := s.syncContact(syncContactReq)
+		artsRes, err := c.Connect(ctx, syncContactMsg)
+		if err != nil {
+			return "", err
+		}
+		g.Log().Info(ctx, artsRes.GetActionResult().String())
+	}
 
 	sendMsg := s.sendVCardMessage(msg)
-	artsRes, err = c.Connect(ctx, sendMsg)
+	artsRes, err := c.Connect(ctx, sendMsg)
 	if err != nil {
 		return "", err
 	}
@@ -155,20 +170,31 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 		}
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactReq := whatsin.SyncContactReq{
-		Values: make([]uint64, 0),
+	syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(item.Receiver))
+	if err != nil {
+		return "", err
 	}
-	syncContactReq.Key = item.Sender
-	syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
-	if len(item.TextMsg) > 0 {
+	if flag != 1 {
+		// 该联系人未同步
+		syncContactReq := whatsin.SyncContactReq{
+			Values: make([]uint64, 0),
+		}
+		syncContactReq.Key = item.Sender
+		syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
+
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
 		artsRes, err := c.Connect(ctx, syncContactMsg)
 		if err != nil {
 			return "", err
 		}
+		g.Log().Info(ctx, artsRes.GetActionResult().String())
+	}
+
+	if len(item.TextMsg) > 0 {
 		requestMessage := s.sendTextMessage(item)
-		artsRes, err = c.Connect(ctx, requestMessage)
+		artsRes, err := c.Connect(ctx, requestMessage)
 		if err != nil {
 			return "", err
 		}

@@ -3,6 +3,8 @@ package whats
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/callback"
@@ -141,6 +143,9 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 				Phone:   item.Synchro,
 			}
 			list = append(list, ac)
+			// 插入到redis中
+			key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.AccountDb)
+			g.Redis().SAdd(ctx, key, item.Synchro)
 		}
 	}
 	// 插入联表中

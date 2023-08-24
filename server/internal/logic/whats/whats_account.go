@@ -2,6 +2,7 @@ package whats
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -184,6 +185,20 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			data.IsOnline = consts.Online
 			data.LastLoginTime = gtime.Now()
 
+			// 将同步的联系人放到redis中
+			acColumns := dao.WhatsAccountContacts.Columns()
+			contactPhoneList, err := handler.Model(dao.WhatsAccountContacts.Ctx(ctx)).Fields(acColumns.Phone).Where(acColumns.Account, item.UserJid).Array()
+			if err != nil {
+				return gerror.Wrap(err, "登录获取已同步联系人失败，请联系管理员！")
+			}
+			if len(contactPhoneList) > 0 {
+				// 存放到redis中以集合方式存储
+				// key
+				key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+				for _, p := range contactPhoneList {
+					g.Redis().SAdd(ctx, key, p.Val())
+				}
+			}
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
@@ -203,8 +218,8 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		}
 		//删除redis
 		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
-
-		data.IsOnline = 1
+		syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+		_, _ = g.Redis().Del(ctx, syncContactkey)
 		data.LastLoginTime = gtime.Now()
 
 		//更新登录状态
