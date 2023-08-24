@@ -33,12 +33,16 @@ type (
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
 		// LoginCallback 登录回调处理
 		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
+		// LogoutCallback 登出回调处理
+		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
 	}
 	IWhatsArts interface {
 		// Login whats登录
 		Login(ctx context.Context, ids []int) (err error)
 		// SendMsg whats发送消息
 		SendMsg(ctx context.Context, msg *whatsin.WhatsMsgInp) (res string, err error)
+		// SendVcardMsg whats发送名片
+		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 	}
 	IWhatsMsg interface {
 		// Model 消息记录ORM模型
@@ -74,13 +78,32 @@ type (
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
 	}
+	IWhatsContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *whatsin.WhatsContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *whatsin.WhatsContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *whatsin.WhatsContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *whatsin.WhatsContactsViewInp) (res *whatsin.WhatsContactsViewModel, err error)
+		// SyncContactCallback 同步联系人回调
+		SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error)
+		// Upload 上传联系人信息
+		Upload(ctx context.Context, in []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error)
+	}
 )
 
 var (
-	localWhatsArts    IWhatsArts
-	localWhatsMsg     IWhatsMsg
-	localWhatsProxy   IWhatsProxy
-	localWhatsAccount IWhatsAccount
+	localWhatsContacts IWhatsContacts
+	localWhatsMsg      IWhatsMsg
+	localWhatsProxy    IWhatsProxy
+	localWhatsAccount  IWhatsAccount
+	localWhatsArts     IWhatsArts
 )
 
 func WhatsArts() IWhatsArts {
@@ -92,6 +115,17 @@ func WhatsArts() IWhatsArts {
 
 func RegisterWhatsArts(i IWhatsArts) {
 	localWhatsArts = i
+}
+
+func WhatsContacts() IWhatsContacts {
+	if localWhatsContacts == nil {
+		panic("implement not found for interface IWhatsContacts, forgot register?")
+	}
+	return localWhatsContacts
+}
+
+func RegisterWhatsContacts(i IWhatsContacts) {
+	localWhatsContacts = i
 }
 
 func WhatsMsg() IWhatsMsg {

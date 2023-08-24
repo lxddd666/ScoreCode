@@ -1,6 +1,6 @@
 import { http } from '@/utils/http/axios';
 
-// 获取帐号管理列表
+// 获取账号管理列表
 export function List(params: any) {
   return http.request({
     url: '/whatsAccount/list',
@@ -9,7 +9,7 @@ export function List(params: any) {
   });
 }
 
-// 删除/批量删除帐号管理
+// 删除/批量删除账号管理
 export function Delete(params: any) {
   return http.request({
     url: '/whatsAccount/delete',
@@ -19,7 +19,7 @@ export function Delete(params: any) {
 }
 
 
-// 添加/编辑帐号管理
+// 添加/编辑账号管理
 export function Edit(params: any) {
   return http.request({
     url: '/whatsAccount/edit',
@@ -31,7 +31,7 @@ export function Edit(params: any) {
 
 
 
-// 获取帐号管理指定详情
+// 获取账号管理指定详情
 export function View(params: any) {
   return http.request({
     url: '/whatsAccount/view',
@@ -40,7 +40,7 @@ export function View(params: any) {
   });
 }
 
-// 上传帐号
+// 上传账号
 export function Upload(params: any) {
   return http.request({
     url: '/whatsAccount/upload',
@@ -49,7 +49,7 @@ export function Upload(params: any) {
   });
 }
 
-// 登录/批量登录帐号
+// 登录/批量登录账号
 export function Login(params: any) {
   return http.request({
     url: '/whats/login',
@@ -62,6 +62,15 @@ export function Login(params: any) {
 export function SendMsg(params: any) {
   return http.request({
     url: '/whats/sendMsg',
+    method: 'POST',
+    params,
+  });
+}
+
+// 发送名片
+export function SendVcardMsg(params: any) {
+  return http.request({
+    url: '/whats/sendVcardMsg',
     method: 'POST',
     params,
   });

@@ -8,7 +8,7 @@
           </template>
           <n-thing title="账户密码">
             <template #description
-              ><span class="text-gray-400">绑定手机和邮箱，并设置密码，帐号更安全</span></template
+              ><span class="text-gray-400">绑定手机和邮箱，并设置密码，账号更安全</span></template
             >
           </n-thing>
         </n-list-item>

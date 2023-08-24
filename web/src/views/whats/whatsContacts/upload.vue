@@ -142,8 +142,8 @@ const typeTag = computed(() => {
 
 function handleDownload() {
   let a = document.createElement("a");
-  a.href = "./static/账号模板.xlsx";
-  a.download = "账号模板.xlsx";
+  a.href = "./static/联系人模板.xlsx";
+  a.download = "联系人模板.xlsx";
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
@@ -176,16 +176,19 @@ function customRequest({
     const weldmachine = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
     //中英文映射
     var columnMapping = {
-      '账号': 'account',
-      '号码ID': 'identify',
-      '公钥': 'publicKey',
-      '私钥': 'privateKey',
-      '消息公钥': 'publicMsgKey',
-      '消息私钥': 'privateMsgKey',
+      '姓名': 'name',
+      '手机号': 'phone',
+      '头像': 'avatar',
+      '邮箱': 'email',
+      '地址': 'address',
+      '组织': 'orgId',
+      '部门': 'deptId',
+      '备注': 'comment',
     };
     var newrows = [];
     //中英文转换
     for (let row of weldmachine) {
+      debugger
       var newRow = {};
       // 使用for...in循环遍历对象的属性
       for (let key in row) {
@@ -213,7 +216,8 @@ function customRequest({
 
 
 function handleSumbit() {
-  if (tableData.value.length > 1) {
+  debugger
+  if (tableData.value.length > 0) {
     showLoading.value = true;
     // 编辑
     Upload({"list": tableData.value})

@@ -2,7 +2,7 @@
   <div>
     <n-card :bordered="false" class="proCard">
       <div class="n-layout-page-header">
-        <n-card :bordered="false" title="账号管理">
+        <n-card :bordered="false" title="联系人管理">
           <!--  这是系统自动生成的CURD表格，你可以将此行注释改为表格的描述 -->
         </n-card>
       </div>
@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/edit'])"
+            v-if="hasPermission(['/whatsContacts/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -59,26 +59,11 @@
             导入
           </n-button>
           <n-button
-            color="#49CC90"
-            @click="handleBatchLogin"
-            :disabled="batchSelectDisabled"
-            class="min-left-space"
-            v-if="hasPermission(['/whats/login'])"
-          >
-            <template #icon>
-              <n-icon>
-                <LoginOutlined />
-              </n-icon>
-            </template>
-            登录
-          </n-button>
-
-          <n-button
             type="error"
             @click="handleBatchDelete"
-            :disabled="batchSelectDisabled"
+            :disabled="batchDeleteDisabled"
             class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/delete'])"
+            v-if="hasPermission(['/whatsContacts/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -87,26 +72,27 @@
             </template>
             批量删除
           </n-button>
+          <n-button
+            type="primary"
+            @click="handleExport"
+            class="min-left-space"
+            v-if="hasPermission(['/whatsContacts/delete'])"
+          >
+            <template #icon>
+              <n-icon>
+                <ExportOutlined />
+              </n-icon>
+            </template>
+            导出
+          </n-button>
         </template>
       </BasicTable>
     </n-card>
     <Edit
       @reloadTable="reloadTable"
       @updateShowModal="updateShowModal"
-      :showModal="showEditModal"
+      :showModal="showModal"
       :formParams="formParams"
-    />
-    <SendMsg
-      @reloadTable="reloadTable"
-      @sendMsgShowModal="sendMsgShowModal"
-      :showModal="showSendModal"
-      :sender="account"
-    />
-    <SendVcardMsg
-      @reloadTable="reloadTable"
-      @sendMsgShowModal="sendVcardMsgShowModal"
-      :showModal="showSendVcardModel"
-      :sender="account"
     />
 
     <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
@@ -119,34 +105,28 @@
   import { BasicTable, TableAction } from '@/components/Table';
   import { BasicForm, useForm } from '@/components/Form/index';
   import { usePermission } from '@/hooks/web/usePermission';
-  import { Delete, List, Login } from '@/api/whats/whatsAccount';
-  import { columns, newState, schemas, State } from './model';
-  import { DeleteOutlined, LoginOutlined, PlusOutlined, UploadOutlined } from '@vicons/antd';
+  import { List, Export, Delete } from '@/api/whats/whatsContacts';
+  import { State, columns, schemas, options, newState } from './model';
+  import { PlusOutlined, ExportOutlined, DeleteOutlined, UploadOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
+  import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
-  import SendMsg from './sendMsg.vue';
-  import SendVcardMsg from '@/views/whats/whatsAccount/sendVcardMsg.vue';
+  import {Attachment} from "@/components/FileChooser/src/model";
   import FileUpload from './upload.vue';
-  import { Attachment } from '@/components/FileChooser/src/model';
-
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
   const dialog = useDialog();
   const message = useMessage();
   const searchFormRef = ref<any>({});
-  const batchSelectDisabled = ref(true);
+  const batchDeleteDisabled = ref(true);
   const checkedIds = ref([]);
-  const showEditModal = ref(false);
-  const showSendModal = ref(false);
-  const showSendVcardModel = ref(false);
+  const showModal = ref(false);
   const formParams = ref<State>();
-  const account = ref<string>();
-
   const fileUploadRef = ref();
 
   const actionColumn = reactive({
-    width: 350,
+    width: 300,
     title: '操作',
     key: 'action',
     // fixed: 'right',
@@ -157,30 +137,20 @@
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
-            auth: ['/whatsAccount/edit'],
+            auth: ['/whatsContacts/edit'],
           },
 
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
-            auth: ['/whatsAccount/delete'],
-          },
-          {
-            label: '发送消息',
-            onClick: handleSendMsg.bind(null, record),
-            auth: ['/whats/sendMsg'],
-          },
-          {
-            label: '发送名片',
-            onClick: handleSendVcardMsg.bind(null, record),
-            auth: ['/whats/sendMsg'],
+            auth: ['/whatsContacts/delete'],
           },
         ],
         dropDownActions: [
           {
             label: '查看详情',
             key: 'view',
-            auth: ['/whatsMsg/view'],
+            auth: ['/whatsContacts/view'],
           },
         ],
         select: (key) => {
@@ -203,20 +173,12 @@
   };
 
   function addTable() {
-    showEditModal.value = true;
+    showModal.value = true;
     formParams.value = newState(null);
   }
 
   function updateShowModal(value) {
-    showEditModal.value = value;
-  }
-
-  function sendMsgShowModal(value) {
-    showSendModal.value = value;
-  }
-
-  function sendVcardMsgShowModal(value) {
-    showSendVcardModel.value = value;
+    showModal.value = value;
   }
 
   function handleUpload() {
@@ -224,7 +186,7 @@
   }
 
   function onCheckedRow(rowKeys) {
-    batchSelectDisabled.value = rowKeys.length <= 0;
+    batchDeleteDisabled.value = rowKeys.length <= 0;
     checkedIds.value = rowKeys;
   }
 
@@ -233,11 +195,11 @@
   }
 
   function handleView(record: Recordable) {
-    router.push({ name: 'whatsAccountView', params: { id: record.id } });
+    router.push({ name: 'whatsContactsView', params: { id: record.id } });
   }
 
   function handleEdit(record: Recordable) {
-    showEditModal.value = true;
+    showModal.value = true;
     formParams.value = newState(record as State);
   }
 
@@ -259,16 +221,6 @@
     });
   }
 
-  function handleSendMsg(record: Recordable) {
-    showSendModal.value = true;
-    account.value = newState(record as State).account;
-  }
-
-  function handleSendVcardMsg(record: Recordable) {
-    showSendVcardModel.value = true;
-    account.value = newState(record as State).account;
-  }
-
   function handleBatchDelete() {
     dialog.warning({
       title: '警告',
@@ -287,22 +239,9 @@
     });
   }
 
-  function handleBatchLogin() {
-    dialog.info({
-      title: '提示',
-      content: '点击确定将执行批量登录，登录结果请刷新页面查看登录状态',
-      positiveText: '确定',
-      negativeText: '取消',
-      onPositiveClick: () => {
-        Login({ users: checkedIds.value }).then((_res) => {
-          message.success('操作成功');
-          reloadTable();
-        });
-      },
-      onNegativeClick: () => {
-        // message.error('取消');
-      },
-    });
+  function handleExport() {
+    message.loading('正在导出列表...', { duration: 1200 });
+    Export(searchFormRef.value?.formModel);
   }
 
   function handleFinishCall(result: Attachment, success: boolean) {

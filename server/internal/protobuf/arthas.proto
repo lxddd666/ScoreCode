@@ -11,7 +11,10 @@ enum Action {
   SYNC_ACCOUNT_KEY = 4; // 添加同步账号密钥动作
   GET_PREKEYBUNDLE = 5;
   SYNC_CONTACTS = 6;
-  PING_PONG = 7;
+  PING_PONG =7;
+  SEND_VCARD_MESSAGE = 8;
+  SET_HEAD_SCULPTURE = 9;
+  GET_USER_HEAD_IMAGE = 10;
 }
 
 
@@ -26,6 +29,48 @@ message OrdinaryAction {
 
 message loginDetail {
   string proxyUrl = 1;
+}
+
+
+
+message GetUserHeadImageAction{
+  uint64 account = 1;
+}
+
+// 定义头像
+message HeadSculpture{
+  bytes  image    = 1;
+  uint64 account = 2;
+}
+
+// 修改头像信息
+message SetHeadSculptureAction {
+  HeadSculpture HeadSculptrue_data = 1;
+}
+
+
+//定义明信片
+message VCard{
+  string Begin = 1;
+  string Version = 2;
+  string Prodid = 3;
+  string  Fn = 4;
+  string Org = 5;
+  string Tel = 6;
+  string XWaBizName = 7;
+  string End = 9;
+  string DisplayName = 10;
+  string Family = 11;
+  string Given = 12;
+  string Prefixes = 13;
+  string Language = 14;
+}
+
+// 定义明信片消息
+message SendVCardMsgAction {
+  map<uint64, VCard> Vcard_data = 1;
+  uint64 Sender = 2;
+  uint64 Receiver = 3;
 }
 
 // 定义密钥数据
@@ -55,6 +100,9 @@ message RequestMessage {
     QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
     SendMessageDetail  sendmessage_detail = 8 ;
     string  ping_message = 9;
+    SendVCardMsgAction send_vcard_message = 10;
+    SetHeadSculptureAction set_head_sculpture_action = 11;
+    GetUserHeadImageAction get_user_head_image = 12;
   }
 }
 
@@ -76,10 +124,16 @@ message SendMessageDetail {
   repeated SendMessageAction details = 1;
 }
 
+message SendVCardMessageDetail{
+  repeated SendVCardMsgAction detail = 1;
+}
+
 message QueryPreKeyBundleDetail {
   repeated UintkeyUintvalue details = 1;
 }
-
+message SetHeadSculptureDetail{
+  repeated SetHeadSculptureAction detail = 1;
+}
 
 // 定义动作的返回状态枚举
 enum ActionResult {

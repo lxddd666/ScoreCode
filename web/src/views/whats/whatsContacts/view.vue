@@ -1,45 +1,39 @@
 <template>
   <div>
     <div class="n-layout-page-header">
-      <n-card :bordered="false" title="账号管理详情"> <!-- CURD详情页--> </n-card>
+      <n-card :bordered="false" title="联系人管理详情"> <!-- CURD详情页--> </n-card>
     </div>
     <n-card :bordered="false" class="proCard mt-4" size="small" :segmented="{ content: true }">
       <n-descriptions label-placement="left" class="py-2" column="4">
         <n-descriptions-item>
-          <template #label>账号号码</template>
-          {{ formValue.account }}
+          <template #label>联系人姓名</template>
+          <span v-html="formValue.name"></span></n-descriptions-item>
+
+        <n-descriptions-item>
+          <template #label>联系人电话</template>
+          {{ formValue.phone }}
         </n-descriptions-item>
 
         <n-descriptions-item>
-          <template #label>账号昵称</template>
-          {{ formValue.nickName }}
-        </n-descriptions-item>
-
-        <n-descriptions-item>
-          <template #label>账号头像</template>
+          <template #label>联系人头像</template>
           <span v-html="formValue.avatar"></span></n-descriptions-item>
 
-        <n-descriptions-item label="账号状态">
-          <n-tag
-            :type="getOptionTag(options.account_status, formValue?.accountStatus)"
-            size="small"
-            class="min-left-space"
-            >{{ getOptionLabel(options.account_status, formValue?.accountStatus) }}</n-tag
-          >
-        </n-descriptions-item>
+        <n-descriptions-item>
+          <template #label>联系人邮箱</template>
+          <span v-html="formValue.email"></span></n-descriptions-item>
 
-        <n-descriptions-item label="是否在线">
-          <n-tag
-            :type="getOptionTag(options.login_status, formValue?.isOnline)"
-            size="small"
-            class="min-left-space"
-            >{{ getOptionLabel(options.login_status, formValue?.isOnline) }}</n-tag
-          >
+        <n-descriptions-item>
+          <template #label>联系人地址</template>
+          <span v-html="formValue.address"></span></n-descriptions-item>
+
+        <n-descriptions-item>
+          <template #label>组织id</template>
+          {{ formValue.orgId }}
         </n-descriptions-item>
 
         <n-descriptions-item>
-          <template #label>代理地址</template>
-          {{ formValue.proxyAddress }}
+          <template #label>部门id</template>
+          {{ formValue.deptId }}
         </n-descriptions-item>
 
         <n-descriptions-item>
@@ -56,7 +50,7 @@
   import { computed, onMounted, ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { useMessage } from 'naive-ui';
-  import { View } from '@/api/whats/whatsAccount';
+  import { View } from '@/api/whats/whatsContacts';
   import { newState, options } from './model';
   import { getOptionLabel, getOptionTag } from '@/utils/hotgo';
   import { getFileExt } from '@/utils/urlUtils';

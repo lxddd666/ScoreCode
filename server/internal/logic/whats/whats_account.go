@@ -190,3 +190,25 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 	}
 	return nil
 }
+
+// LogoutCallback 登录回调处理
+func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error {
+	accountColumns := dao.WhatsAccount.Columns()
+	for _, item := range res {
+		userJid := strconv.FormatUint(item.UserJid, 10)
+
+		data := do.WhatsAccount{
+			AccountStatus: 0,
+			IsOnline:      -1,
+		}
+		//删除redis
+		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+
+		data.IsOnline = 1
+		data.LastLoginTime = gtime.Now()
+
+		//更新登录状态
+		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
+	}
+	return nil
+}
