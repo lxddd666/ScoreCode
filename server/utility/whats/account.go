@@ -20,7 +20,7 @@ func AccountDetailToByte(detail *whatsin.WhatsAccountUploadInp, key, vi []byte) 
 }
 
 func ByteToAccountDetail(content, key, vi []byte) (*whatsin.WhatsAccountUploadInp, error) {
-	decrypt, err := gaes.Decrypt([]byte(content), key, vi)
+	decrypt, err := gaes.Decrypt(content, key, vi)
 	if err != nil {
 		return nil, err
 	}

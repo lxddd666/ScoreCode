@@ -34,7 +34,7 @@ type ExportRes struct{}
 
 // OptionReq 获取变动状态选项
 type OptionReq struct {
-	g.Meta `path:"/creditsLog/option" method:"get" summary:"资产变动" tags:"获取变动状态选项"`
+	g.Meta `path:"/creditsLog/option" method:"get" tags:"资产变动" summary:"获取变动状态选项"`
 }
 
 type OptionRes struct {

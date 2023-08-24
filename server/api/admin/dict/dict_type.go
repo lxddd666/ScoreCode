@@ -12,7 +12,7 @@ import (
 
 // TypeTreeReq 字典类型树
 type TypeTreeReq struct {
-	g.Meta `path:"/dictType/tree" tags:"字典类型" method:"get" summary:"字典类型树列表"`
+	g.Meta `path:"/dictType/tree" tags:"字典类型-系统枚举数据优先对接" method:"get" summary:"字典类型树列表"`
 }
 
 type TypeTreeRes struct {
@@ -21,7 +21,7 @@ type TypeTreeRes struct {
 
 // TypeEditReq 修改/新增字典数据
 type TypeEditReq struct {
-	g.Meta `path:"/dictType/edit" method:"post" tags:"字典类型" summary:"修改/新增字典类型"`
+	g.Meta `path:"/dictType/edit" method:"post" tags:"字典类型-系统枚举数据优先对接" summary:"修改/新增字典类型"`
 	sysin.DictTypeEditInp
 }
 
@@ -29,7 +29,7 @@ type TypeEditRes struct{}
 
 // TypeDeleteReq 删除字典类型
 type TypeDeleteReq struct {
-	g.Meta `path:"/dictType/delete" method:"post" tags:"字典类型" summary:"删除字典类型"`
+	g.Meta `path:"/dictType/delete" method:"post" tags:"字典类型-系统枚举数据优先对接" summary:"删除字典类型"`
 	sysin.DictTypeDeleteInp
 }
 

@@ -46,8 +46,9 @@ var (
 			// 请求响应结束后回调
 			s.BindHookHandler("/*any", ghttp.HookAfterOutput, service.Hook().AfterOutput)
 
+			// swagger文档
 			s.Group("/", func(group *ghttp.RouterGroup) {
-				group.GET("/swagger", func(r *ghttp.Request) {
+				group.GET("/swagger/index.html", func(r *ghttp.Request) {
 					r.Response.Write(consts.SwaggerUIPageContent)
 				})
 				// 注册全局中间件

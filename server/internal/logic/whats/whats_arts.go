@@ -16,7 +16,7 @@ import (
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
-	whats_util "hotgo/utility/whats"
+	whatsutil "hotgo/utility/whats"
 	"strconv"
 )
 
@@ -73,7 +73,7 @@ func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []entity.Whats
 	keyBytes := []byte(whatsConfig.Aes.Key)
 	viBytes := []byte(whatsConfig.Aes.Vi)
 	for _, account := range accounts {
-		detail, err := whats_util.ByteToAccountDetail(account.Encryption, keyBytes, viBytes)
+		detail, err := whatsutil.ByteToAccountDetail(account.Encryption, keyBytes, viBytes)
 		if err != nil {
 			return nil, err
 		}
@@ -129,8 +129,8 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
 
-	syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, msg.Sender)
-	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(msg.Receiver))
+	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, msg.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(msg.Receiver))
 	if err != nil {
 		return "", err
 	}
@@ -170,8 +170,8 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 		}
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
-	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(item.Receiver))
+	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(item.Receiver))
 	if err != nil {
 		return "", err
 	}
@@ -252,10 +252,10 @@ func (s *sWhatsArts) GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageR
 	return req
 }
 
-func (s *sWhatsArts) sendVCardMessage(contant *whatsin.WhatVcardMsgInp) *protobuf.RequestMessage {
-	vcard := contant.Vcard
+func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobuf.RequestMessage {
+	vcard := content.Vcard
 	sendData := make(map[uint64]*protobuf.VCard)
-	sendData[contant.Sender] = &protobuf.VCard{
+	sendData[content.Sender] = &protobuf.VCard{
 		Version:     vcard.Version,
 		Prodid:      vcard.Prodid,
 		Fn:          vcard.Fn,
@@ -276,8 +276,8 @@ func (s *sWhatsArts) sendVCardMessage(contant *whatsin.WhatVcardMsgInp) *protobu
 		ActionDetail: &protobuf.RequestMessage_SendVcardMessage{
 			SendVcardMessage: &protobuf.SendVCardMsgAction{
 				VcardData: sendData,
-				Sender:    contant.Sender,
-				Receiver:  contant.Receiver,
+				Sender:    content.Sender,
+				Receiver:  content.Receiver,
 			},
 		},
 	}

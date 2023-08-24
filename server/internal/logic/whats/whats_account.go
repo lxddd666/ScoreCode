@@ -17,7 +17,7 @@ import (
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
-	whats_util "hotgo/utility/whats"
+	whatsutil "hotgo/utility/whats"
 	"strconv"
 )
 
@@ -128,7 +128,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 	viBytes := []byte(whatsConfig.Aes.Vi)
 	for _, inp := range in {
 		account := entity.WhatsAccount{}
-		bytes, err := whats_util.AccountDetailToByte(inp, keyBytes, viBytes)
+		bytes, err := whatsutil.AccountDetailToByte(inp, keyBytes, viBytes)
 		if err != nil {
 			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 		}
@@ -173,7 +173,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 
 		data := do.WhatsAccount{
 			AccountStatus: 0,
-			IsOnline:      -1,
+			IsOnline:      consts.Offline,
 			Comment:       item.Comment,
 		}
 		//如果账号在线记录账号登录所使用的代理
@@ -182,7 +182,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 			data.AccountStatus = int(item.LoginStatus)
 		} else {
-			data.IsOnline = 1
+			data.IsOnline = consts.Online
 			data.LastLoginTime = gtime.Now()
 
 			// 将同步的联系人放到redis中
@@ -196,7 +196,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 				// key
 				key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
 				for _, p := range contactPhoneList {
-					g.Redis().SAdd(ctx, key, p.Val())
+					_, _ = g.Redis().SAdd(ctx, key, p.Val())
 				}
 			}
 		}
@@ -218,8 +218,8 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		}
 		//删除redis
 		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
-		syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
-		_, _ = g.Redis().Del(ctx, syncContactkey)
+		syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+		_, _ = g.Redis().Del(ctx, syncContactKey)
 		data.LastLoginTime = gtime.Now()
 
 		//更新登录状态

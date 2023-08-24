@@ -163,26 +163,26 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 			TranslatedMsg: []byte(item.SendText),
 			MsgType:       1,
 			SendTime:      &item.SendTime,
-			Read:          1, //默认是已读
+			Read:          consts.Read, //默认是已读
 			Comment:       "",
 			ReqId:         item.ReqId,
 		}
 		msgList = append(msgList, item)
-		unreadMap[item.ReqId] = 1
+		unreadMap[item.ReqId] = consts.Unread
 	}
 	_, err = g.Redis().HSet(ctx, consts.MsgReadReqKey, unreadMap)
 	if err != nil {
 		return err
 	}
 	if len(msgList) > 0 {
-		go s.sendToUser(ctx, msgList)
+		go s.sendMsgToUser(ctx, msgList)
 		//入库
 		_, err = s.Model(ctx).Insert(msgList)
 	}
 	return err
 }
 
-func (s *sWhatsMsg) sendToUser(ctx context.Context, msgList []entity.WhatsMsg) {
+func (s *sWhatsMsg) sendMsgToUser(ctx context.Context, msgList []entity.WhatsMsg) {
 	// 自定义排序数组，降序排序(SortedIntArray管理的数据是升序)
 	a := garray.NewSortedArray(func(v1, v2 interface{}) int {
 		if (v1.(entity.WhatsMsg)).SendTime.Before((v2.(entity.WhatsMsg)).SendTime) {
@@ -195,6 +195,7 @@ func (s *sWhatsMsg) sendToUser(ctx context.Context, msgList []entity.WhatsMsg) {
 	})
 
 	for _, msg := range msgList {
+		msg.Read = consts.Unread
 		a.Add(msg)
 
 	}
@@ -230,5 +231,33 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 		reqIds = append(reqIds, item.ReqId)
 	}
 	_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
+
 	return err
+}
+
+func (s *sWhatsMsg) sendReadToUser(ctx context.Context, readReqIds []callback.ReadMsgCallbackRes) {
+	var reqIds = make([]string, 0)
+	for _, item := range readReqIds {
+		reqIds = append(reqIds, item.ReqId)
+	}
+	var msgList []entity.WhatsMsg
+	err := s.Model(ctx).WhereIn(dao.WhatsMsg.Columns().ReqId, reqIds).Scan(&msgList)
+	if err != nil {
+
+	}
+	//推送给前端
+	for _, msg := range msgList {
+		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, gconv.String(msg.Initiator))
+		if err != nil {
+			continue
+		}
+		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
+			Event:     "read",
+			Data:      msg.ReqId,
+			Code:      gcode.CodeOK.Code(),
+			ErrorMsg:  "",
+			Timestamp: gtime.Now().Unix(),
+		})
+	}
+
 }

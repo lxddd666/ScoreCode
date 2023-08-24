@@ -21,7 +21,7 @@ import (
 
 // AppName 应用名称
 func AppName(ctx context.Context) string {
-	return g.Cfg().MustGet(ctx, "appName", "hotgo").String()
+	return g.Server().GetName()
 }
 
 // RouterPrefix 获取应用路由前缀

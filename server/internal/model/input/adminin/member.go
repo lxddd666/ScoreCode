@@ -76,7 +76,7 @@ type MemberUpdateProfileInp struct {
 type MemberUpdatePwdInp struct {
 	Id          int64  `json:"id" dc:"用户ID"`
 	OldPassword string `json:"oldPassword" v:"required#原密码不能为空"  dc:"原密码"`
-	NewPassword string `json:"newPassword" v:"required|length:6,16#新密码不能为空#新密码需在6~16之间"  dc:"新密码"`
+	NewPassword string `json:"newPassword" v:"required|length:6,20#新密码不能为空#新密码需在6~20之间"  dc:"新密码"`
 }
 
 // MemberResetPwdInp 重置密码

@@ -11,7 +11,6 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/controller/admin/admin"
 	"hotgo/internal/controller/admin/common"
-	"hotgo/internal/controller/admin/pay"
 	"hotgo/internal/controller/admin/sys"
 	"hotgo/internal/router/auto"
 	_ "hotgo/internal/router/whats"
@@ -35,7 +34,6 @@ func Admin(ctx context.Context, group *ghttp.RouterGroup) {
 			common.Ems,       // 邮件
 			common.Sms,       // 短信
 			common.Upload,    // 上传
-			common.Wechat,    // 微信授权
 			sys.Config,       // 配置
 			sys.DictType,     // 字典类型
 			sys.DictData,     // 字典数据
@@ -56,10 +54,11 @@ func Admin(ctx context.Context, group *ghttp.RouterGroup) {
 			admin.Menu,       // 菜单
 			admin.Notice,     // 公告
 			admin.Post,       // 岗位
-			admin.Order,      // 充值订单
-			admin.CreditsLog, // 资金变动
-			admin.Cash,       // 提现
-			pay.Refund,       // 交易退款
+			//common.Wechat,    // 微信授权
+			//admin.Order,      // 充值订单
+			//admin.CreditsLog, // 资金变动
+			//admin.Cash,       // 提现
+			//pay.Refund,       // 交易退款
 		)
 
 		group.Middleware(service.Middleware().Develop)
