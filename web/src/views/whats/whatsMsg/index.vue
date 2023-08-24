@@ -63,7 +63,7 @@
             type="primary"
             @click="handleExport"
             class="min-left-space"
-            v-if="hasPermission(['/whatsMsg/delete'])"
+            v-if="hasPermission(['/whatsMsg/view'])"
           >
             <template #icon>
               <n-icon>

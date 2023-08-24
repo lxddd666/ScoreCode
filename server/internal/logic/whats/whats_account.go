@@ -172,7 +172,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 
 		data := do.WhatsAccount{
 			AccountStatus: 0,
-			IsOnline:      -1,
+			IsOnline:      consts.Offline,
 			Comment:       item.Comment,
 		}
 		//如果账号在线记录账号登录所使用的代理
@@ -181,7 +181,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 			data.AccountStatus = int(item.LoginStatus)
 		} else {
-			data.IsOnline = 1
+			data.IsOnline = consts.Online
 			data.LastLoginTime = gtime.Now()
 
 		}
