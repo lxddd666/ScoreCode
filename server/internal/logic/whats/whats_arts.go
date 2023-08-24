@@ -130,7 +130,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 	c := protobuf.NewArthasClient(conn)
 
 	syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, msg.Sender)
-	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(msg.Sender))
+	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(msg.Receiver))
 	if err != nil {
 		return "", err
 	}
@@ -171,7 +171,7 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
 	syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
-	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(item.Sender))
+	flag, err := g.Redis().SIsMember(ctx, syncContactkey, gconv.String(item.Receiver))
 	if err != nil {
 		return "", err
 	}

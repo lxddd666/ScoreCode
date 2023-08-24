@@ -218,8 +218,8 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		}
 		//删除redis
 		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
-
-		data.IsOnline = 1
+		syncContactkey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+		_, _ = g.Redis().Del(ctx, syncContactkey)
 		data.LastLoginTime = gtime.Now()
 
 		//更新登录状态
