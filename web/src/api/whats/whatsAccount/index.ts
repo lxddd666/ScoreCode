@@ -67,6 +67,15 @@ export function SendMsg(params: any) {
   });
 }
 
+// 发送名片
+export function SendVcardMsg(params: any) {
+  return http.request({
+    url: '/whats/sendVcardMsg',
+    method: 'POST',
+    params,
+  });
+}
+
 
 // 解除绑定
 export function UnBind(params: any) {

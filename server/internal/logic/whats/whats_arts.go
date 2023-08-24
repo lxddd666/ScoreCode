@@ -126,8 +126,18 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 		}
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
+	syncContactReq := whatsin.SyncContactReq{
+		Values: make([]uint64, 0),
+	}
+	syncContactReq.Key = msg.Sender
+	syncContactReq.Values = append(syncContactReq.Values, msg.Receiver)
+	//2.同步通讯录
+	syncContactMsg := s.syncContact(syncContactReq)
+	artsRes, err := c.Connect(ctx, syncContactMsg)
+	g.Log().Info(ctx, artsRes.GetActionResult().String())
+
 	sendMsg := s.sendVCardMessage(msg)
-	artsRes, err := c.Connect(ctx, sendMsg)
+	artsRes, err = c.Connect(ctx, sendMsg)
 	if err != nil {
 		return "", err
 	}

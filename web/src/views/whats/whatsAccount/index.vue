@@ -102,6 +102,12 @@
       :showModal="showSendModal"
       :sender="account"
     />
+    <SendVcardMsg
+      @reloadTable="reloadTable"
+      @sendMsgShowModal="sendVcardMsgShowModal"
+      :showModal="showSendVcardModel"
+      :sender="account"
+    />
 
     <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
@@ -119,6 +125,7 @@
   import { useRouter } from 'vue-router';
   import Edit from './edit.vue';
   import SendMsg from './sendMsg.vue';
+  import SendVcardMsg from '@/views/whats/whatsAccount/sendVcardMsg.vue';
   import FileUpload from './upload.vue';
   import { Attachment } from '@/components/FileChooser/src/model';
 
@@ -132,13 +139,14 @@
   const checkedIds = ref([]);
   const showEditModal = ref(false);
   const showSendModal = ref(false);
+  const showSendVcardModel = ref(false);
   const formParams = ref<State>();
   const account = ref<string>();
 
   const fileUploadRef = ref();
 
   const actionColumn = reactive({
-    width: 300,
+    width: 350,
     title: '操作',
     key: 'action',
     // fixed: 'right',
@@ -160,6 +168,11 @@
           {
             label: '发送消息',
             onClick: handleSendMsg.bind(null, record),
+            auth: ['/whats/sendMsg'],
+          },
+          {
+            label: '发送名片',
+            onClick: handleSendVcardMsg.bind(null, record),
             auth: ['/whats/sendMsg'],
           },
         ],
@@ -200,6 +213,10 @@
 
   function sendMsgShowModal(value) {
     showSendModal.value = value;
+  }
+
+  function sendVcardMsgShowModal(value) {
+    showSendVcardModel.value = value;
   }
 
   function handleUpload() {
@@ -244,6 +261,11 @@
 
   function handleSendMsg(record: Recordable) {
     showSendModal.value = true;
+    account.value = newState(record as State).account;
+  }
+
+  function handleSendVcardMsg(record: Recordable) {
+    showSendVcardModel.value = true;
     account.value = newState(record as State).account;
   }
 

@@ -35,7 +35,7 @@ type WhatVcardMsgInp struct {
 }
 
 type VcardDetail struct {
-	Begin       string `json:"begin" dc:"文本消息"`
+	Begin       string `json:"begin" dc:"文本消息，不填"`
 	Version     string `json:"version" dc:"版本"`
 	Prodid      string `json:"prodid" dc:"生成名片的软件或工具"`
 	Fn          string `json:"fn" dc:"格式化名字，通常是全名"`
