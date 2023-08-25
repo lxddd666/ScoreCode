@@ -3,7 +3,9 @@ package whats
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	grpc2 "google.golang.org/grpc"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
@@ -14,7 +16,7 @@ import (
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
-	whats_util "hotgo/utility/whats"
+	whatsutil "hotgo/utility/whats"
 	"strconv"
 )
 
@@ -71,7 +73,7 @@ func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []entity.Whats
 	keyBytes := []byte(whatsConfig.Aes.Key)
 	viBytes := []byte(whatsConfig.Aes.Vi)
 	for _, account := range accounts {
-		detail, err := whats_util.ByteToAccountDetail(account.Encryption, keyBytes, viBytes)
+		detail, err := whatsutil.ByteToAccountDetail(account.Encryption, keyBytes, viBytes)
 		if err != nil {
 			return nil, err
 		}
@@ -117,6 +119,47 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) 
 	return req
 }
 
+func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error) {
+	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
+	c := protobuf.NewArthasClient(conn)
+
+	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, msg.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(msg.Receiver))
+	if err != nil {
+		return "", err
+	}
+	if flag != 1 {
+		// 该联系人未同步
+		syncContactReq := whatsin.SyncContactReq{
+			Values: make([]uint64, 0),
+		}
+		syncContactReq.Key = msg.Sender
+		syncContactReq.Values = append(syncContactReq.Values, msg.Receiver)
+
+		//2.同步通讯录
+		syncContactMsg := s.syncContact(syncContactReq)
+		artsRes, err := c.Connect(ctx, syncContactMsg)
+		if err != nil {
+			return "", err
+		}
+		g.Log().Info(ctx, artsRes.GetActionResult().String())
+	}
+
+	sendMsg := s.sendVCardMessage(msg)
+	artsRes, err := c.Connect(ctx, sendMsg)
+	if err != nil {
+		return "", err
+	}
+	g.Log().Info(ctx, artsRes.GetActionResult().String())
+	return
+}
+
 // SendMsg 发送消息
 func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
@@ -127,20 +170,31 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 		}
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactReq := whatsin.SyncContactReq{
-		Values: make([]uint64, 0),
+	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(item.Receiver))
+	if err != nil {
+		return "", err
 	}
-	syncContactReq.Key = item.Sender
-	syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
-	if len(item.TextMsg) > 0 {
+	if flag != 1 {
+		// 该联系人未同步
+		syncContactReq := whatsin.SyncContactReq{
+			Values: make([]uint64, 0),
+		}
+		syncContactReq.Key = item.Sender
+		syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
+
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
 		artsRes, err := c.Connect(ctx, syncContactMsg)
 		if err != nil {
 			return "", err
 		}
+		g.Log().Info(ctx, artsRes.GetActionResult().String())
+	}
+
+	if len(item.TextMsg) > 0 {
 		requestMessage := s.sendTextMessage(item)
-		artsRes, err = c.Connect(ctx, requestMessage)
+		artsRes, err := c.Connect(ctx, requestMessage)
 		if err != nil {
 			return "", err
 		}
@@ -180,6 +234,50 @@ func (s *sWhatsArts) syncContact(syncContactReq whatsin.SyncContactReq) *protobu
 				Details: []*protobuf.UintkeyUintvalue{
 					{Key: syncContactReq.Key, Values: syncContactReq.Values},
 				},
+			},
+		},
+	}
+	return req
+}
+
+func (s *sWhatsArts) GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage {
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_GET_USER_HEAD_IMAGE,
+		ActionDetail: &protobuf.RequestMessage_GetUserHeadImage{
+			GetUserHeadImage: &protobuf.GetUserHeadImageAction{
+				Account: userHeadImageReq.Account,
+			},
+		},
+	}
+	return req
+}
+
+func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobuf.RequestMessage {
+	vcard := content.Vcard
+	sendData := make(map[uint64]*protobuf.VCard)
+	sendData[content.Sender] = &protobuf.VCard{
+		Version:     vcard.Version,
+		Prodid:      vcard.Prodid,
+		Fn:          vcard.Fn,
+		Org:         vcard.Org,
+		Tel:         vcard.Tel,
+		XWaBizName:  vcard.XWaBizName,
+		End:         vcard.End,
+		DisplayName: vcard.DisplayName,
+		Family:      vcard.Family,
+		Given:       vcard.Given,
+		Prefixes:    vcard.Prefixes,
+		Language:    vcard.Language,
+	}
+	//tmp.SendData = sendData
+
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_SEND_VCARD_MESSAGE,
+		ActionDetail: &protobuf.RequestMessage_SendVcardMessage{
+			SendVcardMessage: &protobuf.SendVCardMsgAction{
+				VcardData: sendData,
+				Sender:    content.Sender,
+				Receiver:  content.Receiver,
 			},
 		},
 	}

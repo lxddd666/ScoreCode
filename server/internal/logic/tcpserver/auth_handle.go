@@ -38,7 +38,7 @@ func (s *sTCPServer) OnAuthSummary(ctx context.Context, req *servmsg.AuthSummary
 		return
 	}
 
-	if err := dao.SysServeLicense.Ctx(ctx).Where("appid = ?", conn.Auth.AppId).Scan(&models); err != nil {
+	if err := dao.SysServeLicense.Ctx(ctx).Where(dao.SysServeLicense.Columns().Appid, conn.Auth.AppId).Scan(&models); err != nil {
 		res.SetError(err)
 		_ = conn.Send(ctx, res)
 		return

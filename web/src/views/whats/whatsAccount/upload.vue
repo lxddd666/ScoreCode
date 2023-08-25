@@ -110,7 +110,7 @@ import {
   getFileExtension
 } from '@/components/FileChooser/src/model';
 import {columns, uploadColumns} from './model';
-import {Upload} from '@/api/whats/whatsAccount'
+import {Upload} from '@/api/whats/whatsContacts'
 
 const emit = defineEmits(['reloadTable']);
 

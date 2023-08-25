@@ -26,7 +26,11 @@ type ReadMsgCallbackRes struct {
 }
 
 type SyncContactMsgCallbackRes struct {
-	AccountDb uint64 // 发送人账号
-	Status    string // 同步状态 in/out
-	Synchro   string // 同步的联系人
+	AccountDb uint64 `json:"accountdb"` // 发送人账号
+	Status    string `json:"status"`    // 同步状态 in/out
+	Synchro   string `json:"synchro"`   // 同步的联系人
+}
+
+type LogoutCallbackRes struct {
+	UserJid uint64 `json:"userJid"`
 }

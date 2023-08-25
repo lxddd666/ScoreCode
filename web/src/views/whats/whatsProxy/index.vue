@@ -160,12 +160,12 @@
         ],
         dropDownActions: [
           {
-            label: '绑定帐号',
+            label: '绑定账号',
             key: 'bind',
             auth: ['/whatsProxy/bind'],
           },
           {
-            label: '解绑帐号',
+            label: '解绑账号',
             key: 'unBind',
             auth: ['/whatsProxy/unBind'],
           },

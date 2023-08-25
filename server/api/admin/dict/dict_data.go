@@ -39,14 +39,14 @@ type DataListRes struct {
 }
 
 type DataSelectReq struct {
-	g.Meta `path:"/dictData/option/{Type}" method:"get" summary:"字典数据" tags:"获取指定字典选项"`
+	g.Meta `path:"/dictData/option/{Type}" method:"get"  summary:"获取指定字典选项" tags:"字典数据"`
 	sysin.DataSelectInp
 }
 
 type DataSelectRes sysin.DataSelectModel
 
 type DataSelectsReq struct {
-	g.Meta `path:"/dictData/options" method:"get" summary:"字典数据" tags:"获取多个字典选项"`
+	g.Meta `path:"/dictData/options" method:"get" summary:"获取多个字典选项" tags:"字典数据"`
 	Types  []string `json:"types"`
 }
 

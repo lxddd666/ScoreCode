@@ -66,7 +66,7 @@ type DeleteRes struct{}
 
 // DataScopeSelectReq 获取数据权限选项
 type DataScopeSelectReq struct {
-	g.Meta `path:"/role/dataScope/select" method:"get" summary:"角色" tags:"获取数据权限选项"`
+	g.Meta `path:"/role/dataScope/select" method:"get" tags:"角色" summary:"获取数据权限选项"`
 }
 
 type DataScopeSelectRes struct {

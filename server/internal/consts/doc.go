@@ -2,7 +2,7 @@ package consts
 
 const (
 	OpenAPITitle         = `grata`
-	OpenAPIDescription   = `基于 GoFrame2.0的后台管理系统。 Enjoy 💖 `
+	OpenAPIDescription   = `对接说明：除后台基础模块的接口，其余接口均需鉴权`
 	OpenAPIContactName   = "grata"
 	OpenAPIContactUrl    = "http://207.148.68.250:4888"
 	SwaggerUIPageContent = `

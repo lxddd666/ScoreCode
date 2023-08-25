@@ -2,6 +2,7 @@ package whats
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -16,7 +17,7 @@ import (
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
-	whats_util "hotgo/utility/whats"
+	whatsutil "hotgo/utility/whats"
 	"strconv"
 )
 
@@ -127,7 +128,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 	viBytes := []byte(whatsConfig.Aes.Vi)
 	for _, inp := range in {
 		account := entity.WhatsAccount{}
-		bytes, err := whats_util.AccountDetailToByte(inp, keyBytes, viBytes)
+		bytes, err := whatsutil.AccountDetailToByte(inp, keyBytes, viBytes)
 		if err != nil {
 			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 		}
@@ -172,7 +173,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 
 		data := do.WhatsAccount{
 			AccountStatus: 0,
-			IsOnline:      -1,
+			IsOnline:      consts.Offline,
 			Comment:       item.Comment,
 		}
 		//如果账号在线记录账号登录所使用的代理
@@ -181,10 +182,46 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 			data.AccountStatus = int(item.LoginStatus)
 		} else {
-			data.IsOnline = 1
+			data.IsOnline = consts.Online
 			data.LastLoginTime = gtime.Now()
 
+			// 将同步的联系人放到redis中
+			acColumns := dao.WhatsAccountContacts.Columns()
+			contactPhoneList, err := handler.Model(dao.WhatsAccountContacts.Ctx(ctx)).Fields(acColumns.Phone).Where(acColumns.Account, item.UserJid).Array()
+			if err != nil {
+				return gerror.Wrap(err, "登录获取已同步联系人失败，请联系管理员！")
+			}
+			if len(contactPhoneList) > 0 {
+				// 存放到redis中以集合方式存储
+				// key
+				key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+				for _, p := range contactPhoneList {
+					_, _ = g.Redis().SAdd(ctx, key, p.Val())
+				}
+			}
 		}
+		//更新登录状态
+		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
+	}
+	return nil
+}
+
+// LogoutCallback 登录回调处理
+func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error {
+	accountColumns := dao.WhatsAccount.Columns()
+	for _, item := range res {
+		userJid := strconv.FormatUint(item.UserJid, 10)
+
+		data := do.WhatsAccount{
+			AccountStatus: 0,
+			IsOnline:      -1,
+		}
+		//删除redis
+		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+		syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+		_, _ = g.Redis().Del(ctx, syncContactKey)
+		data.LastLoginTime = gtime.Now()
+
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 	}

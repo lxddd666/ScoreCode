@@ -71,10 +71,10 @@
   const dialog = useDialog();
 
   const formValue = ref({
-    basicName: 'HotGo',
+    basicName: 'Grata',
     basicLogo: '',
-    basicDomain: 'https://hotgo.facms.cn',
-    basicWsAddr: 'wss://hotgo.facms.cn/socket',
+    basicDomain: 'https://localhost:4888',
+    basicWsAddr: 'ws://localhost:48887/socket',
     basicIcpCode: '',
     basicLoginCode: 0,
     basicRegisterSwitch: 1,
