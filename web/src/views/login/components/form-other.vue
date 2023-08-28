@@ -1,23 +1,23 @@
 <template>
   <n-form-item class="default-color">
     <div class="flex view-account-other">
-      <div class="flex-initial">
-        <span>其它登录方式</span>
-      </div>
-      <div class="flex-initial mx-2">
-        <a @click="handleLoginWechat">
-          <n-icon size="24" color="rgb(24, 160, 88)">
-            <LogoWechat />
-          </n-icon>
-        </a>
-      </div>
-      <div class="flex-initial mx-2">
-        <a @click="handleLogoTiktok">
-          <n-icon size="24" color="rgba(25, 28, 34, 0.88)">
-            <LogoTiktok />
-          </n-icon>
-        </a>
-      </div>
+<!--      <div class="flex-initial">-->
+<!--        <span>其它登录方式</span>-->
+<!--      </div>-->
+<!--      <div class="flex-initial mx-2">-->
+<!--        <a @click="handleLoginWechat">-->
+<!--          <n-icon size="24" color="rgb(24, 160, 88)">-->
+<!--            <LogoWechat />-->
+<!--          </n-icon>-->
+<!--        </a>-->
+<!--      </div>-->
+<!--      <div class="flex-initial mx-2">-->
+<!--        <a @click="handleLogoTiktok">-->
+<!--          <n-icon size="24" color="rgba(25, 28, 34, 0.88)">-->
+<!--            <LogoTiktok />-->
+<!--          </n-icon>-->
+<!--        </a>-->
+<!--      </div>-->
       <div
         class="flex-initial"
         style="margin-left: auto"

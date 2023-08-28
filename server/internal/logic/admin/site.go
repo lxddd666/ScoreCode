@@ -93,14 +93,25 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 		return
 	}
 
-	// 验证短信验证码
-	err = service.SysSmsLog().VerifyCode(ctx, &sysin.VerifyCodeInp{
-		Event:  consts.SmsTemplateRegister,
-		Mobile: in.Mobile,
-		Code:   in.Code,
-	})
-	if err != nil {
-		return
+	// 验证验证码
+	if in.Email == "" {
+		err = service.SysSmsLog().VerifyCode(ctx, &sysin.VerifyCodeInp{
+			Event:  consts.SmsTemplateRegister,
+			Mobile: in.Mobile,
+			Code:   in.Code,
+		})
+		if err != nil {
+			return
+		}
+	} else {
+		err = service.SysEmsLog().VerifyCode(ctx, &sysin.VerifyEmsCodeInp{
+			Event: consts.SmsTemplateRegister,
+			Email: in.Email,
+			Code:  in.Code,
+		})
+		if err != nil {
+			return
+		}
 	}
 
 	data.MemberEditInp = &adminin.MemberEditInp{
@@ -138,6 +149,21 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 		}
 		return
 	})
+}
+
+// RegisterCode 账号注册验证码
+func (s *sAdminSite) RegisterCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error) {
+	if in.Email != "" {
+		return service.SysEmsLog().Send(ctx, &sysin.SendEmsInp{
+			Event: consts.SmsTemplateRegister,
+			Email: in.Email,
+		})
+	} else {
+		return service.SysSmsLog().SendCode(ctx, &sysin.SendCodeInp{
+			Event:  consts.SmsTemplateRegister,
+			Mobile: in.Email,
+		})
+	}
 }
 
 // AccountLogin 账号登录

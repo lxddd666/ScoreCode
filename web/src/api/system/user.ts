@@ -84,6 +84,13 @@ export function SendSms(params) {
     params,
   });
 }
+export function SendEms(params) {
+  return http.request({
+    url: '/site/register/sendCode',
+    method: 'post',
+    params,
+  });
+}
 
 export function updateMemberCash(params) {
   return http.request({

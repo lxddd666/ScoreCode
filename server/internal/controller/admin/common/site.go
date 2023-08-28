@@ -92,6 +92,12 @@ func (c *cSite) Register(ctx context.Context, req *common.RegisterReq) (res *com
 	return
 }
 
+// RegisterCode 账号注册验证码
+func (c *cSite) RegisterCode(ctx context.Context, req *common.RegisterCodeReq) (res *common.RegisterCodeRes, err error) {
+	err = service.AdminSite().RegisterCode(ctx, &req.RegisterCodeInp)
+	return
+}
+
 // AccountLogin 账号登录
 func (c *cSite) AccountLogin(ctx context.Context, req *common.AccountLoginReq) (res *common.AccountLoginRes, err error) {
 	login, err := service.SysConfig().GetLogin(ctx)

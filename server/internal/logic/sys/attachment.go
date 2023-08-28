@@ -53,10 +53,12 @@ func (s *sSysAttachment) View(ctx context.Context, in *sysin.AttachmentViewInp) 
 func (s *sSysAttachment) List(ctx context.Context, in *sysin.AttachmentListInp) (list []*sysin.AttachmentListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 	memberId := contexts.GetUserId(ctx)
-
+	isSuper := service.AdminMember().VerifySuperId(ctx, memberId)
 	// 超管允许查看指定用户的附件
-	if service.AdminMember().VerifySuperId(ctx, memberId) && in.MemberId > 0 {
+	if isSuper && in.MemberId > 0 {
 		mod = mod.Where(dao.SysAttachment.Columns().MemberId, in.MemberId)
+	} else if isSuper {
+		//超管不过滤，查询所有用户
 	} else {
 		mod = mod.Where(dao.SysAttachment.Columns().MemberId, memberId)
 	}
