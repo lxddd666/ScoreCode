@@ -52,7 +52,7 @@
 
   const modules: LoginModule[] = [
     { key: 'login', label: '账号登录', component: LoginFrom },
-    // { key: 'register', label: '注册账号', component: RegisterFrom },
+    { key: 'register', label: '注册账号', component: RegisterFrom },
     // { key: 'reset-pwd', label: '重置密码', component: ResetPwd },
     // { key: 'bind-wechat', label: '绑定微信', component: BindWechat }
   ];

@@ -358,3 +358,17 @@ func (s *sAdminDept) VerifyDeptId(ctx context.Context, id int64) (err error) {
 	}
 	return
 }
+
+// GetTopDept 获取顶级部门
+func (s *sAdminDept) GetTopDept(ctx context.Context, id int64) (err error, dept *adminin.DeptTree) {
+	mod := dao.AdminDept.Ctx(ctx)
+	err = mod.Where(dao.AdminDept.Columns().Id, id).Scan(dept)
+	if err != nil {
+		return
+	}
+	if dept.Pid != 0 {
+		return s.GetTopDept(ctx, dept.Pid)
+	}
+
+	return
+}
