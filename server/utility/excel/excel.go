@@ -25,16 +25,29 @@ var (
 	// 单元格表头
 	char = []string{"", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"}
 	// 默认行样式
-	defaultRowStyle = `{"font":{"color":"#666666","size":13,"family":"arial"},"alignment":{"vertical":"center","horizontal":"center"}}`
+	defaultRowStyle = excelize.Style{
+		Font: &excelize.Font{
+			Family: "arial",
+			Size:   13,
+			Color:  "#666666",
+		},
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+		},
+	}
 )
 
 // ExportByStructs 导出切片结构体到excel表格
 func ExportByStructs(ctx context.Context, tags []string, list interface{}, fileName string, sheetName string) (err error) {
 	f := excelize.NewFile()
-	f.SetSheetName("Sheet1", sheetName)
+	err = f.SetSheetName("Sheet1", sheetName)
+	if err != nil {
+		return err
+	}
 	_ = f.SetRowHeight("Sheet1", 1, 30)
 
-	rowStyleID, _ := f.NewStyle(defaultRowStyle)
+	rowStyleID, _ := f.NewStyle(&defaultRowStyle)
 	if err != nil {
 		return
 	}

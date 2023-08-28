@@ -28,6 +28,14 @@ type RegisterRes struct {
 	*adminin.LoginModel
 }
 
+// RegisterCodeReq 登录验证码
+type RegisterCodeReq struct {
+	g.Meta `path:"/site/register/sendCode" method:"post" tags:"后台基础" summary:"发送注册验证码"`
+	adminin.RegisterCodeInp
+}
+
+type RegisterCodeRes struct{}
+
 // LoginCaptchaReq 获取登录验证码
 type LoginCaptchaReq struct {
 	g.Meta `path:"/site/captcha" method:"get" tags:"后台基础" summary:"获取登录验证码"`

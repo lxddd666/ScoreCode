@@ -131,6 +131,7 @@ router:
     # 不需要验证登录的路由地址
     exceptLogin: [
       "/sms/send",              # 短信验证码
+      "/ems/send",               # 邮箱验证码
       "/wechat/authorizeCall",  # 微信用户授权回调
     ]
     # 不需要验证权限的路由地址
@@ -212,7 +213,7 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "127.0.0.1:6379"
+    address: "10.8.5.21:6379"
     db: "2"
     pass: ""
     idleTimeout: "20"

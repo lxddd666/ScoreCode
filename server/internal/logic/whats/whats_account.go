@@ -9,6 +9,8 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/casbin"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/callback"
@@ -38,21 +40,57 @@ func (s *sWhatsAccount) Model(ctx context.Context, option ...*handler.Option) *g
 
 // List 获取账号列表
 func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListInp) (list []*whatsin.WhatsAccountListModel, totalCount int, err error) {
-	mod := s.Model(ctx)
+	var (
+		user   = contexts.Get(ctx).User
+		fields = []string{"wa.`id`",
+			"wa.`account`",
+			"wa.`nick_name`",
+			"wa.`avatar`",
+			"wa.`account_status`",
+			"wa.`is_online`",
+			"wa.`last_login_time`",
+			"wa.`created_at`",
+			"wa.`updated_at`"}
+		mod     = s.Model(ctx).As("wa")
+		columns = dao.WhatsAccount.Columns()
+	)
 
+	if user == nil {
+		g.Log().Info(ctx, "admin Verify user = nil")
+		return nil, 0, gerror.New("admin Verify user = nil")
+	}
+	//不是超管
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		//没有绑定用户的权限
+		if ok, _ := casbin.Enforcer.Enforce(user.RoleKey, "/whatsAccount/bindMember", "post"); !ok {
+			mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+columns.Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
+				Where("wam."+dao.WhatsAccountMember.Columns().MemberId, user.Id)
+		} else {
+			//deptId := user.DeptId
+			err, dept := service.AdminDept().GetTopDept(ctx, user.DeptId)
+			if err != nil {
+				return nil, 0, err
+			}
+			mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+columns.Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
+				Where("wam."+dao.WhatsAccountMember.Columns().DeptId, dept.Id)
+		}
+		fields = append(fields, "wam.`proxy_address`", "wam.`comment`")
+	} else {
+		fields = append(fields, "wa.`proxy_address`", "wa.`comment`")
+	}
 	// 查询账号状态
 	if in.AccountStatus > 0 {
-		mod = mod.Where(dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
+		mod = mod.Where("wa."+dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
 	}
 
 	// 查询id
 	if in.ProxyAddress != "" {
-		mod = mod.Where(dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress)
+		mod = mod.Where("wa."+dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress)
 	}
 
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
-		mod = mod.WhereBetween(dao.WhatsAccount.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
+		mod = mod.WhereBetween("wa."+dao.WhatsAccount.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
 	totalCount, err = mod.Clone().Count()
@@ -64,8 +102,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	if totalCount == 0 {
 		return
 	}
-
-	if err = mod.Fields(whatsin.WhatsAccountListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsAccount.Columns().UpdatedAt).Scan(&list); err != nil {
+	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsAccount.Columns().UpdatedAt).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取账号管理列表失败，请稍后重试！")
 		return
 	}
@@ -117,6 +154,7 @@ func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewIn
 
 // Upload 上传账号
 func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error) {
+	var user = contexts.Get(ctx).User
 	accounts := make([]string, 0)
 	for _, inp := range in {
 		accounts = append(accounts, inp.Account)
@@ -137,8 +175,38 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		list = append(list, account)
 	}
 	columns := dao.WhatsAccount.Columns()
-	_, err = s.Model(ctx).Fields(columns.Account, columns.Encryption).Save(list)
-	return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+	//如果不是超管，创建关联关系
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		var accountMembers []entity.WhatsAccountMember
+		//获取顶级部门
+		err, dept := service.AdminDept().GetTopDept(ctx, user.DeptId)
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range list {
+			accountMembers = append(accountMembers, entity.WhatsAccountMember{MemberId: user.Id,
+				DeptId:  dept.Id,
+				Account: item.Account,
+			})
+		}
+		err = handler.Model(dao.WhatsAccount.Ctx(ctx)).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+			_, err = tx.Model(dao.WhatsAccount.Ctx(ctx)).Fields(dao.WhatsAccount.Columns().Account, columns.Encryption).Save(list)
+			if err != nil {
+				return
+			}
+			_, err = tx.Model(dao.WhatsAccountMember.Ctx(ctx)).Save(accountMembers)
+			return
+		})
+		if err != nil {
+			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+		}
+	} else {
+		_, err = s.Model(ctx).Fields(dao.WhatsAccount.Columns().Account, columns.Encryption).Save(list)
+		if err != nil {
+			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+		}
+	}
+	return
 }
 
 // UnBind 解绑代理

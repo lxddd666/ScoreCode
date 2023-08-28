@@ -8,7 +8,7 @@
   },
   "private": true,
   "scripts": {
-    "bootstrap": "yarn install",
+    "bootstrap": "npm install",
     "serve": "npm run dev",
     "dev": "vite",
     "build": "vite build && esno ./build/script/postBuild.ts",
