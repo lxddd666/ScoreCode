@@ -21,6 +21,7 @@ type AdminMemberDao struct {
 // AdminMemberColumns defines and stores column names for table hg_admin_member.
 type AdminMemberColumns struct {
 	Id                 string // 管理员ID
+	OrgId              string // 组织ID
 	DeptId             string // 部门ID
 	RoleId             string // 角色ID
 	RealName           string // 真实姓名
@@ -53,6 +54,7 @@ type AdminMemberColumns struct {
 // adminMemberColumns holds the columns for table hg_admin_member.
 var adminMemberColumns = AdminMemberColumns{
 	Id:                 "id",
+	OrgId:              "org_id",
 	DeptId:             "dept_id",
 	RoleId:             "role_id",
 	RealName:           "real_name",

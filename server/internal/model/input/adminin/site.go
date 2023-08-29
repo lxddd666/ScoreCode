@@ -61,6 +61,12 @@ type MobileLoginInp struct {
 	Code   string `json:"code" v:"required#验证码不能为空"  dc:"验证码"`
 }
 
+// EmailLoginInp 邮箱登录
+type EmailLoginInp struct {
+	Email string `json:"email" v:"required|email#邮箱不能为空|邮箱格式不正确" dc:"邮箱"`
+	Code  string `json:"code" v:"required#验证码不能为空"  dc:"验证码"`
+}
+
 // MemberLoginPermissions 登录用户角色信息
 type MemberLoginPermissions []string
 

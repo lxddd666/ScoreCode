@@ -12,6 +12,7 @@ import (
 // AdminMember is the golang structure for table admin_member.
 type AdminMember struct {
 	Id                 int64       `json:"id"                 description:"管理员ID"`
+	OrgId              int64       `json:"orgId"              description:"组织ID"`
 	DeptId             int64       `json:"deptId"             description:"部门ID"`
 	RoleId             int64       `json:"roleId"             description:"角色ID"`
 	RealName           string      `json:"realName"           description:"真实姓名"`

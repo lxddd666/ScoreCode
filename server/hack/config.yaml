@@ -31,6 +31,7 @@ gfcli:
         jsonCase: "CamelLower"
         gJsonSupport: true
         clear: false
+        removePrefix: "hg_"
 
 
 #    service: # 生成业务配置

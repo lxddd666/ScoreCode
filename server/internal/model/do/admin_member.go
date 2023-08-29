@@ -14,6 +14,7 @@ import (
 type AdminMember struct {
 	g.Meta             `orm:"table:hg_admin_member, do:true"`
 	Id                 interface{} // 管理员ID
+	OrgId              interface{} // 组织ID
 	DeptId             interface{} // 部门ID
 	RoleId             interface{} // 角色ID
 	RealName           interface{} // 真实姓名
