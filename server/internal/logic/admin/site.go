@@ -244,6 +244,46 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 	return
 }
 
+// EmailLogin 邮箱登录
+func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) (res *adminin.LoginModel, err error) {
+	defer func() {
+		service.SysLoginLog().Push(ctx, &sysin.LoginLogPushInp{Response: res, Err: err})
+	}()
+
+	var mb *entity.AdminMember
+	if err = dao.AdminMember.Ctx(ctx).Where("email ", in.Email).Scan(&mb); err != nil {
+		err = gerror.Wrap(err, consts.ErrorORM)
+		return
+	}
+
+	if mb == nil {
+		err = gerror.New("账号不存在")
+		return
+	}
+
+	res = new(adminin.LoginModel)
+	res.Id = mb.Id
+	res.Username = mb.Username
+
+	err = service.SysEmsLog().VerifyCode(ctx, &sysin.VerifyEmsCodeInp{
+		Event: consts.SmsTemplateLogin,
+		Email: in.Email,
+		Code:  in.Code,
+	})
+
+	if err != nil {
+		return
+	}
+
+	if mb.Status != consts.StatusEnabled {
+		err = gerror.New("账号已被禁用")
+		return
+	}
+
+	res, err = s.handleLogin(ctx, mb)
+	return
+}
+
 // handleLogin .
 func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (res *adminin.LoginModel, err error) {
 	var ro *entity.AdminRole
@@ -265,6 +305,7 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 	user := &model.Identity{
 		Id:       mb.Id,
 		Pid:      mb.Pid,
+		OrgId:    mb.OrgId,
 		DeptId:   mb.DeptId,
 		RoleId:   ro.Id,
 		RoleKey:  ro.Key,
@@ -322,6 +363,7 @@ func (s *sAdminSite) BindUserContext(ctx context.Context, claims *model.Identity
 
 	user := &model.Identity{
 		Id:       mb.Id,
+		OrgId:    mb.OrgId,
 		Pid:      mb.Pid,
 		DeptId:   mb.DeptId,
 		RoleId:   mb.RoleId,

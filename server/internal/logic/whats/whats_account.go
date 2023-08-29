@@ -7,11 +7,11 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gutil"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/contexts"
-	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
@@ -62,7 +62,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	//不是超管
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
 		//没有绑定用户的权限
-		if ok, _ := casbin.Enforcer.Enforce(user.RoleKey, "/whatsAccount/bindMember", "post"); !ok {
+		if ok, _ := casbin.Enforcer.Enforce(user.RoleKey, "/whatsAccount/bindMember", "POST"); !ok {
 			mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+columns.Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
 				Where("wam."+dao.WhatsAccountMember.Columns().MemberId, user.Id)
 		} else {
@@ -111,25 +111,29 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 
 // Edit 修改/新增账号管理
 func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error) {
-	// 验证'Account'唯一
-	if err = hgorm.IsUnique(ctx, &dao.WhatsAccount, g.Map{dao.WhatsAccount.Columns().Account: in.Account}, "账号号码已存在", in.Id); err != nil {
+	var account entity.WhatsAccount
+	err = s.Model(ctx).WherePri(in.Id).Scan(&account)
+	if err != nil {
 		return
 	}
+	if gutil.IsEmpty(account) {
+		return gerror.New("账号不存在")
+	}
 	// 修改
-	if in.Id > 0 {
+	if service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsAccountUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改账号管理失败，请稍后重试！")
+			err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
 		}
-		return
-	}
-
-	// 新增
-	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
-		Fields(whatsin.WhatsAccountInsertFields{}).
-		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增账号管理失败，请稍后重试！")
+	} else {
+		if _, err = handler.Model(dao.WhatsAccountMember.Ctx(ctx)).
+			Fields(dao.WhatsAccountMember.Columns().Comment).
+			Where(dao.WhatsAccountMember.Columns().Account, account.Account).
+			Data(do.WhatsAccountMember{Comment: in.Comment,
+				ProxyAddress: in.ProxyAddress}).Update(); err != nil {
+			err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
+		}
 	}
 	return
 }
@@ -137,7 +141,7 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 // Delete 删除账号管理
 func (s *sWhatsAccount) Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除账号管理失败，请稍后重试！")
+		err = gerror.Wrap(err, "删除账号失败，请稍后重试！")
 		return
 	}
 	return
@@ -146,7 +150,7 @@ func (s *sWhatsAccount) Delete(ctx context.Context, in *whatsin.WhatsAccountDele
 // View 获取账号管理指定信息
 func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取账号管理信息，请稍后重试！")
+		err = gerror.Wrap(err, "获取账号信息，请稍后重试！")
 		return
 	}
 	return

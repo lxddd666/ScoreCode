@@ -59,8 +59,11 @@ type UnBindReq struct {
 
 type UnBindRes struct{}
 
-// BindMember 绑定用户
-type BindMember struct {
+// BindMemberReq 绑定用户
+type BindMemberReq struct {
 	g.Meta `path:"/whatsAccount/bindMember" method:"post" tags:"账号管理" summary:"绑定用户"`
 	whatsin.WhatsAccountUnBindInp
 }
+
+// BindMemberRes 绑定用户
+type BindMemberRes struct{}

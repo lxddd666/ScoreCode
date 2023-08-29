@@ -59,7 +59,7 @@ func ParseAddress(ctx context.Context, address, key string) (region *AddressRegi
 		response    *AMapGeocodeAddressRes
 	)
 
-	err = g.Client().GetVar(ctx, url).Scan(&responseMap)
+	err = g.Client().Discovery(nil).GetVar(ctx, url).Scan(&responseMap)
 	if err != nil {
 		return nil, gerror.Newf("AMap AnalysisAddress err:%+v", err)
 	}

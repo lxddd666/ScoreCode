@@ -107,6 +107,11 @@ func (s *sAdminDept) Edit(ctx context.Context, in *adminin.DeptEditInp) (err err
 	// 修改
 	if in.Id > 0 {
 		err = dao.AdminDept.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+			if in.Pid != 0 {
+				in.OrgId = tree.GetIds(in.Tree)[0]
+			} else {
+				in.OrgId = in.Id
+			}
 			// 更新数据
 			_, err = dao.AdminDept.Ctx(ctx).Fields(adminin.DeptUpdateFields{}).WherePri(in.Id).Data(in).Update()
 			if err != nil {
@@ -114,18 +119,36 @@ func (s *sAdminDept) Edit(ctx context.Context, in *adminin.DeptEditInp) (err err
 			}
 
 			// 如果当前部门有子级,更新子级tree关系树
-			return updateChildrenTree(ctx, in.Id, in.Level, in.Tree)
+			return updateChildrenTree(ctx, in.OrgId, in.Id, in.Level, in.Tree)
 		})
 		return
 	}
 
 	// 新增
-	_, err = dao.AdminDept.Ctx(ctx).Fields(adminin.DeptInsertFields{}).Data(in).Insert()
+
+	err = dao.AdminDept.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		//生成org_id
+		if in.Pid == 0 {
+			id, err := dao.AdminDept.Ctx(ctx).Fields(adminin.DeptInsertFields{}).Data(in).InsertAndGetId()
+			if err != nil {
+				return err
+			}
+			_, err = dao.AdminDept.Ctx(ctx).Fields(dao.AdminDept.Columns().OrgId).WherePri(id).Update(entity.AdminDept{OrgId: id})
+			return err
+		} else {
+			var orgId int
+			_ = dao.AdminDept.Ctx(ctx).Fields(dao.AdminDept.Columns().OrgId).WherePri(in.Pid).Scan(&orgId)
+			_, err = dao.AdminDept.Ctx(ctx).Fields(adminin.DeptInsertFields{}).Data(in).Insert()
+			return err
+		}
+	})
+
 	return
 }
 
-func updateChildrenTree(ctx context.Context, _id int64, _level int, _tree string) (err error) {
+func updateChildrenTree(ctx context.Context, orgId int64, _id int64, _level int, _tree string) (err error) {
 	var list []*entity.AdminDept
+	cols := dao.AdminDept.Columns()
 	if err = dao.AdminDept.Ctx(ctx).Where("pid", _id).Scan(&list); err != nil || list == nil {
 		return
 	}
@@ -133,11 +156,11 @@ func updateChildrenTree(ctx context.Context, _id int64, _level int, _tree string
 		child.Level = _level + 1
 		child.Tree = tree.GenLabel(_tree, child.Pid)
 
-		if _, err = dao.AdminDept.Ctx(ctx).Where("id", child.Id).Data("level", child.Level, "tree", child.Tree).Update(); err != nil {
+		if _, err = dao.AdminDept.Ctx(ctx).Where("id", child.Id).Data(cols.OrgId, orgId, cols.Level, child.Level, cols.Tree, child.Tree).Update(); err != nil {
 			return
 		}
 
-		if err = updateChildrenTree(ctx, child.Id, child.Level, child.Tree); err != nil {
+		if err = updateChildrenTree(ctx, orgId, child.Id, child.Level, child.Tree); err != nil {
 			return
 		}
 	}
@@ -277,6 +300,12 @@ func (s *sAdminDept) List(ctx context.Context, in *adminin.DeptListInp) (res *ad
 		}
 		appends(columns)
 	}
+	var pid int64 = 0
+	// 非超管按权限范围查询部门
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		pid = contexts.GetUser(ctx).DeptId
+		mod = mod.WhereLike(dao.AdminDept.Columns().Tree, "%"+tree.GetIdLabel(pid)+"%")
+	}
 
 	if len(ids) > 0 {
 		mod = mod.Wheref(`id in (?) or pid in (?)`, convert.UniqueSlice(ids), convert.UniqueSlice(pids))
@@ -288,7 +317,7 @@ func (s *sAdminDept) List(ctx context.Context, in *adminin.DeptListInp) (res *ad
 	}
 
 	res = new(adminin.DeptListModel)
-	res.List = s.treeList(0, models)
+	res.List = s.treeList(pid, models)
 	return
 }
 
@@ -362,7 +391,7 @@ func (s *sAdminDept) VerifyDeptId(ctx context.Context, id int64) (err error) {
 // GetTopDept 获取顶级部门
 func (s *sAdminDept) GetTopDept(ctx context.Context, id int64) (err error, dept *adminin.DeptTree) {
 	mod := dao.AdminDept.Ctx(ctx)
-	err = mod.Where(dao.AdminDept.Columns().Id, id).Scan(dept)
+	err = mod.Where(dao.AdminDept.Columns().Id, id).Scan(&dept)
 	if err != nil {
 		return
 	}
