@@ -232,6 +232,31 @@ func (s *sAdminDept) Option(ctx context.Context, in *adminin.DeptOptionInp) (res
 	return
 }
 
+// DeptOrgOption 选项
+func (s *sAdminDept) DeptOrgOption(ctx context.Context, in *adminin.DeptOrgOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error) {
+	var (
+		mod    = dao.AdminDept.Ctx(ctx)
+		models []*entity.AdminDept
+	)
+	mod = mod.Where(dao.AdminDept.Columns().Pid, 0)
+	totalCount, err = mod.Count()
+	if err != nil {
+		err = gerror.Wrap(err, "获取部门数据行失败！")
+		return
+	}
+
+	if err = mod.Page(in.Page, in.PerPage).Order("sort asc,id asc").Scan(&models); err != nil {
+		err = gerror.Wrap(err, "获取部门数据失败！")
+		return
+	}
+
+	res = new(adminin.DeptOptionModel)
+	if models != nil {
+		mod.Fields(adminin.DeptOptionModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.AdminDept.Columns().Id).Scan(&res.List)
+	}
+	return
+}
+
 // List 获取列表
 func (s *sAdminDept) List(ctx context.Context, in *adminin.DeptListInp) (res *adminin.DeptListModel, err error) {
 	var (

@@ -69,6 +69,12 @@ type OptionReq struct {
 	adminin.DeptOptionInp
 }
 
+// DeptOrgOptionReq 获取所有公司
+type DeptOrgOptionReq struct {
+	g.Meta `path:"/dept/deptOrgOption" method:"get" tags:"部门" summary:"获取部门选项树"`
+	adminin.DeptOrgOptionInp
+}
+
 type OptionRes struct {
 	*adminin.DeptOptionModel
 	form.PageRes

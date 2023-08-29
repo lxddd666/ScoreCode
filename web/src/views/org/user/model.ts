@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash-es';
 import { ref } from 'vue';
-import { getDeptOption } from '@/api/org/dept';
+import {getDeptOption, getOrgOption} from '@/api/org/dept';
 import { getRoleOption } from '@/api/system/role';
 import { getPostOption } from '@/api/org/post';
 import { FormSchema, useForm } from '@/components/Form';
@@ -176,12 +176,17 @@ export const options = ref<any>({
   roleTabs: [{ id: -1, name: '全部' }],
   dept: [],
   post: [],
+  org: [],
 });
 
 export async function loadOptions() {
-  const dept = await getDeptOption();
-  if (dept.list) {
-    options.value.dept = dept.list;
+  const org = await getOrgOption();
+  if (org.list) {
+    options.value.org = org.list;
+    for (let i = 0; i < org.list.length; i++) {
+      org.list[i].label = org.list[i].name;
+      org.list[i].value = org.list[i].id;
+    }
   }
 
   const role = await getRoleOption();
@@ -189,15 +194,6 @@ export async function loadOptions() {
     options.value.role = role.list;
     options.value.roleTabs = [{ id: -1, name: '全部' }];
     treeDataToCompressed(role.list);
-  }
-
-  const post = await getPostOption();
-  if (post.list && post.list.length > 0) {
-    for (let i = 0; i < post.list.length; i++) {
-      post.list[i].label = post.list[i].name;
-      post.list[i].value = post.list[i].id;
-    }
-    options.value.post = post.list;
   }
 }
 
@@ -209,4 +205,21 @@ function treeDataToCompressed(source) {
       : ''; // 子级递归
   }
   return options.value.roleTabs;
+}
+
+export async function loadDeptAndPost(orgID) {
+  const param = { orgId: orgID };
+  const dept = await getDeptOption(param);
+  if (dept.list) {
+    options.value.dept = dept.list;
+  }
+
+  const post = await getPostOption(param);
+  if (post.list && post.list.length > 0) {
+    for (let i = 0; i < post.list.length; i++) {
+      post.list[i].label = post.list[i].name;
+      post.list[i].value = post.list[i].id;
+    }
+    options.value.post = post.list;
+  }
 }

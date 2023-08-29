@@ -72,3 +72,16 @@ func (c *cDept) Option(ctx context.Context, req *dept.OptionReq) (res *dept.Opti
 	res.PageRes.Pack(req, totalCount)
 	return
 }
+
+// DeptOrgOption 获取部门公司
+func (c *cDept) DeptOrgOption(ctx context.Context, req *dept.DeptOrgOptionReq) (res *dept.OptionRes, err error) {
+	list, totalCount, err := service.AdminDept().DeptOrgOption(ctx, &req.DeptOrgOptionInp)
+	if err != nil {
+		return
+	}
+
+	res = new(dept.OptionRes)
+	res.DeptOptionModel = list
+	res.PageRes.Pack(req, totalCount)
+	return
+}
