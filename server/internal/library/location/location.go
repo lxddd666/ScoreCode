@@ -60,7 +60,7 @@ func init() {
 
 // WhoisLocation 通过Whois接口查询IP归属地
 func WhoisLocation(ctx context.Context, ip string) (*IpLocationData, error) {
-	response, err := g.Client().Timeout(10*time.Second).Get(ctx, whoisApi+ip)
+	response, err := g.Client().Discovery(nil).Timeout(10*time.Second).Get(ctx, whoisApi+ip)
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +141,7 @@ func GetLocation(ctx context.Context, ip string) (data *IpLocationData, err erro
 		return data1, nil
 	}
 
-	mode := g.Cfg().MustGet(ctx, "hotgo.ipMethod", "cz88").String()
+	mode := g.Cfg().MustGet(ctx, "hotgo.ipMethod", "whois").String()
 	switch mode {
 	case "whois":
 		data, err = WhoisLocation(ctx, ip)
@@ -161,7 +161,7 @@ func GetLocation(ctx context.Context, ip string) (data *IpLocationData, err erro
 // GetPublicIP 获取公网IP
 func GetPublicIP(ctx context.Context) (ip string, err error) {
 	var data *WhoisRegionData
-	err = g.Client().Timeout(10*time.Second).GetVar(ctx, whoisApi).Scan(&data)
+	err = g.Client().Discovery(nil).Timeout(10*time.Second).GetVar(ctx, whoisApi).Scan(&data)
 	if err != nil {
 		g.Log().Info(ctx, "GetPublicIP fail, alternatives are being tried.")
 		return GetPublicIP2()
