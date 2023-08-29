@@ -15,7 +15,6 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/location"
-	"hotgo/internal/library/sms"
 	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/sysin"
@@ -166,9 +165,9 @@ func (s *sSysSmsLog) SendCode(ctx context.Context, in *sysin.SendCodeInp) (err e
 		in.Code = grand.Digits(4)
 	}
 
-	if err = sms.New(config.SmsDrive).SendCode(ctx, in); err != nil {
-		return
-	}
+	//if err = sms.New(config.SmsDrive).SendCode(ctx, in); err != nil {
+	//	return
+	//}
 
 	var data = new(entity.SysSmsLog)
 	data.Event = in.Event

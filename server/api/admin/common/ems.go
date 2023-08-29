@@ -7,6 +7,7 @@ package common
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/model/input/sysin"
 )
 
 // SendTestEmailReq 发送测试邮件
@@ -24,4 +25,13 @@ type SendBindEmsReq struct {
 }
 
 type SendBindEmsRes struct {
+}
+
+// SendEmsReq 发送邮件
+type SendEmsReq struct {
+	g.Meta `path:"/ems/send" tags:"邮件" method:"post" summary:"发送邮件"`
+	sysin.SendEmsInp
+}
+
+type SendEmsRes struct {
 }

@@ -131,6 +131,7 @@ router:
     # 不需要验证登录的路由地址
     exceptLogin: [
       "/sms/send",              # 短信验证码
+      "/ems/send",               # 邮箱验证码
       "/wechat/authorizeCall",  # 微信用户授权回调
     ]
     # 不需要验证权限的路由地址
@@ -231,7 +232,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:root:hY7iaIFYHHJu!@tcp(103.205.6.236:32698)/hotgo?loc=Local&parseTime=true"
+    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
     debug: true
 
 

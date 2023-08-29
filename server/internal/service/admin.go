@@ -19,6 +19,54 @@ import (
 )
 
 type (
+	IAdminDept interface {
+		// Delete 删除
+		Delete(ctx context.Context, in *adminin.DeptDeleteInp) (err error)
+		// VerifyUnique 验证部门唯一属性
+		VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueInp) (err error)
+		// Edit 修改/新增
+		Edit(ctx context.Context, in *adminin.DeptEditInp) (err error)
+		// Status 更新部门状态
+		Status(ctx context.Context, in *adminin.DeptStatusInp) (err error)
+		// MaxSort 最大排序
+		MaxSort(ctx context.Context, in *adminin.DeptMaxSortInp) (res *adminin.DeptMaxSortModel, err error)
+		// View 获取指定部门信息
+		View(ctx context.Context, in *adminin.DeptViewInp) (res *adminin.DeptViewModel, err error)
+		// Option 选项
+		Option(ctx context.Context, in *adminin.DeptOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error)
+		// List 获取列表
+		List(ctx context.Context, in *adminin.DeptListInp) (res *adminin.DeptListModel, err error)
+		// GetName 获取部门名称
+		GetName(ctx context.Context, id int64) (name string, err error)
+		// VerifyDeptId 验证部门ID
+		VerifyDeptId(ctx context.Context, id int64) (err error)
+		// GetTopDept 获取顶级部门
+		GetTopDept(ctx context.Context, id int64) (err error, dept *adminin.DeptTree)
+	}
+	IAdminMemberPost interface {
+		// UpdatePostIds 更新用户岗位
+		UpdatePostIds(ctx context.Context, memberId int64, postIds []int64) (err error)
+	}
+	IAdminMenu interface {
+		// Delete 删除
+		Delete(ctx context.Context, in *adminin.MenuDeleteInp) (err error)
+		// VerifyUnique 验证菜单唯一属性
+		VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueInp) (err error)
+		// Edit 修改/新增
+		Edit(ctx context.Context, in *adminin.MenuEditInp) (err error)
+		// List 获取菜单列表
+		List(ctx context.Context, in *adminin.MenuListInp) (res *adminin.MenuListModel, err error)
+		// GetMenuList 获取菜单列表
+		GetMenuList(ctx context.Context, memberId int64) (res *role.DynamicRes, err error)
+		// LoginPermissions 获取登录成功后的细粒度权限
+		LoginPermissions(ctx context.Context, memberId int64) (lists adminin.MemberLoginPermissions, err error)
+	}
+	IAdminMonitor interface {
+		// StartMonitor 启动服务监控
+		StartMonitor(ctx context.Context)
+		// GetMeta 获取监控元数据
+		GetMeta(ctx context.Context) *model.MonitorData
+	}
 	IAdminOrder interface {
 		// Model 充值订单ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -60,110 +108,6 @@ type (
 		GetMemberByStartName(ctx context.Context, memberId int64) (name string, err error)
 		// Status 更新状态
 		Status(ctx context.Context, in *adminin.PostStatusInp) (err error)
-	}
-	IAdminDept interface {
-		// Delete 删除
-		Delete(ctx context.Context, in *adminin.DeptDeleteInp) (err error)
-		// VerifyUnique 验证部门唯一属性
-		VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueInp) (err error)
-		// Edit 修改/新增
-		Edit(ctx context.Context, in *adminin.DeptEditInp) (err error)
-		// Status 更新部门状态
-		Status(ctx context.Context, in *adminin.DeptStatusInp) (err error)
-		// MaxSort 最大排序
-		MaxSort(ctx context.Context, in *adminin.DeptMaxSortInp) (res *adminin.DeptMaxSortModel, err error)
-		// View 获取指定部门信息
-		View(ctx context.Context, in *adminin.DeptViewInp) (res *adminin.DeptViewModel, err error)
-		// Option 选项
-		Option(ctx context.Context, in *adminin.DeptOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error)
-		// List 获取列表
-		List(ctx context.Context, in *adminin.DeptListInp) (res *adminin.DeptListModel, err error)
-		// GetName 获取部门名称
-		GetName(ctx context.Context, id int64) (name string, err error)
-		// VerifyDeptId 验证部门ID
-		VerifyDeptId(ctx context.Context, id int64) (err error)
-	}
-	IAdminMenu interface {
-		// Delete 删除
-		Delete(ctx context.Context, in *adminin.MenuDeleteInp) (err error)
-		// VerifyUnique 验证菜单唯一属性
-		VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueInp) (err error)
-		// Edit 修改/新增
-		Edit(ctx context.Context, in *adminin.MenuEditInp) (err error)
-		// List 获取菜单列表
-		List(ctx context.Context, in *adminin.MenuListInp) (res *adminin.MenuListModel, err error)
-		// GetMenuList 获取菜单列表
-		GetMenuList(ctx context.Context, memberId int64) (res *role.DynamicRes, err error)
-		// LoginPermissions 获取登录成功后的细粒度权限
-		LoginPermissions(ctx context.Context, memberId int64) (lists adminin.MemberLoginPermissions, err error)
-	}
-	IAdminMonitor interface {
-		// StartMonitor 启动服务监控
-		StartMonitor(ctx context.Context)
-		// GetMeta 获取监控元数据
-		GetMeta(ctx context.Context) *model.MonitorData
-	}
-	IAdminMemberPost interface {
-		// UpdatePostIds 更新用户岗位
-		UpdatePostIds(ctx context.Context, memberId int64, postIds []int64) (err error)
-	}
-	IAdminNotice interface {
-		// Model Orm模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// Delete 删除
-		Delete(ctx context.Context, in *adminin.NoticeDeleteInp) (err error)
-		// Edit 修改/新增
-		Edit(ctx context.Context, in *adminin.NoticeEditInp) (err error)
-		// Status 更新部门状态
-		Status(ctx context.Context, in *adminin.NoticeStatusInp) (err error)
-		// MaxSort 最大排序
-		MaxSort(ctx context.Context, in *adminin.NoticeMaxSortInp) (res *adminin.NoticeMaxSortModel, err error)
-		// View 获取指定字典类型信息
-		View(ctx context.Context, in *adminin.NoticeViewInp) (res *adminin.NoticeViewModel, err error)
-		// List 获取列表
-		List(ctx context.Context, in *adminin.NoticeListInp) (list []*adminin.NoticeListModel, totalCount int, err error)
-		// PullMessages 拉取未读消息列表
-		PullMessages(ctx context.Context, in *adminin.PullMessagesInp) (res *adminin.PullMessagesModel, err error)
-		// UnreadCount 获取所有类型消息的未读数量
-		UnreadCount(ctx context.Context, in *adminin.NoticeUnreadCountInp) (res *adminin.NoticeUnreadCountModel, err error)
-		// UpRead 更新已读
-		UpRead(ctx context.Context, in *adminin.NoticeUpReadInp) (err error)
-		// ReadAll 已读全部
-		ReadAll(ctx context.Context, in *adminin.NoticeReadAllInp) (err error)
-		// MessageList 我的消息列表
-		MessageList(ctx context.Context, in *adminin.NoticeMessageListInp) (list []*adminin.NoticeMessageListModel, totalCount int, err error)
-	}
-	IAdminRole interface {
-		// Verify 验证权限
-		Verify(ctx context.Context, path, method string) bool
-		// List 获取列表
-		List(ctx context.Context, in *adminin.RoleListInp) (res *adminin.RoleListModel, totalCount int, err error)
-		// GetName 获取指定角色的名称
-		GetName(ctx context.Context, id int64) (name string, err error)
-		// GetMemberList 获取指定用户的岗位列表
-		GetMemberList(ctx context.Context, id int64) (list []*adminin.RoleListModel, err error)
-		// GetPermissions 更改角色菜单权限
-		GetPermissions(ctx context.Context, in *adminin.GetPermissionsInp) (res *adminin.GetPermissionsModel, err error)
-		// UpdatePermissions 更改角色菜单权限
-		UpdatePermissions(ctx context.Context, in *adminin.UpdatePermissionsInp) (err error)
-		Edit(ctx context.Context, in *adminin.RoleEditInp) (err error)
-		Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err error)
-		DataScopeSelect() (res form.Selects)
-		DataScopeEdit(ctx context.Context, in *adminin.DataScopeEditInp) (err error)
-		// VerifyRoleId 验证角色ID
-		VerifyRoleId(ctx context.Context, id int64) (err error)
-		// GetSubRoleIds 获取所有下级角色ID
-		GetSubRoleIds(ctx context.Context, roleId int64, isSuper bool) (ids []int64, err error)
-	}
-	IAdminSite interface {
-		// Register 账号注册
-		Register(ctx context.Context, in *adminin.RegisterInp) (err error)
-		// AccountLogin 账号登录
-		AccountLogin(ctx context.Context, in *adminin.AccountLoginInp) (res *adminin.LoginModel, err error)
-		// MobileLogin 手机号登录
-		MobileLogin(ctx context.Context, in *adminin.MobileLoginInp) (res *adminin.LoginModel, err error)
-		// BindUserContext 绑定用户上下文
-		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
 	}
 	IAdminCash interface {
 		// View 获取指定提现信息
@@ -236,33 +180,82 @@ type (
 		// 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置
 		FilterAuthModel(ctx context.Context, memberId int64) *gdb.Model
 	}
+	IAdminNotice interface {
+		// Model Orm模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// Delete 删除
+		Delete(ctx context.Context, in *adminin.NoticeDeleteInp) (err error)
+		// Edit 修改/新增
+		Edit(ctx context.Context, in *adminin.NoticeEditInp) (err error)
+		// Status 更新部门状态
+		Status(ctx context.Context, in *adminin.NoticeStatusInp) (err error)
+		// MaxSort 最大排序
+		MaxSort(ctx context.Context, in *adminin.NoticeMaxSortInp) (res *adminin.NoticeMaxSortModel, err error)
+		// View 获取指定字典类型信息
+		View(ctx context.Context, in *adminin.NoticeViewInp) (res *adminin.NoticeViewModel, err error)
+		// List 获取列表
+		List(ctx context.Context, in *adminin.NoticeListInp) (list []*adminin.NoticeListModel, totalCount int, err error)
+		// PullMessages 拉取未读消息列表
+		PullMessages(ctx context.Context, in *adminin.PullMessagesInp) (res *adminin.PullMessagesModel, err error)
+		// UnreadCount 获取所有类型消息的未读数量
+		UnreadCount(ctx context.Context, in *adminin.NoticeUnreadCountInp) (res *adminin.NoticeUnreadCountModel, err error)
+		// UpRead 更新已读
+		UpRead(ctx context.Context, in *adminin.NoticeUpReadInp) (err error)
+		// ReadAll 已读全部
+		ReadAll(ctx context.Context, in *adminin.NoticeReadAllInp) (err error)
+		// MessageList 我的消息列表
+		MessageList(ctx context.Context, in *adminin.NoticeMessageListInp) (list []*adminin.NoticeMessageListModel, totalCount int, err error)
+	}
+	IAdminRole interface {
+		// Verify 验证权限
+		Verify(ctx context.Context, path, method string) bool
+		// List 获取列表
+		List(ctx context.Context, in *adminin.RoleListInp) (res *adminin.RoleListModel, totalCount int, err error)
+		// GetName 获取指定角色的名称
+		GetName(ctx context.Context, id int64) (name string, err error)
+		// GetMemberList 获取指定用户的岗位列表
+		GetMemberList(ctx context.Context, id int64) (list []*adminin.RoleListModel, err error)
+		// GetPermissions 更改角色菜单权限
+		GetPermissions(ctx context.Context, in *adminin.GetPermissionsInp) (res *adminin.GetPermissionsModel, err error)
+		// UpdatePermissions 更改角色菜单权限
+		UpdatePermissions(ctx context.Context, in *adminin.UpdatePermissionsInp) (err error)
+		Edit(ctx context.Context, in *adminin.RoleEditInp) (err error)
+		Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err error)
+		DataScopeSelect() (res form.Selects)
+		DataScopeEdit(ctx context.Context, in *adminin.DataScopeEditInp) (err error)
+		// VerifyRoleId 验证角色ID
+		VerifyRoleId(ctx context.Context, id int64) (err error)
+		// GetSubRoleIds 获取所有下级角色ID
+		GetSubRoleIds(ctx context.Context, roleId int64, isSuper bool) (ids []int64, err error)
+	}
+	IAdminSite interface {
+		// Register 账号注册
+		Register(ctx context.Context, in *adminin.RegisterInp) (err error)
+		// AccountLogin 账号登录
+		AccountLogin(ctx context.Context, in *adminin.AccountLoginInp) (res *adminin.LoginModel, err error)
+		// MobileLogin 手机号登录
+		MobileLogin(ctx context.Context, in *adminin.MobileLoginInp) (res *adminin.LoginModel, err error)
+		// BindUserContext 绑定用户上下文
+		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
+		// RegisterCode 账号注册验证码
+		RegisterCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
+	}
 )
 
 var (
 	localAdminMemberPost IAdminMemberPost
+	localAdminMenu       IAdminMenu
+	localAdminMonitor    IAdminMonitor
+	localAdminOrder      IAdminOrder
+	localAdminPost       IAdminPost
+	localAdminDept       IAdminDept
+	localAdminCreditsLog IAdminCreditsLog
+	localAdminMember     IAdminMember
 	localAdminNotice     IAdminNotice
 	localAdminRole       IAdminRole
 	localAdminSite       IAdminSite
 	localAdminCash       IAdminCash
-	localAdminCreditsLog IAdminCreditsLog
-	localAdminMember     IAdminMember
-	localAdminOrder      IAdminOrder
-	localAdminPost       IAdminPost
-	localAdminDept       IAdminDept
-	localAdminMenu       IAdminMenu
-	localAdminMonitor    IAdminMonitor
 )
-
-func AdminMonitor() IAdminMonitor {
-	if localAdminMonitor == nil {
-		panic("implement not found for interface IAdminMonitor, forgot register?")
-	}
-	return localAdminMonitor
-}
-
-func RegisterAdminMonitor(i IAdminMonitor) {
-	localAdminMonitor = i
-}
 
 func AdminOrder() IAdminOrder {
 	if localAdminOrder == nil {
@@ -297,28 +290,6 @@ func RegisterAdminDept(i IAdminDept) {
 	localAdminDept = i
 }
 
-func AdminMenu() IAdminMenu {
-	if localAdminMenu == nil {
-		panic("implement not found for interface IAdminMenu, forgot register?")
-	}
-	return localAdminMenu
-}
-
-func RegisterAdminMenu(i IAdminMenu) {
-	localAdminMenu = i
-}
-
-func AdminMember() IAdminMember {
-	if localAdminMember == nil {
-		panic("implement not found for interface IAdminMember, forgot register?")
-	}
-	return localAdminMember
-}
-
-func RegisterAdminMember(i IAdminMember) {
-	localAdminMember = i
-}
-
 func AdminMemberPost() IAdminMemberPost {
 	if localAdminMemberPost == nil {
 		panic("implement not found for interface IAdminMemberPost, forgot register?")
@@ -330,15 +301,26 @@ func RegisterAdminMemberPost(i IAdminMemberPost) {
 	localAdminMemberPost = i
 }
 
-func AdminNotice() IAdminNotice {
-	if localAdminNotice == nil {
-		panic("implement not found for interface IAdminNotice, forgot register?")
+func AdminMenu() IAdminMenu {
+	if localAdminMenu == nil {
+		panic("implement not found for interface IAdminMenu, forgot register?")
 	}
-	return localAdminNotice
+	return localAdminMenu
 }
 
-func RegisterAdminNotice(i IAdminNotice) {
-	localAdminNotice = i
+func RegisterAdminMenu(i IAdminMenu) {
+	localAdminMenu = i
+}
+
+func AdminMonitor() IAdminMonitor {
+	if localAdminMonitor == nil {
+		panic("implement not found for interface IAdminMonitor, forgot register?")
+	}
+	return localAdminMonitor
+}
+
+func RegisterAdminMonitor(i IAdminMonitor) {
+	localAdminMonitor = i
 }
 
 func AdminRole() IAdminRole {
@@ -383,4 +365,26 @@ func AdminCreditsLog() IAdminCreditsLog {
 
 func RegisterAdminCreditsLog(i IAdminCreditsLog) {
 	localAdminCreditsLog = i
+}
+
+func AdminMember() IAdminMember {
+	if localAdminMember == nil {
+		panic("implement not found for interface IAdminMember, forgot register?")
+	}
+	return localAdminMember
+}
+
+func RegisterAdminMember(i IAdminMember) {
+	localAdminMember = i
+}
+
+func AdminNotice() IAdminNotice {
+	if localAdminNotice == nil {
+		panic("implement not found for interface IAdminNotice, forgot register?")
+	}
+	return localAdminNotice
+}
+
+func RegisterAdminNotice(i IAdminNotice) {
+	localAdminNotice = i
 }

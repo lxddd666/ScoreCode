@@ -32,10 +32,10 @@ func (c *cEms) SendTest(ctx context.Context, req *common.SendTestEmailReq) (res 
 			<html lang="en">
 			<head>
 				<meta charset="iso-8859-15">
-				<title>这是一封来自HotGo的测试邮件</title>
+				<title>这是一封来自Grata的测试邮件</title>
 			</head>
 			<body>
-				这是您通过HotGo后台发送的测试邮件。当你收到这封邮件的时候，说明已经联调成功了，恭喜你！
+				这是您通过Grata后台发送的测试邮件。当你收到这封邮件的时候，说明已经联调成功了，恭喜你！
 			</body>
 			</html>`,
 	})
@@ -72,5 +72,11 @@ func (c *cSms) SendBindEms(ctx context.Context, _ *common.SendBindEmsReq) (res *
 		Event: consts.EmsTemplateBind,
 		Email: models.Email,
 	})
+	return
+}
+
+// SendEms 发送邮件
+func (c *cSms) SendEms(ctx context.Context, req *common.SendEmsReq) (res *common.SendSmsRes, err error) {
+	err = service.SysEmsLog().Send(ctx, &req.SendEmsInp)
 	return
 }
