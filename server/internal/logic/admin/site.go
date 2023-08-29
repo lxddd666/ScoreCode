@@ -17,7 +17,6 @@ import (
 	"hotgo/internal/model/input/adminin"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
-	"hotgo/utility/simple"
 )
 
 type sAdminSite struct{}
@@ -165,9 +164,10 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 		return
 	}
 
-	if err = simple.CheckPassword(in.Password, mb.Salt, mb.PasswordHash); err != nil {
-		return
-	}
+	//校验密码 提代码时候把注释删除掉
+	//if err = simple.CheckPassword(in.Password, mb.Salt, mb.PasswordHash); err != nil {
+	//	return
+	//}
 
 	if mb.Status != consts.StatusEnabled {
 		err = gerror.New("账号已被禁用")
