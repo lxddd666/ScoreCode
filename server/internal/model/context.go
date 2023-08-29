@@ -22,6 +22,7 @@ type Context struct {
 // Identity 通用身份模型
 type Identity struct {
 	Id       int64       `json:"id"              description:"用户ID"`
+	OrgId    int64       `json:"orgId"           description:"组织ID"`
 	Pid      int64       `json:"pid"             description:"上级ID"`
 	DeptId   int64       `json:"deptId"          description:"部门ID"`
 	RoleId   int64       `json:"roleId"          description:"角色ID"`

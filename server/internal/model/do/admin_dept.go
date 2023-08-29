@@ -13,6 +13,7 @@ import (
 type AdminDept struct {
 	g.Meta    `orm:"table:hg_admin_dept, do:true"`
 	Id        interface{} // 部门ID
+	OrgId     interface{} // 组织ID
 	Pid       interface{} // 父部门ID
 	Name      interface{} // 部门名称
 	Code      interface{} // 部门编码

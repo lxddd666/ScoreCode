@@ -21,6 +21,7 @@ type AdminDeptDao struct {
 // AdminDeptColumns defines and stores column names for table hg_admin_dept.
 type AdminDeptColumns struct {
 	Id        string // 部门ID
+	OrgId     string // 组织ID
 	Pid       string // 父部门ID
 	Name      string // 部门名称
 	Code      string // 部门编码
@@ -39,6 +40,7 @@ type AdminDeptColumns struct {
 // adminDeptColumns holds the columns for table hg_admin_dept.
 var adminDeptColumns = AdminDeptColumns{
 	Id:        "id",
+	OrgId:     "org_id",
 	Pid:       "pid",
 	Name:      "name",
 	Code:      "code",

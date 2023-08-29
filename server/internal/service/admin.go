@@ -235,6 +235,8 @@ type (
 		AccountLogin(ctx context.Context, in *adminin.AccountLoginInp) (res *adminin.LoginModel, err error)
 		// MobileLogin 手机号登录
 		MobileLogin(ctx context.Context, in *adminin.MobileLoginInp) (res *adminin.LoginModel, err error)
+		// EmailLogin 邮箱登录
+		EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) (res *adminin.LoginModel, err error)
 		// BindUserContext 绑定用户上下文
 		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
 		// RegisterCode 账号注册验证码

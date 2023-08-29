@@ -11,6 +11,7 @@ import (
 // AdminDept is the golang structure for table admin_dept.
 type AdminDept struct {
 	Id        int64       `json:"id"        description:"部门ID"`
+	OrgId     int64       `json:"orgId"     description:"组织ID"`
 	Pid       int64       `json:"pid"       description:"父部门ID"`
 	Name      string      `json:"name"      description:"部门名称"`
 	Code      string      `json:"code"      description:"部门编码"`

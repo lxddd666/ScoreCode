@@ -66,6 +66,16 @@ type MobileLoginRes struct {
 	*adminin.LoginModel
 }
 
+// EmailLoginReq 提交邮箱登录
+type EmailLoginReq struct {
+	g.Meta `path:"/site/emailLogin" method:"post" tags:"后台基础" summary:"邮箱登录"`
+	adminin.EmailLoginInp
+}
+
+type EmailLoginRes struct {
+	*adminin.LoginModel
+}
+
 // SiteConfigReq 获取配置
 type SiteConfigReq struct {
 	g.Meta `path:"/site/config" method:"get" tags:"后台基础" summary:"获取配置"`

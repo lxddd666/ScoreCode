@@ -48,6 +48,7 @@ type DeptEditModel struct{}
 // DeptUpdateFields 修改数据字段过滤
 type DeptUpdateFields struct {
 	Id     int64  `json:"id"        description:"部门ID"`
+	OrgId  int64  `json:"orgId"     description:"组织ID"`
 	Pid    int64  `json:"pid"       description:"父部门ID"`
 	Name   string `json:"name"      description:"部门名称"`
 	Code   string `json:"code"      description:"部门编码"`
@@ -64,6 +65,7 @@ type DeptUpdateFields struct {
 // DeptInsertFields 新增数据字段过滤
 type DeptInsertFields struct {
 	Pid    int64  `json:"pid"       description:"父部门ID"`
+	OrgId  int64  `json:"orgId"     description:"组织ID"`
 	Name   string `json:"name"      description:"部门名称"`
 	Code   string `json:"code"      description:"部门编码"`
 	Type   string `json:"type"      description:"部门类型"`

@@ -133,6 +133,17 @@ func (c *cSite) MobileLogin(ctx context.Context, req *common.MobileLoginReq) (re
 	return
 }
 
+// EmailLogin 邮箱登录
+func (c *cSite) EmailLogin(ctx context.Context, req *common.EmailLoginReq) (res *common.EmailLoginRes, err error) {
+	model, err := service.AdminSite().EmailLogin(ctx, &req.EmailLoginInp)
+	if err != nil {
+		return
+	}
+
+	err = gconv.Scan(model, &res)
+	return
+}
+
 // Logout 注销登录
 func (c *cSite) Logout(ctx context.Context, _ *common.LoginLogoutReq) (res *common.LoginLogoutRes, err error) {
 	err = token.Logout(ghttp.RequestFromCtx(ctx))
