@@ -13,6 +13,7 @@
           width: dialogWidth,
         }"
   >
+    <AccountTable @reloadView="reloadView" :proxyAddress="formParams?.address"></AccountTable>
   </n-modal>
 </template>
 
@@ -24,6 +25,9 @@ import {adaModalWidth} from "@/utils/hotgo";
 import {BasicForm, FormSchema} from "@/components/Form";
 import {options} from "@/views/monitor/netconn/modal/model";
 import {defRangeShortcuts} from "@/utils/dateUtil";
+import {Unbind,View} from "@/api/whats/whatsProxy";
+import {useRouter} from "vue-router";
+import AccountTable from "@/views/whats/whatsProxy/account.vue";
 
 const emit = defineEmits([ 'updateUnBindShowModal']);
 
@@ -34,8 +38,9 @@ interface Props {
 
 const message = useMessage()
 const dialogWidth = ref('75%');
-
-
+const router = useRouter();
+const id = Number(router.currentRoute.value.query.id);
+const formValue = ref(newState(null));
 const props = withDefaults(defineProps<Props>(), {
   showModal: false,
   formParams: () => {
@@ -70,15 +75,30 @@ function closeForm() {
 }
 
 function loadForm(value) {
-  // 新增
+  console.log("unbind--",value)
+
+}
+
+
+onMounted(async () => {
+  if (id < 1) {
+    message.error('id不正确，请检查！');
+    return;
+  }
+  formValue.value = await View({ id: id });
+});
+
+async function reloadView() {
+  formValue.value = await View({id: id});
 }
 
 watch(
-    () => props.formParams,
-    (value) => {
-      loadForm(value);
-    }
+  () => props.formParams,
+  (value) => {
+    loadForm(value);
+  }
 );
+
 </script>
 
 <style scoped lang="less">
