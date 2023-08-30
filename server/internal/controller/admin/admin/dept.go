@@ -73,9 +73,9 @@ func (c *cDept) Option(ctx context.Context, req *dept.OptionReq) (res *dept.Opti
 	return
 }
 
-// DeptOrgOption 获取部门公司
-func (c *cDept) DeptOrgOption(ctx context.Context, req *dept.DeptOrgOptionReq) (res *dept.OptionRes, err error) {
-	list, totalCount, err := service.AdminDept().DeptOrgOption(ctx, &req.DeptOrgOptionInp)
+// OrgOption 获取部门公司
+func (c *cDept) OrgOption(ctx context.Context, req *dept.OrgOptionReq) (res *dept.OptionRes, err error) {
+	list, totalCount, err := service.AdminDept().OrgOption(ctx, &req.DeptOrgOptionInp)
 	if err != nil {
 		return
 	}

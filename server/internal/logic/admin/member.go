@@ -803,21 +803,36 @@ func (s *sAdminMember) ClusterSyncSuperAdmin(ctx context.Context, message *gredi
 // 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置
 func (s *sAdminMember) FilterAuthModel(ctx context.Context, memberId int64) *gdb.Model {
 	m := dao.AdminMember.Ctx(ctx)
+	// 超管
 	if s.VerifySuperId(ctx, memberId) {
 		return m
 	}
-
+	user := contexts.GetUser(ctx)
 	var roleId int64
-	if contexts.GetUserId(ctx) == memberId {
+	var orgId int64
+	if user.Id == memberId {
 		// 当前登录用户直接从上下文中取角色ID
-		roleId = contexts.GetRoleId(ctx)
+		roleId = user.RoleId
+		orgId = user.OrgId
 	} else {
-		ro, err := dao.AdminMember.Ctx(ctx).Fields("role_id").Where("id", memberId).Value()
+		var thatUser entity.AdminMember
+		err := dao.AdminMember.Ctx(ctx).Fields(dao.AdminMember.Columns().RoleId, dao.AdminMember.Columns().OrgId).Where("id", memberId).Scan(&thatUser)
 		if err != nil {
 			g.Log().Panicf(ctx, "failed to get role information, err:%+v", err)
 			return nil
 		}
-		roleId = ro.Int64()
+		roleId = thatUser.RoleId
+		orgId = thatUser.OrgId
+	}
+	// 组织管理员
+	var role entity.AdminRole
+	err := dao.AdminRole.Ctx(ctx).WherePri(roleId).Scan(&role)
+	if err != nil {
+		g.Log().Panicf(ctx, "failed to get role information, err:%+v", err)
+		return nil
+	}
+	if role.OrgAdmin == consts.StatusEnabled {
+		return m.Where("id <> ?", memberId).Where(dao.AdminMember.Columns().OrgId, orgId)
 	}
 
 	roleIds, err := service.AdminRole().GetSubRoleIds(ctx, roleId, false)

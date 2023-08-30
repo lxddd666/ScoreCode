@@ -77,6 +77,11 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 			}
 			return ds
 		}
+		//组织管理员
+		if role.OrgAdmin == consts.StatusEnabled {
+			m = m.WhereIn(filterField, getDeptIds(co.User.OrgId))
+			return m
+		}
 
 		switch role.DataScope {
 		case consts.RoleDataAll: // 全部权限

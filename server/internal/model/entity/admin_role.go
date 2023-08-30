@@ -24,4 +24,5 @@ type AdminRole struct {
 	Status     int         `json:"status"     description:"角色状态"`
 	CreatedAt  *gtime.Time `json:"createdAt"  description:"创建时间"`
 	UpdatedAt  *gtime.Time `json:"updatedAt"  description:"更新时间"`
+	OrgAdmin   int         `json:"orgAdmin"   description:"组织管理员"`
 }

@@ -52,6 +52,11 @@ func (s *sAdminDept) Delete(ctx context.Context, in *adminin.DeptDeleteInp) (err
 	if !pidExist.IsEmpty() {
 		return gerror.New("请先删除该部门下得所有子级！")
 	}
+	user := contexts.GetUser(ctx)
+	// 数据权限校验
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) && user.OrgId != models.OrgId {
+		return gerror.New("无权限删除该部门")
+	}
 
 	_, err = dao.AdminDept.Ctx(ctx).Where("id", in.Id).Delete()
 	return
@@ -98,6 +103,24 @@ func (s *sAdminDept) Edit(ctx context.Context, in *adminin.DeptEditInp) (err err
 	if err != nil {
 		return
 	}
+	user := contexts.GetUser(ctx)
+	// 非超级管理员不允许添加顶级节点
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		if in.Pid == 0 {
+			in.Pid = user.OrgId
+			in.OrgId = user.OrgId
+		} else {
+			var pDept entity.AdminDept
+			err = dao.AdminDept.Ctx(ctx).WherePri(in.Pid).Scan(&pDept)
+			if err != nil {
+				return
+			}
+			if pDept.OrgId != user.OrgId {
+				return gerror.Newf("无权限移动部门到%s!", pDept.Name)
+			}
+			in.OrgId = user.OrgId
+		}
+	}
 
 	// 生成下级关系树
 	if in.Pid, in.Level, in.Tree, err = hgorm.GenSubTree(ctx, &dao.AdminDept, in.Pid); err != nil {
@@ -107,10 +130,10 @@ func (s *sAdminDept) Edit(ctx context.Context, in *adminin.DeptEditInp) (err err
 	// 修改
 	if in.Id > 0 {
 		err = dao.AdminDept.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-			if in.Pid != 0 {
-				in.OrgId = tree.GetIds(in.Tree)[0]
-			} else {
+			if in.Pid == 0 {
 				in.OrgId = in.Id
+			} else {
+				in.OrgId = tree.GetIds(in.Tree)[0]
 			}
 			// 更新数据
 			_, err = dao.AdminDept.Ctx(ctx).Fields(adminin.DeptUpdateFields{}).WherePri(in.Id).Data(in).Update()
@@ -236,8 +259,8 @@ func (s *sAdminDept) Option(ctx context.Context, in *adminin.DeptOptionInp) (res
 	return
 }
 
-// DeptOrgOption 选项
-func (s *sAdminDept) DeptOrgOption(ctx context.Context, in *adminin.DeptOrgOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error) {
+// OrgOption 选项
+func (s *sAdminDept) OrgOption(ctx context.Context, in *adminin.DeptOrgOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error) {
 	var (
 		mod    = dao.AdminDept.Ctx(ctx)
 		models []*entity.AdminDept
@@ -269,6 +292,7 @@ func (s *sAdminDept) List(ctx context.Context, in *adminin.DeptListInp) (res *ad
 		models []*entity.AdminDept
 		ids    []int64
 		pids   []int64
+		user   = contexts.GetUser(ctx)
 	)
 
 	appends := func(columns []gdb.Value) {
@@ -331,9 +355,21 @@ func (s *sAdminDept) List(ctx context.Context, in *adminin.DeptListInp) (res *ad
 	}
 	var pid int64 = 0
 	// 非超管按权限范围查询部门
-	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
-		pid = contexts.GetUser(ctx).DeptId
-		mod = mod.WhereLike(dao.AdminDept.Columns().Tree, "%"+tree.GetIdLabel(pid)+"%")
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		//判断是否是组织管理员
+		var role entity.AdminRole
+		err = dao.AdminRole.Ctx(ctx).WherePri(user.RoleId).Scan(&role)
+		if err != nil {
+			return
+		}
+		//如果是组织管理员，可以看到组织下所有部门
+		if role.OrgAdmin == consts.StatusEnabled {
+			mod = mod.Where(dao.AdminDept.Columns().OrgId, user.OrgId)
+		} else {
+			pid = contexts.GetUser(ctx).DeptId
+			mod = mod.WhereLike(dao.AdminDept.Columns().Tree, "%"+tree.GetIdLabel(pid)+"%")
+		}
+
 	}
 
 	if len(ids) > 0 {

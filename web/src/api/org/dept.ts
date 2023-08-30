@@ -49,9 +49,9 @@ export function getOrgOption(params?) {
   return getOrgList(params);
 }
 
-export function getOrgList(params?) {
+export function getOrgList(params?: any) {
   return http.request({
-    url: '/dept/deptOrgOption',
+    url: '/dept/orgOption',
     method: 'GET',
     params,
   });
