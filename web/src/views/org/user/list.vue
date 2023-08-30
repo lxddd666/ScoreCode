@@ -269,7 +269,15 @@
   import QrcodeVue from 'qrcode.vue';
   import AddBalance from './addBalance.vue';
   import AddIntegral from './addIntegral.vue';
-  import { addNewState, addState, options, register, defaultState, loadOptions,loadDeptAndPost } from './model';
+  import {
+    addNewState,
+    addState,
+    options,
+    register,
+    defaultState,
+    loadOptions,
+    loadDeptAndPost,
+  } from './model';
   import { usePermission } from '@/hooks/web/usePermission';
   import { useUserStore } from '@/store/modules/user';
   import { LoginRoute } from '@/router';
@@ -515,15 +523,10 @@
     if (value) {
       showOptionsSelect.value = false;
       placeholderSoelect.value = '请选择';
-      getDeptAndPost(value);
+      loadDeptAndPost(value);
     }
+    debugger;
     formParams.value.orgID = Number(value);
-  }
-
-  function getDeptAndPost(value) {
-    async () => {
-      await loadDeptAndPost(value);
-    };
   }
 
   function handleUpdateRoleValue(value) {

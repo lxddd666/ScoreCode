@@ -144,7 +144,7 @@ func (in *DeptStatusInp) Filter(ctx context.Context) (err error) {
 type DeptStatusModel struct{}
 
 type DeptOptionInp struct {
-	OrgId int64 `json:"orgId"`
+	OrgId int `json:"orgId"`
 	form.PageReq
 }
 

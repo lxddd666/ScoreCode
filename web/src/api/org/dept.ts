@@ -33,7 +33,7 @@ export function Delete(params) {
 }
 
 export function getDeptOption(param?) {
-  const params = { pageSize: 100, param };
+  const params = { pageSize: 100, orgId: param };
   return getDeptOptionList(params);
 }
 

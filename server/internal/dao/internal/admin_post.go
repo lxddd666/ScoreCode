@@ -28,6 +28,7 @@ type AdminPostColumns struct {
 	Status    string // 状态
 	CreatedAt string // 创建时间
 	UpdatedAt string // 更新时间
+	OrgId     string // 公司ID
 }
 
 // adminPostColumns holds the columns for table hg_admin_post.
@@ -40,6 +41,7 @@ var adminPostColumns = AdminPostColumns{
 	Status:    "status",
 	CreatedAt: "created_at",
 	UpdatedAt: "updated_at",
+	OrgId:     "org_id",
 }
 
 // NewAdminPostDao creates and returns a new DAO object for table data access.

@@ -142,6 +142,10 @@ func (s *sAdminPost) List(ctx context.Context, in *adminin.PostListInp) (list []
 		mod = mod.WhereBetween(cols.CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
+	if in.OrgId != 0 {
+		mod = mod.Where(dao.AdminPost.Columns().OrgId, in.OrgId)
+	}
+
 	totalCount, err = mod.Count()
 	if err != nil {
 		err = gerror.Wrap(err, "获取岗位列表失败！")

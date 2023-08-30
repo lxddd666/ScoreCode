@@ -220,6 +220,10 @@ func (s *sAdminDept) Option(ctx context.Context, in *adminin.DeptOptionInp) (res
 		return
 	}
 
+	if in.OrgId != 0 {
+		mod = mod.Where(dao.AdminDept.Columns().OrgId, in.OrgId)
+	}
+
 	if err = mod.Page(in.Page, in.PerPage).Order("sort asc,id asc").Scan(&models); err != nil {
 		err = gerror.Wrap(err, "获取部门数据失败！")
 		return
