@@ -77,20 +77,6 @@ type (
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
 	}
-	IWhatsProxyDept interface {
-		// Model 代理关联公司ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取代理关联公司列表
-		List(ctx context.Context, in *whatsin.WhatsProxyDeptListInp) (list []*whatsin.WhatsProxyDeptListModel, totalCount int, err error)
-		// Export 导出代理关联公司
-		Export(ctx context.Context, in *whatsin.WhatsProxyDeptListInp) (err error)
-		// Edit 修改/新增代理关联公司
-		Edit(ctx context.Context, in *whatsin.WhatsProxyDeptEditInp) (err error)
-		// Delete 删除代理关联公司
-		Delete(ctx context.Context, in *whatsin.WhatsProxyDeptDeleteInp) (err error)
-		// View 获取代理关联公司指定信息
-		View(ctx context.Context, in *whatsin.WhatsProxyDeptViewInp) (res *whatsin.WhatsProxyDeptViewModel, err error)
-	}
 	IWhatsAccount interface {
 		// Model 账号ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -114,24 +100,12 @@ type (
 )
 
 var (
-	localWhatsProxyDept IWhatsProxyDept
-	localWhatsAccount   IWhatsAccount
-	localWhatsArts      IWhatsArts
-	localWhatsContacts  IWhatsContacts
-	localWhatsMsg       IWhatsMsg
-	localWhatsProxy     IWhatsProxy
+	localWhatsAccount  IWhatsAccount
+	localWhatsArts     IWhatsArts
+	localWhatsContacts IWhatsContacts
+	localWhatsMsg      IWhatsMsg
+	localWhatsProxy    IWhatsProxy
 )
-
-func WhatsProxyDept() IWhatsProxyDept {
-	if localWhatsProxyDept == nil {
-		panic("implement not found for interface IWhatsProxyDept, forgot register?")
-	}
-	return localWhatsProxyDept
-}
-
-func RegisterWhatsProxyDept(i IWhatsProxyDept) {
-	localWhatsProxyDept = i
-}
 
 func WhatsAccount() IWhatsAccount {
 	if localWhatsAccount == nil {
