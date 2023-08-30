@@ -220,6 +220,10 @@ func (s *sAdminDept) Option(ctx context.Context, in *adminin.DeptOptionInp) (res
 		return
 	}
 
+	if in.OrgId != 0 {
+		mod = mod.Where(dao.AdminDept.Columns().OrgId, in.OrgId)
+	}
+
 	if err = mod.Page(in.Page, in.PerPage).Order("sort asc,id asc").Scan(&models); err != nil {
 		err = gerror.Wrap(err, "获取部门数据失败！")
 		return
@@ -228,6 +232,31 @@ func (s *sAdminDept) Option(ctx context.Context, in *adminin.DeptOptionInp) (res
 	res = new(adminin.DeptOptionModel)
 	if models != nil {
 		res.List = s.treeList(pid, models)
+	}
+	return
+}
+
+// DeptOrgOption 选项
+func (s *sAdminDept) DeptOrgOption(ctx context.Context, in *adminin.DeptOrgOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error) {
+	var (
+		mod    = dao.AdminDept.Ctx(ctx)
+		models []*entity.AdminDept
+	)
+	mod = mod.Where(dao.AdminDept.Columns().Pid, 0)
+	totalCount, err = mod.Count()
+	if err != nil {
+		err = gerror.Wrap(err, "获取部门数据行失败！")
+		return
+	}
+
+	if err = mod.Page(in.Page, in.PerPage).Order("sort asc,id asc").Scan(&models); err != nil {
+		err = gerror.Wrap(err, "获取部门数据失败！")
+		return
+	}
+
+	res = new(adminin.DeptOptionModel)
+	if models != nil {
+		mod.Fields(adminin.DeptOptionModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.AdminDept.Columns().Id).Scan(&res.List)
 	}
 	return
 }

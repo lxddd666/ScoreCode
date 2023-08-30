@@ -21,6 +21,7 @@ type PostListInp struct {
 	form.StatusReq
 	Name      string        `json:"name"             dc:"岗位名称"`
 	Code      string        `json:"code"             dc:"岗位编码"`
+	OrgId     int64         `json:"orgId"            dc:"公司ID"`
 	CreatedAt []*gtime.Time `json:"createdAt"        dc:"创建时间"`
 }
 

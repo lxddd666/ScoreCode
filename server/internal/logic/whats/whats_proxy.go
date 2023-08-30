@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/input/form"
@@ -36,21 +37,54 @@ func (s *sWhatsProxy) Model(ctx context.Context, option ...*handler.Option) *gdb
 
 // List 获取代理管理列表
 func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (list []*whatsin.WhatsProxyListModel, totalCount int, err error) {
-	mod := s.Model(ctx)
+	var (
+		user   = contexts.Get(ctx).User
+		fields = []string{"p.`id`",
+			"p.`address`",
+			"p.`connected_count`",
+			"p.`assigned_count`",
+			"p.`long_term_count`",
+			"p.`region`",
+			"p.`status`",
+			"p.`deleted_at`",
+			"p.`created_at`",
+			"p.`updated_at`",
+		}
+		mod     = s.Model(ctx).As("p")
+		columms = dao.WhatsProxy.Columns()
+	)
+
+	if user == nil {
+		g.Log().Info(ctx, "admin Verify user = nil")
+		return nil, 0, gerror.New("admin Verify user = nil")
+	}
+	// 查看是否超管
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		//err, dept := service.AdminDept().GetTopDept(ctx, user.DeptId)
+		//
+		//if err != nil {
+		//	return nil, 0, err
+		//}
+		mod = mod.LeftJoin(dao.WhatsProxyDept.Table()+" pd", "p."+columms.Address+"=pd."+dao.WhatsProxyDept.Columns().ProxyAddress).
+			Where("pd."+dao.WhatsProxyDept.Columns().DeptId, user.DeptId)
+		fields = append(fields, "pd.`comment`")
+	} else {
+		fields = append(fields, "p.`comment`")
+	}
 
 	// 查询id
 	if in.Id > 0 {
-		mod = mod.Where(dao.WhatsProxy.Columns().Id, in.Id)
+		mod = mod.Where("p."+dao.WhatsProxy.Columns().Id, in.Id)
 	}
 
 	// 查询状态
 	if in.Status > 0 {
-		mod = mod.Where(dao.WhatsProxy.Columns().Status, in.Status)
+		mod = mod.Where("p."+dao.WhatsProxy.Columns().Status, in.Status)
 	}
 
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
-		mod = mod.WhereBetween(dao.WhatsProxy.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
+		mod = mod.WhereBetween("p."+dao.WhatsProxy.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
 	totalCount, err = mod.Clone().Count()
@@ -63,7 +97,7 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 		return
 	}
 
-	if err = mod.Fields(whatsin.WhatsProxyListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsProxy.Columns().UpdatedAt).Scan(&list); err != nil {
+	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsProxy.Columns().UpdatedAt).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取代理管理列表失败，请稍后重试！")
 		return
 	}

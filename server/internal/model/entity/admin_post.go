@@ -18,4 +18,5 @@ type AdminPost struct {
 	Status    int         `json:"status"    description:"状态"`
 	CreatedAt *gtime.Time `json:"createdAt" description:"创建时间"`
 	UpdatedAt *gtime.Time `json:"updatedAt" description:"更新时间"`
+	OrgId     int64       `json:"orgId"     description:"公司ID"`
 }

@@ -32,10 +32,26 @@ export function Delete(params) {
   });
 }
 
-export function getDeptOption() {
-  const params = { pageSize: 100 };
+export function getDeptOption(param?) {
+  const params = { pageSize: 100, orgId: param };
+  return getDeptOptionList(params);
+}
+
+export function getDeptOptionList(params?) {
   return http.request({
     url: '/dept/option',
+    method: 'GET',
+    params,
+  });
+}
+
+export function getOrgOption(params?) {
+  return getOrgList(params);
+}
+
+export function getOrgList(params?) {
+  return http.request({
+    url: '/dept/deptOrgOption',
     method: 'GET',
     params,
   });

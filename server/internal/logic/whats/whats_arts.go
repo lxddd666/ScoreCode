@@ -4,14 +4,17 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/golang/protobuf/proto"
 	grpc2 "google.golang.org/grpc"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/queue"
 	"hotgo/internal/model/entity"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
@@ -32,11 +35,33 @@ func init() {
 
 // Login 登录whats
 func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
-	var accounts []entity.WhatsAccount
-	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).WherePri(ids).Scan(&accounts)
+
+	var reqAccounts []entity.WhatsAccount
+	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).WherePri(ids).Scan(&reqAccounts)
 	if err != nil {
 		return err
 	}
+	// 查看是否正在登录，防止重复登录 ================
+	accounts := make([]entity.WhatsAccount, 0)
+	for _, account := range reqAccounts {
+		key := fmt.Sprintf("%s%s", consts.QueueActionLoginAccounts, account.Account)
+		v, err := g.Redis().Get(ctx, key)
+		if err != nil {
+			return err
+		}
+		if v.Val() == nil {
+			// 没在登录过程中
+			accounts = append(accounts, account)
+			err := g.Redis().SetEX(ctx, key, account.Account, 2000)
+			if err != nil {
+				return gerror.Wrap(err, "redis记录登录账号登录过程报错:"+err.Error())
+			}
+		}
+	}
+	if len(accounts) == 0 {
+		return gerror.Wrap(err, "选择登录的账号已经在登录中....")
+	}
+	//===================================
 	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
@@ -54,6 +79,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	g.Log().Info(ctx, "同步结果：", syncRes.GetActionResult().String())
 	req := s.login(ctx, accounts)
 	loginRes, err := c.Connect(ctx, req)
+
 	if err != nil {
 		return err
 	}
@@ -180,11 +206,16 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 		syncContactReq := whatsin.SyncContactReq{
 			Values: make([]uint64, 0),
 		}
+
 		syncContactReq.Key = item.Sender
 		syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
 
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
+		msg, _ := proto.Marshal(syncContactMsg)
+		if err := queue.Push(consts.QueueActionSyncContact, msg); err != nil {
+			g.Log().Warningf(ctx, "push err:%+v, models:%+v", err, msg)
+		}
 		artsRes, err := c.Connect(ctx, syncContactMsg)
 		if err != nil {
 			return "", err

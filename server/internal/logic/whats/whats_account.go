@@ -271,9 +271,12 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 					_, _ = g.Redis().SAdd(ctx, key, p.Val())
 				}
 			}
+
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
+		// 删除登录过程的redis
+		g.Redis().SRem(ctx, consts.QueueActionLoginAccounts, userJid)
 	}
 	return nil
 }
@@ -296,6 +299,8 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
+		key := fmt.Sprintf("%s%d", consts.QueueActionLoginAccounts, item.UserJid)
+		g.Redis().Del(ctx, key)
 	}
 	return nil
 }

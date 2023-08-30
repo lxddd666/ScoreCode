@@ -8,7 +8,8 @@ export function getPostList(params?) {
   });
 }
 
-export function getPostOption(params?) {
+export function getPostOption(param?) {
+  const params = { pageSize: 100, orgId: param };
   return getPostList(params);
 }
 

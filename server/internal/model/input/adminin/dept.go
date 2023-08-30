@@ -144,9 +144,17 @@ func (in *DeptStatusInp) Filter(ctx context.Context) (err error) {
 type DeptStatusModel struct{}
 
 type DeptOptionInp struct {
+	OrgId int `json:"orgId"`
 	form.PageReq
 }
 
 type DeptOptionModel struct {
 	List []*DeptTree `json:"list"`
+}
+
+type DeptOrgOptionInp struct {
+	form.PageReq
+}
+type DeptOrgOptionModel struct {
+	List []entity.AdminDept `json:"list"`
 }

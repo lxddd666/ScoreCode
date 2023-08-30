@@ -34,6 +34,8 @@ type (
 		View(ctx context.Context, in *adminin.DeptViewInp) (res *adminin.DeptViewModel, err error)
 		// Option 选项
 		Option(ctx context.Context, in *adminin.DeptOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error)
+		// OrgOption 选项
+		DeptOrgOption(ctx context.Context, in *adminin.DeptOrgOptionInp) (res *adminin.DeptOptionModel, totalCount int, err error)
 		// List 获取列表
 		List(ctx context.Context, in *adminin.DeptListInp) (res *adminin.DeptListModel, err error)
 		// GetName 获取部门名称

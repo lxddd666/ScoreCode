@@ -99,6 +99,16 @@
 
         <n-grid x-gap="24" :cols="2">
           <n-gi>
+            <n-form-item label="所属公司(组织)" path="orgId">
+              <n-select
+                key-field="id"
+                :options="options.org"
+                :default-value="formParams.orgId"
+                @update:value="handleUpdateOrgValue"
+              />
+            </n-form-item>
+          </n-gi>
+          <n-gi>
             <n-form-item label="绑定角色" path="roleId">
               <n-tree-select
                 key-field="id"
@@ -106,17 +116,6 @@
                 :default-value="formParams.roleId"
                 :default-expand-all="true"
                 @update:value="handleUpdateRoleValue"
-              />
-            </n-form-item>
-          </n-gi>
-          <n-gi>
-            <n-form-item label="所属部门" path="deptId">
-              <n-tree-select
-                key-field="id"
-                :options="options.dept"
-                :default-value="formParams.deptId"
-                :default-expand-all="true"
-                @update:value="handleUpdateDeptValue"
               />
             </n-form-item>
           </n-gi>
@@ -129,10 +128,27 @@
                 :default-value="formParams.postIds"
                 multiple
                 :options="options.post"
+                :disabled="showOptionsSelect"
+                :placeholder="placeholderSoelect"
                 @update:value="handleUpdatePostValue"
               />
             </n-form-item>
           </n-gi>
+          <n-gi>
+            <n-form-item label="所属部门" path="deptId">
+              <n-tree-select
+                key-field="id"
+                :options="options.dept"
+                :default-value="formParams.deptId"
+                :default-expand-all="true"
+                :disabled="showOptionsSelect"
+                :placeholder="placeholderSoelect"
+                @update:value="handleUpdateDeptValue"
+              />
+            </n-form-item>
+          </n-gi>
+        </n-grid>
+        <n-grid x-gap="24" :cols="2">
           <n-gi>
             <n-form-item label="密码" path="password">
               <n-input
@@ -191,7 +207,17 @@
 
       <template #action>
         <n-space>
-          <n-button @click="() => (showModal = false)">取消</n-button>
+          <n-button
+            @click="
+              () => {
+                showModal = false;
+                showOptionsSelect = true;
+                placeholderSoelect = '请先选择公司';
+              }
+            "
+          >
+            取消
+          </n-button>
           <n-button type="info" :loading="formBtnLoading" @click="confirmForm">确定</n-button>
         </n-space>
       </template>
@@ -243,7 +269,15 @@
   import QrcodeVue from 'qrcode.vue';
   import AddBalance from './addBalance.vue';
   import AddIntegral from './addIntegral.vue';
-  import { addNewState, addState, options, register, defaultState, loadOptions } from './model';
+  import {
+    addNewState,
+    addState,
+    options,
+    register,
+    defaultState,
+    loadOptions,
+    loadDeptAndPost,
+  } from './model';
   import { usePermission } from '@/hooks/web/usePermission';
   import { useUserStore } from '@/store/modules/user';
   import { LoginRoute } from '@/router';
@@ -281,6 +315,8 @@
   const dialogWidth = ref('50%');
   const formParams = ref<any>();
   const showQrModal = ref(false);
+  const placeholderSoelect = ref('请先选择公司(组织)');
+  const showOptionsSelect = ref(true);
   const qrParams = ref({
     name: '',
     qrUrl: '',
@@ -482,6 +518,15 @@
 
   function handleUpdateDeptValue(value) {
     formParams.value.deptId = Number(value);
+  }
+  function handleUpdateOrgValue(value) {
+    if (value) {
+      showOptionsSelect.value = false;
+      placeholderSoelect.value = '请选择';
+      loadDeptAndPost(value);
+    }
+    debugger;
+    formParams.value.orgID = Number(value);
   }
 
   function handleUpdateRoleValue(value) {
