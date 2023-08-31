@@ -1,13 +1,12 @@
-import {h, ref} from 'vue';
-import {cloneDeep} from 'lodash-es';
-import {FormSchema} from '@/components/Form';
-import {defRangeShortcuts} from '@/utils/dateUtil';
-import {validate} from '@/utils/validateUtil';
-import {Dicts} from '@/api/dict/dict';
-import {getOptionLabel, getOptionTag, Options} from "@/utils/hotgo";
-import {isNullObject} from "@/utils/is";
-import {NTag} from "naive-ui";
-
+import { h, ref } from 'vue';
+import { cloneDeep } from 'lodash-es';
+import { FormSchema } from '@/components/Form';
+import { defRangeShortcuts } from '@/utils/dateUtil';
+import { validate } from '@/utils/validateUtil';
+import { Dicts } from '@/api/dict/dict';
+import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
+import { isNullObject } from '@/utils/is';
+import { NAvatar, NTag } from 'naive-ui';
 
 export interface State {
   id: number;
@@ -145,6 +144,26 @@ export const columns = [
   {
     title: '联系人头像',
     key: 'avatar',
+    render(row) {
+      if (row.avatar !== '') {
+        return h(NAvatar, {
+          circle: true,
+          size: 'small',
+          src: row.avatar,
+        });
+      } else {
+        return h(
+          NAvatar,
+          {
+            circle: true,
+            size: 'small',
+          },
+          {
+            default: () => (row.name !== '' ? row.name.substring(0, 1) : row.name.substring(0, 2)),
+          }
+        );
+      }
+    },
   },
   {
     title: '联系人邮箱',
