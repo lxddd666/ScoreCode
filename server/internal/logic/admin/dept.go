@@ -264,8 +264,13 @@ func (s *sAdminDept) OrgOption(ctx context.Context, in *adminin.DeptOrgOptionInp
 	var (
 		mod    = dao.AdminDept.Ctx(ctx)
 		models []*entity.AdminDept
+		user   = contexts.GetUser(ctx)
 	)
 	mod = mod.Where(dao.AdminDept.Columns().Pid, 0)
+	// 非超管只获取下级
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		mod = mod.Where(dao.AdminDept.Columns().OrgId, user.OrgId)
+	}
 	totalCount, err = mod.Count()
 	if err != nil {
 		err = gerror.Wrap(err, "获取部门数据行失败！")

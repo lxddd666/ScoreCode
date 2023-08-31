@@ -1,11 +1,11 @@
-import { cloneDeep } from 'lodash-es';
-import { ref } from 'vue';
+import {cloneDeep} from 'lodash-es';
+import {ref} from 'vue';
 import {getDeptOption, getOrgOption} from '@/api/org/dept';
-import { getRoleOption } from '@/api/system/role';
-import { getPostOption } from '@/api/org/post';
-import { FormSchema, useForm } from '@/components/Form';
-import { statusOptions } from '@/enums/optionsiEnum';
-import { defRangeShortcuts } from '@/utils/dateUtil';
+import {getRoleOption} from '@/api/system/role';
+import {getPostOption} from '@/api/org/post';
+import {FormSchema, useForm} from '@/components/Form';
+import {statusOptions} from '@/enums/optionsiEnum';
+import {defRangeShortcuts} from '@/utils/dateUtil';
 
 // 增加余额/积分.
 
@@ -53,6 +53,7 @@ export const addRules = {};
 
 export const defaultState = {
   id: 0,
+  orgId: null,
   roleId: null,
   realName: '',
   username: '',
@@ -72,6 +73,7 @@ export const defaultState = {
 
 export interface State {
   id: number;
+  orgId: number | null;
   roleId: number | null;
   realName: string;
   username: string;
@@ -100,7 +102,7 @@ const schemas: FormSchema[] = [
         console.log(e);
       },
     },
-    rules: [{ message: '请输入用户名', trigger: ['blur'] }],
+    rules: [{message: '请输入用户名', trigger: ['blur']}],
   },
   {
     field: 'realName',
@@ -165,15 +167,23 @@ const schemas: FormSchema[] = [
   },
 ];
 
+export const rules = {
+  username: {
+    required: true,
+    trigger: ['blur', 'input'],
+    message: '请输入用户名',
+  },
+};
+
 export const [register, {}] = useForm({
-  gridProps: { cols: '1 s:1 m:2 l:3 xl:4 2xl:4' },
+  gridProps: {cols: '1 s:1 m:2 l:3 xl:4 2xl:4'},
   labelWidth: 80,
   schemas,
 });
 
 export const options = ref<any>({
   role: [],
-  roleTabs: [{ id: -1, name: '全部' }],
+  roleTabs: [{id: -1, name: '全部'}],
   dept: [],
   post: [],
   org: [],
@@ -187,12 +197,14 @@ export async function loadOptions() {
       org.list[i].label = org.list[i].name;
       org.list[i].value = org.list[i].id;
     }
+  } else {
+    options.value.org = [];
   }
 
   const role = await getRoleOption();
   if (role.list) {
     options.value.role = role.list;
-    options.value.roleTabs = [{ id: -1, name: '全部' }];
+    options.value.roleTabs = [{id: -1, name: '全部'}];
     treeDataToCompressed(role.list);
   }
 }
@@ -207,20 +219,22 @@ function treeDataToCompressed(source) {
   return options.value.roleTabs;
 }
 
-export async function loadDeptAndPost(orgID) {
-  const dept = await getDeptOption(orgID);
-  debugger;
+export async function loadDeptAndPost(orgId: number) {
+  const dept = await getDeptOption(orgId);
   if (dept.list) {
     options.value.dept = dept.list;
+  } else {
+    options.value.dept = [];
   }
 
-  const post = await getPostOption(orgID);
-  debugger;
+  const post = await getPostOption(orgId);
   if (post.list && post.list.length > 0) {
     for (let i = 0; i < post.list.length; i++) {
       post.list[i].label = post.list[i].name;
       post.list[i].value = post.list[i].id;
     }
     options.value.post = post.list;
+  } else {
+    options.value.post = [];
   }
 }
