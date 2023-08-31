@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
@@ -15,6 +16,7 @@ import (
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"strconv"
+	"strings"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -39,12 +41,23 @@ func (s *sWhatsContacts) Model(ctx context.Context, option ...*handler.Option) *
 
 // List 获取联系人管理列表
 func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error) {
+	var (
+		user = contexts.Get(ctx).User
+	)
 	mod := s.Model(ctx)
+	whatsContacts := dao.WhatsContacts
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		mod = mod.Where(whatsContacts.Columns().OrgId, user.OrgId)
+
+	}
 	// 查询id
 	if in.Id > 0 {
 		mod = mod.Where(dao.WhatsContacts.Columns().Id, in.Id)
 	}
-
+	// 查询手机
+	if in.Phone != "" && &in.Phone != nil {
+		mod = mod.WhereLike(dao.WhatsContacts.Columns().Phone, "%"+strings.TrimSpace(in.Phone)+"%")
+	}
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
 		mod = mod.WhereBetween(dao.WhatsContacts.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
@@ -59,11 +72,11 @@ func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsList
 	if totalCount == 0 {
 		return
 	}
-
 	if err = mod.Fields(whatsin.WhatsContactsListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsContacts.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
 		return
 	}
+
 	return
 }
 
@@ -96,8 +109,16 @@ func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsLi
 
 // Edit 修改/新增联系人管理
 func (s *sWhatsContacts) Edit(ctx context.Context, in *whatsin.WhatsContactsEditInp) (err error) {
+	orgId := contexts.GetUser(ctx).OrgId
 	// 修改
 	if in.Id > 0 {
+		// 查看是否为公司内部人员操作本公司数据
+		if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+			if in.OrgId != orgId {
+				err = gerror.Wrap(err, "此操作为非本公司人员操作！")
+				return
+			}
+		}
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsContactsUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
@@ -107,19 +128,37 @@ func (s *sWhatsContacts) Edit(ctx context.Context, in *whatsin.WhatsContactsEdit
 	}
 
 	// 新增
+	in.OrgId = orgId
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(whatsin.WhatsContactsInsertFields{}).
 		Data(in).Insert(); err != nil {
 		err = gerror.Wrap(err, "新增联系人管理失败，请稍后重试！")
+	} else {
+
 	}
 	return
 }
 
 // Delete 删除联系人管理
 func (s *sWhatsContacts) Delete(ctx context.Context, in *whatsin.WhatsContactsDeleteInp) (err error) {
+	user := contexts.GetUser(ctx)
+	// 查看是否为公司内部人员操作本公司数据
+	contact := entity.WhatsContacts{}
+
+	if err := s.Model(ctx).WherePri(in.Id).Scan(&contact); err != nil {
+		err = gerror.Wrap(err, "删除联系人失败，请稍后重试！")
+	}
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		if contact.OrgId != user.OrgId {
+			err = gerror.Wrap(err, "此操作为非本公司人员操作！")
+			return
+		}
+	}
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
 		err = gerror.Wrap(err, "删除联系人管理失败，请稍后重试！")
 		return
+	} else {
+		g.Model(dao.WhatsAccountContacts.Table()).Where(dao.WhatsAccountContacts.Columns().Phone, contact.Phone).Delete()
 	}
 	return
 }
@@ -160,6 +199,10 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 
 // Upload 上传联系人信息
 func (s *sWhatsContacts) Upload(ctx context.Context, list []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error) {
+	orgId := contexts.GetUser(ctx).OrgId
+	for _, inp := range list {
+		inp.OrgId = gconv.Uint64(orgId)
+	}
 	_, err = s.Model(ctx).Data(list).Save()
 	return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 }

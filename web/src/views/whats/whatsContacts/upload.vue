@@ -188,7 +188,6 @@ function customRequest({
     var newrows = [];
     //中英文转换
     for (let row of weldmachine) {
-      debugger
       var newRow = {};
       // 使用for...in循环遍历对象的属性
       for (let key in row) {
@@ -216,7 +215,6 @@ function customRequest({
 
 
 function handleSumbit() {
-  debugger
   if (tableData.value.length > 0) {
     showLoading.value = true;
     // 编辑

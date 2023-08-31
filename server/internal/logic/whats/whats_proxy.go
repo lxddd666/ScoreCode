@@ -7,6 +7,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/service"
@@ -66,7 +67,7 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 		//	return nil, 0, err
 		//}
 		mod = mod.LeftJoin(dao.WhatsProxyDept.Table()+" pd", "p."+columms.Address+"=pd."+dao.WhatsProxyDept.Columns().ProxyAddress).
-			Where("pd."+dao.WhatsProxyDept.Columns().DeptId, user.DeptId)
+			Where("pd."+dao.WhatsProxyDept.Columns().DeptId, user.OrgId)
 		fields = append(fields, "pd.`comment`")
 	} else {
 		fields = append(fields, "p.`comment`")
@@ -133,12 +134,25 @@ func (s *sWhatsProxy) Export(ctx context.Context, in *whatsin.WhatsProxyListInp)
 
 // Edit 修改/新增代理管理
 func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (err error) {
+	orgId := contexts.GetUser(ctx).OrgId
 	// 验证'Address'唯一
 	if err = hgorm.IsUnique(ctx, &dao.WhatsProxy, g.Map{dao.WhatsProxy.Columns().Address: in.Address}, "代理地址已存在", in.Id); err != nil {
 		return
 	}
 	// 修改
 	if in.Id > 0 {
+		if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+
+			// 判断修改数据是否为公司员工修改公司数据
+
+			pdModel := entity.WhatsProxyDept{}
+			g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().DeptId).
+				Where(dao.WhatsProxyDept.Columns().ProxyAddress, in.Address).Scan(&pdModel)
+			if pdModel.DeptId != gconv.String(orgId) {
+				err = gerror.Wrap(err, "修改非公司员工，不能修改数据！")
+				return
+			}
+		}
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsProxyUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
@@ -146,12 +160,19 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 		}
 		return
 	}
-
 	// 新增
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(whatsin.WhatsProxyInsertFields{}).
 		Data(in).Insert(); err != nil {
 		err = gerror.Wrap(err, "新增代理管理失败，请稍后重试！")
+	} else {
+		// 新增关联表
+		pd := entity.WhatsProxyDept{
+			DeptId:       gconv.String(orgId),
+			ProxyAddress: in.Address,
+			Comment:      in.Comment,
+		}
+		g.Model(dao.WhatsProxyDept.Table()).Data(pd).Insert()
 	}
 	return
 }
@@ -159,9 +180,33 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 // Delete 删除代理管理
 func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteInp) (err error) {
 
-	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
+	mod := s.Model(ctx)
+	// 1、删除
+	user := contexts.GetUser(ctx)
+
+	pdDao := g.Model(dao.WhatsProxyDept.Table())
+
+	whatsProxy := entity.WhatsProxy{}
+	s.Model(ctx).Fields(dao.WhatsProxy.Columns().Address).Where(dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxy)
+
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		// 如果不是超管
+		// 删除只能是同公司的才可以
+		pdModel := entity.WhatsProxyDept{}
+		g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().DeptId).
+			Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).
+			Scan(&pdModel)
+		if pdModel.DeptId != gconv.String(user.OrgId) {
+			err = gerror.Wrap(err, "非公司员工，不能修改数据！")
+			return
+		}
+	}
+
+	if _, err = mod.WherePri(in.Id).Delete(); err != nil {
 		err = gerror.Wrap(err, "删除代理管理失败，请稍后重试！")
 		return
+	} else {
+		pdDao.Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).Delete()
 	}
 	return
 }

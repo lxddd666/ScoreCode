@@ -525,7 +525,6 @@
       placeholderSoelect.value = '请选择';
       loadDeptAndPost(value);
     }
-    debugger;
     formParams.value.orgID = Number(value);
   }
 
