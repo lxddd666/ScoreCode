@@ -60,3 +60,10 @@ func (c *cWhatsProxy) Status(ctx context.Context, req *whatsproxy.StatusReq) (re
 	err = service.WhatsProxy().Status(ctx, &req.WhatsProxyStatusInp)
 	return
 }
+
+// Upload 上传代理
+func (c *cWhatsProxy) Upload(ctx context.Context, req *whatsproxy.UploadReq) (res *whatsproxy.UploadRes, err error) {
+
+	_, err = service.WhatsProxy().Upload(ctx, req.List)
+	return
+}

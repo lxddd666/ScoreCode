@@ -207,11 +207,14 @@ func (s *sAdminDept) Option(ctx context.Context, in *adminin.DeptOptionInp) (res
 		models []*entity.AdminDept
 		pid    int64 = 0
 	)
-
+	user := contexts.GetUser(ctx)
 	// 非超管只获取下级
 	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		in.OrgId = int(user.OrgId)
 		pid = contexts.GetUser(ctx).DeptId
 		mod = mod.WhereLike(dao.AdminDept.Columns().Tree, "%"+tree.GetIdLabel(pid)+"%")
+	} else {
+		in.OrgId = 0
 	}
 
 	totalCount, err = mod.Count()

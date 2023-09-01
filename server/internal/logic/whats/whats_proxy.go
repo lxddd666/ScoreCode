@@ -3,10 +3,12 @@ package whats
 import (
 	"context"
 	"fmt"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/service"
@@ -44,6 +46,7 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 			"p.`connected_count`",
 			"p.`assigned_count`",
 			"p.`long_term_count`",
+			"p.`max_connections`",
 			"p.`region`",
 			"p.`status`",
 			"p.`deleted_at`",
@@ -60,13 +63,14 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 	}
 	// 查看是否超管
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		//err, dept := service.AdminDept().GetTopDept(ctx, user.DeptId)
-		//
-		//if err != nil {
-		//	return nil, 0, err
-		//}
+		// 判断用户是否拥有权限
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		if !haveRole {
+			err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+			return
+		}
 		mod = mod.LeftJoin(dao.WhatsProxyDept.Table()+" pd", "p."+columms.Address+"=pd."+dao.WhatsProxyDept.Columns().ProxyAddress).
-			Where("pd."+dao.WhatsProxyDept.Columns().DeptId, user.DeptId)
+			Where("pd."+dao.WhatsProxyDept.Columns().DeptId, user.OrgId)
 		fields = append(fields, "pd.`comment`")
 	} else {
 		fields = append(fields, "p.`comment`")
@@ -106,6 +110,18 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 
 // Export 导出代理管理
 func (s *sWhatsProxy) Export(ctx context.Context, in *whatsin.WhatsProxyListInp) (err error) {
+	user := contexts.GetUser(ctx)
+	// 是否为超管，以及是否有导出的权限
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+
+		// 判断用户是否拥有权限
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		if !haveRole {
+			err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+			return
+		}
+
+	}
 	list, totalCount, err := s.List(ctx, in)
 	if err != nil {
 		return
@@ -133,41 +149,135 @@ func (s *sWhatsProxy) Export(ctx context.Context, in *whatsin.WhatsProxyListInp)
 
 // Edit 修改/新增代理管理
 func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (err error) {
+	user := contexts.GetUser(ctx)
 	// 验证'Address'唯一
 	if err = hgorm.IsUnique(ctx, &dao.WhatsProxy, g.Map{dao.WhatsProxy.Columns().Address: in.Address}, "代理地址已存在", in.Id); err != nil {
 		return
 	}
+	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+	// 判断用户是否拥有权限
+	haveRole := s.haveRoleByDataSource(user.RoleId)
+	if !haveRole {
+		err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+		return
+	}
 	// 修改
 	if in.Id > 0 {
+		if !flag {
+
+			// 判断修改数据是否为公司员工修改公司数据
+			pdModel := entity.WhatsProxyDept{}
+			g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().DeptId).
+				Where(dao.WhatsProxyDept.Columns().ProxyAddress, in.Address).Scan(&pdModel)
+			if pdModel.DeptId != gconv.String(user.OrgId) {
+				err = gerror.Wrap(err, "修改非公司员工，不能修改数据！")
+				return err
+			}
+		}
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsProxyUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
 			err = gerror.Wrap(err, "修改代理管理失败，请稍后重试！")
+			return err
 		}
 		return
 	}
-
 	// 新增
-	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
-		Fields(whatsin.WhatsProxyInsertFields{}).
-		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增代理管理失败，请稍后重试！")
-	}
+	g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		_, err = tx.Model(dao.WhatsProxy.Table()).
+			Fields(whatsin.WhatsProxyInsertFields{}).
+			Data(in).Insert()
+		if err == nil {
+			// 新增关联表
+			if !flag {
+				pd := entity.WhatsProxyDept{
+					DeptId:       gconv.String(user.OrgId),
+					ProxyAddress: in.Address,
+					Comment:      in.Comment,
+				}
+				_, err := tx.Model(dao.WhatsProxyDept.Table()).Data(pd).Insert()
+				if err != nil {
+					return err
+				}
+			}
+		} else {
+			return err
+		}
+		return nil
+	})
 	return
 }
 
 // Delete 删除代理管理
 func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteInp) (err error) {
 
-	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除代理管理失败，请稍后重试！")
-		return
+	// 1、删除
+	user := contexts.GetUser(ctx)
+
+	whatsProxy := entity.WhatsProxy{}
+	s.Model(ctx).Fields(dao.WhatsProxy.Columns().Address).Where(dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxy)
+	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+	if !flag {
+		// 如果不是超管
+		// 删除只能是同公司的才可以
+		pdModel := entity.WhatsProxyDept{}
+		g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().DeptId).
+			Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).
+			Scan(&pdModel)
+		if pdModel.DeptId != gconv.String(user.OrgId) {
+			err = gerror.Wrap(err, "非公司员工，不能修改数据！")
+			return
+		}
+		// 判断用户是否拥有权限
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		if !haveRole {
+			err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+			return
+		}
 	}
+
+	g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		if flag {
+			// 如果为超管，则删除代理及其对应的关联数据
+			_, err = tx.Model(dao.WhatsProxyDept.Table()).Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).Delete()
+			_, err = tx.Model(dao.WhatsProxy.Table()).WherePri(in.Id).Delete()
+		} else {
+			_, err = tx.Model(dao.WhatsProxyDept.Table()).
+				Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).
+				Where(dao.WhatsProxyDept.Columns().DeptId, user.OrgId).
+				Delete()
+		}
+		return err
+	})
+
 	return
 }
 
 // View 获取代理管理指定信息
 func (s *sWhatsProxy) View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (res *whatsin.WhatsProxyViewModel, err error) {
+	user := contexts.GetUser(ctx)
+
+	whatsProxyDept := entity.WhatsProxyDept{}
+
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		g.Model(dao.WhatsProxyDept.Table()).As("pd").Fields(dao.WhatsProxyDept.Columns().DeptId).
+			LeftJoin(dao.WhatsProxy.Table()+" p", "pd."+dao.WhatsProxyDept.Columns().ProxyAddress+"=p."+dao.WhatsProxy.Columns().Address).
+			Where("p."+dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxyDept)
+		if err != nil {
+			err = gerror.Wrap(err, "查看代理管理详情失败，请稍后重试！")
+			return
+		}
+		if gconv.String(user.OrgId) != whatsProxyDept.DeptId {
+			err = gerror.Wrap(err, "非本公司员工，不可查看代理详情")
+			return
+		}
+		// 判断用户是否拥有权限
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		if !haveRole {
+			err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+			return
+		}
+	}
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取代理管理信息，请稍后重试！")
 		return
@@ -177,6 +287,28 @@ func (s *sWhatsProxy) View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (
 
 // Status 更新代理管理状态
 func (s *sWhatsProxy) Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error) {
+	user := contexts.GetUser(ctx)
+
+	whatsProxyDept := entity.WhatsProxyDept{}
+
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		g.Model(dao.WhatsProxyDept.Table()).As("pd").Fields(dao.WhatsProxyDept.Columns().DeptId).
+			LeftJoin(dao.WhatsProxy.Table()+"p", "pd."+dao.WhatsProxyDept.Columns().ProxyAddress+"=p."+dao.WhatsProxy.Columns().Address).
+			Where("p."+dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxyDept)
+		if err != nil {
+			err = gerror.Wrap(err, "查看代理管理详情失败，请稍后重试！")
+			return
+		}
+		if gconv.String(user.OrgId) != whatsProxyDept.DeptId {
+			err = gerror.Wrap(err, "非本公司员工，不可查看代理详情")
+			return
+		}
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		if !haveRole {
+			err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+			return
+		}
+	}
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.WhatsProxy.Columns().Status: in.Status,
 	}).Update(); err != nil {
@@ -184,4 +316,64 @@ func (s *sWhatsProxy) Status(ctx context.Context, in *whatsin.WhatsProxyStatusIn
 		return
 	}
 	return
+}
+
+func (s *sWhatsProxy) Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error) {
+	var (
+		user = contexts.GetUser(ctx)
+	)
+
+	flag := service.AdminMember().VerifySuperId(ctx, user.Id)
+	var proxyDepts = make([]entity.WhatsProxyDept, 0)
+
+	if !flag {
+		// 该员工有无操作权限
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		if !haveRole {
+			err = gerror.Wrap(err, "该用户没有公司代理模块权限！")
+			return
+		}
+		// 如果不是超管,则插入关联表
+		for _, inp := range in {
+			proxyDepts = append(proxyDepts, entity.WhatsProxyDept{
+				DeptId:       gconv.String(user.OrgId),
+				ProxyAddress: inp.Address,
+				Comment:      inp.Comment,
+			})
+		}
+	}
+	err = handler.Model(dao.WhatsProxy.Ctx(ctx)).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = tx.Model(dao.WhatsProxy.Table()).Data(in).Save()
+		if err != nil {
+			return err
+		}
+		if !flag {
+			_, err := tx.Model(dao.WhatsProxyDept.Table()).Data(proxyDepts).Save()
+			if err != nil {
+				return err
+			}
+		}
+		return
+	})
+	if err != nil {
+		return nil, gerror.Wrap(err, "上传代理失败，请稍后重试！")
+	}
+	return
+
+}
+
+// haveRoleByDataSource 判断用户是否拥有权限
+func (s *sWhatsProxy) haveRoleByDataSource(roleId int64) bool {
+	// 判断用户是否拥有权限
+	role := entity.AdminRole{}
+	err := g.Model(dao.AdminRole.Table()).Fields(dao.AdminRole.Columns().DataScope).Where(dao.AdminRole.Columns().Id, roleId).Scan(&role)
+	if err != nil {
+		err = gerror.Wrap(err, "获取权限数据的失败！")
+		return false
+	}
+	if !(role.DataScope == consts.RoleDataDeptAndSub || role.DataScope == consts.RoleDataAll) {
+		err = gerror.Wrap(err, "该用户没有权限查看部门的代理信息！")
+		return false
+	}
+	return true
 }

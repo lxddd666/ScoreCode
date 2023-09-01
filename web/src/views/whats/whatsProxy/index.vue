@@ -61,6 +61,19 @@
           </n-button>
           <n-button
             type="primary"
+            @click="handleUpload"
+            class="min-left-space"
+            v-if="hasPermission(['/whatsProxy/view'])"
+          >
+            <template #icon>
+              <n-icon>
+                <UploadOutlined />
+              </n-icon>
+            </template>
+            导入
+          </n-button>
+          <n-button
+            type="primary"
             @click="handleExport"
             class="min-left-space"
             v-if="hasPermission(['/whatsProxy/view'])"
@@ -87,10 +100,12 @@
         :formParams="formParams"
     />
     <Bind
-        @updateBindShowModal="updateBindShowModal"
-        :showModal="bindShowModal"
-        :formParams="formParams"
+      @updateBindShowModal="updateBindShowModal"
+      :showModal="bindShowModal"
+      :formParams="formParams"
     />
+
+    <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
 </template>
 
@@ -100,9 +115,9 @@
   import { BasicTable, TableAction } from '@/components/Table';
   import { BasicForm, useForm } from '@/components/Form/index';
   import { usePermission } from '@/hooks/web/usePermission';
-  import {List, Export, Delete, Status} from '@/api/whats/whatsProxy';
-  import {State, columns, schemas, options, newState} from './model';
-  import { PlusOutlined, ExportOutlined, DeleteOutlined } from '@vicons/antd';
+  import { List, Export, Delete, Status } from '@/api/whats/whatsProxy';
+  import { State, columns, schemas, options, newState } from './model';
+  import { PlusOutlined, ExportOutlined, DeleteOutlined, UploadOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
@@ -120,8 +135,9 @@
   const checkedIds = ref([]);
   const showModal = ref(false);
   const unBindShowModal = ref(false);
-  const bindShowModal = ref (false);
+  const bindShowModal = ref(false);
   const formParams = ref<State>();
+  const fileUploadRef = ref();
 
   const actionColumn = reactive({
     width: 300,
@@ -179,9 +195,9 @@
         select: (key) => {
           if (key === 'view') {
             return handleView(record);
-          }else if (key === 'unBind'){
+          } else if (key === 'unBind') {
             return handleUnbind(record);
-          } else if (key === 'bind'){
+          } else if (key === 'bind') {
             return handleBind(record);
           }
         },
@@ -204,6 +220,10 @@
     formParams.value = newState(null);
   }
 
+  function handleUpload() {
+    fileUploadRef.value.openModal();
+  }
+
   function updateShowModal(value) {
     showModal.value = value;
   }
@@ -214,7 +234,6 @@
   function updateBindShowModal(value) {
     bindShowModal.value = value;
   }
-
 
   function onCheckedRow(rowKeys) {
     batchDeleteDisabled.value = rowKeys.length <= 0;
@@ -290,6 +309,12 @@
         reloadTable();
       });
     });
+  }
+
+  function handleFinishCall(result: Attachment, success: boolean) {
+    if (success) {
+      reloadTable();
+    }
   }
 </script>
 

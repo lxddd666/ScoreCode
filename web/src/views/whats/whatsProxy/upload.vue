@@ -110,7 +110,7 @@ import {
   getFileExtension
 } from '@/components/FileChooser/src/model';
 import {columns, uploadColumns} from './model';
-import {Upload} from '@/api/whats/whatsContacts'
+import {Upload} from '@/api/whats/whatsProxy'
 
 const emit = defineEmits(['reloadTable']);
 
@@ -142,8 +142,8 @@ const typeTag = computed(() => {
 
 function handleDownload() {
   let a = document.createElement("a");
-  a.href = "./static/联系人模板.xlsx";
-  a.download = "联系人模板.xlsx";
+  a.href = "./static/代理数据模板.xlsx";
+  a.download = "代理数据模板.xlsx";
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
@@ -176,14 +176,14 @@ function customRequest({
     const weldmachine = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
     //中英文映射
     var columnMapping = {
-      '姓名': 'name',
-      '手机号': 'phone',
-      '头像': 'avatar',
-      '邮箱': 'email',
-      '地址': 'address',
-      '组织': 'orgId',
-      '部门': 'deptId',
+      '代理地址': 'address',
+      '最大连接数': 'max_connections',
+      '已连接数': 'connected_count',
+      '已分配账号数量': 'assigned_count',
+      '长期未登录数量': 'long_term_count',
+      '地区': 'region',
       '备注': 'comment',
+      '状态(1正常, 2停用)': 'status',
     };
     var newrows = [];
     //中英文转换

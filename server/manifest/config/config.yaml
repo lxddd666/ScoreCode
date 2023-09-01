@@ -232,7 +232,9 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
+#    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
+    link: "mysql:root:hY7iaIFYHHJu!@tcp(103.205.6.236:32698)/hotgo?loc=Local&parseTime=true"
+
     debug: true
 
 

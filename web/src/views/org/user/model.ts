@@ -209,13 +209,11 @@ function treeDataToCompressed(source) {
 
 export async function loadDeptAndPost(orgID) {
   const dept = await getDeptOption(orgID);
-  debugger;
   if (dept.list) {
     options.value.dept = dept.list;
   }
 
   const post = await getPostOption(orgID);
-  debugger;
   if (post.list && post.list.length > 0) {
     for (let i = 0; i < post.list.length; i++) {
       post.list[i].label = post.list[i].name;

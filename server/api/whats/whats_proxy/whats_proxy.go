@@ -59,3 +59,9 @@ type StatusReq struct {
 }
 
 type StatusRes struct{}
+
+type UploadReq struct {
+	g.Meta `path:"/whatsProxy/upload" method:"post" tags:"代理管理" summary:"批量上传代理入库"`
+	List   []*whatsin.WhatsProxyUploadInp `json:"list" v:"required|array"`
+}
+type UploadRes struct{}
