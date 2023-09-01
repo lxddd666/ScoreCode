@@ -131,3 +131,18 @@ func (in *WhatsProxyStatusInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsProxyStatusModel struct{}
+
+type WhatsProxyUploadInp struct {
+	Address        string `json:"address"        dc:"代理地址"`
+	ConnectedCount int    `json:"connectedCount" dc:"已连接数"`
+	MaxConnections int    `json:"maxConnections" dc:"最大连接"`
+	Region         string `json:"region"         dc:"地区"`
+	Comment        string `json:"comment"        dc:"备注"`
+	Status         int    `json:"status"         dc:"状态"`
+}
+
+func (in *WhatsProxyUploadInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type WhatsProxyUploadModel struct{}

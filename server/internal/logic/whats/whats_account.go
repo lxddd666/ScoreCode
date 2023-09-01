@@ -67,12 +67,12 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 				Where("wam."+dao.WhatsAccountMember.Columns().MemberId, user.Id)
 		} else {
 			//deptId := user.DeptId
-			err, dept := service.AdminDept().GetTopDept(ctx, user.DeptId)
+			orgId := user.OrgId
 			if err != nil {
 				return nil, 0, err
 			}
 			mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+columns.Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
-				Where("wam."+dao.WhatsAccountMember.Columns().DeptId, dept.Id)
+				Where("wam."+dao.WhatsAccountMember.Columns().OrgId, orgId)
 		}
 		fields = append(fields, "wam.`proxy_address`", "wam.`comment`")
 	} else {
@@ -111,6 +111,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 
 // Edit 修改/新增账号管理
 func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditInp) (err error) {
+	user := contexts.GetUser(ctx)
 	var account entity.WhatsAccount
 	err = s.Model(ctx).WherePri(in.Id).Scan(&account)
 	if err != nil {
@@ -127,6 +128,31 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 			err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
 		}
 	} else {
+		accountMenbrt := entity.WhatsAccountMember{}
+		g.Model(dao.WhatsAccountMember.Table()).Fields(dao.WhatsAccountMember.Columns().OrgId).Where(dao.WhatsAccount.Columns().Account, in.Account).Scan(&accountMenbrt)
+		if accountMenbrt.OrgId != user.OrgId {
+			err = gerror.Wrap(err, "非公司员工操作账号数据！")
+			return
+		}
+		// 如果是公司员工但没有全部小号修改的权限
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		// 判断用户是否拥有权限
+		if !haveRole {
+			// 如果不是公司管理者，则只能操作自己的账号
+			count, errCount := g.Model(dao.WhatsAccountMember.Table()).
+				Where(dao.WhatsAccountMember.Columns().Account, in.Account).
+				Where(dao.WhatsAccountMember.Columns().MemberId, user.Id).
+				Where(dao.WhatsAccountMember.Columns().OrgId, user.OrgId).
+				Count()
+			if errCount != nil {
+				err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
+				return
+			}
+			if count == 0 {
+				err = gerror.Wrap(err, "该账号不属于你，无法操作修改！")
+				return
+			}
+		}
 		if _, err = handler.Model(dao.WhatsAccountMember.Ctx(ctx)).
 			Fields(dao.WhatsAccountMember.Columns().Comment).
 			Where(dao.WhatsAccountMember.Columns().Account, account.Account).
@@ -134,25 +160,100 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 				ProxyAddress: in.ProxyAddress}).Update(); err != nil {
 			err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
 		}
+
 	}
 	return
 }
 
 // Delete 删除账号管理
 func (s *sWhatsAccount) Delete(ctx context.Context, in *whatsin.WhatsAccountDeleteInp) (err error) {
-	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除账号失败，请稍后重试！")
-		return
+	user := contexts.GetUser(ctx)
+	accountMember := entity.WhatsAccountMember{}
+
+	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+	if !flag {
+		err = g.Model(dao.WhatsAccountMember.Table()).As("am").Fields("am.*").
+			LeftJoin(dao.WhatsAccount.Table()+" a", " am."+dao.WhatsAccountMember.Columns().Account+"=a."+dao.WhatsAccount.Columns().Account).
+			Where("a."+dao.WhatsAccount.Columns().Id, in.Id).Where("am."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId).Scan(&accountMember)
+		if err != nil {
+			err = gerror.Wrap(err, "删除账号失败，请稍后重试！")
+			return
+		}
+		if accountMember.OrgId != user.OrgId {
+			err = gerror.Wrap(err, "非该公司员工不可删除该公司账号")
+			return
+		}
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		// 判断用户是否拥有权限
+		if !haveRole {
+			// 如果不是公司管理者，则只能操作自己的账号
+			if user.Id != accountMember.MemberId {
+				err = gerror.Wrap(err, "该账号不属于你，无法删除")
+				return
+			}
+		}
 	}
+	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = tx.Model(dao.WhatsAccount.Table()).WherePri(in.Id).Delete()
+		if err != nil {
+			return
+		}
+		if flag {
+			// 超管删除所有关联数据
+			_, err = tx.Model(dao.WhatsAccountMember.Table()).
+				Where(dao.WhatsAccountMember.Columns().Account, accountMember.Account).
+				Delete()
+			if err != nil {
+				return
+			}
+		} else {
+			_, err = tx.Model(dao.WhatsAccountMember.Table()).
+				Where(dao.WhatsAccountMember.Columns().Account, accountMember.Account).
+				Where(dao.WhatsAccountMember.Columns().MemberId, user.Id).
+				Delete()
+			if err != nil {
+				return
+			}
+		}
+		return
+	})
 	return
 }
 
 // View 获取账号管理指定信息
 func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewInp) (res *whatsin.WhatsAccountViewModel, err error) {
+	user := contexts.GetUser(ctx)
+	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+
+	accountMember := entity.WhatsAccountMember{}
+
+	if !flag {
+		err = g.Model(dao.WhatsAccountMember.Table()).As("am").Fields("am.*").
+			LeftJoin(dao.WhatsAccount.Table()+" a", " am."+dao.WhatsAccountMember.Columns().Account+"=a."+dao.WhatsAccount.Columns().Account).
+			Where("a."+dao.WhatsAccount.Columns().Id, in.Id).Where("am."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId).Scan(&accountMember)
+		if err != nil {
+			err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+			return
+		}
+		if accountMember.OrgId != user.OrgId {
+			err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
+			return
+		}
+		haveRole := s.haveRoleByDataSource(user.RoleId)
+		// 判断用户是否拥有权限
+		if !haveRole {
+			if accountMember.MemberId != user.Id {
+				err = gerror.Wrap(err, "该账号不属于你，无法查看详情！")
+				return
+			}
+		}
+	}
+
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取账号信息，请稍后重试！")
+		err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
 		return
 	}
+
 	return
 }
 
@@ -182,23 +283,23 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 	//如果不是超管，创建关联关系
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
 		var accountMembers []entity.WhatsAccountMember
-		//获取顶级部门
-		err, dept := service.AdminDept().GetTopDept(ctx, user.DeptId)
-		if err != nil {
-			return nil, err
-		}
+
+		// 无论是公司管理员和员工，都关联导入人的公司，员工ID和部门
+		// 如果不为管理
 		for _, item := range list {
-			accountMembers = append(accountMembers, entity.WhatsAccountMember{MemberId: user.Id,
-				DeptId:  dept.Id,
-				Account: item.Account,
+			accountMembers = append(accountMembers, entity.WhatsAccountMember{
+				MemberId: user.Id,
+				DeptId:   user.DeptId,
+				OrgId:    user.OrgId,
+				Account:  item.Account,
 			})
 		}
 		err = handler.Model(dao.WhatsAccount.Ctx(ctx)).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-			_, err = tx.Model(dao.WhatsAccount.Ctx(ctx)).Fields(dao.WhatsAccount.Columns().Account, columns.Encryption).Save(list)
+			_, err = tx.Model(dao.WhatsAccount.Table()).Fields(dao.WhatsAccount.Columns().Account, columns.Encryption).Save(list)
 			if err != nil {
 				return
 			}
-			_, err = tx.Model(dao.WhatsAccountMember.Ctx(ctx)).Save(accountMembers)
+			_, err = tx.Model(dao.WhatsAccountMember.Table()).Save(accountMembers)
 			return
 		})
 		if err != nil {
@@ -303,4 +404,20 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		g.Redis().Del(ctx, key)
 	}
 	return nil
+}
+
+// haveRoleByDataSource 判断用户是否拥有权限
+func (s *sWhatsAccount) haveRoleByDataSource(roleId int64) bool {
+	// 判断用户是否拥有权限
+	role := entity.AdminRole{}
+	err := g.Model(dao.AdminRole.Table()).Fields(dao.AdminRole.Columns().DataScope).Where(dao.AdminRole.Columns().Id, roleId).Scan(&role)
+	if err != nil {
+		err = gerror.Wrap(err, "获取权限数据的失败！")
+		return false
+	}
+	if !(role.DataScope == consts.RoleDataSelfAndAllSub || role.DataScope == consts.RoleDataSelfAndAllSub) {
+		err = gerror.Wrap(err, "该用户没有权限查看部门的代理信息！")
+		return false
+	}
+	return true
 }

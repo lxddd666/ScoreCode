@@ -36,11 +36,11 @@
             type="primary"
             @click="handleUpload"
             class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/edit'])"
+            v-if="hasPermission(['/whatsAccount/upload'])"
           >
             <template #icon>
               <n-icon>
-                <UploadOutlined/>
+                <UploadOutlined />
               </n-icon>
             </template>
             导入

@@ -45,13 +45,9 @@ export const schemas = ref<FormSchema[]>([
   },
 ]);
 
-
 async function loadOptions() {
   options.value = await Dicts({
-    types: [
-      'account_status',
-      'login_status',
-    ],
+    types: ['account_status', 'login_status'],
   });
   for (const item of schemas.value) {
     switch (item.field) {
