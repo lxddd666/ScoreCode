@@ -95,10 +95,9 @@
       :formParams="formParams"
     />
     <UnBind
-      @updateUnBindShowModal="updateUnBindShowModal"
-      :showModal="unBindShowModal"
-      :formParams="formParams"
-      :formValue="formValue"
+        @updateUnBindShowModal="updateUnBindShowModal"
+        :showModal="unBindShowModal"
+        :formParams="formParams"
     />
     <Bind
       @updateBindShowModal="updateBindShowModal"
@@ -122,10 +121,10 @@
   import { useRouter } from 'vue-router';
   import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
-  import UnBind from '@/views/whats/whatsProxy/unBind.vue';
-  import Bind from '@/views/whats/whatsProxy/bind.vue';
-  import FileUpload from '@/views/whats/whatsProxy/upload.vue';
-  import { Attachment } from '@/components/FileChooser/src/model';
+  import UnBind from "@/views/whats/whatsProxy/unBind.vue";
+  import Bind from "@/views/whats/whatsProxy/bind.vue";
+  import {getRandomString} from "@/utils/charset";
+  import {ResetPwd} from "@/api/org/user";
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -253,15 +252,13 @@
     showModal.value = true;
     formParams.value = newState(record as State);
   }
-  async function handleUnbind(record: Recordable) {
+  function handleUnbind(record: Recordable) {
     unBindShowModal.value = true;
     formParams.value = newState(record as State);
-    // router.push({ name: 'whatsProxyUnBind', query: {  proxy_address : record. proxy_address , account_status : record.account_status  } });
   }
   function handleBind(record: Recordable) {
     bindShowModal.value = true;
     formParams.value = newState(record as State);
-    //router.push({ name: 'whatsProxyBind', query: { id: record.id, address: record.address } });
   }
 
   function handleDelete(record: Recordable) {
