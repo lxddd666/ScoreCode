@@ -1,11 +1,11 @@
-import type { GlobEnvConfig } from '/#/config';
+import type {GlobEnvConfig} from '/#/config';
 
-import { warn } from '@/utils/log';
+import {warn} from '@/utils/log';
 import pkg from '../../package.json';
-import { getConfigFileName } from '../../build/getConfigFileName';
+import {getConfigFileName} from '../../build/getConfigFileName';
 
 export function getCommonStoragePrefix() {
-  const { VITE_GLOB_APP_SHORT_NAME } = getAppEnvConfig();
+  const {VITE_GLOB_APP_SHORT_NAME} = getAppEnvConfig();
   return `${VITE_GLOB_APP_SHORT_NAME}__${getEnv()}`.toUpperCase();
 }
 
@@ -19,7 +19,7 @@ export function getAppEnvConfig() {
 
   const ENV = (import.meta.env.DEV
     ? // Get the global configuration (the configuration will be extracted independently when packaging)
-      (import.meta.env as unknown as GlobEnvConfig)
+    (import.meta.env as unknown as GlobEnvConfig)
     : window[ENV_NAME as any]) as unknown as GlobEnvConfig;
 
   const {
@@ -27,6 +27,7 @@ export function getAppEnvConfig() {
     VITE_GLOB_API_URL,
     VITE_GLOB_APP_SHORT_NAME,
     VITE_GLOB_API_URL_PREFIX,
+    VITE_WHATS_API_URL_PREFIX,
     VITE_GLOB_UPLOAD_URL,
     VITE_GLOB_IMG_URL,
   } = ENV;
@@ -42,6 +43,7 @@ export function getAppEnvConfig() {
     VITE_GLOB_API_URL,
     VITE_GLOB_APP_SHORT_NAME,
     VITE_GLOB_API_URL_PREFIX,
+    VITE_WHATS_API_URL_PREFIX,
     VITE_GLOB_UPLOAD_URL,
     VITE_GLOB_IMG_URL,
   };

@@ -63,7 +63,8 @@ var (
 
 				// 注册后台路由
 				router.Admin(ctx, group)
-
+				// 注册whats路由
+				router.Whats(ctx, group)
 				// 注册Api路由
 				router.Api(ctx, group)
 
@@ -75,6 +76,7 @@ var (
 
 				// 注册插件路由
 				addons.RegisterModulesRouter(ctx, group)
+
 			})
 
 			// 设置插件静态目录映射

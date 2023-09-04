@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	cdept "hotgo/internal/library/cache/dept"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/model/entity"
@@ -136,7 +137,7 @@ func (s *sAdminDept) Edit(ctx context.Context, in *adminin.DeptEditInp) (err err
 				in.OrgId = tree.GetIds(in.Tree)[0]
 			}
 			// 更新数据
-			_, err = dao.AdminDept.Ctx(ctx).Fields(adminin.DeptUpdateFields{}).WherePri(in.Id).Data(in).Update()
+			_, err = dao.AdminDept.Ctx(ctx).Cache(cdept.ClearDeptCache(in.Id)).Fields(adminin.DeptUpdateFields{}).WherePri(in.Id).Data(in).Update()
 			if err != nil {
 				return err
 			}
@@ -179,7 +180,7 @@ func updateChildrenTree(ctx context.Context, orgId int64, _id int64, _level int,
 		child.Level = _level + 1
 		child.Tree = tree.GenLabel(_tree, child.Pid)
 
-		if _, err = dao.AdminDept.Ctx(ctx).Where("id", child.Id).Data(cols.OrgId, orgId, cols.Level, child.Level, cols.Tree, child.Tree).Update(); err != nil {
+		if _, err = dao.AdminDept.Ctx(ctx).Cache(cdept.ClearDeptCache(child.Id)).Where("id", child.Id).Data(cols.OrgId, orgId, cols.Level, child.Level, cols.Tree, child.Tree).Update(); err != nil {
 			return
 		}
 
@@ -217,7 +218,7 @@ func (s *sAdminDept) MaxSort(ctx context.Context, in *adminin.DeptMaxSortInp) (r
 
 // View 获取指定部门信息
 func (s *sAdminDept) View(ctx context.Context, in *adminin.DeptViewInp) (res *adminin.DeptViewModel, err error) {
-	if err = dao.AdminDept.Ctx(ctx).Where("id", in.Id).Scan(&res); err != nil {
+	if err = dao.AdminDept.Ctx(ctx).Cache(cdept.GetDeptCache(in.Id)).Where("id", in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取部门信息失败！")
 	}
 	return

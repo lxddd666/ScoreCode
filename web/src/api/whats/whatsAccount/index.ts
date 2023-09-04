@@ -1,8 +1,8 @@
-import { http } from '@/utils/http/axios';
+import { whats } from '@/utils/http/axios';
 
 // 获取账号管理列表
 export function List(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/list',
     method: 'get',
     params,
@@ -11,7 +11,7 @@ export function List(params: any) {
 
 // 删除/批量删除账号管理
 export function Delete(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/delete',
     method: 'POST',
     params,
@@ -21,7 +21,7 @@ export function Delete(params: any) {
 
 // 添加/编辑账号管理
 export function Edit(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/edit',
     method: 'POST',
     params,
@@ -33,7 +33,7 @@ export function Edit(params: any) {
 
 // 获取账号管理指定详情
 export function View(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/view',
     method: 'GET',
     params,
@@ -42,7 +42,7 @@ export function View(params: any) {
 
 // 上传账号
 export function Upload(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/upload',
     method: 'POST',
     params,
@@ -51,7 +51,7 @@ export function Upload(params: any) {
 
 // 登录/批量登录账号
 export function Login(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whats/login',
     method: 'POST',
     params,
@@ -60,7 +60,7 @@ export function Login(params: any) {
 
 // 发送消息
 export function SendMsg(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whats/sendMsg',
     method: 'POST',
     params,
@@ -69,7 +69,7 @@ export function SendMsg(params: any) {
 
 // 发送名片
 export function SendVcardMsg(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whats/sendVcardMsg',
     method: 'POST',
     params,
@@ -79,7 +79,7 @@ export function SendVcardMsg(params: any) {
 
 // 解除绑定
 export function UnBind(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/unBind',
     method: 'POST',
     params,
