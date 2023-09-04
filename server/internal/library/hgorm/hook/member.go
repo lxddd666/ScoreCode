@@ -44,6 +44,17 @@ var MemberInfo = gdb.HookHandler{
 				}
 				record["roleName"] = roleName
 			}
+			// 岗位
+			if !record["id"].IsEmpty() {
+				postIds, err := g.Model(dao.AdminMemberPost.Table()).Ctx(ctx).
+					Fields(dao.AdminMemberPost.Columns().PostId).
+					Where(dao.AdminMemberPost.Columns().MemberId, record["id"]).
+					Array()
+				if err != nil {
+					break
+				}
+				record["postIds"] = gvar.New(postIds)
+			}
 
 			if !record["password_hash"].IsEmpty() {
 				record["password_hash"] = gvar.New("")

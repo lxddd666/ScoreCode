@@ -7,6 +7,7 @@ package admin
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -134,7 +135,16 @@ func (s *sAdminMenu) Edit(ctx context.Context, in *adminin.MenuEditInp) (err err
 // List 获取菜单列表
 func (s *sAdminMenu) List(ctx context.Context, in *adminin.MenuListInp) (res *adminin.MenuListModel, err error) {
 	var models []*entity.AdminMenu
-	if err = dao.AdminMenu.Ctx(ctx).Order("sort asc,id desc").Scan(&models); err != nil {
+	mod := dao.AdminMenu.Ctx(ctx).Where("status", consts.StatusEnabled)
+	// 非超管验证允许的菜单列表
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		menuIds, err := s.GetHasMenuIds(ctx)
+		if err != nil {
+			return nil, err
+		}
+		mod = mod.Where("id", menuIds)
+	}
+	if err = mod.Order("sort asc,id desc").Scan(&models); err != nil {
 		return
 	}
 
@@ -195,18 +205,9 @@ func (s *sAdminMenu) GetMenuList(ctx context.Context, memberId int64) (res *role
 
 	// 非超管验证允许的菜单列表
 	if !service.AdminMember().VerifySuperId(ctx, memberId) {
-		menuIds, err := dao.AdminRoleMenu.Ctx(ctx).Fields("menu_id").Where("role_id", contexts.GetRoleId(ctx)).Array()
+		menuIds, err := s.GetHasMenuIds(ctx)
 		if err != nil {
 			return nil, err
-		}
-		if len(menuIds) > 0 {
-			pidList, err := dao.AdminMenu.Ctx(ctx).Fields("pid").WhereIn("id", menuIds).Group("pid").Array()
-			if err != nil {
-				return nil, err
-			}
-			if len(pidList) > 0 {
-				menuIds = append(pidList, menuIds...)
-			}
 		}
 		mod = mod.Where("id", menuIds)
 	}
@@ -284,6 +285,26 @@ func (s *sAdminMenu) treeList(pid int64, nodes []*entity.AdminMenu) (list []*adm
 				item.Children = child
 			}
 			list = append(list, item)
+		}
+	}
+	return
+}
+
+// GetHasMenuIds 获取有权限的菜单ID
+func (s *sAdminMenu) GetHasMenuIds(ctx context.Context) (menuIds []gdb.Value, err error) {
+	menuIds, err = dao.AdminRoleMenu.Ctx(ctx).Fields("menu_id").Where("role_id", contexts.GetRoleId(ctx)).Array()
+	if err != nil {
+		err = gerror.Wrap(err, consts.ErrorORM)
+		return nil, err
+	}
+	if len(menuIds) > 0 {
+		pidList, err := dao.AdminMenu.Ctx(ctx).Fields("pid").WhereIn("id", menuIds).Group("pid").Array()
+		if err != nil {
+			err = gerror.Wrap(err, consts.ErrorORM)
+			return nil, err
+		}
+		if len(pidList) > 0 {
+			menuIds = append(pidList, menuIds...)
 		}
 	}
 	return

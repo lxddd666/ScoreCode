@@ -64,14 +64,27 @@ func (s *sAdminRole) Verify(ctx context.Context, path, method string) bool {
 func (s *sAdminRole) List(ctx context.Context, in *adminin.RoleListInp) (res *adminin.RoleListModel, totalCount int, err error) {
 	var (
 		mod    = dao.AdminRole.Ctx(ctx)
+		cols   = dao.AdminRole.Columns()
 		models []*entity.AdminRole
 		pid    int64 = 0
+		user         = contexts.GetUser(ctx)
 	)
 
-	// 非超管只获取下级角色
-	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
-		pid = contexts.GetRoleId(ctx)
-		mod = mod.WhereLike(dao.AdminRole.Columns().Tree, "%"+tree.GetIdLabel(pid)+"%")
+	// 非超管
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		pid = user.RoleId
+		role, err := s.View(ctx, pid)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		if role.OrgAdmin == consts.StatusEnabled {
+			pid = role.Pid
+			mod = mod.Where(cols.Tree+" like ? or "+cols.Id+" = ?", "%"+tree.GetIdLabel(role.Id)+"%", role.Id)
+		} else {
+			mod = mod.WhereLike(cols.Tree, "%"+tree.GetIdLabel(pid)+"%")
+		}
+
 	}
 
 	totalCount, err = mod.Count()
@@ -87,6 +100,16 @@ func (s *sAdminRole) List(ctx context.Context, in *adminin.RoleListInp) (res *ad
 
 	res = new(adminin.RoleListModel)
 	res.List = s.treeList(pid, models)
+	return
+}
+
+// View 角色明细
+func (s *sAdminRole) View(ctx context.Context, id int64) (role entity.AdminRole, err error) {
+	err = dao.AdminRole.Ctx(ctx).WherePri(id).Order("id desc").Scan(&role)
+	if err != nil {
+		err = gerror.Wrap(err, consts.ErrorORM)
+		return
+	}
 	return
 }
 
@@ -108,7 +131,7 @@ func (s *sAdminRole) GetMemberList(ctx context.Context, id int64) (list []*admin
 	return
 }
 
-// GetPermissions 更改角色菜单权限
+// GetPermissions 获取角色菜单权限
 func (s *sAdminRole) GetPermissions(ctx context.Context, in *adminin.GetPermissionsInp) (res *adminin.GetPermissionsModel, err error) {
 	values, err := dao.AdminRoleMenu.Ctx(ctx).Fields("menu_id").Where("role_id", in.RoleId).Array()
 	if err != nil {
@@ -159,6 +182,7 @@ func (s *sAdminRole) UpdatePermissions(ctx context.Context, in *adminin.UpdatePe
 	return casbin.Refresh(ctx)
 }
 
+// Edit 编辑/新增角色
 func (s *sAdminRole) Edit(ctx context.Context, in *adminin.RoleEditInp) (err error) {
 	if err = hgorm.IsUnique(ctx, &dao.AdminRole, g.Map{dao.AdminRole.Columns().Name: in.Name}, "名称已存在", in.Id); err != nil {
 		return
@@ -166,6 +190,17 @@ func (s *sAdminRole) Edit(ctx context.Context, in *adminin.RoleEditInp) (err err
 
 	if err = hgorm.IsUnique(ctx, &dao.AdminRole, g.Map{dao.AdminRole.Columns().Key: in.Key}, "编码已存在", in.Id); err != nil {
 		return
+	}
+	user := contexts.GetUser(ctx)
+	// 非超级管理员不允许添加顶级节点
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		ids, err := s.GetSubRoleIds(ctx, user.RoleId, false)
+		if err != nil {
+			return err
+		}
+		if !validate.InSlice(ids, in.Pid) {
+			return gerror.New("上级角色无权限!")
+		}
 	}
 
 	if in.Pid, in.Level, in.Tree, err = hgorm.GenSubTree(ctx, &dao.AdminRole, in.Pid); err != nil {
@@ -216,6 +251,7 @@ func updateRoleChildrenTree(ctx context.Context, _id int64, _level int, _tree st
 	return
 }
 
+// Delete 删除权限
 func (s *sAdminRole) Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err error) {
 	var models *entity.AdminRole
 	if err = dao.AdminRole.Ctx(ctx).Where("id", in.Id).Scan(&models); err != nil {
@@ -328,11 +364,21 @@ func (s *sAdminRole) VerifyRoleId(ctx context.Context, id int64) (err error) {
 func (s *sAdminRole) GetSubRoleIds(ctx context.Context, roleId int64, isSuper bool) (ids []int64, err error) {
 	mod := dao.AdminRole.Ctx(ctx).Fields(dao.AdminRole.Columns().Id)
 	if !isSuper {
-		mod = mod.WhereNot(dao.AdminRole.Columns().Id, roleId).WhereLike(dao.AdminRole.Columns().Tree, "%"+tree.GetIdLabel(roleId)+"%")
+		role, err := s.View(ctx, roleId)
+		if err != nil {
+			return ids, err
+		}
+		//如果是组织管理员，返回自身
+		if role.OrgAdmin == consts.StatusEnabled {
+			mod = mod.Where(dao.AdminRole.Columns().Tree+" like ? or "+dao.AdminRole.Columns().Id+" = ?", "%"+tree.GetIdLabel(role.Id)+"%", role.Id)
+		} else {
+			mod = mod.WhereNot(dao.AdminRole.Columns().Id, roleId).WhereLike(dao.AdminRole.Columns().Tree, "%"+tree.GetIdLabel(roleId)+"%")
+		}
 	}
 
 	columns, err := mod.Array()
 	if err != nil {
+		err = gerror.Wrap(err, consts.ErrorORM)
 		return nil, err
 	}
 

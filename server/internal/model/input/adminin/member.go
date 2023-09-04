@@ -181,6 +181,7 @@ type MemberViewModel struct {
 	entity.AdminMember
 	DeptName string `json:"deptName"    dc:"所属部门"`
 	RoleName string `json:"roleName"    dc:"所属角色"`
+	PostIds  []int  `json:"postIds"    dc:"岗位"`
 }
 
 // MemberListInp 获取用户列表

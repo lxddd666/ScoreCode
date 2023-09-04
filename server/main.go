@@ -13,6 +13,7 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 	_ "hotgo/addons/modules"
 	"hotgo/internal/cmd"
+	//_ "hotgo/internal/core/org_driver"
 	"hotgo/internal/global"
 	_ "hotgo/internal/logic"
 )

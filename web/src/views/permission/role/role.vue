@@ -3,7 +3,7 @@
     <n-card :bordered="false" title="角色管理">
       <n-space vertical :size="12">
         <n-space>
-          <n-button type="primary" @click="addTable">
+          <n-button type="primary" @click="addTable" v-if="hasPermission(['/role/edit'])">
             <template #icon>
               <n-icon>
                 <PlusOutlined />
@@ -171,7 +171,9 @@
   import { statusOptions } from '@/enums/optionsiEnum';
   import { cloneDeep } from 'lodash-es';
   import { getDeptList } from '@/api/org/dept';
+  import {usePermission} from "@/hooks/web/usePermission";
 
+  const {hasPermission} = usePermission();
   const formRef: any = ref(null);
   const message = useMessage();
   const dialog = useDialog();
@@ -237,7 +239,7 @@
             label: '菜单权限',
             onClick: handleMenuAuth.bind(null, record),
             ifShow: () => {
-              return record.id !== 1;
+              return record.id !== 1 && hasPermission(['/role/updatePermissions']);
             },
             type: 'default',
           },
@@ -245,7 +247,7 @@
             label: '数据权限',
             onClick: handleDataAuth.bind(null, record),
             ifShow: () => {
-              return record.id !== 1;
+              return record.id !== 1 && hasPermission(['/role/dataScope/edit']);
             },
             type: 'default',
           },
@@ -253,14 +255,14 @@
             label: '编辑',
             onClick: handleEdit.bind(null, record),
             ifShow: () => {
-              return record.id !== 1;
+              return record.id !== 1 && hasPermission(['/role/edit']);
             },
           },
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
             ifShow: () => {
-              return record.id !== 1;
+              return record.id !== 1 && hasPermission(['/role/delete']);
             },
           },
         ],

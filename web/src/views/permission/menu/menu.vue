@@ -10,7 +10,8 @@
         <n-card :segmented="{ content: true }" :bordered="false" size="small">
           <template #header>
             <n-space>
-              <n-button type="info" icon-placement="left" @click="openCreateDrawer">
+              <n-button type="info" icon-placement="left" @click="openCreateDrawer"
+                        v-if="hasPermission(['/menu/edit'])">
                 <template #icon>
                   <div class="flex items-center">
                     <n-icon size="14">
@@ -25,6 +26,7 @@
                 icon-placement="left"
                 @click="openChildCreateDrawer"
                 :disabled="!isEditMenu"
+                v-if="hasPermission(['/menu/edit'])"
               >
                 <template #icon>
                   <div class="flex items-center">
@@ -86,7 +88,7 @@
               <n-icon size="18">
                 <FormOutlined />
               </n-icon>
-              <span>编辑菜单{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
+              <span>{{ hasPermission(['/menu/edit']) ? '编辑' : '查看' }}菜单{{ treeItemTitle ? `：${treeItemTitle}` : '' }}</span>
               <!--              <span style="font-size: 14px">{{ treeItemTitle }}</span>-->
             </n-space>
           </template>
@@ -354,11 +356,11 @@
 
             <n-form-item path="auth" style="margin-left: 100px">
               <n-space>
-                <n-button type="primary" :loading="subLoading" @click="formSubmit"
+                <n-button type="primary" :loading="subLoading" @click="formSubmit" v-if="hasPermission(['/menu/edit'])"
                   >保存修改
                 </n-button>
                 <n-button @click="handleReset">重置</n-button>
-                <n-button @click="handleDel">删除</n-button>
+                <n-button @click="handleDel" v-if="hasPermission(['/menu/delete'])">删除</n-button>
               </n-space>
             </n-form-item>
           </n-form>
@@ -388,7 +390,9 @@
   import CreateDrawer from './CreateDrawer.vue';
   import IconSelector from '@/components/IconSelector/index.vue';
   import { newState, State } from '@/views/permission/menu/model';
+  import {usePermission} from "@/hooks/web/usePermission";
 
+  const {hasPermission} = usePermission();
   const menuTypes = [
     {
       value: 1,

@@ -26,4 +26,5 @@ type AdminRole struct {
 	Status     interface{} // 角色状态
 	CreatedAt  *gtime.Time // 创建时间
 	UpdatedAt  *gtime.Time // 更新时间
+	OrgAdmin   interface{} // 组织管理员
 }

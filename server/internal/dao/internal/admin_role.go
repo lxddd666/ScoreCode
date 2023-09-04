@@ -33,6 +33,7 @@ type AdminRoleColumns struct {
 	Status     string // 角色状态
 	CreatedAt  string // 创建时间
 	UpdatedAt  string // 更新时间
+	OrgAdmin   string // 组织管理员
 }
 
 // adminRoleColumns holds the columns for table hg_admin_role.
@@ -50,6 +51,7 @@ var adminRoleColumns = AdminRoleColumns{
 	Status:     "status",
 	CreatedAt:  "created_at",
 	UpdatedAt:  "updated_at",
+	OrgAdmin:   "org_admin",
 }
 
 // NewAdminRoleDao creates and returns a new DAO object for table data access.
