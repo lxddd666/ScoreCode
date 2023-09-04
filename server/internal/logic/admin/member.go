@@ -440,6 +440,7 @@ func (s *sAdminMember) Delete(ctx context.Context, in *adminin.MemberDeleteInp) 
 
 // Edit 修改/新增用户
 func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err error) {
+
 	opMemberId := contexts.GetUserId(ctx)
 	if opMemberId <= 0 {
 		err = gerror.New("获取用户信息失败！")

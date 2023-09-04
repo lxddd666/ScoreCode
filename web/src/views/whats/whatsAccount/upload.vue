@@ -110,7 +110,7 @@ import {
   getFileExtension
 } from '@/components/FileChooser/src/model';
 import {columns, uploadColumns} from './model';
-import {Upload} from '@/api/whats/whatsContacts'
+import {Upload} from '@/api/whats/whatsAccount'
 
 const emit = defineEmits(['reloadTable']);
 
@@ -174,6 +174,8 @@ function customRequest({
     const data = new Uint8Array(e.target.result);
     const workbook = XLSX.read(data, {type: 'array'});
     const weldmachine = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+    debugger
+
     //中英文映射
     var columnMapping = {
       '账号': 'account',
@@ -189,6 +191,7 @@ function customRequest({
       var newRow = {};
       // 使用for...in循环遍历对象的属性
       for (let key in row) {
+        debugger
         //要是能在colmnMapping[key]中找到对应的英文，则变成对应的数据，否则还是用原来的
         if (columnMapping[key] === undefined) {
           message.error('解析失败, 请检查文件格式');
@@ -213,7 +216,7 @@ function customRequest({
 
 
 function handleSumbit() {
-  if (tableData.value.length > 1) {
+  if (tableData.value.length > 0) {
     showLoading.value = true;
     // 编辑
     Upload({"list": tableData.value})

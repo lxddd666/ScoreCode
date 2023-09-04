@@ -49,7 +49,13 @@ export function View(params) {
   });
 }
 
-
+export function Upload(params: any) {
+  return http.request({
+    url: '/whatsProxy/upload',
+    method: 'POST',
+    params,
+  });
+}
 
 // 导出代理管理
 export function Export(params) {

@@ -1,9 +1,12 @@
-import {ref} from 'vue';
-import {cloneDeep} from 'lodash-es';
-import {FormSchema} from '@/components/Form';
-import {defRangeShortcuts} from '@/utils/dateUtil';
-import {validate} from '@/utils/validateUtil';
-
+import { h, ref } from 'vue';
+import { cloneDeep } from 'lodash-es';
+import { FormSchema } from '@/components/Form';
+import { defRangeShortcuts } from '@/utils/dateUtil';
+import { validate } from '@/utils/validateUtil';
+import { Dicts } from '@/api/dict/dict';
+import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
+import { isNullObject } from '@/utils/is';
+import { NAvatar, NTag } from 'naive-ui';
 
 export interface State {
   id: number;
@@ -41,7 +44,10 @@ export function newState(state: State | null): State {
   }
   return cloneDeep(defaultState);
 }
-
+export const options = ref<Options>({
+  org_id: [],
+  dept_id: [],
+});
 
 export const rules = {
   phone: {
@@ -66,11 +72,11 @@ export const rules = {
 
 export const schemas = ref<FormSchema[]>([
   {
-    field: 'id',
-    component: 'NInputNumber',
-    label: 'id',
+    field: 'phone',
+    component: 'NInput',
+    label: '联系人号码',
     componentProps: {
-      placeholder: '请输入id',
+      placeholder: '请输入账号号码',
       onUpdateValue: (e: any) => {
         console.log(e);
       },
@@ -89,7 +95,6 @@ export const schemas = ref<FormSchema[]>([
       },
     },
   },
-
 ]);
 
 export const uploadColumns = [
@@ -125,15 +130,9 @@ export const uploadColumns = [
     title: '备注',
     key: 'comment',
   },
-
-
 ];
 
 export const columns = [
-  {
-    title: 'id',
-    key: 'id',
-  },
   {
     title: '联系人姓名',
     key: 'name',
@@ -145,6 +144,26 @@ export const columns = [
   {
     title: '联系人头像',
     key: 'avatar',
+    render(row) {
+      if (row.avatar !== '') {
+        return h(NAvatar, {
+          circle: true,
+          size: 'small',
+          src: row.avatar,
+        });
+      } else {
+        return h(
+          NAvatar,
+          {
+            circle: true,
+            size: 'small',
+          },
+          {
+            default: () => (row.name !== '' ? row.name.substring(0, 1) : row.name.substring(0, 2)),
+          }
+        );
+      }
+    },
   },
   {
     title: '联系人邮箱',
@@ -157,10 +176,46 @@ export const columns = [
   {
     title: '组织id',
     key: 'orgId',
+    render(row) {
+      if (isNullObject(row.orgId)) {
+        return ``;
+      }
+      return h(
+        NTag,
+        {
+          style: {
+            marginRight: '6px',
+          },
+          type: getOptionTag(options.value.org_id, row.orgId),
+          bordered: false,
+        },
+        {
+          default: () => getOptionLabel(options.value.org_id, row.orgId),
+        }
+      );
+    },
   },
   {
     title: '部门id',
     key: 'deptId',
+    render(row) {
+      if (isNullObject(row.deptId)) {
+        return ``;
+      }
+      return h(
+        NTag,
+        {
+          style: {
+            marginRight: '6px',
+          },
+          type: getOptionTag(options.value.dept_id, row.deptId),
+          bordered: false,
+        },
+        {
+          default: () => getOptionLabel(options.value.dept_id, row.deptId),
+        }
+      );
+    },
   },
   {
     title: '备注',
@@ -175,3 +230,21 @@ export const columns = [
     key: 'updatedAt',
   },
 ];
+
+async function loadOptions() {
+  options.value = await Dicts({
+    types: ['org_id', 'dept_id'],
+  });
+  for (const item of schemas.value) {
+    switch (item.field) {
+      case 'orgId':
+        item.componentProps.options = options.value.org_id;
+        break;
+      case 'deptId':
+        item.componentProps.options = options.value.dept_id;
+        break;
+    }
+  }
+}
+
+await loadOptions();

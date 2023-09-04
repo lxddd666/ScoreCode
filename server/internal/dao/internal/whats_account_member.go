@@ -24,6 +24,7 @@ type WhatsAccountMemberColumns struct {
 	Account      string // 账号号码
 	ProxyAddress string // 代理地址
 	DeptId       string // 部门ID
+	OrgId        string // 公司ID
 	MemberId     string // 用户ID
 	Comment      string // 备注
 }
@@ -34,6 +35,7 @@ var whatsAccountMemberColumns = WhatsAccountMemberColumns{
 	Account:      "account",
 	ProxyAddress: "proxy_address",
 	DeptId:       "dept_id",
+	OrgId:        "org_id",
 	MemberId:     "member_id",
 	Comment:      "comment",
 }

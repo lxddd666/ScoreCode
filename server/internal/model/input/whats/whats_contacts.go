@@ -87,6 +87,7 @@ type WhatsContactsViewModel struct {
 type WhatsContactsListInp struct {
 	form.PageReq
 	Id        int64         `json:"id"        dc:"id"`
+	Phone     string        `json:"phone"     dc:"phone"`
 	CreatedAt []*gtime.Time `json:"createdAt" dc:"创建时间"`
 }
 
