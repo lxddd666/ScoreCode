@@ -187,7 +187,7 @@ token:
 #消息队列
 queue:
   switch: true                                        # 队列开关，可选：true|false，默认为true
-  driver: "kafka"                                      # 队列驱动，可选：disk|redis|rocketmq|kafka，默认为disk
+  driver: "disk"                                      # 队列驱动，可选：disk|redis|rocketmq|kafka，默认为disk
   retry: 2                                            # 重试次数，仅rocketmq支持
   groupName: "grata"                                  # mq群组名称
   #磁盘队列
@@ -213,17 +213,17 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "10.8.5.21:6379"
+    address: "103.205.6.236:32456"
     db: "2"
-    pass: ""
+    pass: "sLAGAU1JHQpI"
     idleTimeout: "20"
 
 # etcd
 etcd:
   endpoints:
-    - 10.8.5.21:2379
-  username: ""
-  password: ""
+    - 101.35.51.132:31140
+  username: "arthasuser"
+  password: "hzi9%WLVtrrrzt@RFfe"
 
 
 # Database. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114245
