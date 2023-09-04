@@ -213,9 +213,9 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "103.205.6.236:32456"
+    address: "10.8.5.21:6379"
     db: "2"
-    pass: "sLAGAU1JHQpI"
+    pass: ""
     idleTimeout: "20"
 
 # etcd
@@ -256,7 +256,7 @@ hggen:
         # 默认的主包模板
         - group: "default"                                              # 分组名称
           isAddon: false                                                # 是否为插件模板 false｜true
-          masterPackage: "whats"                                          # 主包名称，需和controllerPath、logicPath、inputPath保持关联
+          masterPackage: "admin"                                          # 主包名称，需和controllerPath、logicPath、inputPath保持关联
           templatePath: "./resource/generate/default/curd"              # 模板路径
           apiPath: "./api/"                                        # goApi生成路径
           controllerPath: "./internal/controller/"             # 控制器生成路径
