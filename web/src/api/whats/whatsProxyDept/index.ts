@@ -1,8 +1,8 @@
-import { http, jumpExport } from '@/utils/http/axios';
+import { whats, jumpExport } from '@/utils/http/axios';
 
 // 获取代理关联公司列表
 export function List(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxyDept/list',
     method: 'get',
     params,
@@ -11,7 +11,7 @@ export function List(params: any) {
 
 // 删除/批量删除代理关联公司
 export function Delete(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxyDept/delete',
     method: 'POST',
     params,
@@ -21,7 +21,7 @@ export function Delete(params: any) {
 
 // 添加/编辑代理关联公司
 export function Edit(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxyDept/edit',
     method: 'POST',
     params,
@@ -33,7 +33,7 @@ export function Edit(params: any) {
 
 // 获取代理关联公司指定详情
 export function View(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxyDept/view',
     method: 'GET',
     params,

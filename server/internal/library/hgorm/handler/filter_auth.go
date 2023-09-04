@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	crole "hotgo/internal/library/cache/role"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/entity"
 	"hotgo/utility/tree"
@@ -56,7 +57,7 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 			return m
 		}
 
-		err := g.Model(dao.AdminRole.Table()).Where("id", co.User.RoleId).Scan(&role)
+		err := g.Model(dao.AdminRole.Table()).Cache(crole.GetRoleCache(co.User.RoleId)).Where("id", co.User.RoleId).Scan(&role)
 		if err != nil {
 			g.Log().Panicf(ctx, "failed to role information err:%+v", err)
 		}

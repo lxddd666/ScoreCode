@@ -13,6 +13,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	crole "hotgo/internal/library/cache/role"
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
@@ -105,7 +106,7 @@ func (s *sAdminRole) List(ctx context.Context, in *adminin.RoleListInp) (res *ad
 
 // View 角色明细
 func (s *sAdminRole) View(ctx context.Context, id int64) (role entity.AdminRole, err error) {
-	err = dao.AdminRole.Ctx(ctx).WherePri(id).Order("id desc").Scan(&role)
+	err = dao.AdminRole.Ctx(ctx).Cache(crole.GetRoleCache(id)).WherePri(id).Order("id desc").Scan(&role)
 	if err != nil {
 		err = gerror.Wrap(err, consts.ErrorORM)
 		return
@@ -211,7 +212,7 @@ func (s *sAdminRole) Edit(ctx context.Context, in *adminin.RoleEditInp) (err err
 	if in.Id > 0 {
 		err = dao.AdminRole.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 			// 更新数据
-			_, err = dao.AdminRole.Ctx(ctx).Fields(adminin.RoleUpdateFields{}).WherePri(in.Id).Data(in).Update()
+			_, err = dao.AdminRole.Ctx(ctx).Cache(crole.ClearRoleCache(in.Id)).Fields(adminin.RoleUpdateFields{}).WherePri(in.Id).Data(in).Update()
 			if err != nil {
 				err = gerror.Wrap(err, consts.ErrorORM)
 				return err
@@ -240,7 +241,7 @@ func updateRoleChildrenTree(ctx context.Context, _id int64, _level int, _tree st
 		child.Level = _level + 1
 		child.Tree = tree.GenLabel(_tree, child.Pid)
 
-		if _, err = dao.AdminRole.Ctx(ctx).Where("id", child.Id).Data("level", child.Level, "tree", child.Tree).Update(); err != nil {
+		if _, err = dao.AdminRole.Ctx(ctx).Cache(crole.ClearRoleCache(child.Id)).Where("id", child.Id).Data("level", child.Level, "tree", child.Tree).Update(); err != nil {
 			return
 		}
 
@@ -254,7 +255,7 @@ func updateRoleChildrenTree(ctx context.Context, _id int64, _level int, _tree st
 // Delete 删除权限
 func (s *sAdminRole) Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err error) {
 	var models *entity.AdminRole
-	if err = dao.AdminRole.Ctx(ctx).Where("id", in.Id).Scan(&models); err != nil {
+	if err = dao.AdminRole.Ctx(ctx).Cache(crole.ClearRoleCache(in.Id)).Where("id", in.Id).Scan(&models); err != nil {
 		return
 	}
 
@@ -312,6 +313,7 @@ func (s *sAdminRole) DataScopeEdit(ctx context.Context, in *adminin.DataScopeEdi
 	models.CustomDept = gjson.New(convert.UniqueSlice(in.CustomDept))
 
 	_, err = dao.AdminRole.Ctx(ctx).
+		Cache(crole.ClearRoleCache(in.Id)).
 		Fields(dao.AdminRole.Columns().DataScope, dao.AdminRole.Columns().CustomDept).
 		Where("id", in.Id).
 		Data(models).

@@ -1,28 +1,28 @@
 // axios配置  可自行根据项目进行更改，只需更改该文件即可，其他文件可以不动
-import { VAxios } from './Axios';
-import { AxiosTransform } from './axiosTransform';
-import axios, { AxiosResponse } from 'axios';
-import { checkStatus } from './checkStatus';
-import { formatRequestDate, joinTimestamp } from './helper';
-import { ContentTypeEnum, RequestEnum, ResultEnum } from '@/enums/httpEnum';
-import { PageEnum } from '@/enums/pageEnum';
+import {VAxios} from './Axios';
+import {AxiosTransform} from './axiosTransform';
+import axios, {AxiosResponse} from 'axios';
+import {checkStatus} from './checkStatus';
+import {formatRequestDate, joinTimestamp} from './helper';
+import {ContentTypeEnum, RequestEnum, ResultEnum} from '@/enums/httpEnum';
+import {PageEnum} from '@/enums/pageEnum';
 
-import { useGlobSetting } from '@/hooks/setting';
+import {useGlobSetting} from '@/hooks/setting';
 
-import { isString } from '@/utils/is/';
-import { deepMerge, isUrl } from '@/utils';
-import { setObjToUrlParams } from '@/utils/urlUtils';
+import {isString} from '@/utils/is/';
+import {deepMerge, isUrl} from '@/utils';
+import {encodeParams, setObjToUrlParams} from '@/utils/urlUtils';
 
-import { CreateAxiosOptions, RequestOptions, Result } from './types';
+import {CreateAxiosOptions, RequestOptions, Result} from './types';
 
-import { useUserStoreWidthOut } from '@/store/modules/user';
+import {useUserStoreWidthOut} from '@/store/modules/user';
 import router from '@/router';
-import { storage } from '@/utils/Storage';
-import { encodeParams } from '@/utils/urlUtils';
-import { delNullProperty } from '@/utils/array';
+import {storage} from '@/utils/Storage';
+import {delNullProperty} from '@/utils/array';
 
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix || '';
+const whatsPrefix = globSetting.whatsPrefix || '';
 
 /**
  * @description: 数据处理，方便区分多种处理方式
@@ -62,7 +62,7 @@ const transform: AxiosTransform = {
     }
 
     //  这里 code，result，message为 后台统一的字段，需要修改为项目自己的接口返回格式
-    const { code, data, message } = response;
+    const {code, data, message} = response;
 
     // 请求成功
     const hasSuccess = response && Reflect.has(response, 'code') && code === ResultEnum.SUCCESS;
@@ -83,7 +83,8 @@ const transform: AxiosTransform = {
           title: '提示',
           content: message,
           positiveText: '确定',
-          onPositiveClick: () => {},
+          onPositiveClick: () => {
+          },
         });
       }
     }
@@ -117,7 +118,8 @@ const transform: AxiosTransform = {
             storage.clear();
             window.location.href = LoginPath;
           },
-          onNegativeClick: () => {},
+          onNegativeClick: () => {
+          },
         });
         break;
       default:
@@ -130,7 +132,7 @@ const transform: AxiosTransform = {
 
   // 请求之前处理config
   beforeRequestHook: (config, options) => {
-    const { apiUrl, joinPrefix, joinParamsToUrl, formatDate, joinTime = true, urlPrefix } = options;
+    const {apiUrl, joinPrefix, joinParamsToUrl, formatDate, joinTime = true, urlPrefix} = options;
 
     const isUrlStr = isUrl(config.url as string);
 
@@ -199,7 +201,7 @@ const transform: AxiosTransform = {
   responseInterceptorsCatch: (error: any) => {
     const $dialog = window['$dialog'];
     const $message = window['$message'];
-    const { response, code, message } = error || {};
+    const {response, code, message} = error || {};
     // TODO 此处要根据后端接口返回格式修改
     const msg: string =
       response && response.data && response.data.message ? response.data.message : '';
@@ -217,8 +219,10 @@ const transform: AxiosTransform = {
           //negativeText: '取消',
           closable: false,
           maskClosable: false,
-          onPositiveClick: () => {},
-          onNegativeClick: () => {},
+          onPositiveClick: () => {
+          },
+          onNegativeClick: () => {
+          },
         });
         return Promise.reject(error);
       }
@@ -237,7 +241,7 @@ const transform: AxiosTransform = {
   },
 };
 
-function createAxios(opt?: Partial<CreateAxiosOptions>) {
+function createAxios(opt?: Partial<CreateAxiosOptions>, urlPrefix?: string) {
   return new VAxios(
     deepMerge(
       {
@@ -245,7 +249,7 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
         authenticationScheme: '',
         // 接口前缀
         prefixUrl: urlPrefix,
-        headers: { 'Content-Type': ContentTypeEnum.JSON },
+        headers: {'Content-Type': ContentTypeEnum.JSON},
         // 数据处理方式
         transform,
         // 配置项，下面的选项都可以在独立的接口请求中覆盖
@@ -280,7 +284,9 @@ function createAxios(opt?: Partial<CreateAxiosOptions>) {
   );
 }
 
-export const http = createAxios();
+export const http = createAxios({}, urlPrefix);
+
+export const whats = createAxios({}, whatsPrefix);
 
 // 导出
 export const jumpExport = function (url, params) {
@@ -295,7 +301,7 @@ export const jump = function (url, params) {
     '?' +
     encodeParams({
       ...delNullProperty(params),
-      ...{ authorization: useUserStoreWidthOut().token },
+      ...{authorization: useUserStoreWidthOut().token},
     });
 };
 

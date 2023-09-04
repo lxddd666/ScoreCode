@@ -1,8 +1,8 @@
-import { http, jumpExport } from '@/utils/http/axios';
+import { whats, jumpExport } from '@/utils/http/axios';
 
 // 获取代理管理列表
 export function List(params) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxy/list',
     method: 'get',
     params,
@@ -11,7 +11,7 @@ export function List(params) {
 
 // 删除/批量删除代理管理
 export function Delete(params) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxy/delete',
     method: 'POST',
     params,
@@ -21,7 +21,7 @@ export function Delete(params) {
 
 // 添加/编辑代理管理
 export function Edit(params) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxy/edit',
     method: 'POST',
     params,
@@ -31,7 +31,7 @@ export function Edit(params) {
 
 // 修改代理管理状态
 export function Status(params) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxy/status',
     method: 'POST',
     params,
@@ -42,7 +42,7 @@ export function Status(params) {
 
 // 获取代理管理指定详情
 export function View(params) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxy/view',
     method: 'GET',
     params,
@@ -50,7 +50,7 @@ export function View(params) {
 }
 
 export function Upload(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsProxy/upload',
     method: 'POST',
     params,

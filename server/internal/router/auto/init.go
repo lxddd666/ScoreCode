@@ -9,6 +9,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/consts"
+	_ "hotgo/internal/router/whats"
 	"hotgo/internal/service"
 	"hotgo/utility/simple"
 )

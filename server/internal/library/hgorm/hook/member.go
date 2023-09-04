@@ -11,6 +11,9 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/dao"
+	cdept "hotgo/internal/library/cache/dept"
+	crole "hotgo/internal/library/cache/role"
+	"hotgo/internal/model/entity"
 )
 
 // MemberInfo 后台用户信息
@@ -20,29 +23,32 @@ var MemberInfo = gdb.HookHandler{
 		if err != nil {
 			return
 		}
+
 		for i, record := range result {
 			// 部门
 			if !record["dept_id"].IsEmpty() {
-				deptName, err := g.Model(dao.AdminDept.Table()).Ctx(ctx).
-					Fields(dao.AdminDept.Columns().Name).
-					Where(dao.AdminDept.Columns().Id, record["dept_id"]).
-					Value()
+				var dept entity.AdminDept
+				err := g.Model(dao.AdminDept.Table()).Ctx(ctx).
+					Cache(cdept.GetDeptCache(record["dept_id"].Int64())).
+					Where("id", record["dept_id"]).
+					Scan(&dept)
 				if err != nil {
 					break
 				}
-				record["deptName"] = deptName
+				record["deptName"] = gvar.New(dept.Name)
 			}
 
 			// 角色
 			if !record["role_id"].IsEmpty() {
-				roleName, err := g.Model(dao.AdminRole.Table()).Ctx(ctx).
-					Fields("name").
+				var role entity.AdminRole
+				err := g.Model(dao.AdminRole.Table()).Ctx(ctx).
+					Cache(crole.GetRoleCache(record["role_id"].Int64())).
 					Where("id", record["role_id"]).
-					Value()
+					Scan(&role)
 				if err != nil {
 					break
 				}
-				record["roleName"] = roleName
+				record["roleName"] = gvar.New(role.Name)
 			}
 			// 岗位
 			if !record["id"].IsEmpty() {
@@ -70,6 +76,7 @@ var MemberInfo = gdb.HookHandler{
 
 			result[i] = record
 		}
+
 		return
 	},
 }
