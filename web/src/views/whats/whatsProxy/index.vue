@@ -23,7 +23,7 @@
         :openChecked="true"
         :columns="columns"
         :request="loadDataTable"
-        :row-key="(row) => row.id"
+        :row-key="(row) => row"
         ref="actionRef"
         :actionColumn="actionColumn"
         @update:checked-row-keys="onCheckedRow"
@@ -85,6 +85,19 @@
             </template>
             导出
           </n-button>
+          <n-button
+            type="primary"
+            @click="addOrgTable"
+            class="min-left-space"
+            v-if="hasPermission(['/whatsProxy/view'])"
+          >
+            <template #icon>
+              <n-icon>
+                <ExportOutlined />
+              </n-icon>
+            </template>
+            绑定公司
+          </n-button>
         </template>
       </BasicTable>
     </n-card>
@@ -95,14 +108,20 @@
       :formParams="formParams"
     />
     <UnBind
-        @updateUnBindShowModal="updateUnBindShowModal"
-        :showModal="unBindShowModal"
-        :formParams="formParams"
+      @updateUnBindShowModal="updateUnBindShowModal"
+      :showModal="unBindShowModal"
+      :formParams="formParams"
     />
     <Bind
       @updateBindShowModal="updateBindShowModal"
       :showModal="bindShowModal"
       :formParams="formParams"
+    />
+    <AddProxyToOrg
+      @updateAddProxyToOrg="updateAddProxyToOrg"
+      :showModal="showOrgModal"
+      :formParams="formParams"
+      :address="proxyUrls"
     />
 
     <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
@@ -121,10 +140,12 @@
   import { useRouter } from 'vue-router';
   import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
-  import UnBind from "@/views/whats/whatsProxy/unBind.vue";
-  import Bind from "@/views/whats/whatsProxy/bind.vue";
-  import {getRandomString} from "@/utils/charset";
-  import {ResetPwd} from "@/api/org/user";
+  import UnBind from '@/views/whats/whatsProxy/unBind.vue';
+  import Bind from '@/views/whats/whatsProxy/bind.vue';
+  import AddProxyToOrg from '@/views/whats/whatsProxy/addProxyToOrg.vue';
+  import { getRandomString } from '@/utils/charset';
+  import { ResetPwd } from '@/api/org/user';
+  import * as url from "url";
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -133,7 +154,9 @@
   const searchFormRef = ref<any>({});
   const batchDeleteDisabled = ref(true);
   const checkedIds = ref([]);
+  const proxyUrls = ref([]);
   const showModal = ref(false);
+  const showOrgModal = ref(false);
   const unBindShowModal = ref(false);
   const bindShowModal = ref(false);
   const formParams = ref<State>();
@@ -220,6 +243,11 @@
     formParams.value = newState(null);
   }
 
+  function addOrgTable() {
+    showOrgModal.value = true;
+    formParams.value = newState(null);
+  }
+
   function handleUpload() {
     fileUploadRef.value.openModal();
   }
@@ -235,9 +263,20 @@
     bindShowModal.value = value;
   }
 
+  function updateAddProxyToOrg(value) {
+    showOrgModal.value = value;
+  }
+
   function onCheckedRow(rowKeys) {
     batchDeleteDisabled.value = rowKeys.length <= 0;
-    checkedIds.value = rowKeys;
+    let ids = [];
+    let urls = [];
+    for (let i = 0; i < rowKeys.length; i++) {;
+      ids.push(rowKeys[i].id);
+      urls.push(rowKeys[i].address);
+    }
+    proxyUrls.value = urls;
+    checkedIds.value = ids;
   }
 
   function reloadTable() {

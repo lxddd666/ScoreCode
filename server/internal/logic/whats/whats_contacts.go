@@ -41,20 +41,9 @@ func (s *sWhatsContacts) Model(ctx context.Context, option ...*handler.Option) *
 
 // List 获取联系人管理列表
 func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error) {
-	var (
-		user = contexts.Get(ctx).User
-	)
-	mod := s.Model(ctx)
-	whatsContacts := dao.WhatsContacts
-	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		// 判断用户是否拥有权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
-		if !haveRole {
-			err = gerror.Wrap(err, "该用户没有公司联系人模块权限！")
-			return
-		}
-		mod = mod.Where(whatsContacts.Columns().OrgId, user.OrgId)
-	}
+
+	mod := s.Model(ctx).Handler(handler.FilterOrgId())
+
 	// 查询id
 	if in.Id > 0 {
 		mod = mod.Where(dao.WhatsContacts.Columns().Id, in.Id)

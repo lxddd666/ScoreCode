@@ -65,3 +65,19 @@ type UploadReq struct {
 	List   []*whatsin.WhatsProxyUploadInp `json:"list" v:"required|array"`
 }
 type UploadRes struct{}
+
+type AddProxyOrgReq struct {
+	g.Meta `path:"/whatsProxy/addProxyOrgReq" method:"post" tags:"代理管理" summary:"绑定公司代理"`
+	whatsin.WhatsProxyAddProxyOrgInp
+}
+type AddProxyOrgRes struct {
+}
+
+type ListOrgProxyReq struct {
+	g.Meta `path:"/whatsProxy/listOrgProxyReq" method:"post" tags:"代理管理" summary:"绑定公司代理"`
+	whatsin.WhatsProxyListProxyOrgInp
+}
+type ListOrgProxyRes struct {
+	form.PageRes
+	List []*whatsin.WhatsProxyListProxyOrgModel `json:"list"   dc:"数据列表"`
+}

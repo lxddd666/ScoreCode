@@ -89,7 +89,7 @@ import {SendMsg, SendVcardMsg} from '@/api/whats/whatsAccount';
 import {useMessage} from 'naive-ui';
 import {adaModalWidth} from '@/utils/hotgo';
 
-const emit = defineEmits(['reloadTable', 'sendMsgShowModal']);
+const emit = defineEmits(['reloadTable', 'sendMsgShowModal', 'sendVcardMsgShowModal' ]);
 
 interface Props {
   showModal: boolean;

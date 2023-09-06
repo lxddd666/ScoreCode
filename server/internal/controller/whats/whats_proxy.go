@@ -67,3 +67,22 @@ func (c *cWhatsProxy) Upload(ctx context.Context, req *whatsproxy.UploadReq) (re
 	_, err = service.WhatsProxy().Upload(ctx, req.List)
 	return
 }
+
+// AddProxyToOrg 绑定公司代理
+func (c *cWhatsProxy) AddProxyToOrg(ctx context.Context, req *whatsproxy.AddProxyOrgReq) (res *whatsproxy.AddProxyOrgRes, err error) {
+
+	err = service.WhatsProxy().AddProxyToOrg(ctx, &req.WhatsProxyAddProxyOrgInp)
+	return
+}
+
+func (c *cWhatsProxy) ListOrgProxt(ctx context.Context, req *whatsproxy.ListOrgProxyReq) (res *whatsproxy.ListOrgProxyRes, err error) {
+	list, totalCount, err := service.WhatsProxy().ListOrgProxy(ctx, req)
+	if err != nil {
+		return
+	}
+
+	res = new(whatsproxy.ListOrgProxyRes)
+	res.List = list
+	res.PageRes.Pack(req, totalCount)
+	return
+}

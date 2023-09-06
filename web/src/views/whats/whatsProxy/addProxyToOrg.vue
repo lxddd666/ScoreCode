@@ -5,7 +5,7 @@
         v-model:show="isShowModal"
         :show-icon="false"
         preset="dialog"
-       :title="params?.id > 0 ? '编辑 #' + params?.id : '添加'"
+        :title="params?.id > 0 ? '编辑 #' + params?.id : '添加'"
         :style="{
           width: dialogWidth,
         }"
@@ -18,28 +18,17 @@
           :label-width="80"
           class="py-4"
         >
+          <n-form-item label="所属公司(组织)" path="orgId">
+            <n-select
+              key-field="id"
+              :options="options.org"
+              v-model:value="params.orgId"
+              @update:value="handleUpdateOrgValue"
+            />
+          </n-form-item>
           <n-form-item label="代理地址" path="address">
-          <n-input placeholder="请输入代理地址" v-model:value="params.address" />
+            <n-input placeholder="请输入代理地址" v-model:value="params.address" />
           </n-form-item>
-
-
-          <n-form-item label="最大连接" path="maxConnections">
-            <n-input-number placeholder="请输入最大连接" v-model:value="params.maxConnections" />
-          </n-form-item>
-
-          <n-form-item label="地区" path="region">
-            <n-input type="text" placeholder="地区" v-model:value="params.region" />
-          </n-form-item>
-
-          <n-form-item label="备注" path="comment">
-            <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
-          </n-form-item>
-
-          <n-form-item label="状态" path="status">
-            <n-select v-model:value="params.status" :options="options.sys_normal_disable" />
-          </n-form-item>
-
-
         </n-form>
         <template #action>
           <n-space>
@@ -54,16 +43,16 @@
 
 <script lang="ts" setup>
   import { onMounted, ref, computed, watch } from 'vue';
-  import { Edit, View } from '@/api/whats/whatsProxy';
+  import { AddProxyOrgReq, View } from '@/api/whats/whatsProxy';
   import { rules, options, State, newState } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';
-
-  const emit = defineEmits(['reloadTable', 'updateShowModal']);
+  const emit = defineEmits(['reloadTable', 'updateShowModal', 'updateAddProxyToOrg']);
 
   interface Props {
     showModal: boolean;
     formParams?: State;
+    address: [];
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -78,9 +67,11 @@
       return props.showModal;
     },
     set: (value) => {
-      emit('updateShowModal', value);
+      emit('updateAddProxyToOrg', value);
     },
   });
+
+
 
   const loading = ref(false);
   const params = ref<State>(props.formParams);
@@ -90,12 +81,16 @@
   const formBtnLoading = ref(false);
 
   function confirmForm(e) {
-    debugger
+    debugger;
     e.preventDefault();
     formBtnLoading.value = true;
+    var postParam = {
+      orgId: params.value.orgId,
+      ProxyAddresses: [params.value.address],
+    };
     formRef.value.validate((errors) => {
       if (!errors) {
-        Edit(params.value).then((_res) => {
+        AddProxyOrgReq(postParam).then((_res) => {
           message.success('操作成功');
           setTimeout(() => {
             isShowModal.value = false;
@@ -107,6 +102,10 @@
       }
       formBtnLoading.value = false;
     });
+  }
+
+  function handleUpdateOrgValue(value) {
+    params.value.orgId = Number(value);
   }
 
   onMounted(async () => {

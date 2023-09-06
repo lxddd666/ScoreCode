@@ -34,9 +34,22 @@
         <template #tableTitle>
           <n-button
             type="primary"
+            @click="addTable"
+            class="min-left-space"
+            v-if="hasPermission(['/whatsAccount/edit'])"
+          >
+            <template #icon>
+              <n-icon>
+                <PlusOutlined />
+              </n-icon>
+            </template>
+            添加
+          </n-button>
+          <n-button
+            type="primary"
             @click="handleUpload"
             class="min-left-space"
-            v-if="hasPermission(['/whatsAccount/upload'])"
+            v-if="hasPermission(['/whatsAccount/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -95,6 +108,12 @@
       :showModal="showSendVcardModel"
       :sender="account"
     />
+    <SyncContact
+      @reloadTable="reloadTable"
+      @sendSyncContactModel="sendSyncContactModel"
+      :showModal="showSyncContactModel"
+      :sender="account"
+    />
 
     <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
@@ -106,15 +125,16 @@
   import { BasicTable, TableAction } from '@/components/Table';
   import { BasicForm, useForm } from '@/components/Form/index';
   import { usePermission } from '@/hooks/web/usePermission';
-  import { Delete, List, Login } from '@/api/whats/whatsAccount';
+  import {Delete, List, Login, Logout} from '@/api/whats/whatsAccount';
   import { columns, newState, schemas, State } from './model';
-  import { DeleteOutlined, LoginOutlined, UploadOutlined } from '@vicons/antd';
+  import { DeleteOutlined, LoginOutlined, PlusOutlined, UploadOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import Edit from './edit.vue';
   import SendMsg from './sendMsg.vue';
   import SendVcardMsg from '@/views/whats/whatsAccount/sendVcardMsg.vue';
   import FileUpload from './upload.vue';
   import { Attachment } from '@/components/FileChooser/src/model';
+  import SyncContact from '@/views/whats/whatsAccount/syncContact.vue';
 
   const { hasPermission } = usePermission();
   const router = useRouter();
@@ -126,6 +146,7 @@
   const checkedIds = ref([]);
   const showEditModal = ref(false);
   const showSendModal = ref(false);
+  const showSyncContactModel = ref(false);
   const showSendVcardModel = ref(false);
   const formParams = ref<State>();
   const account = ref<string>();
@@ -137,7 +158,7 @@
     title: '操作',
     key: 'action',
     // fixed: 'right',
-    render(record: Recordable) {
+    render(record) {
       return h(TableAction as any, {
         style: 'button',
         actions: [
@@ -146,6 +167,7 @@
             onClick: handleEdit.bind(null, record),
             auth: ['/whatsAccount/edit'],
           },
+
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
@@ -156,24 +178,36 @@
             onClick: handleSendMsg.bind(null, record),
             auth: ['/whats/sendMsg'],
           },
-        ],
-        dropDownActions: [
           {
             label: '发送名片',
-            key: 'vcard',
+            onClick: handleSendVcardMsg.bind(null, record),
             auth: ['/whats/sendMsg'],
           },
+        ],
+        dropDownActions: [
           {
             label: '查看详情',
             key: 'view',
             auth: ['/whatsMsg/view'],
           },
+          {
+            label: '同步联系人',
+            key: 'syncContact',
+            auth: ['/whatsMsg/view'],
+          },
+          {
+            label: '登出',
+            key: 'logout',
+            auth: ['/whatsMsg/view'],
+          },
         ],
-        select: (key: string) => {
+        select: (key) => {
           if (key === 'view') {
             return handleView(record);
-          } else if (key === 'vcard') {
-            return handleSendVcardMsg(record);
+          } else if (key === 'syncContact') {
+            return handleSyncContact(record);
+          } else if (key === 'logout') {
+            return handleLogout(record);
           }
         },
       });
@@ -205,6 +239,9 @@
 
   function sendVcardMsgShowModal(value) {
     showSendVcardModel.value = value;
+  }
+  function sendSyncContactModel(value) {
+    showSyncContactModel.value = value;
   }
 
   function handleUpload() {
@@ -250,6 +287,32 @@
   function handleSendMsg(record: Recordable) {
     showSendModal.value = true;
     account.value = newState(record as State).account;
+  }
+
+  function handleSyncContact(record: Recordable) {
+    showSyncContactModel.value = true;
+    account.value = newState(record as State).account;
+  }
+  function handleLogout(record: Recordable) {
+    account.value = newState(record as State).account;
+    debugger;
+    dialog.warning({
+      title: '退出登录',
+      content: '你确定退出登录吗？',
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        Logout({ logoutDetail: [{ account: record.account, proxy: record.proxyAddress }] }).then(
+          (_res) => {
+            message.success('退出成功');
+            reloadTable();
+          }
+        );
+      },
+      onNegativeClick: () => {
+        // message.error('取消');
+      },
+    });
   }
 
   function handleSendVcardMsg(record: Recordable) {

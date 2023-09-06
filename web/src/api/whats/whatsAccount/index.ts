@@ -18,7 +18,6 @@ export function Delete(params: any) {
   });
 }
 
-
 // 添加/编辑账号管理
 export function Edit(params: any) {
   return whats.request({
@@ -27,9 +26,6 @@ export function Edit(params: any) {
     params,
   });
 }
-
-
-
 
 // 获取账号管理指定详情
 export function View(params: any) {
@@ -58,6 +54,15 @@ export function Login(params: any) {
   });
 }
 
+// 退出登录/批量退出登录
+export function Logout(params: any) {
+  return whats.request({
+    url: '/whats/logout',
+    method: 'POST',
+    params,
+  });
+}
+
 // 发送消息
 export function SendMsg(params: any) {
   return whats.request({
@@ -76,6 +81,14 @@ export function SendVcardMsg(params: any) {
   });
 }
 
+// 同步联系人
+export function SyncContact(params: any) {
+  return whats.request({
+    url: '/whats/syncContact',
+    method: 'POST',
+    params,
+  });
+}
 
 // 解除绑定
 export function UnBind(params: any) {
@@ -87,7 +100,7 @@ export function UnBind(params: any) {
 }
 //绑定账号
 export function Bind(params: any) {
-  return http.request({
+  return whats.request({
     url: '/whatsAccount/bind',
     method: 'POST',
     params,

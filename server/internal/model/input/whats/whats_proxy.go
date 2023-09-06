@@ -146,3 +146,29 @@ func (in *WhatsProxyUploadInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsProxyUploadModel struct{}
+
+type WhatsProxyAddProxyOrgInp struct {
+	OrgId          int64    `json:"orgId"        dc:"公司Id"`
+	ProxyAddresses []string `json:"proxyAddresses" dc:"代理地址"`
+}
+
+type WhatsProxyAddProxyOrgModel struct{}
+
+func (in *WhatsProxyAddProxyOrgInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type WhatsProxyListProxyOrgInp struct {
+	form.PageReq
+	OrgId  int64                  `json:"orgId"  dc:"公司ID"`
+	proxys []*WhatsProxyListModel `json:"proxys" dc:"公司代理信息"`
+}
+
+type WhatsProxyListProxyOrgModel struct {
+	OrgId     int64                 `json:"orgId"          dc:"公司ID"`
+	ProxyList []WhatsProxyListModel `json:"proxyList"      dc:"公司对应代理信息"`
+}
+
+func (in *WhatsProxyListProxyOrgInp) Filter(ctx context.Context) (err error) {
+	return
+}
