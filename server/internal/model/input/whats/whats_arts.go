@@ -57,3 +57,25 @@ func (in *WhatVcardMsgInp) Filter(ctx context.Context) (err error) {
 type GetUserHeadImageReq struct {
 	Account uint64
 }
+
+type WhatsSyncContactInp struct {
+	Account  uint64   `json:"account" v:"required#账号号码不能为空" dc:"账号"`
+	Contacts []uint64 `json:"contacts" v:"required#联系不能为空"    dc:"同步联系人小号号码"`
+}
+
+func (in *WhatsSyncContactInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type LogoutDetail struct {
+	Account uint64 `json:"account"  dc:"登出账号"`
+	Proxy   string `json:"proxy"    dc:"代理"`
+}
+
+type WhatsLogoutInp struct {
+	LogoutList []LogoutDetail `json:"logoutDetail"  dc:""`
+}
+
+func (in *WhatsLogoutInp) Filter(ctx context.Context) (err error) {
+	return
+}

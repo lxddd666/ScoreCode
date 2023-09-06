@@ -13,7 +13,6 @@
       >
         <n-form
           :model="params"
-          :rules="rules"
           ref="formRef"
           label-placement="left"
           :label-width="80"
@@ -23,15 +22,9 @@
             <n-input placeholder="请输入发送人" v-model:value="params.sender" disabled/>
           </n-form-item>
 
-          <n-form-item label="接收人" path="receiver">
-            <n-input placeholder="请输入接收人" v-model:value="params.receiver"/>
+          <n-form-item label="添加的联系人" path="receiver">
+            <n-input placeholder="请输入联系人" v-model:value="params.contact"/>
           </n-form-item>
-
-
-          <n-form-item label="文本消息" path="textMsg">
-            <n-input type="textarea" placeholder="文本消息" v-model:value="params.textMsg"/>
-          </n-form-item>
-
 
         </n-form>
         <template #action>
@@ -47,11 +40,11 @@
 
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue';
-import {SendMsg} from '@/api/whats/whatsAccount';
+import {SendMsg, SyncContact} from '@/api/whats/whatsAccount';
 import {useMessage} from 'naive-ui';
 import {adaModalWidth} from '@/utils/hotgo';
 
-const emit = defineEmits(['reloadTable', 'sendMsgShowModal', 'sendVcardMsgShowModal']);
+const emit = defineEmits(['reloadTable', 'sendMsgShowModal','syncContactShowModal','sendVcardMsgShowModal','sendSyncContactModel']);
 
 interface Props {
   showModal: boolean;
@@ -62,6 +55,7 @@ interface MsgReq {
   sender: string;
   receiver: string;
   textMsg: string;
+  contact: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -76,7 +70,7 @@ const isShowModal = computed({
     return props.showModal;
   },
   set: (value) => {
-    emit('sendMsgShowModal', value);
+    emit('sendSyncContactModel', value);
   },
 });
 
@@ -85,16 +79,6 @@ const rules = {
     required: true,
     trigger: ['blur', 'input'],
     message: '请输入发送人',
-  },
-  receiver: {
-    required: true,
-    trigger: ['blur', 'input'],
-    message: '请输入接收人',
-  },
-  textMsg: {
-    required: true,
-    trigger: ['blur', 'input'],
-    message: '请输入发送内容',
   },
 };
 
@@ -112,11 +96,10 @@ function confirmForm(e) {
   formRef.value.validate((errors) => {
     if (!errors) {
       let req = {
-        'sender': params.value.sender,
-        'receiver': params.value.receiver,
-        'textMsg': [params.value.textMsg]
+        'account': params.value.sender,
+        'contacts': [params.value.contact]
       }
-      SendMsg(req).then((_res) => {
+      SyncContact(req).then((_res) => {
         message.success('操作成功');
         setTimeout(() => {
           isShowModal.value = false;
@@ -136,8 +119,7 @@ onMounted(async () => {
 
 function closeForm() {
   isShowModal.value = false;
-  params.value.receiver = '';
-  params.value.textMsg = '';
+  params.contact = ''
 }
 
 function loadForm(value) {

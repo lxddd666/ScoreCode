@@ -18,7 +18,6 @@ export function Delete(params) {
   });
 }
 
-
 // 添加/编辑代理管理
 export function Edit(params) {
   return whats.request({
@@ -27,7 +26,6 @@ export function Edit(params) {
     params,
   });
 }
-
 
 // 修改代理管理状态
 export function Status(params) {
@@ -38,8 +36,6 @@ export function Status(params) {
   });
 }
 
-
-
 // 获取代理管理指定详情
 export function View(params) {
   return whats.request({
@@ -49,6 +45,7 @@ export function View(params) {
   });
 }
 
+// 代理导入入库
 export function Upload(params: any) {
   return whats.request({
     url: '/whatsProxy/upload',
@@ -60,4 +57,13 @@ export function Upload(params: any) {
 // 导出代理管理
 export function Export(params) {
   jumpExport('/whatsProxy/export', params);
+}
+
+// 公司添加代理
+export function AddProxyOrgReq(params: any) {
+  return whats.request({
+    url: '/whatsProxy/addProxyOrgReq',
+    method: 'POST',
+    params,
+  });
 }

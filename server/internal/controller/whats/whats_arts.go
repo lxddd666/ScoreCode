@@ -33,3 +33,17 @@ func (c *cWhatsArts) SendVcardMsg(ctx context.Context, req *whatsarts.WhatsSendV
 	res = (*whatsarts.WhatsSendVcardMsgRes)(&data)
 	return
 }
+
+// SyncContactReq 同步联系人
+func (c *cWhatsArts) SyncContactReq(ctx context.Context, req *whatsarts.WhatsSyncContactReq) (res *whatsarts.WhatsSyncContactRes, err error) {
+	data, err := service.WhatsArts().AccountSyncContact(ctx, req.WhatsSyncContactInp)
+	res = (*whatsarts.WhatsSyncContactRes)(&data)
+	return
+}
+
+// Logout 退出登录
+func (c *cWhatsArts) Logout(ctx context.Context, req *whatsarts.WhatsLogoutReq) (res *whatsarts.WhatsLogoutRes, err error) {
+	data, err := service.WhatsArts().AccountLogout(ctx, req.WhatsLogoutInp)
+	res = (*whatsarts.WhatsLogoutRes)(&data)
+	return
+}

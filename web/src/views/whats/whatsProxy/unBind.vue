@@ -1,17 +1,17 @@
 <template>
   <n-modal
-      v-model:show="isShowModal"
-      :mask-closable="false"
-      preset="dialog"
-      title="解绑账号"
-      content=""
-      positive-text="确认"
-      negative-text="取消"
-      @positive-click="onPositiveClick"
-      @negative-click="onNegativeClick"
-      :style="{
-          width: dialogWidth,
-        }"
+    v-model:show="isShowModal"
+    :mask-closable="false"
+    preset="dialog"
+    title="解绑账号"
+    content=""
+    positive-text="确认"
+    negative-text="取消"
+    @positive-click="onPositiveClick"
+    @negative-click="onNegativeClick"
+    :style="{
+      width: dialogWidth,
+    }"
   >
     <AccountTable @reloadView="reloadView" :proxyAddress="formParams?.address"></AccountTable>
   </n-modal>

@@ -70,7 +70,6 @@
   import { rules, options, State, newState } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';
-  import {loadOptions} from "@/views/org/user/model";
   import {getDeptOption} from "@/api/org/dept";
   import FileChooser from "@/components/FileChooser/index.vue";
 
