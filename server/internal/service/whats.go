@@ -94,6 +94,8 @@ type (
 		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
 		// UnBind 解绑代理
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
+		// Bind 绑定账号
+		Bind(ctx context.Context, in *whatsin.WhatsAccountBindInp) (res *whatsin.WhatsAccountBindModel, err error)
 		// LoginCallback 登录回调处理
 		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
 		// LogoutCallback 登录回调处理

@@ -85,3 +85,11 @@ export function UnBind(params: any) {
     params,
   });
 }
+//绑定账号
+export function Bind(params: any) {
+  return http.request({
+    url: '/whatsAccount/bind',
+    method: 'POST',
+    params,
+  });
+}
