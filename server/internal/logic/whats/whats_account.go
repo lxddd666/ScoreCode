@@ -62,7 +62,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	//不是超管
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
 		//没有绑定用户的权限
-		if ok, _ := casbin.Enforcer.Enforce(user.RoleKey, "/whatsAccount/bindMember", "POST"); !ok {
+		if ok, _ := casbin.Enforcer.Enforce(user.RoleKey, "/whatsAccount/bind", "POST"); !ok {
 			mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+columns.Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
 				Where("wam."+dao.WhatsAccountMember.Columns().MemberId, user.Id)
 		} else {
@@ -83,9 +83,14 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 		mod = mod.Where("wa."+dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
 	}
 
-	// 查询id
+	// 查询代理
 	if in.ProxyAddress != "" {
 		mod = mod.Where("wa."+dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress)
+	}
+
+	// 查询未绑定代理
+	if in.Unbind {
+		mod = mod.WhereNull("wa."+dao.WhatsAccount.Columns().ProxyAddress).WhereOr("wa."+dao.WhatsAccount.Columns().ProxyAddress, "")
 	}
 
 	// 查询创建时间
@@ -336,6 +341,34 @@ func (s *sWhatsAccount) UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBi
 	})
 	return nil, err
 
+}
+
+// Bind 绑定账号
+func (s *sWhatsAccount) Bind(ctx context.Context, in *whatsin.WhatsAccountBindInp) (res *whatsin.WhatsAccountBindModel, err error) {
+	//绑定账号
+	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		//查找是否存在该代理账号
+		account, err := tx.Model(dao.WhatsProxy.Table()).Where(do.WhatsProxy{Address: in.ProxyAddress}).Count()
+		if err != nil || account == 0 {
+			return gerror.Wrap(err, "绑定失败，请检查代理账号是否存在！")
+		}
+		_, err = tx.Model(dao.WhatsAccount.Table()).WherePri(in.Id).Update(do.WhatsAccount{ProxyAddress: in.ProxyAddress})
+		if err != nil || account == 0 {
+			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		count, err := s.Model(ctx).Where(dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress).Count()
+		if err != nil {
+			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		//更新代理账号的绑定数量
+		_, err = tx.Model(dao.WhatsProxy.Table()).Where(do.WhatsProxy{Address: in.ProxyAddress}).
+			Update(do.WhatsProxy{ConnectedCount: count})
+		if err != nil {
+			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		return
+	})
+	return nil, err
 }
 
 // LoginCallback 登录回调处理

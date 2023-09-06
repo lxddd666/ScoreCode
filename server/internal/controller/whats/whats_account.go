@@ -56,9 +56,16 @@ func (c *cWhatsAccount) Upload(ctx context.Context, req *whatsaccount.UploadReq)
 	return
 }
 
-// UnBind 截绑代理
+// UnBind 解绑代理
 func (c *cWhatsAccount) UnBind(ctx context.Context, req *whatsaccount.UnBindReq) (res *whatsaccount.UnBindRes, err error) {
 	result, err := service.WhatsAccount().UnBind(ctx, &req.WhatsAccountUnBindInp)
 	res = (*whatsaccount.UnBindRes)(result)
+	return
+}
+
+// Bind绑定账号
+func (c *cWhatsAccount) Bind(ctx context.Context, req *whatsaccount.BindReq) (res *whatsaccount.BindRes, err error) {
+	result, err := service.WhatsAccount().Bind(ctx, &req.WhatsAccountBindInp)
+	res = (*whatsaccount.BindRes)(result)
 	return
 }
