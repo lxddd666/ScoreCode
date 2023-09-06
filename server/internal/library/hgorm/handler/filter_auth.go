@@ -66,8 +66,8 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 			g.Log().Panic(ctx, "failed to role information roleModel == nil")
 		}
 
-		// 超管拥有全部权限
-		if role.Key == consts.SuperRoleKey {
+		// 超管拥有全部权限 //组织管理员
+		if role.Key == consts.SuperRoleKey || role.OrgAdmin == consts.StatusEnabled {
 			return m
 		}
 
@@ -77,11 +77,6 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 				g.Log().Panic(ctx, "failed to get member dept data")
 			}
 			return ds
-		}
-		//组织管理员
-		if role.OrgAdmin == consts.StatusEnabled {
-			m = m.WhereIn(filterField, getDeptIds(co.User.OrgId))
-			return m
 		}
 
 		switch role.DataScope {

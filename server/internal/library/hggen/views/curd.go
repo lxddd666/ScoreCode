@@ -183,7 +183,7 @@ func (l *gCurd) loadView(ctx context.Context, in *CurdPreviewInput) (err error) 
 		return
 	}
 	importApi := gstr.Replace(temp.ApiPath, "./", modName+"/") + temp.MasterPackage + gstr.CaseSnake(in.In.VarName)
-	importInput := gstr.Replace(temp.InputPath, "./", modName+"/") + temp.MasterPackage
+	importInput := gstr.Replace(temp.InputPath, "./", modName+"/") + temp.MasterPackage + "in"
 	importController := gstr.Replace(temp.ControllerPath, "./", modName+"/") + temp.MasterPackage
 	importService := "hotgo/internal/service"
 	if temp.IsAddon {
@@ -385,7 +385,7 @@ func (l *gCurd) generateInputContent(ctx context.Context, in *CurdPreviewInput) 
 		return err
 	}
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.InputPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.InputPath, temp.MasterPackage+"in"), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip
@@ -470,7 +470,7 @@ func (l *gCurd) generateRouterContent(ctx context.Context, in *CurdPreviewInput)
 	}
 
 	temp := in.Config.Application.Crud.Templates[in.In.GenTemplate]
-	genFile.Path = file.MergeAbs(gfile.Join(temp.RouterPath, temp.MasterPackage), gstr.CaseSnake(in.In.VarName)+".go")
+	genFile.Path = file.MergeAbs(gfile.Join(temp.RouterPath, "auto"), gstr.CaseSnake(in.In.VarName)+".go")
 	genFile.Meth = consts.GenCodesBuildMethCreate
 	if gfile.Exists(genFile.Path) {
 		genFile.Meth = consts.GenCodesBuildMethSkip

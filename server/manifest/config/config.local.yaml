@@ -256,7 +256,7 @@ hggen:
         # 默认的主包模板
         - group: "default"                                              # 分组名称
           isAddon: false                                                # 是否为插件模板 false｜true
-          masterPackage: "admin"                                          # 主包名称，需和controllerPath、logicPath、inputPath保持关联
+          masterPackage: "script"                                          # 主包名称，需和controllerPath、logicPath、inputPath保持关联
           templatePath: "./resource/generate/default/curd"              # 模板路径
           apiPath: "./api/"                                        # goApi生成路径
           controllerPath: "./internal/controller/"             # 控制器生成路径
