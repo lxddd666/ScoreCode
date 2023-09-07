@@ -2,7 +2,7 @@
   <div>
     <n-modal
       v-model:show="showModal"
-      style="width: 80%; height: 700px"
+      style="width:83%; height: 700px"
       :show-icon="false"
       preset="dialog"
       :title="title"
