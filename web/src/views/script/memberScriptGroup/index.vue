@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/2/scriptGroup/edit'])"
+            v-if="hasPermission(['/1/scriptGroup/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -50,7 +50,7 @@
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
             class="min-left-space"
-            v-if="hasPermission(['/2/scriptGroup/delete'])"
+            v-if="hasPermission(['/1/scriptGroup/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -63,7 +63,7 @@
             type="primary"
             @click="handleExport"
             class="min-left-space"
-            v-if="hasPermission(['/2/scriptGroup/export'])"
+            v-if="hasPermission(['/1/scriptGroup/export'])"
           >
             <template #icon>
               <n-icon>
@@ -90,7 +90,7 @@ import {useDialog, useMessage} from 'naive-ui';
 import {BasicTable, TableAction} from '@/components/Table';
 import {BasicForm, useForm} from '@/components/Form/index';
 import {usePermission} from '@/hooks/web/usePermission';
-import {Delete, Export, List} from '@/api/script/orgScriptGroup';
+import {Delete, Export, List} from '@/api/script/memberScriptGroup';
 import {columns, newState, schemas, State} from './model';
 import {DeleteOutlined, ExportOutlined, PlusOutlined} from '@vicons/antd';
 import {useRouter} from 'vue-router';
@@ -119,13 +119,13 @@ const { hasPermission } = usePermission();
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
-            auth: ['/2/scriptGroup/edit'],
+            auth: ['/1/scriptGroup/edit'],
           },
 
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
-            auth: ['/2/scriptGroup/delete'],
+            auth: ['/1/scriptGroup/delete'],
           },
         ],
       });

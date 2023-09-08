@@ -58,8 +58,7 @@ func (s *sAdminMenu) VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueI
 
 	cols := dao.AdminMenu.Columns()
 	msgMap := g.MapStrStr{
-		cols.Name:  "菜单编码已存在，请换一个",
-		cols.Title: "菜单名称已存在，请换一个",
+		cols.Name: "菜单编码已存在，请换一个",
 	}
 
 	for k, v := range in.Where {
@@ -84,8 +83,7 @@ func (s *sAdminMenu) Edit(ctx context.Context, in *adminin.MenuEditInp) (err err
 	err = s.VerifyUnique(ctx, &adminin.VerifyUniqueInp{
 		Id: in.Id,
 		Where: g.Map{
-			dao.AdminMenu.Columns().Title: in.Title,
-			dao.AdminMenu.Columns().Name:  in.Name,
+			dao.AdminMenu.Columns().Name: in.Name,
 		},
 	})
 	if err != nil {

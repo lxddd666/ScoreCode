@@ -44,7 +44,7 @@ func (s *sScriptGroup) List(ctx context.Context, in *scriptin.ScriptGroupListInp
 	// 查询分组类型
 	if in.Type > 0 {
 		mod = mod.Where(dao.SysScriptGroup.Columns().Type, in.Type)
-		if in.Type == consts.ScriptTypeUser {
+		if in.Type == consts.ScriptTypeMember {
 			mod = mod.Where(dao.SysScriptGroup.Columns().MemberId, contexts.GetUserId(ctx))
 		}
 	}
@@ -126,7 +126,7 @@ func (s *sScriptGroup) checkInfo(ctx context.Context, in *scriptin.ScriptGroupEd
 		mod = mod.WhereNot(col.Id, in.Id)
 	}
 	mod = mod.Where(col.Type, in.Type)
-	if in.Type == consts.ScriptTypeUser {
+	if in.Type == consts.ScriptTypeMember {
 		mod = mod.Where(col.MemberId, contexts.GetUserId(ctx))
 	}
 	count, err := mod.Count()
@@ -153,7 +153,7 @@ func (s *sScriptGroup) modify(ctx context.Context, in *scriptin.ScriptGroupEditI
 func (s *sScriptGroup) add(ctx context.Context, in *scriptin.ScriptGroupEditInp) (err error) {
 	user := contexts.GetUser(ctx)
 	in.OrgId = user.OrgId
-	if in.Type == consts.ScriptTypeUser {
+	if in.Type == consts.ScriptTypeMember {
 		in.MemberId = user.Id
 	}
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
