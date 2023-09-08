@@ -70,4 +70,6 @@ func Admin(ctx context.Context, group *ghttp.RouterGroup) {
 
 	// 注册生成路由
 	auto.Register(ctx, group)
+	// 注册话术路由
+	Script(ctx, group)
 }

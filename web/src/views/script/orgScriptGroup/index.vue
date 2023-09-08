@@ -1,11 +1,12 @@
 <template>
   <div>
-    <div class="n-layout-page-header">
-      <n-card :bordered="false" title="表格例子">
-        这里提供了一些常用的普通表格组件的用法和表单组件的例子，你可能会需要
-      </n-card>
-    </div>
     <n-card :bordered="false" class="proCard">
+      <div class="n-layout-page-header">
+        <n-card :bordered="false" title="话术分组">
+          <!--  这是系统自动生成的CURD表格，你可以将此行注释改为表格的描述 -->
+        </n-card>
+      </div>
+
       <BasicForm
         @register="register"
         @submit="reloadTable"
@@ -29,10 +30,14 @@
         :scroll-x="1090"
         :resizeHeightOffset="-10000"
         size="small"
-        @update:sorter="handleUpdateSorter"
       >
         <template #tableTitle>
-          <n-button type="primary" @click="addTable" class="min-left-space">
+          <n-button
+            type="primary"
+            @click="addTable"
+            class="min-left-space"
+            v-if="hasPermission(['/scriptGroup/edit'])"
+          >
             <template #icon>
               <n-icon>
                 <PlusOutlined />
@@ -45,6 +50,7 @@
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
             class="min-left-space"
+            v-if="hasPermission(['/scriptGroup/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -53,7 +59,12 @@
             </template>
             批量删除
           </n-button>
-          <n-button type="primary" @click="handleExport" class="min-left-space">
+          <n-button
+            type="primary"
+            @click="handleExport"
+            class="min-left-space"
+            v-if="hasPermission(['/scriptGroup/delete'])"
+          >
             <template #icon>
               <n-icon>
                 <ExportOutlined />
@@ -74,28 +85,27 @@
 </template>
 
 <script lang="ts" setup>
-  import { h, reactive, ref } from 'vue';
-  import { useDialog, useMessage } from 'naive-ui';
-  import { BasicTable, TableAction } from '@/components/Table';
-  import { BasicForm, useForm } from '@/components/Form/index';
-  import { useSorter } from '@/hooks/common';
-  import { Delete, List, Status, Export } from '@/api/addons/hgexample/table';
-  import { State, columns, schemas, options, newState } from './model';
-  import { DeleteOutlined, PlusOutlined, ExportOutlined } from '@vicons/antd';
-  import { useRouter } from 'vue-router';
-  import { getOptionLabel } from '@/utils/hotgo';
-  import Edit from './edit.vue';
+import {h, reactive, ref} from 'vue';
+import {useDialog, useMessage} from 'naive-ui';
+import {BasicTable, TableAction} from '@/components/Table';
+import {BasicForm, useForm} from '@/components/Form/index';
+import {usePermission} from '@/hooks/web/usePermission';
+import {Delete, Export, List} from '@/api/script/orgScriptGroup';
+import {columns, newState, schemas, State} from './model';
+import {DeleteOutlined, ExportOutlined, PlusOutlined} from '@vicons/antd';
+import {useRouter} from 'vue-router';
+import Edit from './edit.vue';
 
+const { hasPermission } = usePermission();
   const router = useRouter();
+  const actionRef = ref();
   const dialog = useDialog();
   const message = useMessage();
-  const searchFormRef = ref<any>();
+  const searchFormRef = ref<any>({});
   const batchDeleteDisabled = ref(true);
   const checkedIds = ref([]);
   const showModal = ref(false);
   const formParams = ref<State>();
-  const actionRef = ref();
-  const { updateSorter: handleUpdateSorter, sortStatesRef: sortStatesRef } = useSorter(reloadTable);
 
   const actionColumn = reactive({
     width: 300,
@@ -109,53 +119,15 @@
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
+            auth: ['/scriptGroup/edit'],
           },
-          {
-            label: '禁用',
-            onClick: handleStatus.bind(null, record, 2),
-            ifShow: () => {
-              return record.status === 1;
-            },
-          },
-          {
-            label: '启用',
-            onClick: handleStatus.bind(null, record, 1),
-            ifShow: () => {
-              return record.status === 2;
-            },
-          },
+
           {
             label: '删除',
             onClick: handleDelete.bind(null, record),
+            auth: ['/scriptGroup/delete'],
           },
         ],
-        dropDownActions: [
-          {
-            label: '查看详情',
-            key: 'view',
-          },
-          {
-            label: '更多按钮1',
-            key: 'test1',
-            // 根据业务控制是否显示: 非enable状态的不显示启用按钮
-            ifShow: () => {
-              return true;
-            },
-          },
-          {
-            label: '更多按钮2',
-            key: 'test2',
-            ifShow: () => {
-              return true;
-            },
-          },
-        ],
-        select: (key) => {
-          if (key === 'view') {
-            return handleView(record);
-          }
-          message.info(`您点击了，${key} 按钮`);
-        },
       });
     },
   });
@@ -167,11 +139,7 @@
   });
 
   const loadDataTable = async (res) => {
-    return await List({
-      ...searchFormRef.value?.formModel,
-      ...{ sorters: sortStatesRef.value },
-      ...res,
-    });
+    return await List({ ...searchFormRef.value?.formModel, ...res });
   };
 
   function addTable() {
@@ -193,7 +161,7 @@
   }
 
   function handleView(record: Recordable) {
-    router.push({ name: 'table_view', params: { id: record.id } });
+    router.push({ name: 'scriptGroupView', params: { id: record.id } });
   }
 
   function handleEdit(record: Recordable) {
@@ -242,14 +210,7 @@
     Export(searchFormRef.value?.formModel);
   }
 
-  function handleStatus(record: Recordable, status: number) {
-    Status({ id: record.id, status: status }).then((_res) => {
-      message.success('设为' + getOptionLabel(options.value.sys_normal_disable, status) + '成功');
-      setTimeout(() => {
-        reloadTable();
-      });
-    });
-  }
+
 </script>
 
 <style lang="less" scoped></style>

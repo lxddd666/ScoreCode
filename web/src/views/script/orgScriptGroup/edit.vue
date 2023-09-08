@@ -18,45 +18,9 @@
           :label-width="80"
           class="py-4"
         >
-          <n-form-item label="分类ID" path="categoryId">
-            <n-input-number placeholder="请输入分类ID" v-model:value="params.categoryId" />
-          </n-form-item>
 
-          <n-form-item label="标题" path="title">
-          <n-input placeholder="请输入标题" v-model:value="params.title" />
-          </n-form-item>
-
-          <n-form-item label="描述" path="description">
-            <n-input type="textarea" placeholder="描述" v-model:value="params.description" />
-          </n-form-item>
-
-          <n-form-item label="内容" path="content">
-            <Editor style="height: 450px" id="content" v-model:value="params.content" />
-          </n-form-item>
-
-          <n-form-item label="单图" path="image">
-            <UploadImage :maxNumber="1" v-model:value="params.image" />
-          </n-form-item>
-
-          <n-form-item label="附件" path="attachfile">
-            <UploadFile :maxNumber="1" v-model:value="params.attachfile" />
-          </n-form-item>
-
-          <n-form-item label="所在城市" path="cityId">
-            <CitySelector v-model:value="params.cityId" />
-          </n-form-item>
-
-          <n-form-item label="显示开关" path="switch">
-            <n-switch :unchecked-value="2" :checked-value="1" v-model:value="params.switch"
-        />
-          </n-form-item>
-
-          <n-form-item label="排序" path="sort">
-            <n-input-number placeholder="请输入排序" v-model:value="params.sort" />
-          </n-form-item>
-
-          <n-form-item label="状态" path="status">
-            <n-select v-model:value="params.status" :options="options.sys_normal_disable" />
+          <n-form-item label="话术组名" path="name">
+          <n-input placeholder="请输入话术组名" v-model:value="params.name" />
           </n-form-item>
 
 
@@ -74,12 +38,8 @@
 
 <script lang="ts" setup>
   import { onMounted, ref, computed, watch } from 'vue';
-  import { Edit, MaxSort, View } from '@/api/curdDemo';
-  import Editor from '@/components/Editor/editor.vue';
-  import UploadImage from '@/components/Upload/uploadImage.vue';
-  import UploadFile from '@/components/Upload/uploadFile.vue';
-  import CitySelector from '@/components/CitySelector/citySelector.vue';
-  import { rules, options, State, newState } from './model';
+  import { Edit, View } from '@/api/script/orgScriptGroup';
+  import { rules, State, newState } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';
 
@@ -141,21 +101,14 @@
   }
 
   function loadForm(value) {
-    loading.value = true;
-
     // 新增
     if (value.id < 1) {
       params.value = newState(value);
-      MaxSort()
-        .then((res) => {
-          params.value.sort = res.sort;
-        })
-        .finally(() => {
-          loading.value = false;
-        });
+      loading.value = false;
       return;
     }
 
+    loading.value = true;
     // 编辑
     View({ id: value.id })
       .then((res) => {

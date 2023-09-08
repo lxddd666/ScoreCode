@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gstr"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	crole "hotgo/internal/library/cache/role"
@@ -13,12 +14,20 @@ import (
 // FilterOrg 过滤组织
 func FilterOrg(m *gdb.Model) *gdb.Model {
 	var (
-		role *entity.AdminRole
-		ctx  = m.GetCtx()
-		co   = contexts.Get(ctx)
+		needAuth bool
+		role     *entity.AdminRole
+		ctx      = m.GetCtx()
+		co       = contexts.Get(ctx)
+		fields   = escapeFieldsToSlice(m.GetFieldsStr())
 	)
+	if gstr.InArray(fields, "org_id") {
+		needAuth = true
+	}
 
 	if co == nil || co.User == nil {
+		return m
+	}
+	if !needAuth {
 		return m
 	}
 

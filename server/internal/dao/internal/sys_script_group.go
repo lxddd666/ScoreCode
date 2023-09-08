@@ -22,7 +22,6 @@ type SysScriptGroupDao struct {
 type SysScriptGroupColumns struct {
 	Id          string // ID
 	OrgId       string // 组织ID
-	DeptId      string // 部门ID
 	MemberId    string // 用户ID
 	Type        string // 类型：1个人2部门3公司
 	Name        string // 自定义组名
@@ -35,7 +34,6 @@ type SysScriptGroupColumns struct {
 var sysScriptGroupColumns = SysScriptGroupColumns{
 	Id:          "id",
 	OrgId:       "org_id",
-	DeptId:      "dept_id",
 	MemberId:    "member_id",
 	Type:        "type",
 	Name:        "name",
