@@ -12,6 +12,7 @@ import (
 // SysScriptUpdateFields 修改话术管理字段过滤
 type SysScriptUpdateFields struct {
 	GroupId     int64  `json:"groupId"     dc:"分组"`
+	Type        int64  `json:"type"        dc:"类型：1个人2公司"`
 	ScriptClass int    `json:"scriptClass" dc:"话术分类"`
 	Short       string `json:"short"       dc:"快捷指令"`
 	Content     string `json:"content"     dc:"话术内容"`
@@ -20,6 +21,7 @@ type SysScriptUpdateFields struct {
 // SysScriptInsertFields 新增话术管理字段过滤
 type SysScriptInsertFields struct {
 	GroupId     int64  `json:"groupId"     dc:"分组"`
+	Type        int64  `json:"type"        dc:"类型：1个人2公司"`
 	ScriptClass int    `json:"scriptClass" dc:"话术分类"`
 	Short       string `json:"short"       dc:"快捷指令"`
 	Content     string `json:"content"     dc:"话术内容"`
@@ -85,6 +87,7 @@ func (in *SysScriptListInp) Filter(ctx context.Context) (err error) {
 }
 
 type SysScriptListModel struct {
+	Id          int64       `json:"id"          dc:"ID"`
 	OrgId       int64       `json:"orgId"       dc:"组织ID"`
 	MemberId    int64       `json:"memberId"    dc:"用户ID"`
 	GroupId     int64       `json:"groupId"     dc:"分组"`

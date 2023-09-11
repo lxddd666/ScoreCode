@@ -105,7 +105,7 @@ func (s *sScriptGroup) Export(ctx context.Context, in *scriptin.ScriptGroupListI
 
 // Edit 修改/新增话术分组
 func (s *sScriptGroup) Edit(ctx context.Context, in *scriptin.ScriptGroupEditInp) (err error) {
-	//校验分组名
+	//校验参数
 	if err = s.checkInfo(ctx, in); err != nil {
 		return
 	}
@@ -129,6 +129,7 @@ func (s *sScriptGroup) checkInfo(ctx context.Context, in *scriptin.ScriptGroupEd
 	if in.Type == consts.ScriptTypeMember {
 		mod = mod.Where(col.MemberId, contexts.GetUserId(ctx))
 	}
+	mod = mod.Where(col.Name, in.Name)
 	count, err := mod.Count()
 	if err != nil {
 		return err

@@ -7,7 +7,6 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/hgorm/hook"
 	"hotgo/internal/model/input/form"
 	scriptin "hotgo/internal/model/input/scriptin"
 	"hotgo/internal/service"
@@ -20,18 +19,18 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
-type sScriptSysScript struct{}
+type sSysScript struct{}
 
-func NewScriptSysScript() *sScriptSysScript {
-	return &sScriptSysScript{}
+func NewSysScript() *sSysScript {
+	return &sSysScript{}
 }
 
 func init() {
-	service.RegisterScriptSysScript(NewScriptSysScript())
+	service.RegisterSysScript(NewSysScript())
 }
 
 // Model 话术管理ORM模型
-func (s *sScriptSysScript) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
+func (s *sSysScript) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
 	if len(option) == 0 {
 		option = append(option, &handler.Option{FilterAuth: true, FilterOrg: true})
 	}
@@ -39,7 +38,7 @@ func (s *sScriptSysScript) Model(ctx context.Context, option ...*handler.Option)
 }
 
 // List 获取话术管理列表
-func (s *sScriptSysScript) List(ctx context.Context, in *scriptin.SysScriptListInp) (list []*scriptin.SysScriptListModel, totalCount int, err error) {
+func (s *sSysScript) List(ctx context.Context, in *scriptin.SysScriptListInp) (list []*scriptin.SysScriptListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
 	// 查询分组类型
@@ -81,7 +80,7 @@ func (s *sScriptSysScript) List(ctx context.Context, in *scriptin.SysScriptListI
 }
 
 // Export 导出话术管理
-func (s *sScriptSysScript) Export(ctx context.Context, in *scriptin.SysScriptListInp) (err error) {
+func (s *sSysScript) Export(ctx context.Context, in *scriptin.SysScriptListInp) (err error) {
 	list, totalCount, err := s.List(ctx, in)
 	if err != nil {
 		return
@@ -108,7 +107,11 @@ func (s *sScriptSysScript) Export(ctx context.Context, in *scriptin.SysScriptLis
 }
 
 // Edit 修改/新增话术管理
-func (s *sScriptSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (err error) {
+func (s *sSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (err error) {
+	//校验参数
+	if err = s.checkInfo(ctx, in); err != nil {
+		return
+	}
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
@@ -119,17 +122,54 @@ func (s *sScriptSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditI
 		return
 	}
 
+	user := contexts.GetUser(ctx)
+	in.OrgId = user.OrgId
+	if in.Type == consts.ScriptTypeMember {
+		in.MemberId = user.Id
+	}
 	// 新增
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(scriptin.SysScriptInsertFields{}).
-		Data(in).Hook(hook.OrgInfo).Insert(); err != nil {
+		Data(in).Insert(); err != nil {
 		err = gerror.Wrap(err, "新增话术管理失败，请稍后重试！")
 	}
 	return
 }
 
+func (s *sSysScript) checkInfo(ctx context.Context, in *scriptin.SysScriptEditInp) (err error) {
+	var (
+		mod = s.Model(ctx)
+		col = dao.SysScript.Columns()
+	)
+	groupCount, err := service.ScriptGroup().Model(ctx).WherePri(in.GroupId).Count()
+	if err != nil {
+		return err
+	}
+	if groupCount < 1 {
+		return gerror.New("所选分组不存在")
+	}
+
+	if in.Id > 0 {
+		mod = mod.WhereNot(col.Id, in.Id)
+	}
+	mod = mod.Where(col.Type, in.Type)
+	if in.Type == consts.ScriptTypeMember {
+		mod = mod.Where(col.MemberId, contexts.GetUserId(ctx))
+	}
+	mod = mod.Where(col.GroupId, in.GroupId).Where(col.Short, in.Short)
+	count, err := mod.Count()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return gerror.New("快捷指令已存在")
+	}
+
+	return
+}
+
 // Delete 删除话术管理
-func (s *sScriptSysScript) Delete(ctx context.Context, in *scriptin.SysScriptDeleteInp) (err error) {
+func (s *sSysScript) Delete(ctx context.Context, in *scriptin.SysScriptDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
 		err = gerror.Wrap(err, "删除话术管理失败，请稍后重试！")
 		return
@@ -138,7 +178,7 @@ func (s *sScriptSysScript) Delete(ctx context.Context, in *scriptin.SysScriptDel
 }
 
 // View 获取话术管理指定信息
-func (s *sScriptSysScript) View(ctx context.Context, in *scriptin.SysScriptViewInp) (res *scriptin.SysScriptViewModel, err error) {
+func (s *sSysScript) View(ctx context.Context, in *scriptin.SysScriptViewInp) (res *scriptin.SysScriptViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取话术管理信息，请稍后重试！")
 		return

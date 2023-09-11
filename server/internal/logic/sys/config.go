@@ -339,3 +339,9 @@ func (s *sSysConfig) GetWhatsConfig(ctx context.Context) (conf *model.WhatsConfi
 	err = g.Cfg().MustGet(ctx, "whats").Scan(&conf)
 	return
 }
+
+// GetGrpcConfig 获取grpc配置
+func (s sSysConfig) GetGrpcConfig(ctx context.Context) (conf *model.GrpcConfig, err error) {
+	err = g.Cfg().MustGet(ctx, "grpc").Scan(&conf)
+	return
+}

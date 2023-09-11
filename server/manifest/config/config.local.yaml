@@ -232,7 +232,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
+    link: "tidb:root:hY7iaIFYHHJu!@tcp(10.8.5.21:31060)/grata?loc=Local&parseTime=true"
     debug: true
 
 
@@ -309,14 +309,16 @@ whats:
   aes:
     key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
     vi: "cL0bVYHAUCMGDsK2"
-  grpc_env:
+  manager:
+    name: arts_manager
+
+grpc:
+  env:
     GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
     GF_GSVC_DEPLOYMENT: dev
     GF_GSVC_NAMESPACE: ns
     GF_GSVC_VERSION: "latest"
-  manager:
-    name: arts_manager
-
-grpc:
-  name: grata
+  service:
+    tg: tg_manager
+    whats: whats_manager

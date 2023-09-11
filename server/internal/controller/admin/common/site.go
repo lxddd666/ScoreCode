@@ -81,8 +81,8 @@ func (c *cSite) LoginConfig(ctx context.Context, _ *common.SiteLoginConfigReq) (
 
 // Captcha 登录验证码
 func (c *cSite) Captcha(ctx context.Context, _ *common.LoginCaptchaReq) (res *common.LoginCaptchaRes, err error) {
-	cid, base64 := captcha.Generate(ctx)
-	res = &common.LoginCaptchaRes{Cid: cid, Base64: base64}
+	cid, base64, answer := captcha.Generate(ctx)
+	res = &common.LoginCaptchaRes{Cid: cid, Base64: base64, Content: answer}
 	return
 }
 
@@ -107,7 +107,7 @@ func (c *cSite) AccountLogin(ctx context.Context, req *common.AccountLoginReq) (
 
 	if !req.IsLock && login.CaptchaSwitch == 1 {
 		// 校验 验证码
-		if !captcha.Verify(req.Cid, req.Code) {
+		if !captcha.Verify(ctx, req.Cid, req.Code) {
 			err = gerror.New("验证码错误")
 			return
 		}

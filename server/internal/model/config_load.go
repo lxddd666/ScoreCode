@@ -120,17 +120,23 @@ type TokenConfig struct {
 	MultiLogin      bool   `json:"multiLogin"`
 }
 
+type GrpcConfig struct {
+	Env     map[string]string `json:"env" yaml:"env"`
+	Service GrpcSvcConfig     `json:"service" yaml:"service"`
+}
+
+type GrpcSvcConfig struct {
+	Tg    string `json:"tg" yaml:"tg"`
+	Whats string `json:"whats" yaml:"whats"`
+}
+
 // WhatsConfig whats配置
 type WhatsConfig struct {
-	Aes     *WhatsAesConfig   `json:"aes"`
-	GrpcEnv map[string]string `json:"grpcEnv" yaml:"grpc_env"`
+	Aes *WhatsAesConfig `json:"aes"`
 }
 
 // WhatsAesConfig aes加密信息
 type WhatsAesConfig struct {
 	Key string `json:"key"`
 	Vi  string `json:"vi"`
-}
-
-type WhatsManagerConfig struct {
 }
