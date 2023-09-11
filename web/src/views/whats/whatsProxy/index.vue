@@ -115,7 +115,7 @@
     <Bind
       @updateBindShowModal="updateBindShowModal"
       :showModal="bindShowModal"
-      :formParams="formParams"
+      :formparams="formParams"
     />
     <AddProxyToOrg
       @updateAddProxyToOrg="updateAddProxyToOrg"
