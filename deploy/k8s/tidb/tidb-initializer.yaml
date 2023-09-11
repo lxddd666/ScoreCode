@@ -1,0 +1,16 @@
+---
+apiVersion: pingcap.com/v1alpha1
+kind: TidbInitializer
+metadata:
+  name: tidb-init
+  namespace: base-system
+spec:
+  image: tnir/mysqlclient
+  # imagePullPolicy: IfNotPresent
+  cluster:
+    namespace: base-system
+    name: tidb
+  initSql: |-
+    create database grata;
+  # kubectl create secret generic tidb-secret --from-literal=root=hY7iaIFYHHJu! --namespace=base-system
+  passwordSecret: tidb-secret

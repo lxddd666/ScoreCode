@@ -187,7 +187,7 @@ token:
 #消息队列
 queue:
   switch: true                                        # 队列开关，可选：true|false，默认为true
-  driver: "kafka"                                      # 队列驱动，可选：disk|redis|rocketmq|kafka，默认为disk
+  driver: "disk"                                      # 队列驱动，可选：disk|redis|rocketmq|kafka，默认为disk
   retry: 2                                            # 重试次数，仅rocketmq支持
   groupName: "grata"                                  # mq群组名称
   #磁盘队列
@@ -232,7 +232,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true"
+    link: "tidb:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true"
     debug: true
 
 
@@ -309,10 +309,16 @@ whats:
   aes:
     key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
     vi: "cL0bVYHAUCMGDsK2"
-  grpc_env:
+  manager:
+    name: arts_manager
+
+grpc:
+  env:
+    GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
     GF_GSVC_DEPLOYMENT: prod
     GF_GSVC_NAMESPACE: prod
     GF_GSVC_VERSION: "latest"
-  manager:
-    name: arts_manager
+  service:
+    tg: tg_manager
+    whats: whats_manager
