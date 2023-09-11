@@ -7,8 +7,11 @@ import { Dicts } from '@/api/dict/dict';
 import { isNullObject } from '@/utils/is';
 import { defRangeShortcuts } from '@/utils/dateUtil';
 import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
+import {getOrgOption} from "@/api/org/dept";
+import {getRoleOption} from "@/api/system/role";
 
 export interface State {
+  orgId: number;
   id: number;
   address: string;
   connectedCount: number;
@@ -43,6 +46,7 @@ export function newState(state: State | null): State {
 
 export const options = ref<Options>({
   sys_normal_disable: [],
+  org: [],
 });
 
 export const rules = {};
@@ -176,6 +180,16 @@ async function loadOptions() {
   options.value = await Dicts({
     types: ['sys_normal_disable'],
   });
+  const org = await getOrgOption();
+  if (org.list) {
+    options.value.org = org.list;
+    for (let i = 0; i < org.list.length; i++) {
+      org.list[i].label = org.list[i].name;
+      org.list[i].value = org.list[i].id;
+    }
+  } else {
+    options.value.org = [];
+  }
   for (const item of schemas.value) {
     switch (item.field) {
       case 'status':

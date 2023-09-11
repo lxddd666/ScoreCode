@@ -78,7 +78,8 @@ type WhatsAccountListInp struct {
 	form.PageReq
 	AccountStatus int           `json:"accountStatus" dc:"账号状态"`
 	CreatedAt     []*gtime.Time `json:"createdAt"     dc:"创建时间"`
-	ProxyAddress  string        `json:"proxyAddress"            dc:"代理地址"`
+	ProxyAddress  string        `json:"proxyAddress"  dc:"代理地址"`
+	Unbind        bool          `json:"unbind"        dc:"未绑定代理"`
 }
 
 func (in *WhatsAccountListInp) Filter(ctx context.Context) (err error) {
@@ -125,3 +126,15 @@ func (in *WhatsAccountUnBindInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsAccountUnBindModel struct{}
+
+// WhatAccountBindInp 绑定账号
+type WhatsAccountBindInp struct {
+	Id           interface{} `json:"id" example:"[1,2]" v:"required#id不能为空" dc:"id,可以是数组"`
+	ProxyAddress string      `json:"proxyAddress" v:"required#代理地址不能为空" dc:"代理地址"`
+}
+
+func (in *WhatsAccountBindInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type WhatsAccountBindModel struct{}

@@ -7,6 +7,7 @@ package service
 
 import (
 	"context"
+	whatsproxy "hotgo/api/whats/whats_proxy"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
@@ -20,10 +21,16 @@ type (
 	IWhatsArts interface {
 		// Login 登录whats
 		Login(ctx context.Context, ids []int) (err error)
+		// SendVcardMsg 发送名片
 		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 		// SendMsg 发送消息
 		SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error)
+		// GetUserHeadImage 获取头像
 		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
+		// AccountSyncContact 同步联系人
+		AccountSyncContact(ctx context.Context, contact *whatsin.WhatsSyncContactInp) (res string, err error)
+		// AccountLogout 退出登录
+		AccountLogout(ctx context.Context, logoutList *whatsin.WhatsLogoutInp) (res string, err error)
 	}
 	IWhatsContacts interface {
 		// Model 联系人管理ORM模型
@@ -78,6 +85,10 @@ type (
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
 		// Upload 上传代理
 		Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error)
+		// AddProxyToOrg 绑定公司代理
+		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)
+		// ListOrgProxy 查看对应公司的代理
+		ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgProxyReq) (list []*whatsin.WhatsProxyListProxyOrgModel, totalCount int, err error)
 	}
 	IWhatsAccount interface {
 		// Model 账号ORM模型
@@ -94,6 +105,8 @@ type (
 		Upload(ctx context.Context, in []*whatsin.WhatsAccountUploadInp) (res *whatsin.WhatsAccountUploadModel, err error)
 		// UnBind 解绑代理
 		UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBindInp) (res *whatsin.WhatsAccountUnBindModel, err error)
+		// Bind 绑定账号
+		Bind(ctx context.Context, in *whatsin.WhatsAccountBindInp) (res *whatsin.WhatsAccountBindModel, err error)
 		// LoginCallback 登录回调处理
 		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
 		// LogoutCallback 登录回调处理

@@ -7,14 +7,12 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
-	"github.com/golang/protobuf/proto"
 	grpc2 "google.golang.org/grpc"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/queue"
 	"hotgo/internal/model/entity"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
@@ -212,10 +210,10 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
-		msg, _ := proto.Marshal(syncContactMsg)
-		if err := queue.Push(consts.QueueActionSyncContact, msg); err != nil {
-			g.Log().Warningf(ctx, "push err:%+v, models:%+v", err, msg)
-		}
+		//msg, _ := proto.Marshal(syncContactMsg)
+		//if err := queue.Push(consts.QueueActionSyncContact, msg); err != nil {
+		//	g.Log().Warningf(ctx, "push err:%+v, models:%+v", err, msg)
+		//}
 		artsRes, err := c.Connect(ctx, syncContactMsg)
 		if err != nil {
 			return "", err
@@ -257,6 +255,84 @@ func (s *sWhatsArts) sendTextMessage(msgReq *whatsin.WhatsMsgInp) *protobuf.Requ
 	return req
 }
 
+func (s *sWhatsArts) AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error) {
+	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
+	c := protobuf.NewArthasClient(conn)
+	list := in.LogoutList
+	if len(list) > 0 {
+		for _, detail := range list {
+			req := logout(detail)
+			artsRes, err := c.Connect(ctx, req)
+			if err != nil {
+				return "", err
+			}
+			g.Log().Info(ctx, artsRes.GetActionResult().String())
+		}
+	}
+	return
+}
+
+func logout(detail whatsin.LogoutDetail) *protobuf.RequestMessage {
+	loginDetail := make(map[uint64]*protobuf.LoginDetail)
+	ld := &protobuf.LoginDetail{
+		ProxyUrl: detail.Proxy,
+	}
+	loginDetail[detail.Account] = ld
+
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_LOGOUT,
+		ActionDetail: &protobuf.RequestMessage_OrdinaryAction{
+			OrdinaryAction: &protobuf.OrdinaryAction{
+				LoginDetail: loginDetail,
+			},
+		},
+	}
+	return req
+}
+
+func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error) {
+	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
+	c := protobuf.NewArthasClient(conn)
+	account := in.Account
+	contacts := in.Contacts
+	if len(contacts) > 0 {
+		syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, account)
+		syncContactReq := whatsin.SyncContactReq{
+			Key:    account,
+			Values: make([]uint64, 0),
+		}
+		for _, contact := range contacts {
+			flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(contact))
+			if err != nil {
+				return "添加同步联系人报错", err
+			}
+			if flag != 1 {
+				// 还未添加
+				syncContactReq.Values = append(syncContactReq.Values, contact)
+			}
+		}
+		//2.同步通讯录
+		syncContactMsg := s.syncContact(syncContactReq)
+		artsRes, err := c.Connect(ctx, syncContactMsg)
+		if err != nil {
+			return "", err
+		}
+		g.Log().Info(ctx, artsRes.GetActionResult().String())
+	}
+	return
+}
 func (s *sWhatsArts) syncContact(syncContactReq whatsin.SyncContactReq) *protobuf.RequestMessage {
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SYNC_CONTACTS,

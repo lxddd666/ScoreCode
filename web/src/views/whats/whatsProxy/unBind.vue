@@ -1,31 +1,28 @@
 <template>
   <n-modal
-      v-model:show="isShowModal"
-      :mask-closable="false"
-      preset="dialog"
-      title="解绑账号"
-      content=""
-      positive-text="确认"
-      negative-text="取消"
-      @positive-click="onPositiveClick"
-      @negative-click="onNegativeClick"
-      :style="{
-          width: dialogWidth,
-        }"
+    v-model:show="isShowModal"
+    :mask-closable="false"
+    preset="dialog"
+    title="解绑账号"
+    content=""
+    positive-text="确认"
+    negative-text="取消"
+    @positive-click="onPositiveClick"
+    @negative-click="onNegativeClick"
+    :style="{
+      width: dialogWidth,
+    }"
   >
     <AccountTable @reloadView="reloadView" :proxyAddress="formParams?.address"></AccountTable>
   </n-modal>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref, computed, watch } from 'vue';
+import {computed, onMounted, ref, watch} from 'vue';
 import {useMessage} from 'naive-ui'
 import {newState, State} from "@/views/whats/whatsProxy/model";
 import {adaModalWidth} from "@/utils/hotgo";
-import {BasicForm, FormSchema} from "@/components/Form";
-import {options} from "@/views/monitor/netconn/modal/model";
-import {defRangeShortcuts} from "@/utils/dateUtil";
-import {Unbind,View} from "@/api/whats/whatsProxy";
+import {View} from "@/api/whats/whatsProxy";
 import {useRouter} from "vue-router";
 import AccountTable from "@/views/whats/whatsProxy/account.vue";
 

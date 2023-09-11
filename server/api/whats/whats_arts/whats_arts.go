@@ -27,3 +27,19 @@ type WhatsSendVcardMsgReq struct {
 }
 
 type WhatsSendVcardMsgRes string
+
+// SyncContactReq 同步联系人
+type WhatsSyncContactReq struct {
+	g.Meta `path:"/whats/syncContact" method:"post" tags:"账号管理" summary:"同步联系人"`
+	*whatsin.WhatsSyncContactInp
+}
+
+type WhatsSyncContactRes string
+
+// WhatsLogoutReq 退出登录
+type WhatsLogoutReq struct {
+	g.Meta `path:"/whats/logout" method:"post" tags:"账号管理" summary:"退出登录"`
+	*whatsin.WhatsLogoutInp
+}
+
+type WhatsLogoutRes string
