@@ -42,7 +42,7 @@ func (s *sWhatsContacts) Model(ctx context.Context, option ...*handler.Option) *
 // List 获取联系人管理列表
 func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error) {
 
-	mod := s.Model(ctx).Handler(handler.FilterOrgId())
+	mod := s.Model(ctx).Handler(handler.FilterOrg)
 
 	// 查询id
 	if in.Id > 0 {
