@@ -89,6 +89,8 @@ type (
 		ClusterSync(ctx context.Context, message *gredis.Message)
 		// GetWhatsConfig 获取whats配置
 		GetWhatsConfig(ctx context.Context) (conf *model.WhatsConfig, err error)
+		// GetPrometheusConfig 获取普罗米休斯配置
+		GetPrometheusConfig(ctx context.Context) (config *model.PrometheusConfig, err error)
 	}
 	ISysDictType interface {
 		// Tree 树

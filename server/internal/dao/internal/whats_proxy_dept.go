@@ -21,7 +21,8 @@ type WhatsProxyDeptDao struct {
 // WhatsProxyDeptColumns defines and stores column names for table whats_proxy_dept.
 type WhatsProxyDeptColumns struct {
 	Id           string //
-	DeptId       string // 公司部门id
+	DeptId       string // 部门id
+	OrgId        string // 公司id
 	ProxyAddress string // 代理地址
 	Comment      string // 备注
 }
@@ -30,6 +31,7 @@ type WhatsProxyDeptColumns struct {
 var whatsProxyDeptColumns = WhatsProxyDeptColumns{
 	Id:           "id",
 	DeptId:       "dept_id",
+	OrgId:        "org_id",
 	ProxyAddress: "proxy_address",
 	Comment:      "comment",
 }

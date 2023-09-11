@@ -134,3 +134,15 @@ type WhatsAesConfig struct {
 
 type WhatsManagerConfig struct {
 }
+
+type PrometheusConfig struct {
+	Address  string             `json:"address"`
+	Username string             `json:"username"`
+	Password string             `json:"password"`
+	Handler  *PrometheusHandler `json:"handler"`
+}
+
+type PrometheusHandler struct {
+	Path   string `json:"path"`
+	Server string `json:"server"`
+}

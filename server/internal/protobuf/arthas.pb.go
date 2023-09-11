@@ -154,10 +154,11 @@ func (ActionResult) EnumDescriptor() ([]byte, []int) {
 type AccountStatus int32
 
 const (
-	AccountStatus_SUCCESS    AccountStatus = 0   //成功
-	AccountStatus_FAIL       AccountStatus = 1   //失败
-	AccountStatus_UNKNOWN    AccountStatus = 2   //未知
-	AccountStatus_NOT_EXIST  AccountStatus = 3   //账号不存在
+	AccountStatus_SUCCESS    AccountStatus = 0 //成功
+	AccountStatus_FAIL       AccountStatus = 1 //失败
+	AccountStatus_UNKNOWN    AccountStatus = 2 //未知
+	AccountStatus_NOT_EXIST  AccountStatus = 3 //账号不存在
+	AccountStaus_PROXY_ERR   AccountStatus = 4
 	AccountStatus_SEAL       AccountStatus = 403 //登录失败，已封号
 	AccountStatus_PERMISSION AccountStatus = 401 // 登录失败，权限错误
 )
@@ -169,6 +170,7 @@ var (
 		1:   "FAIL",
 		2:   "UNKNOWN",
 		3:   "NOT_EXIST",
+		4:   "PROXY_ERR",
 		403: "SEAL",
 		401: "PERMISSION",
 	}
@@ -177,6 +179,7 @@ var (
 		"FAIL":       1,
 		"UNKNOWN":    2,
 		"NOT_EXIST":  3,
+		"PROXY_ERR":  4,
 		"SEAL":       403,
 		"PERMISSION": 401,
 	}

@@ -4,7 +4,8 @@ var (
 	LoginAccountKey = "login_account"
 	MsgReadReqKey   = "unread"
 
-	RedisSyncContactAccountKey = "Sync_Constatcs_Record_Account:"
+	RedisSyncContactAccountKey = "sync_constatcs_record_account:"
+	LastLoginAccountId         = "last_login_account_userId"
 )
 
 var (

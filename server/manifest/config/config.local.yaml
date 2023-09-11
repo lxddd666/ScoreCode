@@ -213,7 +213,9 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "10.8.5.21:6379"
+#    address: "10.8.5.21:6379"
+    address: "127.0.0.1:6379"
+
     db: "2"
     pass: ""
     idleTimeout: "20"
@@ -232,7 +234,9 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
+#    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
+    link: "mysql:root:hY7iaIFYHHJu!@tcp(103.205.6.236:32698)/grata?loc=Local&parseTime=true"
+
     debug: true
 
 
@@ -320,3 +324,12 @@ whats:
 
 grpc:
   name: grata
+
+
+prometheus:
+  address: "http://10.8.5.21:9091"
+  username: ""
+  password: ""
+  handler:
+    path: "/metrics"
+    server: ":9092"

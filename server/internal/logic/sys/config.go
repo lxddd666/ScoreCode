@@ -339,3 +339,8 @@ func (s *sSysConfig) GetWhatsConfig(ctx context.Context) (conf *model.WhatsConfi
 	err = g.Cfg().MustGet(ctx, "whats").Scan(&conf)
 	return
 }
+
+func (s *sSysConfig) GetPrometheusConfig(ctx context.Context) (config *model.PrometheusConfig, err error) {
+	err = g.Cfg().MustGet(ctx, "prometheus").Scan(&config)
+	return
+}
