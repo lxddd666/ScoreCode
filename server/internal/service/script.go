@@ -28,10 +28,25 @@ type (
 		// View 获取话术分组指定信息
 		View(ctx context.Context, in *scriptin.ScriptGroupViewInp) (res *scriptin.ScriptGroupViewModel, err error)
 	}
+	IScriptSysScript interface {
+		// Model 话术管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取话术管理列表
+		List(ctx context.Context, in *scriptin.SysScriptListInp) (list []*scriptin.SysScriptListModel, totalCount int, err error)
+		// Export 导出话术管理
+		Export(ctx context.Context, in *scriptin.SysScriptListInp) (err error)
+		// Edit 修改/新增话术管理
+		Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (err error)
+		// Delete 删除话术管理
+		Delete(ctx context.Context, in *scriptin.SysScriptDeleteInp) (err error)
+		// View 获取话术管理指定信息
+		View(ctx context.Context, in *scriptin.SysScriptViewInp) (res *scriptin.SysScriptViewModel, err error)
+	}
 )
 
 var (
-	localScriptGroup IScriptGroup
+	localScriptGroup     IScriptGroup
+	localScriptSysScript IScriptSysScript
 )
 
 func ScriptGroup() IScriptGroup {
@@ -43,4 +58,15 @@ func ScriptGroup() IScriptGroup {
 
 func RegisterScriptGroup(i IScriptGroup) {
 	localScriptGroup = i
+}
+
+func ScriptSysScript() IScriptSysScript {
+	if localScriptSysScript == nil {
+		panic("implement not found for interface IScriptSysScript, forgot register?")
+	}
+	return localScriptSysScript
+}
+
+func RegisterScriptSysScript(i IScriptSysScript) {
+	localScriptSysScript = i
 }

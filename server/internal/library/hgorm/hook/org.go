@@ -13,6 +13,7 @@ var OrgInfo = gdb.HookHandler{
 		user := contexts.GetUser(ctx)
 		for i, item := range in.Data {
 			item["org_id"] = user.OrgId
+			item["member_id"] = user.Id
 			in.Data[i] = item
 		}
 		return in.Next(ctx)

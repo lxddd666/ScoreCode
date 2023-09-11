@@ -14,6 +14,7 @@ func Script(ctx context.Context, group *ghttp.RouterGroup) {
 		group.Middleware(service.Middleware().AdminAuth)
 		group.Bind(
 			script.ScriptGroup, // 话术分组
+			script.SysScript,   // 话术管理
 		)
 
 	})
