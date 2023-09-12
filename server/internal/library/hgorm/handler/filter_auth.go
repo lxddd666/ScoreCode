@@ -130,7 +130,6 @@ func FilterAuthDeptWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 
 		//组织管理员，查看所有代理
 		if role.OrgAdmin == consts.StatusEnabled {
-			m = m.Where("org_id", co.User.OrgId)
 			return m
 		}
 		switch role.DataScope {
