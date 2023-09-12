@@ -617,9 +617,9 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
 	if totalCount == 0 {
 		return
 	}
-	mod = mod.As("ham").LeftJoin("(select had.id, had.name from hg_admin_dept had) had", "ham.dept_id = had.id").
-		LeftJoin("(select id, name from hg_admin_role) har", "har.id = ham.role_id").
-		Fields("ham.*, had.name as deptName, har.name as roleName")
+	mod = mod.LeftJoin("(select had.id, had.name from hg_admin_dept had) had", "hg_admin_member.dept_id = had.id").
+		LeftJoin("(select id, name from hg_admin_role) har", "har.id = hg_admin_member.role_id").
+		Fields("hg_admin_member.*, had.name as deptName, har.name as roleName")
 	if err = mod.Page(in.Page, in.PerPage).OrderDesc(cols.Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取用户列表失败！")
 		return
