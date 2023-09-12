@@ -187,7 +187,7 @@ token:
 #消息队列
 queue:
   switch: true                                        # 队列开关，可选：true|false，默认为true
-  driver: "disk"                                      # 队列驱动，可选：disk|redis|rocketmq|kafka，默认为disk
+  driver: "kafka"                                      # 队列驱动，可选：disk|redis|rocketmq|kafka，默认为disk
   retry: 2                                            # 重试次数，仅rocketmq支持
   groupName: "grata"                                  # mq群组名称
   #磁盘队列
@@ -204,8 +204,8 @@ queue:
     address: "127.0.0.1:9876"                         # broker地址+端口
     logLevel: "all"                                   # 系统日志级别，可选：all|close|debug|info|warn|error|fatal
   kafka:
-    address: "207.148.68.250:30092"                         # kafka地址+端口
-    version: "3.3.1"                                # kafka专属配置，默认2.0.0.0
+    address: "207.148.68.250:39002"                         # kafka地址+端口
+    version: "3.3.1"                                # kafka专属配置，默认3.3.1.0
     randClient: true                                  # 开启随机生成clientID，可以实现启动多实例同时一起消费相同topic，加速消费能力的特性，默认为true
     multiConsumer: true                               # 是否支持创建多个消费者
 
