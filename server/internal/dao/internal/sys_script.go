@@ -22,10 +22,9 @@ type SysScriptDao struct {
 type SysScriptColumns struct {
 	Id          string // ID
 	OrgId       string // 组织ID
-	DeptId      string // 部门ID
 	MemberId    string // 用户ID
 	GroupId     string // 分组ID
-	Type        string // 类型：1个人2部门3公司
+	Type        string // 类型：1个人2公司
 	ScriptClass string // 话术分类(1文本 2图片3语音4视频)
 	Short       string // 快捷指令
 	Content     string // 话术内容
@@ -38,7 +37,6 @@ type SysScriptColumns struct {
 var sysScriptColumns = SysScriptColumns{
 	Id:          "id",
 	OrgId:       "org_id",
-	DeptId:      "dept_id",
 	MemberId:    "member_id",
 	GroupId:     "group_id",
 	Type:        "type",

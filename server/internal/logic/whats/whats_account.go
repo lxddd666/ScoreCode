@@ -7,8 +7,10 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/gutil"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/contexts"
@@ -20,6 +22,7 @@ import (
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
 	whatsutil "hotgo/utility/whats"
+
 	"strconv"
 )
 
@@ -64,7 +67,8 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 		//没有绑定用户的权限
 		if ok, _ := casbin.Enforcer.Enforce(user.RoleKey, "/whatsAccount/bind", "POST"); !ok {
 			mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+columns.Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
-				Where("wam."+dao.WhatsAccountMember.Columns().MemberId, user.Id)
+				Where("wam."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId)
+			mod = mod.Handler(handler.FilterAuthWithField("wam." + dao.WhatsAccountMember.Columns().MemberId))
 		} else {
 			//deptId := user.DeptId
 			orgId := user.OrgId
@@ -134,29 +138,17 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 		}
 	} else {
 		accountMenbrt := entity.WhatsAccountMember{}
-		g.Model(dao.WhatsAccountMember.Table()).Fields(dao.WhatsAccountMember.Columns().OrgId).Where(dao.WhatsAccount.Columns().Account, in.Account).Scan(&accountMenbrt)
+		g.Model(dao.WhatsAccountMember.Table()).Fields(dao.WhatsAccountMember.Columns().OrgId, dao.WhatsAccountMember.Columns().DeptId).
+			Where(dao.WhatsAccount.Columns().Account, in.Account).Scan(&accountMenbrt)
 		if accountMenbrt.OrgId != user.OrgId {
 			err = gerror.Wrap(err, "非公司员工操作账号数据！")
 			return
 		}
-		// 如果是公司员工但没有全部小号修改的权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
+
 		// 判断用户是否拥有权限
-		if !haveRole {
-			// 如果不是公司管理者，则只能操作自己的账号
-			count, errCount := g.Model(dao.WhatsAccountMember.Table()).
-				Where(dao.WhatsAccountMember.Columns().Account, in.Account).
-				Where(dao.WhatsAccountMember.Columns().MemberId, user.Id).
-				Where(dao.WhatsAccountMember.Columns().OrgId, user.OrgId).
-				Count()
-			if errCount != nil {
-				err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
-				return
-			}
-			if count == 0 {
-				err = gerror.Wrap(err, "该账号不属于你，无法操作修改！")
-				return
-			}
+		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
+			err = gerror.Wrap(err, "该用户没权限删除该账号信息权限，请联系管理员！")
+			return
 		}
 		if _, err = handler.Model(dao.WhatsAccountMember.Ctx(ctx)).
 			Fields(dao.WhatsAccountMember.Columns().Comment).
@@ -188,14 +180,10 @@ func (s *sWhatsAccount) Delete(ctx context.Context, in *whatsin.WhatsAccountDele
 			err = gerror.Wrap(err, "非该公司员工不可删除该公司账号")
 			return
 		}
-		haveRole := s.haveRoleByDataSource(user.RoleId)
 		// 判断用户是否拥有权限
-		if !haveRole {
-			// 如果不是公司管理者，则只能操作自己的账号
-			if user.Id != accountMember.MemberId {
-				err = gerror.Wrap(err, "该账号不属于你，无法删除")
-				return
-			}
+		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
+			err = gerror.Wrap(err, "该用户没权限删除该账号信息权限，请联系管理员！")
+			return
 		}
 	}
 	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
@@ -244,13 +232,10 @@ func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewIn
 			err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
 			return
 		}
-		haveRole := s.haveRoleByDataSource(user.RoleId)
 		// 判断用户是否拥有权限
-		if !haveRole {
-			if accountMember.MemberId != user.Id {
-				err = gerror.Wrap(err, "该账号不属于你，无法查看详情！")
-				return
-			}
+		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
+			err = gerror.Wrap(err, "该用户没权限查看该账号信息权限，请联系管理员！")
+			return
 		}
 	}
 
@@ -373,8 +358,41 @@ func (s *sWhatsAccount) Bind(ctx context.Context, in *whatsin.WhatsAccountBindIn
 
 // LoginCallback 登录回调处理
 func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error {
+	user := contexts.GetUser(ctx)
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
+		// 记录普罗米修斯
+
+		if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_SUCCESS {
+			// 登录成功
+			prometheus.LoginSuccessCounter.WithLabelValues(gconv.String(item.UserJid))
+			prometheus.LoginProxySuccessCount.WithLabelValues(item.ProxyUrl)
+			userId := user.Id
+			// 获取上次登录的员工号
+			key := consts.LastLoginAccountId + gconv.String(item.UserJid)
+			result, _ := g.Redis().Get(ctx, key)
+			if result.Int64() == 0 {
+				g.Redis().Set(ctx, key, userId)
+			} else if result.Int64() != 0 && result.Int64() != userId {
+				//不是上次登录的人 那么认为是顶号的
+				g.Redis().Set(ctx, key, userId)
+				prometheus.AccountBeingHackedCout.WithLabelValues(gconv.String(item.UserJid))
+			}
+		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_SEAL {
+			// 账号被封
+			prometheus.AccountBannedCount.WithLabelValues(gconv.String(item), gconv.String(item.LoginStatus))
+			prometheus.LoginProxyBannedCount.WithLabelValues(gconv.String(item.ProxyUrl))
+		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_PERMISSION {
+			// 登录失败
+			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
+		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStaus_PROXY_ERR {
+			//代理问题
+			prometheus.LoginProxyFailedCount.WithLabelValues(item.ProxyUrl)
+			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
+		} else {
+			// 其他问题
+			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
+		}
 		userJid := strconv.FormatUint(item.UserJid, 10)
 
 		data := do.WhatsAccount{
@@ -420,7 +438,6 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
 		userJid := strconv.FormatUint(item.UserJid, 10)
-
 		data := do.WhatsAccount{
 			AccountStatus: 0,
 			IsOnline:      -1,
@@ -435,21 +452,28 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 		key := fmt.Sprintf("%s%d", consts.QueueActionLoginAccounts, item.UserJid)
 		g.Redis().Del(ctx, key)
+
+		// 记录普罗米修斯
+		prometheus.LogoutCount.WithLabelValues(userJid)
 	}
 	return nil
 }
 
-// haveRoleByDataSource 判断用户是否拥有权限
-func (s *sWhatsAccount) haveRoleByDataSource(roleId int64) bool {
-	// 判断用户是否拥有权限
-	role := entity.AdminRole{}
-	err := g.Model(dao.AdminRole.Table()).Fields(dao.AdminRole.Columns().DataScope).Where(dao.AdminRole.Columns().Id, roleId).Scan(&role)
+func (s *sWhatsAccount) updateDateRoleById(ctx context.Context, id int64) bool {
+	user := contexts.GetUser(ctx)
+	mod := s.Model(ctx).As("wa")
+
+	mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+dao.WhatsAccount.Columns().Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
+		Where("wam."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId).
+		Where("wa."+dao.WhatsAccount.Columns().Id, id)
+	mod = mod.Handler(handler.FilterAuthWithField("wam." + dao.WhatsAccountMember.Columns().MemberId))
+	totalCount, err := mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取权限数据的失败！")
+		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
 		return false
 	}
-	if !(role.DataScope == consts.RoleDataSelfAndAllSub || role.DataScope == consts.RoleDataSelfAndAllSub) {
-		err = gerror.Wrap(err, "该用户没有权限查看部门的代理信息！")
+
+	if totalCount == 0 {
 		return false
 	}
 	return true

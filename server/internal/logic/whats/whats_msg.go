@@ -14,6 +14,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
@@ -168,9 +169,22 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 			ReqId:         item.ReqId,
 		}
 		msgList = append(msgList, item)
-		unreadMap[item.ReqId] = consts.Unread
+		unreadMap[item.ReqId] = map[string]interface{}{
+			"read":     consts.Unread,
+			"receiver": item.Receiver,
+		}
+		//记录普罗米修斯发送消息次数
+		if item.Initiator == item.Sender {
+			// 发送消息
+			prometheus.SendMsgCount.WithLabelValues(gconv.String(item.SendMsg))
+		} else {
+			//回复消息
+			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(item.SendMsg))
+		}
 	}
 	_, err = g.Redis().HSet(ctx, consts.MsgReadReqKey, unreadMap)
+	result, err := g.Redis().HGet(ctx, consts.MsgReadReqKey, "123")
+	print(result)
 	if err != nil {
 		return err
 	}
@@ -217,7 +231,7 @@ func (s *sWhatsMsg) sendMsgToUser(ctx context.Context, msgList []entity.WhatsMsg
 	})
 }
 
-// ReadMsgCallback 已读消息回到
+// ReadMsgCallback 已读消息回调
 func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error) {
 	callbackRes := make([]callback.ReadMsgCallbackRes, 0)
 	err = json.Unmarshal(res.Body, &callbackRes)
@@ -229,6 +243,7 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 	reqIds := make([]string, 0)
 	for _, item := range callbackRes {
 		reqIds = append(reqIds, item.ReqId)
+		// 获取receiver
 	}
 	_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
 

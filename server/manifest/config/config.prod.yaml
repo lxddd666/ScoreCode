@@ -204,8 +204,8 @@ queue:
     address: "127.0.0.1:9876"                         # broker地址+端口
     logLevel: "all"                                   # 系统日志级别，可选：all|close|debug|info|warn|error|fatal
   kafka:
-    address: "207.148.68.250:30092"                         # kafka地址+端口
-    version: "3.3.1"                                # kafka专属配置，默认2.0.0.0
+    address: "207.148.68.250:39002"                         # kafka地址+端口
+    version: "3.3.1"                                # kafka专属配置，默认3.3.1.0
     randClient: true                                  # 开启随机生成clientID，可以实现启动多实例同时一起消费相同topic，加速消费能力的特性，默认为true
     multiConsumer: true                               # 是否支持创建多个消费者
 
@@ -232,7 +232,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true"
+    link: "tidb:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true"
     debug: true
 
 
@@ -309,10 +309,16 @@ whats:
   aes:
     key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
     vi: "cL0bVYHAUCMGDsK2"
-  grpc_env:
+  manager:
+    name: arts_manager
+
+grpc:
+  env:
+    GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
     GF_GSVC_DEPLOYMENT: prod
     GF_GSVC_NAMESPACE: prod
     GF_GSVC_VERSION: "latest"
-  manager:
-    name: arts_manager
+  service:
+    tg: tg_manager
+    whats: whats_manager

@@ -232,7 +232,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "mysql:root:hY7iaIFYHHJu!@tcp(10.8.5.21:3306)/hotgo?loc=Local&parseTime=true"
+    link: "tidb:root:hY7iaIFYHHJu!@tcp(10.8.5.21:31060)/grata?loc=Local&parseTime=true"
     debug: true
 
 
@@ -256,7 +256,7 @@ hggen:
         # 默认的主包模板
         - group: "default"                                              # 分组名称
           isAddon: false                                                # 是否为插件模板 false｜true
-          masterPackage: "admin"                                          # 主包名称，需和controllerPath、logicPath、inputPath保持关联
+          masterPackage: "script"                                          # 主包名称，需和controllerPath、logicPath、inputPath保持关联
           templatePath: "./resource/generate/default/curd"              # 模板路径
           apiPath: "./api/"                                        # goApi生成路径
           controllerPath: "./internal/controller/"             # 控制器生成路径
@@ -309,14 +309,24 @@ whats:
   aes:
     key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
     vi: "cL0bVYHAUCMGDsK2"
-  grpc_env:
+  manager:
+    name: arts_manager
+
+grpc:
+  env:
     GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
     GF_GSVC_DEPLOYMENT: dev
     GF_GSVC_NAMESPACE: ns
     GF_GSVC_VERSION: "latest"
-  manager:
-    name: arts_manager
+  service:
+    tg: tg_manager
+    whats: whats_manager
 
-grpc:
-  name: grata
+prometheus:
+  address: "http://10.8.5.21:9091"
+  username: ""
+  password: ""
+  handler:
+    path: "/metrics"
+    server: ":9092"

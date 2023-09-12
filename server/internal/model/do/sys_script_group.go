@@ -14,9 +14,8 @@ type SysScriptGroup struct {
 	g.Meta      `orm:"table:sys_script_group, do:true"`
 	Id          interface{} // ID
 	OrgId       interface{} // 组织ID
-	DeptId      interface{} // 部门ID
 	MemberId    interface{} // 用户ID
-	Type        interface{} // 类型：1个人2部门3公司
+	Type        interface{} // 类型：1个人2公司
 	Name        interface{} // 自定义组名
 	ScriptCount interface{} // 话术数量
 	CreatedAt   *gtime.Time // 创建时间

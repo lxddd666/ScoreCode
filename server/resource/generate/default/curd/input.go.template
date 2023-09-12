@@ -1,4 +1,4 @@
-package @{.templateGroup}
+package @{.templateGroup}in
 
 import (
 	"context"
