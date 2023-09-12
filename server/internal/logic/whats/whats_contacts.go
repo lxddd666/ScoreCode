@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
@@ -41,20 +42,41 @@ func (s *sWhatsContacts) Model(ctx context.Context, option ...*handler.Option) *
 
 // List 获取联系人管理列表
 func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error) {
+	var (
+		user   = contexts.GetUser(ctx)
+		fields = []string{"c.`id`",
+			"c.`name`",
+			"c.`phone`",
+			"c.`avatar`",
+			"c.`email`",
+			"c.`address`",
+			"c.`org_id`",
+			"c.`dept_id`",
+			"c.`comment`",
+			"c.`deleted_at`",
+			"c.`created_at`",
+			"c.`updated_at`",
+		}
+	)
+	mod := s.Model(ctx).As("c")
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		mod = mod.LeftJoin(dao.WhatsAccountContacts.Table()+" ac", "c."+dao.WhatsContacts.Columns().Phone+"=ac."+dao.WhatsAccountContacts.Columns().Phone).
+			LeftJoin(dao.WhatsAccountMember.Table()+" am", "am."+dao.WhatsAccountMember.Columns().Account+"=ac."+dao.WhatsAccountContacts.Columns().Account)
 
-	mod := s.Model(ctx).Handler(handler.FilterOrg)
+		mod = mod.Handler(handler.FilterAuthWithField("am.member_id")).Where("c."+dao.WhatsContacts.Columns().OrgId, user.OrgId)
+	}
 
 	// 查询id
 	if in.Id > 0 {
-		mod = mod.Where(dao.WhatsContacts.Columns().Id, in.Id)
+		mod = mod.Where("c."+dao.WhatsContacts.Columns().Id, in.Id)
 	}
 	// 查询手机
 	if in.Phone != "" && &in.Phone != nil {
-		mod = mod.WhereLike(dao.WhatsContacts.Columns().Phone, "%"+strings.TrimSpace(in.Phone)+"%")
+		mod = mod.WhereLike("c."+dao.WhatsContacts.Columns().Phone, "%"+strings.TrimSpace(in.Phone)+"%")
 	}
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
-		mod = mod.WhereBetween(dao.WhatsContacts.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
+		mod = mod.WhereBetween("c."+dao.WhatsContacts.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
 	totalCount, err = mod.Clone().Count()
@@ -66,7 +88,7 @@ func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsList
 	if totalCount == 0 {
 		return
 	}
-	if err = mod.Fields(whatsin.WhatsContactsListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsContacts.Columns().Id).Scan(&list); err != nil {
+	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc("c." + dao.WhatsContacts.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
 		return
 	}
@@ -76,16 +98,6 @@ func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsList
 
 // Export 导出联系人管理
 func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsListInp) (err error) {
-	user := contexts.GetUser(ctx)
-	// 是否有权限添加或修改联系人
-	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		// 判断用户是否拥有权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
-		if !haveRole {
-			err = gerror.Wrap(err, "该用户没有公司联系人模块权限！")
-			return
-		}
-	}
 	list, totalCount, err := s.List(ctx, in)
 	if err != nil {
 		return
@@ -114,21 +126,18 @@ func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsLi
 // Edit 修改/新增联系人管理
 func (s *sWhatsContacts) Edit(ctx context.Context, in *whatsin.WhatsContactsEditInp) (err error) {
 	user := contexts.GetUser(ctx)
-	// 是否有权限添加或修改联系人
-	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		// 判断用户是否拥有权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
-		if !haveRole {
-			err = gerror.Wrap(err, "该用户没有公司联系人模块权限！")
-			return
-		}
-	}
+
 	// 修改
 	if in.Id > 0 {
 		// 查看是否为公司内部人员操作本公司数据
 		if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
 			if in.OrgId != user.OrgId {
 				err = gerror.Wrap(err, "此操作为非本公司人员操作！")
+				return
+			}
+			// 判断用户是否拥有权限
+			if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
+				err = gerror.Wrap(err, "该用户没权限修改该联系人信息，请联系管理员！")
 				return
 			}
 		}
@@ -168,9 +177,8 @@ func (s *sWhatsContacts) Delete(ctx context.Context, in *whatsin.WhatsContactsDe
 			return
 		}
 		// 判断用户是否拥有权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
-		if !haveRole {
-			err = gerror.Wrap(err, "该用户没有公司联系人模块权限！")
+		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
+			err = gerror.Wrap(err, "该用户没权限修改该联系人信息，请联系管理员！")
 			return
 		}
 	}
@@ -208,9 +216,8 @@ func (s *sWhatsContacts) View(ctx context.Context, in *whatsin.WhatsContactsView
 			return
 		}
 		// 判断用户是否拥有权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
-		if !haveRole {
-			err = gerror.Wrap(err, "该用户没有公司联系人模块权限！")
+		if !s.updateDateRoleById(ctx, in.Id) {
+			err = gerror.Wrap(err, "该用户没权限修改该联系人信息，请联系管理员！")
 			return
 		}
 	}
@@ -234,6 +241,9 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 			// 插入到redis中
 			key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.AccountDb)
 			g.Redis().SAdd(ctx, key, item.Synchro)
+			// 记录普罗米修斯
+			prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(item.AccountDb))
+			prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(item.Synchro))
 		}
 	}
 	// 插入联表中
@@ -250,33 +260,32 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 func (s *sWhatsContacts) Upload(ctx context.Context, list []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error) {
 	user := contexts.GetUser(ctx)
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		// 判断用户是否拥有权限
-		haveRole := s.haveRoleByDataSource(user.RoleId)
-		if !haveRole {
-			err = gerror.Wrap(err, "该用户没有公司联系人模块权限！")
-			return
-		}
+
 		// 添加orgID
-		orgId := contexts.GetUser(ctx).OrgId
+
 		for _, inp := range list {
-			inp.OrgId = gconv.Uint64(orgId)
+			inp.OrgId = gconv.Uint64(user.OrgId)
+			inp.DeptId = gconv.Uint64(user.DeptId)
 		}
 	}
 	_, err = s.Model(ctx).Data(list).Save()
 	return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 }
 
-// haveRoleByDataSource 判断用户是否拥有权限
-func (s *sWhatsContacts) haveRoleByDataSource(roleId int64) bool {
-	// 判断用户是否拥有权限
-	role := entity.AdminRole{}
-	err := g.Model(dao.AdminRole.Table()).Fields(dao.AdminRole.Columns().DataScope).Where(dao.AdminRole.Columns().Id, roleId).Scan(&role)
+func (s *sWhatsContacts) updateDateRoleById(ctx context.Context, id int64) bool {
+	mod := s.Model(ctx).As("c")
+
+	mod = mod.LeftJoin(dao.WhatsAccountContacts.Table()+" ac", "c."+dao.WhatsContacts.Columns().Phone+"=ac."+dao.WhatsAccountContacts.Columns().Phone).
+		LeftJoin(dao.WhatsAccountMember.Table()+" am", "am."+dao.WhatsAccountMember.Columns().Account+"=ac."+dao.WhatsAccountContacts.Columns().Account)
+
+	mod = mod.Handler(handler.FilterAuthWithField("am.member_id")).Where("c."+dao.WhatsContacts.Columns().Id, id)
+	totalCount, err := mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取权限数据的失败！")
+		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
 		return false
 	}
-	if !(role.DataScope == consts.RoleDataDeptAndSub || role.DataScope == consts.RoleDataAll) {
-		err = gerror.Wrap(err, "该用户没有权限查看部门的代理信息！")
+
+	if totalCount == 0 {
 		return false
 	}
 	return true

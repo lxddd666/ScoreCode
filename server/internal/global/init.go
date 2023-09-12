@@ -22,6 +22,7 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	etcd3 "go.etcd.io/etcd/client/v3"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/library/cache"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/entity"
@@ -63,6 +64,9 @@ func Init(ctx context.Context) {
 
 	// 订阅集群同步
 	SubscribeClusterSync(ctx)
+
+	// 初始化普罗米修斯
+	prometheus.InitPrometheus(ctx)
 }
 
 // LoggingServeLogHandler 服务日志处理

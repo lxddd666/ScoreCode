@@ -34,6 +34,5 @@ func (q *qSyncContactLog) Handle(ctx context.Context, mqMsg queue.MqMsg) (err er
 	g.Log().Info(ctx, "kafka loginCallback: ", callbackRes)
 	// 2、保存关联表 in保存
 	service.WhatsContacts().SyncContactCallback(ctx, callbackRes)
-	// 3、获取联系人头像 这个还要写个接口
 	return nil
 }

@@ -101,6 +101,59 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 	}
 }
 
+// FilterAuthDeptWithField 过滤数据权限，设置指定字段,查询部门字段
+func FilterAuthDeptWithField(filterField string) func(m *gdb.Model) *gdb.Model {
+	return func(m *gdb.Model) *gdb.Model {
+		var (
+			role *entity.AdminRole
+			ctx  = m.GetCtx()
+			co   = contexts.Get(ctx)
+		)
+
+		if co == nil || co.User == nil {
+			return m
+		}
+
+		err := g.Model(dao.AdminRole.Table()).Cache(crole.GetRoleCache(co.User.RoleId)).Where("id", co.User.RoleId).Scan(&role)
+		if err != nil {
+			g.Log().Panicf(ctx, "failed to role information err:%+v", err)
+		}
+
+		if role == nil {
+			g.Log().Panic(ctx, "failed to role information roleModel == nil")
+		}
+
+		// 超管拥有全部权限
+		if role.Key == consts.SuperRoleKey {
+			return m
+		}
+
+		//组织管理员，查看所有代理
+		if role.OrgAdmin == consts.StatusEnabled {
+			return m
+		}
+		switch role.DataScope {
+		case consts.RoleDataAll: // 全部权限
+			// ...
+		case consts.RoleDataNowDept: // 当前部门
+			m = m.WhereIn(filterField, co.User.DeptId)
+		case consts.RoleDataDeptAndSub: // 当前部门及以下部门ds
+			m = m.WhereIn(filterField, GetDeptAndSub(ctx, co.User.DeptId))
+		case consts.RoleDataDeptCustom: // 自定义部门
+			m = m.WhereIn(filterField, role.CustomDept.Var().Ints())
+		case consts.RoleDataSelf: // 仅自己
+			m = m.Where("0=1")
+		case consts.RoleDataSelfAndSub: // 自己和直属下级
+			m = m.Where("0=1")
+		case consts.RoleDataSelfAndAllSub: // 自己和全部下级
+			m = m.Where("0=1")
+		default:
+			g.Log().Panic(ctx, "dataScope is not registered")
+		}
+		return m
+	}
+}
+
 // escapeFieldsToSlice 将转义过的字段转换为字段集切片
 func escapeFieldsToSlice(s string) []string {
 	return gstr.Explode(",", gstr.Replace(gstr.Replace(s, "`,`", ","), "`", ""))

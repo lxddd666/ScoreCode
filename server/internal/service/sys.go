@@ -63,6 +63,8 @@ type (
 		GetWhatsConfig(ctx context.Context) (conf *model.WhatsConfig, err error)
 		// GetGrpcConfig 获取grpc配置
 		GetGrpcConfig(ctx context.Context) (conf *model.GrpcConfig, err error)
+		// GetPrometheusConfig 获取普罗米休斯配置
+		GetPrometheusConfig(ctx context.Context) (config *model.PrometheusConfig, err error)
 	}
 	ISysDictType interface {
 		// Tree 树
