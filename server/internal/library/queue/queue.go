@@ -176,7 +176,7 @@ func NewConsumer(groupName string) (mqClient MqConsumer, err error) {
 			return item, nil
 		}
 
-		clientId := "HOTGO-Consumer-" + groupName
+		clientId := "grata-consumer-" + groupName
 		if config.Kafka.RandClient {
 			clientId += "-" + randTag
 		}

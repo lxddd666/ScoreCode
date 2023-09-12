@@ -127,7 +127,7 @@ func RegisterKafkaMqConsumer(connOpt KafkaConfig) (client MqConsumer, err error)
 		return
 	}
 	if !validateVersion(kfkVersion) {
-		kfkVersion = sarama.V2_4_0_0
+		kfkVersion = sarama.V3_3_1_0
 	}
 
 	brokers := connOpt.Brokers
