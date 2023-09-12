@@ -14,10 +14,9 @@ type SysScript struct {
 	g.Meta      `orm:"table:sys_script, do:true"`
 	Id          interface{} // ID
 	OrgId       interface{} // 组织ID
-	DeptId      interface{} // 部门ID
 	MemberId    interface{} // 用户ID
 	GroupId     interface{} // 分组ID
-	Type        interface{} // 类型：1个人2部门3公司
+	Type        interface{} // 类型：1个人2公司
 	ScriptClass interface{} // 话术分类(1文本 2图片3语音4视频)
 	Short       interface{} // 快捷指令
 	Content     interface{} // 话术内容

@@ -617,20 +617,14 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
 	if totalCount == 0 {
 		return
 	}
-
-	if err = mod.Hook(hook.MemberInfo).Page(in.Page, in.PerPage).OrderDesc(cols.Id).Scan(&list); err != nil {
+	mod = mod.As("ham").LeftJoin("(select had.id, had.name from hg_admin_dept had) had", "ham.dept_id = had.id").
+		LeftJoin("(select id, name from hg_admin_role) har", "har.id = ham.role_id").
+		Fields("ham.*, had.name as deptName, har.name as roleName")
+	if err = mod.Page(in.Page, in.PerPage).OrderDesc(cols.Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取用户列表失败！")
 		return
 	}
 
-	for _, v := range list {
-		columns, err := dao.AdminMemberPost.Ctx(ctx).Fields(dao.AdminMemberPost.Columns().PostId).Where(dao.AdminMemberPost.Columns().MemberId, v.Id).Array()
-		if err != nil {
-			err = gerror.Wrap(err, "获取用户岗位数据失败！")
-			return nil, 0, err
-		}
-		v.PostIds = g.NewVar(columns).Int64s()
-	}
 	return
 }
 

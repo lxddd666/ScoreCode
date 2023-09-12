@@ -18,38 +18,6 @@ import (
 )
 
 type (
-	IWhatsArts interface {
-		// Login 登录whats
-		Login(ctx context.Context, ids []int) (err error)
-		// SendVcardMsg 发送名片
-		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
-		// SendMsg 发送消息
-		SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error)
-		// GetUserHeadImage 获取头像
-		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
-		// AccountSyncContact 同步联系人
-		AccountSyncContact(ctx context.Context, contact *whatsin.WhatsSyncContactInp) (res string, err error)
-		// AccountLogout 退出登录
-		AccountLogout(ctx context.Context, logoutList *whatsin.WhatsLogoutInp) (res string, err error)
-	}
-	IWhatsContacts interface {
-		// Model 联系人管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取联系人管理列表
-		List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error)
-		// Export 导出联系人管理
-		Export(ctx context.Context, in *whatsin.WhatsContactsListInp) (err error)
-		// Edit 修改/新增联系人管理
-		Edit(ctx context.Context, in *whatsin.WhatsContactsEditInp) (err error)
-		// Delete 删除联系人管理
-		Delete(ctx context.Context, in *whatsin.WhatsContactsDeleteInp) (err error)
-		// View 获取联系人管理指定信息
-		View(ctx context.Context, in *whatsin.WhatsContactsViewInp) (res *whatsin.WhatsContactsViewModel, err error)
-		// SyncContactCallback Callback 同步联系人回调
-		SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error)
-		// Upload 上传联系人信息
-		Upload(ctx context.Context, list []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error)
-	}
 	IWhatsMsg interface {
 		// Model 消息记录ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -83,11 +51,10 @@ type (
 		View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (res *whatsin.WhatsProxyViewModel, err error)
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
-		// Upload 上传代理
 		Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error)
-		// AddProxyToOrg 绑定公司代理
+		// AddProxyToOrg 给指定公司加上代理
 		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)
-		// ListOrgProxy 查看对应公司的代理
+		// ListProxyToOrg 查看公司指定代理
 		ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgProxyReq) (list []*whatsin.WhatsProxyListProxyOrgModel, totalCount int, err error)
 	}
 	IWhatsAccount interface {
@@ -112,37 +79,43 @@ type (
 		// LogoutCallback 登录回调处理
 		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
 	}
+	IWhatsArts interface {
+		// Login 登录whats
+		Login(ctx context.Context, ids []int) (err error)
+		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
+		// SendMsg 发送消息
+		SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error)
+		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
+		AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error)
+		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
+	}
+	IWhatsContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *whatsin.WhatsContactsListInp) (list []*whatsin.WhatsContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *whatsin.WhatsContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *whatsin.WhatsContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *whatsin.WhatsContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *whatsin.WhatsContactsViewInp) (res *whatsin.WhatsContactsViewModel, err error)
+		// SyncContactCallback Callback 同步联系人回调
+		SyncContactCallback(ctx context.Context, res []callback.SyncContactMsgCallbackRes) (err error)
+		// Upload 上传联系人信息
+		Upload(ctx context.Context, list []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error)
+	}
 )
 
 var (
+	localWhatsProxy    IWhatsProxy
 	localWhatsAccount  IWhatsAccount
 	localWhatsArts     IWhatsArts
 	localWhatsContacts IWhatsContacts
 	localWhatsMsg      IWhatsMsg
-	localWhatsProxy    IWhatsProxy
 )
-
-func WhatsAccount() IWhatsAccount {
-	if localWhatsAccount == nil {
-		panic("implement not found for interface IWhatsAccount, forgot register?")
-	}
-	return localWhatsAccount
-}
-
-func RegisterWhatsAccount(i IWhatsAccount) {
-	localWhatsAccount = i
-}
-
-func WhatsArts() IWhatsArts {
-	if localWhatsArts == nil {
-		panic("implement not found for interface IWhatsArts, forgot register?")
-	}
-	return localWhatsArts
-}
-
-func RegisterWhatsArts(i IWhatsArts) {
-	localWhatsArts = i
-}
 
 func WhatsContacts() IWhatsContacts {
 	if localWhatsContacts == nil {
@@ -175,4 +148,26 @@ func WhatsProxy() IWhatsProxy {
 
 func RegisterWhatsProxy(i IWhatsProxy) {
 	localWhatsProxy = i
+}
+
+func WhatsAccount() IWhatsAccount {
+	if localWhatsAccount == nil {
+		panic("implement not found for interface IWhatsAccount, forgot register?")
+	}
+	return localWhatsAccount
+}
+
+func RegisterWhatsAccount(i IWhatsAccount) {
+	localWhatsAccount = i
+}
+
+func WhatsArts() IWhatsArts {
+	if localWhatsArts == nil {
+		panic("implement not found for interface IWhatsArts, forgot register?")
+	}
+	return localWhatsArts
+}
+
+func RegisterWhatsArts(i IWhatsArts) {
+	localWhatsArts = i
 }

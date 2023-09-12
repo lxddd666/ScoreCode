@@ -42,8 +42,9 @@ type LoginCaptchaReq struct {
 }
 
 type LoginCaptchaRes struct {
-	Cid    string `json:"cid" dc:"验证码ID"`
-	Base64 string `json:"base64" dc:"验证码"`
+	Cid     string `json:"cid" dc:"验证码ID"`
+	Base64  string `json:"base64" dc:"验证码图片"`
+	Content string `json:"content" dc:"验证码"`
 }
 
 // AccountLoginReq 提交账号登录

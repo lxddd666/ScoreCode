@@ -14,7 +14,7 @@ import (
 )
 
 // Generate 生成验证码
-func Generate(ctx context.Context) (id string, base64 string) {
+func Generate(ctx context.Context) (id string, base64 string, content string) {
 	// 字符
 	//	driver := &base64Captcha.DriverString{
 	//		Height: 42,
@@ -47,8 +47,17 @@ func Generate(ctx context.Context) (id string, base64 string) {
 		Fonts: []string{"chromohv.ttf"},
 	}
 
-	c := base64Captcha.NewCaptcha(driver.ConvertFonts(), base64Captcha.DefaultMemStore)
-	id, base64, err := c.Generate()
+	c := base64Captcha.NewCaptcha(driver.ConvertFonts(), NewGStore(ctx))
+	id, content, answer := c.Driver.GenerateIdQuestionAnswer()
+	item, err := c.Driver.DrawCaptcha(content)
+	if err != nil {
+		return
+	}
+	err = c.Store.Set(id, answer)
+	if err != nil {
+		return
+	}
+	base64 = item.EncodeB64string()
 	if err != nil {
 		g.Log().Errorf(ctx, "captcha.Generate err:%+v", err)
 	}
@@ -56,10 +65,10 @@ func Generate(ctx context.Context) (id string, base64 string) {
 }
 
 // Verify 验证输入的验证码是否正确
-func Verify(id, answer string) bool {
+func Verify(ctx context.Context, id, answer string) bool {
 	if id == "" || answer == "" {
 		return false
 	}
-	c := base64Captcha.NewCaptcha(new(base64Captcha.DriverString), base64Captcha.DefaultMemStore)
+	c := base64Captcha.NewCaptcha(new(base64Captcha.DriverString), NewGStore(ctx))
 	return c.Verify(id, gstr.ToLower(answer), true)
 }

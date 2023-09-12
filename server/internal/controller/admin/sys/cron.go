@@ -63,9 +63,9 @@ func (c *cCron) List(ctx context.Context, req *cron.ListReq) (res *cron.ListRes,
 	return
 }
 
-// Status 更新部门状态
+// Status 更新状态
 func (c *cCron) Status(ctx context.Context, req *cron.StatusReq) (res *cron.StatusRes, err error) {
-	err = service.SysCron().Status(ctx, &req.CronStatusInp)
+	err = service.TCPServer().CronStatus(ctx, &servmsg.CronStatusReq{CronStatusInp: &req.CronStatusInp})
 	return
 }
 

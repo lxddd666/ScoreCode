@@ -12,9 +12,8 @@ import (
 type SysScriptGroup struct {
 	Id          int64       `json:"id"          description:"ID"`
 	OrgId       int64       `json:"orgId"       description:"组织ID"`
-	DeptId      int64       `json:"deptId"      description:"部门ID"`
 	MemberId    int64       `json:"memberId"    description:"用户ID"`
-	Type        int64       `json:"type"        description:"类型：1个人2部门3公司"`
+	Type        int64       `json:"type"        description:"类型：1个人2公司"`
 	Name        string      `json:"name"        description:"自定义组名"`
 	ScriptCount int64       `json:"scriptCount" description:"话术数量"`
 	CreatedAt   *gtime.Time `json:"createdAt"   description:"创建时间"`

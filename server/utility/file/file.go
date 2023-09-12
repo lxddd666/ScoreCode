@@ -62,7 +62,7 @@ func DirSize(dirname string) string {
 }
 
 func MergeAbs(path string, fileName ...string) string {
-	var paths = []string{gfile.RealPath(path)}
+	var paths = []string{gfile.Abs(path)}
 	paths = append(paths, fileName...)
 	return gfile.Join(paths...)
 }

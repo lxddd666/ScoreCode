@@ -1,0 +1,35 @@
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
+version: '2'
+
+networks:
+  app-etcd:
+    driver: bridge
+
+services:
+  etcd:
+    image: docker.io/bitnami/etcd:3.5
+    ports:
+      - '2379:2379'
+      - '2380:2380'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+    volumes:
+      - etcd_data:/bitnami/etcd
+    restart: always
+    networks:
+      - app-etcd
+  etcd-keeper:
+    image: evildecay/etcdkeeper:latest
+    ports:
+      - '2381:8080'
+    environment:
+      - ETCD_SERVERS=http://10.8.5.21:2379
+    networks:
+      - app-etcd
+    restart: always
+volumes:
+  etcd_data:
+    driver: local

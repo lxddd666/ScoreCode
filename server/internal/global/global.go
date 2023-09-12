@@ -7,10 +7,13 @@ package global
 
 import (
 	"github.com/gogf/gf/v2/os/gctx"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"hotgo/utility/simple"
 )
 
-// AppName 在这里可以配置一些全局公用的变量
 var (
+	// AppName 在这里可以配置一些全局公用的变量
 	AppName = simple.AppName(gctx.GetInitCtx())
+	// EtcdClient etcd客户端
+	EtcdClient *clientv3.Client
 )

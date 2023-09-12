@@ -60,7 +60,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 		return gerror.Wrap(err, "选择登录的账号已经在登录中....")
 	}
 	//===================================
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetWhatsManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -144,7 +144,7 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) 
 }
 
 func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetWhatsManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -186,7 +186,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 
 // SendMsg 发送消息
 func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetWhatsManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -256,7 +256,7 @@ func (s *sWhatsArts) sendTextMessage(msgReq *whatsin.WhatsMsgInp) *protobuf.Requ
 }
 
 func (s *sWhatsArts) AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetWhatsManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -297,7 +297,7 @@ func logout(detail whatsin.LogoutDetail) *protobuf.RequestMessage {
 }
 
 func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetWhatsManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {

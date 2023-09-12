@@ -89,7 +89,7 @@ func (s *sAdminPost) Edit(ctx context.Context, in *adminin.PostEditInp) (err err
 	in.OrgId = contexts.GetUser(ctx).OrgId
 	// 修改
 	if in.Id > 0 {
-		_, err = dao.AdminPost.Ctx(ctx).WherePri(in.Id).Handler(handler.FilterOrgId()).Data(in).Update()
+		_, err = dao.AdminPost.Ctx(ctx).WherePri(in.Id).Handler(handler.FilterOrg).Data(in).Update()
 		return
 	}
 
@@ -116,13 +116,13 @@ func (s *sAdminPost) MaxSort(ctx context.Context, in *adminin.PostMaxSortInp) (r
 
 // View 获取指定岗位信息
 func (s *sAdminPost) View(ctx context.Context, in *adminin.PostViewInp) (res *adminin.PostViewModel, err error) {
-	err = dao.AdminPost.Ctx(ctx).WherePri(in.Id).Handler(handler.FilterOrgId()).Scan(&res)
+	err = dao.AdminPost.Ctx(ctx).WherePri(in.Id).Handler(handler.FilterOrg).Scan(&res)
 	return
 }
 
 // List 获取列表
 func (s *sAdminPost) List(ctx context.Context, in *adminin.PostListInp) (list []*adminin.PostListModel, totalCount int, err error) {
-	mod := dao.AdminPost.Ctx(ctx).Handler(handler.FilterOrgId())
+	mod := dao.AdminPost.Ctx(ctx).Handler(handler.FilterOrg)
 	cols := dao.AdminPost.Columns()
 
 	// 访问路径
@@ -171,7 +171,7 @@ func (s *sAdminPost) GetMemberByStartName(ctx context.Context, memberId int64) (
 		return
 	}
 
-	val, err := dao.AdminPost.Ctx(ctx).Fields(dao.AdminPost.Columns().Name).Handler(handler.FilterOrgId()).WherePri(postId.Int()).OrderDesc(dao.AdminPost.Columns().Id).Value()
+	val, err := dao.AdminPost.Ctx(ctx).Fields(dao.AdminPost.Columns().Name).Handler(handler.FilterOrg).WherePri(postId.Int()).OrderDesc(dao.AdminPost.Columns().Id).Value()
 	if err != nil {
 		err = gerror.Wrap(err, consts.ErrorORM)
 		return
@@ -181,6 +181,6 @@ func (s *sAdminPost) GetMemberByStartName(ctx context.Context, memberId int64) (
 
 // Status 更新状态
 func (s *sAdminPost) Status(ctx context.Context, in *adminin.PostStatusInp) (err error) {
-	_, err = dao.AdminPost.Ctx(ctx).WherePri(in.Id).Data(dao.AdminPost.Columns().Status, in.Status).Handler(handler.FilterOrgId()).Update()
+	_, err = dao.AdminPost.Ctx(ctx).WherePri(in.Id).Data(dao.AdminPost.Columns().Status, in.Status).Handler(handler.FilterOrg).Update()
 	return
 }

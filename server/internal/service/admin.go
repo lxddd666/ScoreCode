@@ -186,15 +186,6 @@ type (
 		// BindUserContext 绑定用户上下文
 		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
 	}
-	IApplySysScriptGroup interface {
-		// Model 话术分组ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		List(ctx context.Context, in *adminin.SysScriptGroupListInp) (list []*adminin.SysScriptGroupListModel, totalCount int, err error)
-		Export(ctx context.Context, in *adminin.SysScriptGroupListInp) (err error)
-		Edit(ctx context.Context, in *adminin.SysScriptGroupEditInp) (err error)
-		Delete(ctx context.Context, in *adminin.SysScriptGroupDeleteInp) (err error)
-		View(ctx context.Context, in *adminin.SysScriptGroupViewInp) (res *adminin.SysScriptGroupViewModel, err error)
-	}
 	IAdminMember interface {
 		// AddBalance 增加余额
 		AddBalance(ctx context.Context, in *adminin.MemberAddBalanceInp) (err error)
@@ -263,19 +254,18 @@ type (
 )
 
 var (
-	localAdminCreditsLog     IAdminCreditsLog
-	localAdminDept           IAdminDept
-	localAdminMemberPost     IAdminMemberPost
-	localAdminMonitor        IAdminMonitor
-	localAdminNotice         IAdminNotice
-	localAdminOrder          IAdminOrder
-	localAdminPost           IAdminPost
-	localAdminCash           IAdminCash
-	localAdminSite           IAdminSite
-	localAdminRole           IAdminRole
-	localAdminMenu           IAdminMenu
-	localApplySysScriptGroup IApplySysScriptGroup
-	localAdminMember         IAdminMember
+	localAdminCreditsLog IAdminCreditsLog
+	localAdminDept       IAdminDept
+	localAdminMemberPost IAdminMemberPost
+	localAdminMonitor    IAdminMonitor
+	localAdminNotice     IAdminNotice
+	localAdminOrder      IAdminOrder
+	localAdminPost       IAdminPost
+	localAdminCash       IAdminCash
+	localAdminSite       IAdminSite
+	localAdminRole       IAdminRole
+	localAdminMenu       IAdminMenu
+	localAdminMember     IAdminMember
 )
 
 func AdminOrder() IAdminOrder {
@@ -408,15 +398,4 @@ func AdminMenu() IAdminMenu {
 
 func RegisterAdminMenu(i IAdminMenu) {
 	localAdminMenu = i
-}
-
-func SysScriptGroup() IApplySysScriptGroup {
-	if localApplySysScriptGroup == nil {
-		panic("implement not found for interface IApplySysScriptGroup, forgot register?")
-	}
-	return localApplySysScriptGroup
-}
-
-func RegisterApplySysScriptGroup(i IApplySysScriptGroup) {
-	localApplySysScriptGroup = i
 }

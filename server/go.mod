@@ -3,7 +3,7 @@ module hotgo
 go 1.20
 
 require (
-	github.com/IBM/sarama v1.41.0
+	github.com/IBM/sarama v1.41.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.2
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.5
 	github.com/alibabacloud-go/tea v1.1.20

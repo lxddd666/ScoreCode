@@ -45,6 +45,8 @@ func Init(ctx context.Context) {
 
 	fmt.Printf("欢迎使用HotGo！\r\n当前运行环境：%v, 运行根路径为：%v \r\nGrata版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
 
+	// etcd初始化
+	InitEtcd(ctx)
 	// 初始化注册中心
 	InitRegister(ctx)
 
@@ -106,18 +108,18 @@ func LoggingServeLogHandler(ctx context.Context, in *glog.HandlerInput) {
 		var data entity.SysServeLog
 		data.TraceId = gctx.CtxId(ctx)
 		data.LevelFormat = in.LevelFormat
-		data.Content = in.Content
+		data.Content = gstr.StrLimit(in.Content, consts.MaxServeLogContentLen)
 		data.Stack = gjson.New(charset.ParseStack(in.Stack))
 		data.Line = strings.TrimRight(in.CallerPath, ":")
 		data.TriggerNs = in.Time.UnixNano()
 		data.Status = consts.StatusEnabled
 
-		if data.Stack.IsNil() {
-			data.Stack = gjson.New(consts.NilJsonToString)
-		}
-
 		if gstr.Contains(in.Content, `exception recovered`) {
 			data.LevelFormat = "PANI"
+		}
+
+		if data.Stack.IsNil() {
+			data.Stack = gjson.New(consts.NilJsonToString)
 		}
 
 		if conf.Queue {
@@ -128,7 +130,7 @@ func LoggingServeLogHandler(ctx context.Context, in *glog.HandlerInput) {
 	})
 
 	if err != nil {
-		g.Dump("LoggingServeLogHandler err:%+v", err)
+		g.Dump("LoggingServeLogHandler err:", err)
 	}
 }
 
@@ -148,23 +150,26 @@ func InitTrace(ctx context.Context) {
 	})
 }
 
-// InitRegister 初始化注册中心
-func InitRegister(ctx context.Context) {
+func InitEtcd(ctx context.Context) {
 	var config etcd3.Config
 	err := g.Cfg().MustGet(ctx, "etcd").Scan(&config)
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 		return
 	}
-	clientV3, err := etcd3.New(config)
+	EtcdClient, err = etcd3.New(config)
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 		return
 	}
-	conf, err := service.SysConfig().GetWhatsConfig(ctx)
+}
+
+// InitRegister 初始化注册中心
+func InitRegister(ctx context.Context) {
+	conf, err := service.SysConfig().GetGrpcConfig(ctx)
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 	}
-	_ = genv.SetMap(conf.GrpcEnv)
-	grpcx.Resolver.Register(etcd.NewWithClient(clientV3))
+	_ = genv.SetMap(conf.Env)
+	grpcx.Resolver.Register(etcd.NewWithClient(EtcdClient))
 }
