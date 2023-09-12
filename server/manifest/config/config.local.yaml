@@ -322,3 +322,11 @@ grpc:
   service:
     tg: tg_manager
     whats: whats_manager
+
+prometheus:
+  address: "http://10.8.5.21:9091"
+  username: ""
+  password: ""
+  handler:
+    path: "/metrics"
+    server: ":9092"
