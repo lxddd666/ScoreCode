@@ -82,6 +82,7 @@ defaultLogger: &defaultLogger
   rotateExpire: "7d"                      # 日志保留天数
   rotateBackupLimit: 2                    # 最大备份数量
   rotateBackupCompress: 2                 # 日志文件压缩级别，0-9,9最高
+  stStatus: 1
 
 
 # 日志配置
@@ -231,6 +232,7 @@ database:
   logger:
     level: "all"
     stdout: true
+    stStatus: 1
   default:
     link: "tidb:root:hY7iaIFYHHJu!@tcp(10.8.5.21:31060)/grata?loc=Local&parseTime=true"
     debug: true
@@ -329,4 +331,3 @@ prometheus:
   password: ""
   handler:
     path: "/metrics"
-    server: ":9092"

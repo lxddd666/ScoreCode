@@ -149,6 +149,5 @@ type PrometheusConfig struct {
 }
 
 type PrometheusHandler struct {
-	Path   string `json:"path"`
-	Server string `json:"server"`
+	Path string `json:"path"`
 }

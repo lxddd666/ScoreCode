@@ -26,6 +26,6 @@ func (s *sHook) BeforeServe(r *ghttp.Request) {
 }
 
 func (s *sHook) AfterOutput(r *ghttp.Request) {
-	s.accessLog(r)
-	s.lastAdminActive(r)
+	//s.accessLog(r)
+	//s.lastAdminActive(r)
 }

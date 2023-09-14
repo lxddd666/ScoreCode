@@ -4,12 +4,12 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hotgo/internal/service"
-	"net/http"
 )
 
 var (
@@ -145,7 +145,7 @@ func init() {
 }
 
 // InitPrometheus 初始化普罗米修斯
-func InitPrometheus(ctx context.Context) {
+func InitPrometheus(ctx context.Context, s *ghttp.Server) {
 	config, _ := service.SysConfig().GetPrometheusConfig(ctx)
 	client, err := api.NewClient(api.Config{
 		Address: config.Address,
@@ -156,7 +156,7 @@ func InitPrometheus(ctx context.Context) {
 	}
 	result, _ := v1api.Targets(ctx)
 	g.Log().Info(ctx, "初始化普罗米修斯：", result)
-	http.Handle(config.Handler.Path, promhttp.Handler())
-	// 暴露一个端口
-	go http.ListenAndServe(config.Handler.Server, nil)
+	s.BindHandler(config.Handler.Path, func(r *ghttp.Request) {
+		promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
+	})
 }

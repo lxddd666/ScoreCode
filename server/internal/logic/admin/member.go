@@ -20,6 +20,8 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/global"
+	cmember "hotgo/internal/library/cache/member"
+	crole "hotgo/internal/library/cache/role"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
@@ -61,7 +63,7 @@ func (s *sAdminMember) AddBalance(ctx context.Context, in *adminin.MemberAddBala
 		memberId = contexts.GetUserId(ctx)
 	)
 
-	if err = s.FilterAuthModel(ctx, memberId).WherePri(in.Id).Scan(&mb); err != nil {
+	if err = s.FilterAuthModel(ctx, memberId).Cache(cmember.GetCache(memberId)).WherePri(in.Id).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -105,7 +107,7 @@ func (s *sAdminMember) AddIntegral(ctx context.Context, in *adminin.MemberAddInt
 		memberId = contexts.GetUserId(ctx)
 	)
 
-	if err = s.FilterAuthModel(ctx, memberId).WherePri(in.Id).Scan(&mb); err != nil {
+	if err = s.FilterAuthModel(ctx, memberId).Cache(cmember.GetCache(memberId)).WherePri(in.Id).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -151,7 +153,7 @@ func (s *sAdminMember) UpdateCash(ctx context.Context, in *adminin.MemberUpdateC
 	}
 
 	var mb entity.AdminMember
-	if err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Scan(&mb); err != nil {
+	if err = dao.AdminMember.Ctx(ctx).Cache(cmember.GetCache(memberId)).WherePri(memberId).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -161,7 +163,7 @@ func (s *sAdminMember) UpdateCash(ctx context.Context, in *adminin.MemberUpdateC
 		return
 	}
 
-	_, err = dao.AdminMember.Ctx(ctx).WherePri(memberId).
+	_, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(memberId)).WherePri(memberId).
 		Data(g.Map{
 			dao.AdminMember.Columns().Cash: adminin.MemberCash{
 				Name:      in.Name,
@@ -187,7 +189,7 @@ func (s *sAdminMember) UpdateEmail(ctx context.Context, in *adminin.MemberUpdate
 	}
 
 	var mb *entity.AdminMember
-	if err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Scan(&mb); err != nil {
+	if err = dao.AdminMember.Ctx(ctx).Cache(cmember.GetCache(memberId)).WherePri(memberId).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -223,7 +225,7 @@ func (s *sAdminMember) UpdateEmail(ctx context.Context, in *adminin.MemberUpdate
 		dao.AdminMember.Columns().Email: in.Email,
 	}
 
-	if _, err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Data(update).Update(); err != nil {
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(memberId)).WherePri(memberId).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, "换绑邮箱失败，请稍后重试！")
 		return
 	}
@@ -239,7 +241,7 @@ func (s *sAdminMember) UpdateMobile(ctx context.Context, in *adminin.MemberUpdat
 	}
 
 	var mb *entity.AdminMember
-	if err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Scan(&mb); err != nil {
+	if err = dao.AdminMember.Ctx(ctx).Cache(cmember.GetCache(memberId)).WherePri(memberId).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -275,7 +277,7 @@ func (s *sAdminMember) UpdateMobile(ctx context.Context, in *adminin.MemberUpdat
 		dao.AdminMember.Columns().Mobile: in.Mobile,
 	}
 
-	if _, err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Data(update).Update(); err != nil {
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(memberId)).WherePri(memberId).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, "换绑手机号失败，请稍后重试！")
 		return
 	}
@@ -291,7 +293,7 @@ func (s *sAdminMember) UpdateProfile(ctx context.Context, in *adminin.MemberUpda
 	}
 
 	var mb *entity.AdminMember
-	if err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Scan(&mb); err != nil {
+	if err = dao.AdminMember.Ctx(ctx).Cache(cmember.GetCache(memberId)).WherePri(memberId).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -312,7 +314,7 @@ func (s *sAdminMember) UpdateProfile(ctx context.Context, in *adminin.MemberUpda
 		cols.Address:  in.Address,
 	}
 
-	if _, err = dao.AdminMember.Ctx(ctx).WherePri(memberId).Data(update).Update(); err != nil {
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(memberId)).WherePri(memberId).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, "更新资料失败，请稍后重试！")
 		return
 	}
@@ -336,7 +338,7 @@ func (s *sAdminMember) UpdatePwd(ctx context.Context, in *adminin.MemberUpdatePw
 		dao.AdminMember.Columns().PasswordHash: gmd5.MustEncryptString(in.NewPassword + mb.Salt),
 	}
 
-	if _, err = dao.AdminMember.Ctx(ctx).WherePri(in.Id).Data(update).Update(); err != nil {
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(in.Id)).WherePri(in.Id).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, "更新登录密码失败，请稍后重试！")
 		return
 	}
@@ -364,7 +366,7 @@ func (s *sAdminMember) ResetPwd(ctx context.Context, in *adminin.MemberResetPwdI
 		dao.AdminMember.Columns().PasswordHash: gmd5.MustEncryptString(in.Password + mb.Salt),
 	}
 
-	if _, err = s.FilterAuthModel(ctx, memberId).WherePri(in.Id).Data(update).Update(); err != nil {
+	if _, err = s.FilterAuthModel(ctx, memberId).Cache(cmember.ClearCache(in.Id)).WherePri(in.Id).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, "用户密码重置失败，请稍后重试！")
 		return
 	}
@@ -415,7 +417,7 @@ func (s *sAdminMember) Delete(ctx context.Context, in *adminin.MemberDeleteInp) 
 	}
 
 	var models *entity.AdminMember
-	if err = s.FilterAuthModel(ctx, memberId).WherePri(in.Id).Scan(&models); err != nil {
+	if err = s.FilterAuthModel(ctx, memberId).Cache(cmember.GetCache(memberId)).WherePri(in.Id).Scan(&models); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -426,7 +428,7 @@ func (s *sAdminMember) Delete(ctx context.Context, in *adminin.MemberDeleteInp) 
 	}
 
 	return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		if _, err = s.FilterAuthModel(ctx, memberId).WherePri(in.Id).Delete(); err != nil {
+		if _, err = s.FilterAuthModel(ctx, memberId).Cache(cmember.ClearCache(memberId)).WherePri(in.Id).Delete(); err != nil {
 			err = gerror.Wrap(err, "删除用户失败，请稍后重试！")
 			return
 		}
@@ -516,7 +518,7 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 		}
 
 		return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-			if _, err = mod.WherePri(in.Id).Data(in).Update(); err != nil {
+			if _, err = mod.Cache(cmember.ClearCache(in.Id)).WherePri(in.Id).Data(in).Update(); err != nil {
 				err = gerror.Wrap(err, "修改用户信息失败，请稍后重试！")
 				return
 			}
@@ -569,7 +571,7 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 
 // View 获取用户信息
 func (s *sAdminMember) View(ctx context.Context, in *adminin.MemberViewInp) (res *adminin.MemberViewModel, err error) {
-	if err = s.FilterAuthModel(ctx, contexts.GetUserId(ctx)).Hook(hook.MemberInfo).WherePri(in.Id).Scan(&res); err != nil {
+	if err = s.FilterAuthModel(ctx, contexts.GetUserId(ctx)).Cache(cmember.ClearCache(in.Id)).Hook(hook.MemberInfo).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 	}
 	return
@@ -619,7 +621,34 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
 	}
 	mod = mod.LeftJoin("(select had.id, had.name from hg_admin_dept had) had", "hg_admin_member.dept_id = had.id").
 		LeftJoin("(select id, name from hg_admin_role) har", "har.id = hg_admin_member.role_id").
-		Fields("hg_admin_member.*, had.name as deptName, har.name as roleName")
+		Fields(`hg_admin_member.id,
+       org_id,
+       dept_id,
+       role_id,
+       real_name,
+       username,
+       integral,
+       balance,
+       avatar,
+       sex,
+       qq,
+       email,
+       mobile,
+       birthday,
+       city_id,
+       address,
+       pid,
+       level,
+       tree,
+       invite_code,
+       cash,
+       last_active_at,
+       remark,
+       status,
+       created_at,
+       updated_at,
+       had.name as deptName,
+       har.name as roleName`)
 	if err = mod.Page(in.Page, in.PerPage).OrderDesc(cols.Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取用户列表失败！")
 		return
@@ -635,7 +664,7 @@ func (s *sAdminMember) Status(ctx context.Context, in *adminin.MemberStatusInp) 
 		return
 	}
 
-	if _, err = s.FilterAuthModel(ctx, contexts.GetUserId(ctx)).WherePri(in.Id).Data(dao.AdminMember.Columns().Status, in.Status).Update(); err != nil {
+	if _, err = s.FilterAuthModel(ctx, contexts.GetUserId(ctx)).Cache(cmember.ClearCache(in.Id)).WherePri(in.Id).Data(dao.AdminMember.Columns().Status, in.Status).Update(); err != nil {
 		err = gerror.Wrap(err, "更新用户状态失败，请稍后重试！")
 	}
 	return
@@ -644,7 +673,7 @@ func (s *sAdminMember) Status(ctx context.Context, in *adminin.MemberStatusInp) 
 // GenTree 生成关系树
 func (s *sAdminMember) GenTree(ctx context.Context, pid int64) (level int, newTree string, err error) {
 	var pmb *entity.AdminMember
-	if err = dao.AdminMember.Ctx(ctx).WherePri(pid).Scan(&pmb); err != nil {
+	if err = dao.AdminMember.Ctx(ctx).Cache(cmember.GetCache(pid)).WherePri(pid).Scan(&pmb); err != nil {
 		return
 	}
 
@@ -666,7 +695,7 @@ func (s *sAdminMember) LoginMemberInfo(ctx context.Context) (res *adminin.LoginM
 		return
 	}
 
-	if err = dao.AdminMember.Ctx(ctx).Hook(hook.MemberInfo).WherePri(memberId).Scan(&res); err != nil {
+	if err = dao.AdminMember.Ctx(ctx).Cache(cmember.GetCache(memberId)).Hook(hook.MemberInfo).WherePri(memberId).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -821,7 +850,7 @@ func (s *sAdminMember) FilterAuthModel(ctx context.Context, memberId int64) *gdb
 	}
 	// 组织管理员
 	var role entity.AdminRole
-	err := dao.AdminRole.Ctx(ctx).WherePri(roleId).Scan(&role)
+	err := dao.AdminRole.Ctx(ctx).Cache(crole.GetRoleCache(roleId)).WherePri(roleId).Scan(&role)
 	if err != nil {
 		g.Log().Panicf(ctx, "failed to get role information, err:%+v", err)
 		return nil

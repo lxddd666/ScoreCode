@@ -6,31 +6,37 @@ option go_package = "./protobuf";
 enum Action {
   LOGIN = 0;
   LOGOUT = 1;
+
+  //whatsapp
   SEND_MESSAGE = 2;
   SEND_GROUP_MESSAGE = 3;
-  SYNC_ACCOUNT_KEY = 4; // 添加同步账号密钥动作
+  SYNC_ACCOUNT_KEY = 4; // 添加同步帐号密钥动作
   GET_PREKEYBUNDLE = 5;
   SYNC_CONTACTS = 6;
   PING_PONG =7;
   SEND_VCARD_MESSAGE = 8;
   SET_HEAD_SCULPTURE = 9;
   GET_USER_HEAD_IMAGE = 10;
+
+  //telegram
+  SYNC_APP_INFO = 11;
+  RECEIVING_MSG = 12;
 }
 
 
 // 定义普通动作消息
 //message OrdinaryAction {
-//  repeated uint64 account_ids = 1; // 账号的数组
+//  repeated uint64 account_ids = 1; // 帐号的数组
 //}
 
 message OrdinaryAction {
   map<uint64, loginDetail> login_detail = 1;
+  string Type  = 2;
 }
 
 message loginDetail {
   string proxyUrl = 1;
 }
-
 
 
 message GetUserHeadImageAction{
@@ -51,19 +57,19 @@ message SetHeadSculptureAction {
 
 //定义明信片
 message VCard{
-  string Begin = 1;
-  string Version = 2;
-  string Prodid = 3;
-  string  Fn = 4;
-  string Org = 5;
-  string Tel = 6;
-  string XWaBizName = 7;
-  string End = 9;
-  string DisplayName = 10;
-  string Family = 11;
-  string Given = 12;
-  string Prefixes = 13;
-  string Language = 14;
+    string Begin = 1;
+    string Version = 2;
+    string Prodid = 3;
+    string  Fn = 4;
+    string Org = 5;
+    string Tel = 6;
+    string XWaBizName = 7;
+    string End = 9;
+    string DisplayName = 10;
+    string Family = 11;
+    string Given = 12;
+    string Prefixes = 13;
+    string Language = 14;
 }
 
 // 定义明信片消息
@@ -71,6 +77,12 @@ message SendVCardMsgAction {
   map<uint64, VCard> Vcard_data = 1;
   uint64 Sender = 2;
   uint64 Receiver = 3;
+}
+
+//定义telegram app 信息
+message appData {
+  uint64 appId = 1;
+  string appHash = 2;
 }
 
 // 定义密钥数据
@@ -84,9 +96,15 @@ message KeyData {
   bytes identify = 7;
 }
 
-// 定义同步账号密钥动作消息
+// 定义同步帐号密钥动作消息
 message SyncAccountKeyAction {
   map<uint64, KeyData> key_data = 1;
+}
+
+//定义同步app信息动作消息
+message SyncAppInfoAction {
+  string   type = 2;
+  map<uint64,appData> app_data = 1;
 }
 
 
@@ -97,12 +115,15 @@ message RequestMessage {
   oneof action_detail {
     OrdinaryAction ordinary_action = 2;
     SyncAccountKeyAction sync_account_key_action = 3;
+    SyncAppInfoAction   sync_app_action =4;
     QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
     SendMessageDetail  sendmessage_detail = 8 ;
     string  ping_message = 9;
     SendVCardMsgAction send_vcard_message = 10;
     SetHeadSculptureAction set_head_sculpture_action = 11;
     GetUserHeadImageAction get_user_head_image = 12;
+    SyncContactDetail      sync_contact_detail = 13;
+    ReceivingMsgDetail      receive_msg_detail = 14;
   }
 }
 
@@ -122,6 +143,12 @@ message SendMessageAction {
 
 message SendMessageDetail {
   repeated SendMessageAction details = 1;
+  string  Type = 2;
+}
+
+message  ReceivingMsgDetail {
+  string Type = 1;
+  uint64 Receiver = 2;
 }
 
 message SendVCardMessageDetail{
@@ -131,6 +158,12 @@ message SendVCardMessageDetail{
 message QueryPreKeyBundleDetail {
   repeated UintkeyUintvalue details = 1;
 }
+
+message SyncContactDetail {
+  string  Type = 1;
+  repeated UintkeyUintvalue details = 2;
+}
+
 message SetHeadSculptureDetail{
   repeated SetHeadSculptureAction detail = 1;
 }
@@ -144,13 +177,12 @@ enum ActionResult {
   PONG = 4;
 }
 
-// 定义单个账号的执行状态枚举
+// 定义单个帐号的执行状态枚举
 enum AccountStatus {
   SUCCESS = 0;   //成功
   FAIL = 1;      //失败
   UNKNOWN = 2;   //未知
   NOT_EXIST = 3; //账号不存在
-  PROXY_ERR = 4; // 代理地址报错
   SEAL = 403; //登录失败，已封号
   PERMISSION = 401; // 登录失败，权限错误
 }
@@ -158,7 +190,7 @@ enum AccountStatus {
 // 定义返回消息
 message ResponseMessage {
   ActionResult action_result = 1; // 动作的返回状态
-  map<string, AccountStatus> account_status = 2; // 账号的执行状态字典
+  map<string, AccountStatus> account_status = 2; // 帐号的执行状态字典
   string   pong_message = 3;
   oneof callbackInfo {
     LoginCallbacks login_callbacks = 4;

@@ -385,10 +385,10 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_PERMISSION {
 			// 登录失败
 			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
-		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStaus_PROXY_ERR {
-			//代理问题
-			prometheus.LoginProxyFailedCount.WithLabelValues(item.ProxyUrl)
-			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
+			//} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStaus_PROXY_ERR {
+			//	//代理问题
+			//	prometheus.LoginProxyFailedCount.WithLabelValues(item.ProxyUrl)
+			//	prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
 		} else {
 			// 其他问题
 			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
