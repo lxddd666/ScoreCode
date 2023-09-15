@@ -3,6 +3,12 @@ package whats
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gconv"
 	whatsproxy "hotgo/api/whats/whats_proxy"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -14,12 +20,6 @@ import (
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-
-	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sWhatsProxy struct{}
@@ -138,6 +138,10 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 		return
 	}
 	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+	err = s.UrlPingIpsbAndGetRegion(in)
+	if err != nil {
+		return err
+	}
 	// 修改
 	if in.Id > 0 {
 		if !flag {
@@ -415,7 +419,6 @@ func (s *sWhatsProxy) ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgPr
 		return
 	}
 	return
-	return
 }
 
 func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
@@ -436,4 +439,23 @@ func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
 		return false
 	}
 	return true
+}
+
+func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) error {
+	resp, err := g.Client().Discovery(nil).Proxy(in.Address).Get(gctx.New(), "https://api.ip.sb/geoip")
+	if err != nil {
+		err = gerror.Wrap(err, "请求失败")
+		in.Status = 2
+		return err
+	}
+	defer resp.Close()
+	// 解析字节切片为结构体
+	data := &entity.WhatsProxy{}
+	err = gjson.New(resp.ReadAllString()).Scan(data)
+	if err != nil {
+		err = gerror.Wrap(err, "解析错误")
+		return err
+	}
+	in.Region = data.Region
+	return nil
 }
