@@ -309,8 +309,6 @@ whats:
   aes:
     key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
     vi: "cL0bVYHAUCMGDsK2"
-  manager:
-    name: arts_manager
 
 grpc:
   env:
@@ -320,11 +318,12 @@ grpc:
     GF_GSVC_NAMESPACE: prod
     GF_GSVC_VERSION: "latest"
   service:
-    tg: tg_manager
-    whats: whats_manager
+    arts: arts_manager
+    tg: arts_manager
+    whats: arts_manager
 
 prometheus:
-  address: "http://10.8.5.21:39090"
+  address: "http://127.0.0.1:39090"
   username: ""
   password: ""
   handler:

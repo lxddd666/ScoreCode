@@ -17,7 +17,7 @@ func GetRoleCache(roleId int64) gdb.CacheOption {
 
 func ClearRoleCache(roleId int64) gdb.CacheOption {
 	return gdb.CacheOption{
-		Duration: 0,
+		Duration: -1,
 		Name:     fmt.Sprintf(consts.CacheRoleKey, roleId),
 		Force:    false,
 	}

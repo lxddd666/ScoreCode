@@ -62,12 +62,12 @@ func CustomAttributes(ctx context.Context, field *sysin.GenCodesColumnListModel,
 }
 
 // GenGotype 生成字段的go类型
-func GenGotype(ctx context.Context, field *sysin.GenCodesColumnListModel, in gendao.CGenDaoInput) (goName, typeName, tsName, tsType string) {
+func GenGotype(ctx context.Context, field *sysin.GenCodesColumnListModel, in gendao.CGenDaoInput) (goName, goType, tsName, tsType string) {
 	var err error
 	tsName = getJsonTagFromCase(field.Name, in.JsonCase)
 	goName = gstr.CaseCamel(field.Name)
 
-	typeName, err = CheckLocalTypeForField(ctx, field.DataType, nil)
+	typeName, err := CheckLocalTypeForField(ctx, field.DataType, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -94,12 +94,13 @@ func GenGotype(ctx context.Context, field *sysin.GenCodesColumnListModel, in gen
 		}
 	}
 
-	tsType = ShiftMap[typeName]
+	tsType = ShiftMap[string(typeName)]
+	goType = string(typeName)
 	return
 }
 
 // CheckLocalTypeForField checks and returns corresponding type for given db type.
-func CheckLocalTypeForField(ctx context.Context, fieldType string, fieldValue interface{}) (string, error) {
+func CheckLocalTypeForField(ctx context.Context, fieldType string, fieldValue interface{}) (gdb.LocalType, error) {
 	var (
 		typeName    string
 		typePattern string

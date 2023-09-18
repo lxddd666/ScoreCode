@@ -50,14 +50,14 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 		if v.Val() == nil {
 			// 没在登录过程中
 			accounts = append(accounts, account)
-			err := g.Redis().SetEX(ctx, key, account.Account, 2000)
+			err := g.Redis().SetEX(ctx, key, account.Account, 2)
 			if err != nil {
 				return gerror.Wrap(err, "redis记录登录账号登录过程报错:"+err.Error())
 			}
 		}
 	}
 	if len(accounts) == 0 {
-		return gerror.Wrap(err, "选择登录的账号已经在登录中....")
+		return gerror.New("选择登录的账号已经在登录中....")
 	}
 	//===================================
 	conn := grpc.GetWhatsManagerConn()
@@ -112,6 +112,7 @@ func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []entity.Whats
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SYNC_ACCOUNT_KEY,
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_SyncAccountKeyAction{
 			SyncAccountKeyAction: &protobuf.SyncAccountKeyAction{
 				KeyData: keyData,
@@ -134,6 +135,7 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) 
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_LOGIN,
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_OrdinaryAction{
 			OrdinaryAction: &protobuf.OrdinaryAction{
 				LoginDetail: loginDetail,
@@ -245,6 +247,7 @@ func (s *sWhatsArts) sendTextMessage(msgReq *whatsin.WhatsMsgInp) *protobuf.Requ
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SEND_MESSAGE,
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_SendmessageDetail{
 			SendmessageDetail: &protobuf.SendMessageDetail{
 				Details: list,
@@ -287,6 +290,7 @@ func logout(detail whatsin.LogoutDetail) *protobuf.RequestMessage {
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_LOGOUT,
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_OrdinaryAction{
 			OrdinaryAction: &protobuf.OrdinaryAction{
 				LoginDetail: loginDetail,
@@ -336,6 +340,7 @@ func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSy
 func (s *sWhatsArts) syncContact(syncContactReq whatsin.SyncContactReq) *protobuf.RequestMessage {
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SYNC_CONTACTS,
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_QueryPrekeybundleDetail{
 			QueryPrekeybundleDetail: &protobuf.QueryPreKeyBundleDetail{
 				Details: []*protobuf.UintkeyUintvalue{
@@ -380,6 +385,7 @@ func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobu
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SEND_VCARD_MESSAGE,
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_SendVcardMessage{
 			SendVcardMessage: &protobuf.SendVCardMsgAction{
 				VcardData: sendData,

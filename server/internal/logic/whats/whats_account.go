@@ -82,8 +82,13 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	} else {
 		fields = append(fields, "wa.`proxy_address`", "wa.`comment`")
 	}
+
 	// 查询账号状态
-	if in.AccountStatus > 0 {
+	if in.Account != "" {
+		mod = mod.Where("wa."+dao.WhatsAccount.Columns().Account, in.Account)
+	}
+	// 查询账号状态
+	if in.AccountStatus != nil {
 		mod = mod.Where("wa."+dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
 	}
 
@@ -267,6 +272,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		}
 		account.Encryption = bytes
 		account.Account = inp.Account
+		account.IsOnline = consts.Offline
 		list = append(list, account)
 	}
 	columns := dao.WhatsAccount.Columns()
@@ -285,7 +291,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 			})
 		}
 		err = handler.Model(dao.WhatsAccount.Ctx(ctx)).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-			_, err = tx.Model(dao.WhatsAccount.Table()).Fields(dao.WhatsAccount.Columns().Account, columns.Encryption).Save(list)
+			_, err = tx.Model(dao.WhatsAccount.Table()).Fields(columns.Account, columns.IsOnline, columns.Encryption).Save(list)
 			if err != nil {
 				return
 			}
@@ -296,7 +302,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 		}
 	} else {
-		_, err = s.Model(ctx).Fields(dao.WhatsAccount.Columns().Account, columns.Encryption).Save(list)
+		_, err = s.Model(ctx).Fields(columns.Account, columns.IsOnline, columns.Encryption).Save(list)
 		if err != nil {
 			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
 		}
@@ -358,24 +364,24 @@ func (s *sWhatsAccount) Bind(ctx context.Context, in *whatsin.WhatsAccountBindIn
 
 // LoginCallback 登录回调处理
 func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error {
-	user := contexts.GetUser(ctx)
+
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
 		// 记录普罗米修斯
 
 		if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_SUCCESS {
+			userId, _ := g.Redis().HGet(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 			// 登录成功
 			prometheus.LoginSuccessCounter.WithLabelValues(gconv.String(item.UserJid))
 			prometheus.LoginProxySuccessCount.WithLabelValues(item.ProxyUrl)
-			userId := user.Id
 			// 获取上次登录的员工号
 			key := consts.LastLoginAccountId + gconv.String(item.UserJid)
 			result, _ := g.Redis().Get(ctx, key)
 			if result.Int64() == 0 {
-				g.Redis().Set(ctx, key, userId)
-			} else if result.Int64() != 0 && result.Int64() != userId {
+				_, _ = g.Redis().Set(ctx, key, userId.Int64())
+			} else if result.Int64() != 0 && result.Int64() != userId.Int64() {
 				//不是上次登录的人 那么认为是顶号的
-				g.Redis().Set(ctx, key, userId)
+				_, _ = g.Redis().Set(ctx, key, userId.Int64())
 				prometheus.AccountBeingHackedCout.WithLabelValues(gconv.String(item.UserJid))
 			}
 		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_SEAL {
@@ -428,7 +434,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 		// 删除登录过程的redis
-		g.Redis().SRem(ctx, consts.QueueActionLoginAccounts, userJid)
+		_, _ = g.Redis().SRem(ctx, consts.QueueActionLoginAccounts, userJid)
 	}
 	return nil
 }
@@ -451,7 +457,7 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 		key := fmt.Sprintf("%s%d", consts.QueueActionLoginAccounts, item.UserJid)
-		g.Redis().Del(ctx, key)
+		_, _ = g.Redis().Del(ctx, key)
 
 		// 记录普罗米修斯
 		prometheus.LogoutCount.WithLabelValues(userJid)
