@@ -33,6 +33,8 @@ type (
 		IsExceptAuth(ctx context.Context, appName, path string) bool
 		// IsExceptLogin 是否是不需要登录的路由地址
 		IsExceptLogin(ctx context.Context, appName, path string) bool
+		// TestLimit 测试模式
+		TestLimit(r *ghttp.Request)
 		// Blacklist IP黑名单限制中间件
 		Blacklist(r *ghttp.Request)
 		// Develop 开发工具白名单过滤

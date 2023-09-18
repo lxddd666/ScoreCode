@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/consts"
 	"hotgo/internal/controller/whats"
@@ -11,6 +12,9 @@ import (
 
 func Whats(ctx context.Context, group *ghttp.RouterGroup) {
 	group.Group(simple.RouterPrefix(ctx, consts.AppWhats), func(group *ghttp.RouterGroup) {
+		if g.Cfg().MustGet(ctx, "hotgo.isTest", false).Bool() {
+			group.Middleware(service.Middleware().TestLimit)
+		}
 		group.Middleware(service.Middleware().WhatsAuth)
 		group.Bind(
 			whats.WhatsAccount,  // 账号管理

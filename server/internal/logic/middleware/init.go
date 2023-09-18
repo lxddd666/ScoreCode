@@ -190,3 +190,9 @@ func (s *sMiddleware) IsExceptLogin(ctx context.Context, appName, path string) b
 	}
 	return false
 }
+
+// TestLimit 测试模式
+func (s *sMiddleware) TestLimit(r *ghttp.Request) {
+	response.JsonExit(r, gcode.CodeOK.Code(), "操作成功！")
+	return
+}

@@ -13,7 +13,6 @@ import (
 	"github.com/gogf/gf/v2/net/gsel"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"hotgo/internal/consts"
-	"hotgo/internal/core/prometheus"
 	"hotgo/internal/library/addons"
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/hggen"
@@ -44,7 +43,7 @@ var (
 			})
 
 			// 初始化普罗米修斯
-			prometheus.InitPrometheus(ctx, s)
+			//prometheus.InitPrometheus(ctx, s)
 			// 初始化请求前回调
 			s.BindHookHandler("/*any", ghttp.HookBeforeServe, service.Hook().BeforeServe)
 
@@ -72,7 +71,6 @@ var (
 				router.Whats(ctx, group)
 				// 注册Api路由
 				router.Api(ctx, group)
-
 				// 注册websocket路由
 				router.WebSocket(ctx, group)
 

@@ -20,7 +20,6 @@ import (
 // WebSocket ws路由配置
 func WebSocket(ctx context.Context, group *ghttp.RouterGroup) {
 	group.Group(simple.RouterPrefix(ctx, consts.AppWebSocket), func(group *ghttp.RouterGroup) {
-		group.Middleware()
 		group.Bind(
 			controller.Send, // 通过http发送ws消息。方便测试没有放权限中间件，实际使用时请自行调整
 		)
