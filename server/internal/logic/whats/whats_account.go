@@ -368,12 +368,12 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
 		// 记录普罗米修斯
-
-		if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_SUCCESS {
+		switch protobuf.AccountStatus(item.LoginStatus) {
+		case protobuf.AccountStatus_SUCCESS:
 			userId, _ := g.Redis().HGet(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 			// 登录成功
-			prometheus.LoginSuccessCounter.WithLabelValues(gconv.String(item.UserJid))
-			prometheus.LoginProxySuccessCount.WithLabelValues(item.ProxyUrl)
+			prometheus.LoginSuccessCounter.WithLabelValues(gconv.String(item.UserJid)).Inc()
+			prometheus.LoginProxySuccessCount.WithLabelValues(item.ProxyUrl).Inc()
 			// 获取上次登录的员工号
 			key := consts.LastLoginAccountId + gconv.String(item.UserJid)
 			result, _ := g.Redis().Get(ctx, key)
@@ -382,22 +382,22 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			} else if result.Int64() != 0 && result.Int64() != userId.Int64() {
 				//不是上次登录的人 那么认为是顶号的
 				_, _ = g.Redis().Set(ctx, key, userId.Int64())
-				prometheus.AccountBeingHackedCout.WithLabelValues(gconv.String(item.UserJid))
+				prometheus.AccountBeingHackedCout.WithLabelValues(gconv.String(item.UserJid)).Inc()
 			}
-		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_SEAL {
+		case protobuf.AccountStatus_SEAL:
 			// 账号被封
-			prometheus.AccountBannedCount.WithLabelValues(gconv.String(item), gconv.String(item.LoginStatus))
-			prometheus.LoginProxyBannedCount.WithLabelValues(gconv.String(item.ProxyUrl))
-		} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStatus_PERMISSION {
-			// 登录失败
-			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
-			//} else if protobuf.AccountStatus(item.LoginStatus) == protobuf.AccountStaus_PROXY_ERR {
-			//	//代理问题
-			//	prometheus.LoginProxyFailedCount.WithLabelValues(item.ProxyUrl)
-			//	prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
-		} else {
+			prometheus.AccountBannedCount.WithLabelValues(gconv.String(item), gconv.String(item.LoginStatus)).Inc()
+			prometheus.LoginProxyBannedCount.WithLabelValues(gconv.String(item.ProxyUrl)).Inc()
+		case protobuf.AccountStatus_PERMISSION:
+			// 登录失败（可能账号密码错误）
+			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus)).Inc()
+		case protobuf.AccountStatus_PROXY_ERR:
+			//代理问题
+			prometheus.LoginProxyFailedCount.WithLabelValues(item.ProxyUrl).Inc()
+			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus)).Inc()
+		default:
 			// 其他问题
-			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus))
+			prometheus.LoginFailureCounter.WithLabelValues(gconv.String(item.UserJid), gconv.String(item.LoginStatus)).Inc()
 		}
 		userJid := strconv.FormatUint(item.UserJid, 10)
 
@@ -445,8 +445,7 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 	for _, item := range res {
 		userJid := strconv.FormatUint(item.UserJid, 10)
 		data := do.WhatsAccount{
-			AccountStatus: 0,
-			IsOnline:      -1,
+			IsOnline: consts.Offline,
 		}
 		//删除redis
 		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
@@ -460,7 +459,7 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		_, _ = g.Redis().Del(ctx, key)
 
 		// 记录普罗米修斯
-		prometheus.LogoutCount.WithLabelValues(userJid)
+		prometheus.LogoutCount.WithLabelValues(userJid).Inc()
 	}
 	return nil
 }

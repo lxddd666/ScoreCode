@@ -176,15 +176,13 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 		//记录普罗米修斯发送消息次数
 		if item.Initiator == item.Sender {
 			// 发送消息
-			prometheus.SendMsgCount.WithLabelValues(gconv.String(item.SendMsg))
+			prometheus.SendMsgCount.WithLabelValues(gconv.String(item.Sender)).Inc()
 		} else {
 			//回复消息
-			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(item.SendMsg))
+			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(item.Sender)).Inc()
 		}
 	}
 	_, err = g.Redis().HSet(ctx, consts.MsgReadReqKey, unreadMap)
-	result, err := g.Redis().HGet(ctx, consts.MsgReadReqKey, "123")
-	print(result)
 	if err != nil {
 		return err
 	}
@@ -244,6 +242,17 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 	for _, item := range callbackRes {
 		reqIds = append(reqIds, item.ReqId)
 		// 获取receiver
+		allval, _ := g.Redis().HGetAll(ctx, consts.MsgReadReqKey)
+		fmt.Println(allval)
+		val, err := g.Redis().HGet(ctx, consts.MsgReadReqKey, item.ReqId)
+		if err != nil {
+			return err
+		}
+		if val.Val() != nil {
+			readMsg := &entity.WhatsMsg{}
+			json.Unmarshal(val.Bytes(), readMsg)
+			prometheus.MsgReadCount.WithLabelValues(gconv.String(readMsg.Receiver)).Inc()
+		}
 	}
 	_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
 
