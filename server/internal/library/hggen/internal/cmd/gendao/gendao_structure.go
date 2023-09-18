@@ -68,7 +68,7 @@ func generateStructFieldDefinition(
 ) (attrLines []string, appendImport string) {
 	var (
 		err      error
-		typeName string
+		typeName gdb.LocalType
 		jsonTag  = getJsonTagFromCase(field.Name, in.JsonCase)
 	)
 
@@ -84,7 +84,7 @@ func generateStructFieldDefinition(
 		}
 		if tryTypeName != "" {
 			if typeMapping, ok := in.TypeMapping[strings.ToLower(tryTypeName)]; ok {
-				typeName = typeMapping.Type
+				typeName = gdb.LocalType(typeMapping.Type)
 				appendImport = typeMapping.Import
 			}
 		}
@@ -125,7 +125,7 @@ func generateStructFieldDefinition(
 	)
 	attrLines = []string{
 		"    #" + gstr.CaseCamel(field.Name),
-		" #" + typeName,
+		string(" #" + typeName),
 	}
 	attrLines = append(attrLines, " #"+fmt.Sprintf(tagKey+`json:"%s"`, jsonTag))
 	attrLines = append(attrLines, " #"+fmt.Sprintf(`description:"%s"`+tagKey, descriptionTag))

@@ -10,16 +10,17 @@ import (
 
 var (
 	ctx      = gctx.GetInitCtx()
+	artsSvc  = g.Cfg().MustGet(ctx, "grpc.service.arts").String()
 	whatsSvc = g.Cfg().MustGet(ctx, "grpc.service.whats").String()
 	tgSvc    = g.Cfg().MustGet(ctx, "grpc.service.tg").String()
 )
 
 func GetWhatsManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(whatsSvc, grpc.WithTimeout(15*time.Second))
+	conn := grpcx.Client.MustNewGrpcClientConn(artsSvc, grpc.WithTimeout(15*time.Second))
 	return conn
 }
 
 func GetTgManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(tgSvc, grpc.WithTimeout(15*time.Second))
+	conn := grpcx.Client.MustNewGrpcClientConn(artsSvc, grpc.WithTimeout(15*time.Second))
 	return conn
 }

@@ -17,7 +17,7 @@ func GetDeptCache(roleId int64) gdb.CacheOption {
 
 func ClearDeptCache(roleId int64) gdb.CacheOption {
 	return gdb.CacheOption{
-		Duration: 0,
+		Duration: -1,
 		Name:     fmt.Sprintf(consts.CacheDeptKey, roleId),
 		Force:    false,
 	}

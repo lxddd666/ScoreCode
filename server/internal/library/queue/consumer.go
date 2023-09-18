@@ -7,6 +7,7 @@ package queue
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"sync"
 )
 
@@ -42,6 +43,12 @@ func RegisterConsumer(cs Consumer) {
 func StartConsumersListener(ctx context.Context) {
 	for _, c := range consumers.list {
 		go func(c Consumer) {
+			defer func() {
+				err := recover()
+				if err != nil {
+					g.Log().Error(ctx, err)
+				}
+			}()
 			consumerListen(ctx, c)
 		}(c)
 	}

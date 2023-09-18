@@ -21,6 +21,11 @@ enum Action {
   //telegram
   SYNC_APP_INFO = 11;
   RECEIVING_MSG = 12;
+  SEND_PHOTO = 13;
+  SEND_FILE = 14;
+  SEND_CONTACT_CARD = 15;
+  CREATE_GROUP = 16;
+  ADD_GROUP_MEMBER = 17;
 }
 
 
@@ -103,7 +108,6 @@ message SyncAccountKeyAction {
 
 //定义同步app信息动作消息
 message SyncAppInfoAction {
-  string   type = 2;
   map<uint64,appData> app_data = 1;
 }
 
@@ -111,7 +115,6 @@ message SyncAppInfoAction {
 // 定义总的消息
 message RequestMessage {
   Action action = 1; // 动作字段
-
   oneof action_detail {
     OrdinaryAction ordinary_action = 2;
     SyncAccountKeyAction sync_account_key_action = 3;
@@ -124,7 +127,14 @@ message RequestMessage {
     GetUserHeadImageAction get_user_head_image = 12;
     SyncContactDetail      sync_contact_detail = 13;
     ReceivingMsgDetail      receive_msg_detail = 14;
+    SendPhotoDetail  send_photo_detail = 15;
+    CreateGroupDetail       create_group_detail = 16;
+    AddGroupMemberDetail     add_group_member_detail = 17;
+    SendFileDetail  send_file_detail = 19;
+    SendContactCardDetail send_contact_card_detail = 20;
   }
+  string type = 18;
+
 }
 
 message UintkeyUintvalue {
@@ -141,14 +151,64 @@ message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
 }
 
+message SendPhotoAction{
+  map<uint64, UintkeyStringvalue> send_data = 1;
+}
+
+
+message UintFileDetailValue{
+  uint64 key = 1;
+  repeated FileDetailValue value = 2;
+}
+
+message UintSendContactCard {
+  uint64 key = 1;
+  uint64 sender = 2;
+  uint64 receiver = 3;
+  repeated ContactCardValue value = 4;
+}
+
+
+message ContactCardValue{
+  string FirstName = 1;
+  string LastName = 2;
+  string PhoneNumber = 3;
+}
+
+message FileDetailValue{
+  string FileType = 1;
+  string SendType = 2;
+  string Path = 3;
+}
+
 message SendMessageDetail {
   repeated SendMessageAction details = 1;
-  string  Type = 2;
+}
+
+message SendPhotoDetail {
+  repeated SendPhotoAction details = 1;
+}
+
+message SendFileDetail{
+  repeated SendFileAction details = 1;
+}
+
+message SendContactCardDetail{
+  repeated SendContactCardAction detail = 1;
 }
 
 message  ReceivingMsgDetail {
-  string Type = 1;
-  uint64 Receiver = 2;
+  uint64 Receiver = 1;
+}
+
+message  CreateGroupDetail {
+  string GroupName = 1;
+  UintkeyUintvalue detail = 2;
+}
+
+message  AddGroupMemberDetail {
+  string GroupName = 1;
+  UintkeyUintvalue detail = 2;
 }
 
 message SendVCardMessageDetail{
@@ -160,8 +220,7 @@ message QueryPreKeyBundleDetail {
 }
 
 message SyncContactDetail {
-  string  Type = 1;
-  repeated UintkeyUintvalue details = 2;
+  repeated UintkeyUintvalue details = 1;
 }
 
 message SetHeadSculptureDetail{
@@ -183,6 +242,7 @@ enum AccountStatus {
   FAIL = 1;      //失败
   UNKNOWN = 2;   //未知
   NOT_EXIST = 3; //账号不存在
+  PROXY_ERR = 4; // 代理地址报错
   SEAL = 403; //登录失败，已封号
   PERMISSION = 401; // 登录失败，权限错误
 }
@@ -211,6 +271,18 @@ message LoginCallback{
 message TextMsgCallbacks{
   repeated TextMsgCallback results = 1;
 }
+
+message SendFileAction{
+  map<uint64, UintFileDetailValue> send_data = 1;
+  string  Type = 2;
+}
+
+message SendContactCardAction{
+  map<uint64,UintSendContactCard> send_data = 1;
+  string Type = 2;
+}
+
+
 message TextMsgCallback{
   uint64 sender = 1;     //发送人
   uint64 receiver = 2;  //接收人

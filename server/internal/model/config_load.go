@@ -126,6 +126,7 @@ type GrpcConfig struct {
 }
 
 type GrpcSvcConfig struct {
+	Arts  string `json:"arts" yaml:"arts"`
 	Tg    string `json:"tg" yaml:"tg"`
 	Whats string `json:"whats" yaml:"whats"`
 }

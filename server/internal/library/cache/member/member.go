@@ -17,7 +17,7 @@ func GetCache(id int64) gdb.CacheOption {
 
 func ClearCache(id int64) gdb.CacheOption {
 	return gdb.CacheOption{
-		Duration: 0,
+		Duration: -1,
 		Name:     fmt.Sprintf(consts.CacheMemberKey, id),
 		Force:    false,
 	}
