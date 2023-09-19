@@ -6,6 +6,7 @@
 package queue
 
 import (
+	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
@@ -22,7 +23,7 @@ type MqProducer interface {
 }
 
 type MqConsumer interface {
-	ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) (err error)
+	ListenReceiveMsgDo(ctx context.Context, topic string, receiveDo func(mqMsg MqMsg)) (err error)
 }
 
 const (

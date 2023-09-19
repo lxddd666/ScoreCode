@@ -85,7 +85,7 @@ func (r *RocketMq) SendDelayMsg(topic string, body string, delaySecond int64) (m
 }
 
 // ListenReceiveMsgDo 消费数据
-func (r *RocketMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) (err error) {
+func (r *RocketMq) ListenReceiveMsgDo(ctx context.Context, topic string, receiveDo func(mqMsg MqMsg)) (err error) {
 	if r.consumerIns == nil {
 		return gerror.New("rocketMq consumer not register")
 	}

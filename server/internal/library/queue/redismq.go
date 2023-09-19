@@ -125,7 +125,7 @@ func (r *RedisMq) SendDelayMsg(topic string, body string, delaySecond int64) (mq
 }
 
 // ListenReceiveMsgDo 消费数据
-func (r *RedisMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) (err error) {
+func (r *RedisMq) ListenReceiveMsgDo(ctx context.Context, topic string, receiveDo func(mqMsg MqMsg)) (err error) {
 	if r.poolName == "" {
 		return gerror.New("RedisMq producer not register")
 	}
