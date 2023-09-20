@@ -15,7 +15,7 @@ func Whats(ctx context.Context, group *ghttp.RouterGroup) {
 		if g.Cfg().MustGet(ctx, "hotgo.isTest", false).Bool() {
 			group.Middleware(service.Middleware().TestLimit)
 		}
-		group.Middleware(service.Middleware().WhatsAuth)
+		group.Middleware(service.Middleware().ScAuth(consts.AppWhats))
 		group.Bind(
 			whats.WhatsAccount,  // 账号管理
 			whats.WhatsArts,     //whats相关API

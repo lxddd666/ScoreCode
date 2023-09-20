@@ -182,7 +182,7 @@ func (l *gCurd) loadView(ctx context.Context, in *CurdPreviewInput) (err error) 
 	if err != nil {
 		return
 	}
-	importApi := gstr.Replace(temp.ApiPath, "./", modName+"/") + temp.MasterPackage + gstr.CaseSnake(in.In.VarName)
+	importApi := gstr.Replace(temp.ApiPath, "./", modName+"/") + temp.MasterPackage + "/" + gstr.CaseSnake(in.In.VarName)
 	importInput := gstr.Replace(temp.InputPath, "./", modName+"/") + temp.MasterPackage + "in"
 	importController := gstr.Replace(temp.ControllerPath, "./", modName+"/") + temp.MasterPackage
 	importService := "hotgo/internal/service"

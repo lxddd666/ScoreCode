@@ -53,6 +53,7 @@ export interface GlobConfig {
   shortName: string;
   urlPrefix?: string;
   whatsPrefix?: string;
+  tgPrefix?: string;
   uploadUrl?: string;
   imgUrl?: string;
 }
@@ -66,6 +67,8 @@ export interface GlobEnvConfig {
   VITE_GLOB_API_URL_PREFIX?: string;
   // whats
   VITE_GLOB_WHATS_API_URL_PREFIX?: string;
+  // TG
+  VITE_GLOB_TG_API_URL_PREFIX?: string;
   // Project abbreviation
   VITE_GLOB_APP_SHORT_NAME: string;
   // 图片上传地址

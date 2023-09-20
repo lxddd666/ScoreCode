@@ -50,8 +50,8 @@ type (
 		ResponseHandler(r *ghttp.Request)
 		// WebSocketAuth websocket鉴权中间件
 		WebSocketAuth(r *ghttp.Request)
-		// WhatsAuth 后台鉴权中间件
-		WhatsAuth(r *ghttp.Request)
+		// ScAuth 后台鉴权中间件
+		ScAuth(prefix string) func(r *ghttp.Request)
 	}
 )
 

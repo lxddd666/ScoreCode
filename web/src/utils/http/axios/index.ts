@@ -23,7 +23,7 @@ import {delNullProperty} from '@/utils/array';
 const globSetting = useGlobSetting();
 const urlPrefix = globSetting.urlPrefix || '';
 const whatsPrefix = globSetting.whatsPrefix || '';
-
+const tgPrefix = globSetting.tgPrefix || '';
 /**
  * @description: 数据处理，方便区分多种处理方式
  */
@@ -287,6 +287,8 @@ function createAxios(opt?: Partial<CreateAxiosOptions>, urlPrefix?: string) {
 export const http = createAxios({}, urlPrefix);
 
 export const whats = createAxios({}, whatsPrefix);
+
+export const tg = createAxios({}, tgPrefix);
 
 // 导出
 export const jumpExport = function (url, params) {

@@ -69,11 +69,12 @@ var (
 				router.Admin(ctx, group)
 				// 注册whats路由
 				router.Whats(ctx, group)
+				// 注册tg路由
+				router.Tg(ctx, group)
 				// 注册Api路由
 				router.Api(ctx, group)
 				// 注册websocket路由
 				router.WebSocket(ctx, group)
-
 				// 注册前台页面路由
 				router.Home(ctx, group)
 
