@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gcode"
@@ -16,7 +17,6 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
@@ -72,6 +72,22 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
 		return
 	}
+	reqIds := garray.NewStrArray()
+	for _, model := range list {
+		reqIds.PushRight(model.ReqId)
+	}
+	if result, err := g.Redis().HKeys(ctx, consts.MsgReadReqKey); err != nil {
+		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
+		return list, totalCount, err
+	} else {
+		reqIds.SetArray(result)
+		for _, model := range list {
+			if reqIds.Contains(model.ReqId) {
+				model.Read = consts.Unread
+			}
+		}
+	}
+
 	return
 }
 
@@ -104,10 +120,7 @@ func (s *sWhatsMsg) Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (er
 
 // Edit 修改/新增消息记录
 func (s *sWhatsMsg) Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err error) {
-	// 验证'ReqId'唯一
-	if err = hgorm.IsUnique(ctx, &dao.WhatsMsg, g.Map{dao.WhatsMsg.Columns().ReqId: in.ReqId}, "请求id已存在", in.Id); err != nil {
-		return
-	}
+
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
@@ -156,7 +169,7 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 	var msgList = make([]entity.WhatsMsg, 0)
 	unreadMap := make(map[string]interface{})
 	for _, item := range callbackRes {
-		item := entity.WhatsMsg{
+		msg := entity.WhatsMsg{
 			Initiator:     item.Initiator,
 			Sender:        item.Sender,
 			Receiver:      item.Receiver,
@@ -168,18 +181,19 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 			Comment:       "",
 			ReqId:         item.ReqId,
 		}
-		msgList = append(msgList, item)
-		unreadMap[item.ReqId] = map[string]interface{}{
+		msgList = append(msgList, msg)
+		unreadMap[msg.ReqId] = map[string]interface{}{
 			"read":     consts.Unread,
-			"receiver": item.Receiver,
+			"sender":   msg.Sender,
+			"receiver": msg.Receiver,
 		}
 		//记录普罗米修斯发送消息次数
-		if item.Initiator == item.Sender {
+		if msg.Initiator == msg.Sender {
 			// 发送消息
-			prometheus.SendMsgCount.WithLabelValues(gconv.String(item.Sender)).Inc()
+			prometheus.SendMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
 		} else {
 			//回复消息
-			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(item.Sender)).Inc()
+			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
 		}
 	}
 	_, err = g.Redis().HSet(ctx, consts.MsgReadReqKey, unreadMap)
@@ -234,26 +248,39 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 	callbackRes := make([]callback.ReadMsgCallbackRes, 0)
 	err = json.Unmarshal(res.Body, &callbackRes)
 	if err != nil {
-		return err
+		return
 	}
 	g.Log().Info(ctx, "kafka readMsgCallback: ", callbackRes)
 
+	allUnreadMsgVar, err := g.Redis().HGetAll(ctx, consts.MsgReadReqKey)
+	if err != nil {
+		return
+	}
+	unreadMsgMap := allUnreadMsgVar.Map()
+	msgMap := gmap.NewStrAnyMap()
 	reqIds := make([]string, 0)
 	for _, item := range callbackRes {
-		reqIds = append(reqIds, item.ReqId)
-		// 获取receiver
-		allval, _ := g.Redis().HGetAll(ctx, consts.MsgReadReqKey)
-		fmt.Println(allval)
-		val, err := g.Redis().HGet(ctx, consts.MsgReadReqKey, item.ReqId)
-		if err != nil {
-			return err
-		}
-		if val.Val() != nil {
+		// 接收到消息已读回调，把该联系人的所有记录标记已读
+		if ok := unreadMsgMap[item.ReqId]; ok != nil {
+			msgMap.Set(item.ReqId, ok)
 			readMsg := &entity.WhatsMsg{}
-			json.Unmarshal(val.Bytes(), readMsg)
+			_ = gconv.Scan(ok, &readMsg)
 			prometheus.MsgReadCount.WithLabelValues(gconv.String(readMsg.Receiver)).Inc()
 		}
 	}
+	msgMap.Iterator(func(k string, v interface{}) bool {
+		readMsg := &entity.WhatsMsg{}
+		_ = gconv.Scan(v, &readMsg)
+		for key, val := range unreadMsgMap {
+			unreadMsg := &entity.WhatsMsg{}
+			_ = gconv.Scan(val, &unreadMsg)
+			if unreadMsg.Receiver == readMsg.Receiver && unreadMsg.Sender == readMsg.Sender {
+				reqIds = append(reqIds, key)
+			}
+		}
+		return true
+	})
+
 	_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
 
 	return err

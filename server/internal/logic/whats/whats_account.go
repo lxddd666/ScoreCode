@@ -83,7 +83,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 		fields = append(fields, "wa.`proxy_address`", "wa.`comment`")
 	}
 
-	// 查询账号状态
+	// 查询账号
 	if in.Account != "" {
 		mod = mod.Where("wa."+dao.WhatsAccount.Columns().Account, in.Account)
 	}
@@ -91,7 +91,10 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	if in.AccountStatus != nil {
 		mod = mod.Where("wa."+dao.WhatsAccount.Columns().AccountStatus, in.AccountStatus)
 	}
-
+	// 查询是否在线
+	if in.IsOnline != nil {
+		mod = mod.Where("wa."+dao.WhatsAccount.Columns().IsOnline, in.IsOnline)
+	}
 	// 查询代理
 	if in.ProxyAddress != "" {
 		mod = mod.Where("wa."+dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress)
@@ -405,6 +408,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			AccountStatus: 0,
 			IsOnline:      consts.Offline,
 			Comment:       item.Comment,
+			UpdatedAt:     gtime.Now(),
 		}
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.LoginStatus) != protobuf.AccountStatus_SUCCESS {

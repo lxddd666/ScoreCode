@@ -1,14 +1,13 @@
-import { h, ref } from 'vue';
-import { NTag } from 'naive-ui';
-import { cloneDeep } from 'lodash-es';
-import { FormSchema } from '@/components/Form';
-import { Dicts } from '@/api/dict/dict';
+import {h, ref} from 'vue';
+import {NTag} from 'naive-ui';
+import {cloneDeep} from 'lodash-es';
+import {FormSchema} from '@/components/Form';
+import {Dicts} from '@/api/dict/dict';
 
-import { isNullObject } from '@/utils/is';
-import { defRangeShortcuts } from '@/utils/dateUtil';
-import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
+import {isNullObject} from '@/utils/is';
+import {defRangeShortcuts} from '@/utils/dateUtil';
+import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
 import {getOrgOption} from "@/api/org/dept";
-import {getRoleOption} from "@/api/system/role";
 
 export interface State {
   orgId: number;
@@ -25,6 +24,7 @@ export interface State {
 }
 
 export const defaultState = {
+  orgId: 0,
   id: 0,
   address: '',
   connectedCount: 0,
