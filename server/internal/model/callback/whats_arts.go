@@ -33,4 +33,5 @@ type SyncContactMsgCallbackRes struct {
 
 type LogoutCallbackRes struct {
 	UserJid uint64 `json:"userJid"`
+	Proxy   string `json:"proxy"`
 }

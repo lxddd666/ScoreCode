@@ -154,9 +154,10 @@ func InitPrometheus(ctx context.Context, s *ghttp.Server) {
 	if err != nil {
 		gerror.Wrap(err, "初始化普罗米修斯失败！")
 	}
+
 	result, _ := v1api.Targets(ctx)
 	g.Log().Info(ctx, "初始化普罗米修斯：", result)
-	s.BindHandler(config.Handler.Path, func(r *ghttp.Request) {
+	s.BindHandler("/metrics", func(r *ghttp.Request) {
 		promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
 	})
 }
