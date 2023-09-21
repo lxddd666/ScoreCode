@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
 	whatsproxy "hotgo/api/whats/whats_proxy"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
@@ -170,6 +171,15 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 		return
 	}
 	// 新增
+	if flag {
+		proxies := map[string]interface{}{}
+		proxies[in.Address] = in.MaxConnections - in.ConnectedCount
+		_, err := g.Redis().HSet(ctx, consts.RandomProxy, proxies)
+		if err != nil {
+			return nil
+		}
+
+	}
 	g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err = tx.Model(dao.WhatsProxy.Table()).
 			Fields(whatsin.WhatsProxyInsertFields{}).
@@ -205,13 +215,15 @@ func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteIn
 	whatsProxy := entity.WhatsProxy{}
 	s.Model(ctx).Fields(dao.WhatsProxy.Columns().Address).Where(dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxy)
 	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+
+	pdModel := entity.WhatsProxyDept{}
+	g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().OrgId).
+		Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).
+		Scan(&pdModel)
+
 	if !flag {
 		// 如果不是超管
 		// 删除只能是同公司的才可以
-		pdModel := entity.WhatsProxyDept{}
-		g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().OrgId).
-			Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).
-			Scan(&pdModel)
 		if pdModel.OrgId != user.OrgId {
 			err = gerror.Wrap(err, "非公司员工，不能修改数据！")
 			return
@@ -220,6 +232,12 @@ func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteIn
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
 			err = gerror.Wrap(err, "该用户没权限删除该代理信息权限，请联系管理员！")
 			return
+		}
+	} else {
+		// 超管删除的是否为随机代理
+		if pdModel.OrgId == 0 || &pdModel == nil {
+			g.Redis().HDel(ctx, consts.RandomProxy, whatsProxy.Address)
+			g.Redis().Del(ctx, consts.RandomProxyBandAccount+whatsProxy.Address)
 		}
 	}
 
@@ -323,6 +341,17 @@ func (s *sWhatsProxy) Upload(ctx context.Context, in []*whatsin.WhatsProxyUpload
 				Comment:      inp.Comment,
 			})
 		}
+	} else {
+		// 如果是超管
+		proxies := map[string]interface{}{}
+		for _, inp := range in {
+			proxies[inp.Address] = inp.MaxConnections - inp.ConnectedCount
+			_, err := g.Redis().HSet(ctx, consts.RandomProxy, proxies)
+			if err != nil {
+				return nil, err
+			}
+		}
+
 	}
 	err = handler.Model(dao.WhatsProxy.Ctx(ctx)).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		_, err = tx.Model(dao.WhatsProxy.Table()).Data(in).Save()
@@ -444,7 +473,7 @@ func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
 func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) error {
 	resp, err := g.Client().Discovery(nil).Proxy(in.Address).Get(gctx.New(), "https://api.ip.sb/geoip")
 	if err != nil {
-		err = gerror.Wrap(err, "请求失败")
+		err = gerror.Wrap(err, "代理不可用，代理请求失败")
 		in.Status = 2
 		return err
 	}
@@ -453,7 +482,7 @@ func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) err
 	data := &entity.WhatsProxy{}
 	err = gjson.New(resp.ReadAllString()).Scan(data)
 	if err != nil {
-		err = gerror.Wrap(err, "解析错误")
+		err = gerror.Wrap(err, "代理区域解析错误")
 		return err
 	}
 	in.Region = data.Region

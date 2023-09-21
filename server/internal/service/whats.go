@@ -101,6 +101,7 @@ type (
 		View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (res *whatsin.WhatsProxyViewModel, err error)
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
+		// Upload 上传代理
 		Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error)
 		// AddProxyToOrg 给指定公司加上代理
 		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)

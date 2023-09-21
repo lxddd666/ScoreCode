@@ -55,6 +55,19 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 				return gerror.Wrap(err, "redis记录登录账号登录过程报错:"+err.Error())
 			}
 		}
+		// 查看账号是否有代理
+		if account.ProxyAddress == "" || &account.ProxyAddress == nil {
+			proxyAddr, err := getRandomProxy(ctx)
+			if err != nil {
+				return gerror.Wrap(err, "获取随机代理失败:"+err.Error())
+			}
+			account.ProxyAddress = proxyAddr
+			// 添加将随机代理和手机号绑定到redis中
+			err = BandProxyWithPhoneToRedis(ctx, proxyAddr, account.Account)
+			if err != nil {
+				return gerror.Wrap(err, "随机代理绑定失败！")
+			}
+		}
 	}
 	if len(accounts) == 0 {
 		return gerror.New("选择登录的账号已经在登录中....")
@@ -395,4 +408,152 @@ func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobu
 		},
 	}
 	return req
+}
+
+func getRandomProxyToRedis(ctx context.Context) error {
+	var (
+		fields = []string{"wp.`address`",
+			"wp.`max_connections`",
+			"wp.`connected_count`"}
+	)
+	fmt.Println(fields)
+
+	list := []entity.WhatsProxy{}
+
+	//var dp = entity.WhatsProxyDept{}
+	g.Model(dao.WhatsProxy.Table()).As("wp").LeftJoin(dao.WhatsProxyDept.Table()+" wpd", "wp."+dao.WhatsProxy.Columns().Address+"=wpd."+dao.WhatsProxyDept.Columns().ProxyAddress).
+		Fields(fields).
+		Where("wpd."+dao.WhatsProxyDept.Columns().ProxyAddress, nil).
+		Where("wp."+dao.WhatsProxy.Columns().Status, 1).Where("wp." + dao.WhatsProxy.Columns().MaxConnections + "-" + "wp." + dao.WhatsProxy.Columns().ConnectedCount + "> 0").Scan(&list)
+
+	if len(list) == 0 {
+		return gerror.New("没有代理可用！请联系管理员")
+	}
+	// 将其放入到redis中
+	proxies := map[string]interface{}{}
+	for _, proxy := range list {
+		proxies[proxy.Address] = proxy.MaxConnections - proxy.ConnectedCount
+		_, err := g.Redis().HSet(ctx, consts.RandomProxy, proxies)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
+}
+
+// 获取随机的可连接代理地址
+func getRandomProxy(ctx context.Context) (string, error) {
+	// 获取所有代理地址和可连接数量的Hash
+	val, err := g.Redis().HGetAll(ctx, consts.RandomProxy)
+	if err != nil {
+		return "", err
+	}
+	result := val.Map()
+	if len(result) <= 0 {
+		// 获取代理
+		err := getRandomProxyToRedis(ctx)
+		if err != nil {
+			return "", err
+		}
+		// 重新再从redis中获取
+		val, err = g.Redis().HGetAll(ctx, consts.RandomProxy)
+		result = val.Map()
+	}
+
+	// 遍历Hash，筛选出可连接数量大于0的代理地址
+	if len(result) > 0 {
+		for proxy, countStr := range result {
+			count := gconv.Int32(countStr)
+			if count <= 0 {
+				_, err = g.Redis().HDel(ctx, consts.RandomProxy, proxy)
+				if err != nil {
+					return "", err
+				}
+				continue
+			}
+			// 先扣库存，再绑定
+			err := DecrementProxyCount(proxy, consts.RandomProxy, ctx)
+			if err != nil {
+				return "", err
+			}
+			// 绑定
+			return proxy, nil
+		}
+	} else {
+		return "", nil
+	}
+	return "", nil
+}
+
+// 减少代理地址的可连接数量
+func DecrementProxyCount(proxy string, key string, ctx context.Context) error {
+	// 减少代理地址的可连接数量
+	_, err := g.Redis().HIncrBy(ctx, key, proxy, -1)
+	if err != nil {
+		return err
+	}
+
+	// 检查可连接数量是否为0，如果是则从Hash中移除该代理地址
+	val, err := g.Redis().HGet(ctx, key, proxy)
+	if err != nil {
+		return err
+	}
+	count := val.Int()
+
+	if count <= 0 {
+		_, err = g.Redis().HDel(ctx, key, proxy)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// BandProxyWithPhoneToRedis 绑定手机号和随机代理
+func BandProxyWithPhoneToRedis(ctx context.Context, proxy string, account string) error {
+	_, err := g.Redis().SAdd(ctx, consts.RandomProxyBandAccount+proxy, account)
+	if err != nil {
+		//绑定失败，归还原来代理，连接数+1
+		_, err = g.Redis().HIncrBy(ctx, consts.RandomProxy, proxy, 1)
+		return err
+	}
+	return nil
+}
+
+// UpBandProxyWithPhoneToRedis 解除绑定手机号和随机代理
+func UpBandProxyWithPhoneToRedis(ctx context.Context, proxy string, account string) error {
+	// 1、先查代理看是否含有该手机号
+	flag, err := g.Redis().SIsMember(ctx, consts.RandomProxyBandAccount+proxy, account)
+	if err != nil {
+		return err
+	}
+	if flag == 1 {
+		// 2、删除绑定代理对应的手机号
+		_, err := g.Redis().SRem(ctx, consts.RandomProxyBandAccount+proxy, account)
+		if err != nil {
+			return err
+		}
+		// 3、对应代理可连接数+1
+		_, err = g.Redis().HIncrBy(ctx, consts.RandomProxy, proxy, 1)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// IsRedisKeyExists 查看redis是否存在key
+func IsRedisKeyExists(ctx context.Context, key string) (bool, error) {
+	f, err := g.Redis().Exists(ctx, key)
+	if err != nil {
+		return false, err
+	}
+	if f == 0 {
+		return false, nil
+	}
+	return true, nil
+
 }

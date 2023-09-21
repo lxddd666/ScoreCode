@@ -456,7 +456,17 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
 		_, _ = g.Redis().Del(ctx, syncContactKey)
 		data.LastLoginTime = gtime.Now()
-
+		// 如果随机代理代理，则添加回redis,先查询是否为代理
+		flag, err := IsRedisKeyExists(ctx, consts.RedisSyncContactAccountKey+item.Proxy)
+		if err != nil {
+			return err
+		}
+		if flag == true {
+			err := UpBandProxyWithPhoneToRedis(ctx, item.Proxy, gconv.String(item.UserJid))
+			if err != nil {
+				return err
+			}
+		}
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 		key := fmt.Sprintf("%s%d", consts.QueueActionLoginAccounts, item.UserJid)
