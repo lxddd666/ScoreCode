@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"google.golang.org/grpc"
+	"hotgo/internal/service"
 	"time"
 )
 
@@ -15,12 +16,17 @@ var (
 	tgSvc    = g.Cfg().MustGet(ctx, "grpc.service.tg").String()
 )
 
-func GetWhatsManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(artsSvc, grpc.WithTimeout(15*time.Second))
-	return conn
-}
+var (
+	deadlines = 15
+)
 
-func GetTgManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(artsSvc, grpc.WithTimeout(15*time.Second))
+func GetManagerConn() *grpc.ClientConn {
+	interceptors := make([]grpc.UnaryClientInterceptor, 0)
+	if g.Cfg().MustGet(ctx, "hotgo.isTest", false).Bool() {
+		interceptors = append(interceptors, service.Middleware().UnaryClientTestLimit)
+	}
+	interceptors = append(interceptors, service.Middleware().UnaryClientTimeout(time.Duration(deadlines)*time.Second))
+
+	conn := grpcx.Client.MustNewGrpcClientConn(artsSvc, grpcx.Client.ChainUnary(interceptors...))
 	return conn
 }

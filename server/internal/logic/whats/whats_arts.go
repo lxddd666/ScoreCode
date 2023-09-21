@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -17,8 +19,10 @@ import (
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
+	"hotgo/utility/simple"
 	whatsutil "hotgo/utility/whats"
 	"strconv"
+	"sync"
 )
 
 type sWhatsArts struct{}
@@ -35,45 +39,58 @@ func init() {
 func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 
 	var reqAccounts []entity.WhatsAccount
-	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).WherePri(ids).Scan(&reqAccounts)
+	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).
+		//WhereOrNot(dao.WhatsAccount.Columns().IsOnline, consts.Online).
+		WherePri(ids).Scan(&reqAccounts)
 	if err != nil {
 		return err
 	}
+
 	// 查看是否正在登录，防止重复登录 ================
-	accounts := make([]entity.WhatsAccount, 0)
-	for _, account := range reqAccounts {
-		key := fmt.Sprintf("%s%s", consts.QueueActionLoginAccounts, account.Account)
-		v, err := g.Redis().Get(ctx, key)
+	accounts := garray.NewArray(true)
+	notAccounts := garray.NewArray(true)
+	wg := sync.WaitGroup{}
+	for _, item := range reqAccounts {
+		wg.Add(1)
+		whatsAccount := item
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			defer wg.Done()
+			//判断是否在登录中，已在登录中的号不执行登录操作
+			key := fmt.Sprintf("%s%s", consts.QueueActionLoginAccounts, whatsAccount.Account)
+			v, _ := g.Redis().Get(ctx, key)
+			if v.Val() == nil {
+
+				// 查看账号是否有代理
+				if whatsAccount.ProxyAddress == "" {
+					notAccounts.Append(&whatsAccount)
+				} else {
+					// 没在登录过程中
+					accounts.Append(&whatsAccount)
+				}
+				_ = g.Redis().SetEX(ctx, key, whatsAccount.Account, 2)
+			}
+		})
+	}
+	wg.Wait()
+	//随机代理
+	if notAccounts.Len() > 0 {
+		err, notAccounts = handlerRandomProxy(ctx, notAccounts)
 		if err != nil {
 			return err
 		}
-		if v.Val() == nil {
-			// 没在登录过程中
-			accounts = append(accounts, account)
-			err := g.Redis().SetEX(ctx, key, account.Account, 2)
-			if err != nil {
-				return gerror.Wrap(err, "redis记录登录账号登录过程报错:"+err.Error())
-			}
-		}
-		// 查看账号是否有代理
-		if account.ProxyAddress == "" || &account.ProxyAddress == nil {
-			proxyAddr, err := getRandomProxy(ctx)
-			if err != nil {
-				return gerror.Wrap(err, "获取随机代理失败:"+err.Error())
-			}
-			account.ProxyAddress = proxyAddr
-			// 添加将随机代理和手机号绑定到redis中
-			err = BandProxyWithPhoneToRedis(ctx, proxyAddr, account.Account)
-			if err != nil {
-				return gerror.Wrap(err, "随机代理绑定失败！")
-			}
-		}
+		accounts.Merge(notAccounts)
 	}
-	if len(accounts) == 0 {
+
+	if accounts.Len() == 0 {
 		return gerror.New("选择登录的账号已经在登录中....")
 	}
+	var loginAccounts []entity.WhatsAccount
+	err = gconv.Scan(accounts.Slice(), &loginAccounts)
+	if err != nil {
+		return err
+	}
 	//===================================
-	conn := grpc.GetWhatsManagerConn()
+	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -82,24 +99,24 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
 
-	accountKeys, err := s.syncAccountKey(ctx, accounts)
+	accountKeys, err := s.syncAccountKey(ctx, loginAccounts)
 	syncRes, err := c.Connect(ctx, accountKeys)
 	if err != nil {
 		return err
 	}
 	g.Log().Info(ctx, "同步结果：", syncRes.GetActionResult().String())
-	req := s.login(ctx, accounts)
+	req := s.login(ctx, loginAccounts)
 	loginRes, err := c.Connect(ctx, req)
 
 	if err != nil {
 		return err
 	}
 	userId := contexts.GetUserId(ctx)
-	usernameMap := map[string]interface{}{}
-	for _, item := range accounts {
-		usernameMap[item.Account] = userId
+	usernameMap := gmap.NewStrAnyMap(true)
+	for _, item := range loginAccounts {
+		usernameMap.Set(item.Account, userId)
 	}
-	_, _ = g.Redis().HSet(ctx, consts.LoginAccountKey, usernameMap)
+	_, _ = g.Redis().HSet(ctx, consts.LoginAccountKey, usernameMap.Map())
 	g.Log().Info(ctx, "登录结果：", loginRes.GetActionResult().String())
 	return err
 }
@@ -159,7 +176,7 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) 
 }
 
 func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error) {
-	conn := grpc.GetWhatsManagerConn()
+	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -201,7 +218,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 
 // SendMsg 发送消息
 func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
-	conn := grpc.GetWhatsManagerConn()
+	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -272,7 +289,7 @@ func (s *sWhatsArts) sendTextMessage(msgReq *whatsin.WhatsMsgInp) *protobuf.Requ
 }
 
 func (s *sWhatsArts) AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error) {
-	conn := grpc.GetWhatsManagerConn()
+	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -314,7 +331,7 @@ func logout(detail whatsin.LogoutDetail) *protobuf.RequestMessage {
 }
 
 func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error) {
-	conn := grpc.GetWhatsManagerConn()
+	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -410,139 +427,126 @@ func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobu
 	return req
 }
 
-func getRandomProxyToRedis(ctx context.Context) error {
+func handlerRandomProxy(ctx context.Context, notAccounts *garray.Array) (err error, result *garray.Array) {
+	proxy, err := g.Redis().RPop(ctx, consts.RandomProxyList)
+	if err != nil {
+		return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
+	}
+	if proxy.IsEmpty() {
+		err = getRandomProxyToRedis(ctx)
+		if err != nil {
+			return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
+		}
+		return handlerRandomProxy(ctx, notAccounts)
+	}
+	forNum := 0
+	proxyMap := proxy.MapStrVar()
+	num := proxyMap["num"].Int()
+	proxyAddress := proxyMap["address"].String()
+	if num > notAccounts.Len() {
+		residue := num - notAccounts.Len()
+		forNum = notAccounts.Len()
+		err = handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
+		if err != nil {
+			return
+		}
+		//没用完重新放入redis
+		_, err = g.Redis().LPush(ctx, consts.RandomProxyList, g.MapStrAny{
+			"address": proxyMap["address"].String(),
+			"num":     residue,
+		})
+		if err != nil {
+			return
+		}
+		result = notAccounts
+	} else if num == notAccounts.Len() {
+		forNum = num
+		err = handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
+		if err != nil {
+			return
+		}
+		result = notAccounts
+	} else {
+		//此时需要拆分数组
+		forNum = num
+		err = handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
+		if err != nil {
+			return
+		}
+		newArray := garray.NewFrom(notAccounts.Slice()[:forNum], true)
+		err, array := handlerRandomProxy(ctx, garray.NewArrayFrom(notAccounts.Slice()[forNum:]))
+		if err != nil {
+			return err, nil
+		}
+		newArray.Merge(array)
+		result = newArray
+	}
+	_, err = g.Redis().Set(ctx, consts.RandomProxyBindAccount+proxyAddress, 0)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func handlerRandRomSetProxy(forNum int, proxyAddress string, notAccounts *garray.Array) (err error) {
+	for i := 0; i < forNum; i++ {
+		v, _ := notAccounts.Get(i)
+		whatsAccount := &entity.WhatsAccount{}
+		err = gconv.Scan(v, whatsAccount)
+		if err != nil {
+			return
+		}
+		whatsAccount.ProxyAddress = proxyAddress
+		err = notAccounts.Set(i, whatsAccount)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
+// 预热代理
+func getRandomProxyToRedis(ctx context.Context) (err error) {
 	var (
 		fields = []string{"wp.`address`",
 			"wp.`max_connections`",
 			"wp.`connected_count`"}
 	)
-	fmt.Println(fields)
+	var list []entity.WhatsProxy
 
-	list := []entity.WhatsProxy{}
-
-	//var dp = entity.WhatsProxyDept{}
-	g.Model(dao.WhatsProxy.Table()).As("wp").LeftJoin(dao.WhatsProxyDept.Table()+" wpd", "wp."+dao.WhatsProxy.Columns().Address+"=wpd."+dao.WhatsProxyDept.Columns().ProxyAddress).
+	err = g.Model(dao.WhatsProxy.Table()).As("wp").
+		LeftJoin(dao.WhatsProxyDept.Table()+" wpd", "wp."+dao.WhatsProxy.Columns().Address+"=wpd."+dao.WhatsProxyDept.Columns().ProxyAddress).
 		Fields(fields).
 		Where("wpd."+dao.WhatsProxyDept.Columns().ProxyAddress, nil).
-		Where("wp."+dao.WhatsProxy.Columns().Status, 1).Where("wp." + dao.WhatsProxy.Columns().MaxConnections + "-" + "wp." + dao.WhatsProxy.Columns().ConnectedCount + "> 0").Scan(&list)
+		Where("wp."+dao.WhatsProxy.Columns().Status, 1).
+		Where("wp." + dao.WhatsProxy.Columns().MaxConnections + "-" + "wp." + dao.WhatsProxy.Columns().ConnectedCount + "> 0").
+		Limit(100).
+		Scan(&list)
 
 	if len(list) == 0 {
 		return gerror.New("没有代理可用！请联系管理员")
 	}
 	// 将其放入到redis中
-	proxies := map[string]interface{}{}
+	proxies := make([]interface{}, 0)
 	for _, proxy := range list {
-		proxies[proxy.Address] = proxy.MaxConnections - proxy.ConnectedCount
-		_, err := g.Redis().HSet(ctx, consts.RandomProxy, proxies)
-		if err != nil {
-			return err
-		}
+		proxies = append(proxies, g.MapStrAny{
+			"address": proxy.Address,
+			"num":     proxy.MaxConnections - proxy.ConnectedCount,
+		})
 	}
-
-	return nil
+	_, err = g.Redis().LPush(ctx, consts.RandomProxyList, proxies...)
+	return err
 
 }
 
-// 获取随机的可连接代理地址
-func getRandomProxy(ctx context.Context) (string, error) {
-	// 获取所有代理地址和可连接数量的Hash
-	val, err := g.Redis().HGetAll(ctx, consts.RandomProxy)
-	if err != nil {
-		return "", err
-	}
-	result := val.Map()
-	if len(result) <= 0 {
-		// 获取代理
-		err := getRandomProxyToRedis(ctx)
-		if err != nil {
-			return "", err
-		}
-		// 重新再从redis中获取
-		val, err = g.Redis().HGetAll(ctx, consts.RandomProxy)
-		result = val.Map()
-	}
-
-	// 遍历Hash，筛选出可连接数量大于0的代理地址
-	if len(result) > 0 {
-		for proxy, countStr := range result {
-			count := gconv.Int32(countStr)
-			if count <= 0 {
-				_, err = g.Redis().HDel(ctx, consts.RandomProxy, proxy)
-				if err != nil {
-					return "", err
-				}
-				continue
-			}
-			// 先扣库存，再绑定
-			err := DecrementProxyCount(proxy, consts.RandomProxy, ctx)
-			if err != nil {
-				return "", err
-			}
-			// 绑定
-			return proxy, nil
-		}
-	} else {
-		return "", nil
-	}
-	return "", nil
-}
-
-// 减少代理地址的可连接数量
-func DecrementProxyCount(proxy string, key string, ctx context.Context) error {
-	// 减少代理地址的可连接数量
-	_, err := g.Redis().HIncrBy(ctx, key, proxy, -1)
-	if err != nil {
-		return err
-	}
-
-	// 检查可连接数量是否为0，如果是则从Hash中移除该代理地址
-	val, err := g.Redis().HGet(ctx, key, proxy)
-	if err != nil {
-		return err
-	}
-	count := val.Int()
-
-	if count <= 0 {
-		_, err = g.Redis().HDel(ctx, key, proxy)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// BandProxyWithPhoneToRedis 绑定手机号和随机代理
-func BandProxyWithPhoneToRedis(ctx context.Context, proxy string, account string) error {
-	_, err := g.Redis().SAdd(ctx, consts.RandomProxyBandAccount+proxy, account)
-	if err != nil {
-		//绑定失败，归还原来代理，连接数+1
-		_, err = g.Redis().HIncrBy(ctx, consts.RandomProxy, proxy, 1)
-		return err
-	}
-	return nil
-}
-
-// UpBandProxyWithPhoneToRedis 解除绑定手机号和随机代理
-func UpBandProxyWithPhoneToRedis(ctx context.Context, proxy string, account string) error {
-	// 1、先查代理看是否含有该手机号
-	flag, err := g.Redis().SIsMember(ctx, consts.RandomProxyBandAccount+proxy, account)
-	if err != nil {
-		return err
-	}
-	if flag == 1 {
-		// 2、删除绑定代理对应的手机号
-		_, err := g.Redis().SRem(ctx, consts.RandomProxyBandAccount+proxy, account)
-		if err != nil {
-			return err
-		}
-		// 3、对应代理可连接数+1
-		_, err = g.Redis().HIncrBy(ctx, consts.RandomProxy, proxy, 1)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+// UpBindProxyWithPhoneToRedis 解除绑定手机号和随机代理
+func UpBindProxyWithPhoneToRedis(ctx context.Context, proxy string) (err error) {
+	//重新放回队列
+	_, err = g.Redis().LPush(ctx, consts.RandomProxyList, g.MapStrAny{
+		"address": proxy,
+		"num":     1,
+	})
+	return
 }
 
 // IsRedisKeyExists 查看redis是否存在key

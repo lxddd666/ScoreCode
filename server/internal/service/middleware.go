@@ -7,8 +7,10 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/gogf/gf/v2/net/ghttp"
+	"google.golang.org/grpc"
 )
 
 type (
@@ -17,6 +19,10 @@ type (
 		AdminAuth(r *ghttp.Request)
 		// ApiAuth API鉴权中间件
 		ApiAuth(r *ghttp.Request)
+		// UnaryClientTimeout 超时
+		UnaryClientTimeout(timeout time.Duration) grpc.UnaryClientInterceptor
+		// UnaryClientTestLimit 测试模式
+		UnaryClientTestLimit(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error
 		// HomeAuth 前台页面鉴权中间件
 		HomeAuth(r *ghttp.Request)
 		// Ctx 初始化请求上下文

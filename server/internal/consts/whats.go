@@ -7,7 +7,8 @@ var (
 	RedisSyncContactAccountKey = "sync_constatcs_record_account:"
 	LastLoginAccountId         = "last_login_account_userId"
 	RandomProxy                = "random_proxy:"
-	RandomProxyBandAccount     = "random_proxy_band_account:"
+	RandomProxyList            = "random_proxy_list"
+	RandomProxyBindAccount     = "random_proxy_bind_account:"
 )
 
 var (

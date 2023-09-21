@@ -217,10 +217,12 @@ func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteIn
 	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
 
 	pdModel := entity.WhatsProxyDept{}
-	g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().OrgId).
+	err = g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().OrgId).
 		Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).
 		Scan(&pdModel)
-
+	if err != nil {
+		return
+	}
 	if !flag {
 		// 如果不是超管
 		// 删除只能是同公司的才可以
@@ -236,12 +238,12 @@ func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteIn
 	} else {
 		// 超管删除的是否为随机代理
 		if pdModel.OrgId == 0 || &pdModel == nil {
-			g.Redis().HDel(ctx, consts.RandomProxy, whatsProxy.Address)
-			g.Redis().Del(ctx, consts.RandomProxyBandAccount+whatsProxy.Address)
+			_, _ = g.Redis().HDel(ctx, consts.RandomProxy, whatsProxy.Address)
+			_, _ = g.Redis().Del(ctx, consts.RandomProxyBindAccount+whatsProxy.Address)
 		}
 	}
 
-	g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		if flag {
 			// 如果为超管，则删除代理及其对应的关联数据
 			_, err = tx.Model(dao.WhatsProxyDept.Table()).Where(dao.WhatsProxyDept.Columns().ProxyAddress, whatsProxy.Address).Delete()
