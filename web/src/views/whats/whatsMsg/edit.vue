@@ -53,7 +53,9 @@
           <n-form-item label="是否已读" path="read">
             <n-select v-model:value="params.read" :options="options.read_status" />
           </n-form-item>
-
+          <n-form-item label="发送状态" path="sendStatus">
+            <n-select v-model:value="params.sendStatus" :options="options.send_status" />
+          </n-form-item>
           <n-form-item label="备注" path="comment">
             <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
           </n-form-item>

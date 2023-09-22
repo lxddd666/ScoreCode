@@ -57,6 +57,14 @@
             >{{ getOptionLabel(options.read_status, formValue?.read) }}</n-tag
           >
         </n-descriptions-item>
+        <n-descriptions-item label="发送状态">
+          <n-tag
+            :type="getOptionTag(options.send_status, formValue?.sendStatus)"
+            size="small"
+            class="min-left-space"
+          >{{ getOptionLabel(options.send_status, formValue?.sendStatus) }}</n-tag
+          >
+        </n-descriptions-item>
 
         <n-descriptions-item>
           <template #label>备注</template>
