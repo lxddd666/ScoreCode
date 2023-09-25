@@ -160,7 +160,6 @@ export const columns = [
     title: '发送状态',
     key: 'sendStatus',
     render(row) {
-      debugger
       if (isNullObject(row.sendStatus)) {
         return ``;
       }
