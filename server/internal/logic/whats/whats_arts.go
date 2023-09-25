@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -12,9 +11,11 @@ import (
 	grpc2 "google.golang.org/grpc"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/model/entity"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
@@ -25,7 +26,8 @@ import (
 	"sync"
 )
 
-type sWhatsArts struct{}
+type sWhatsArts struct {
+}
 
 func NewWhatsArts() *sWhatsArts {
 	return &sWhatsArts{}
@@ -40,15 +42,18 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 
 	var reqAccounts []entity.WhatsAccount
 	err = handler.Model(dao.WhatsAccount.Ctx(ctx)).
-		//WhereOrNot(dao.WhatsAccount.Columns().IsOnline, consts.Online).
+		Where(dao.WhatsAccount.Columns().IsOnline, consts.Offline).
 		WherePri(ids).Scan(&reqAccounts)
 	if err != nil {
 		return err
 	}
+	if len(reqAccounts) < 1 {
+		return gerror.New("请选择未登录账号")
+	}
 
 	// 查看是否正在登录，防止重复登录 ================
-	accounts := garray.NewArray(true)
-	notAccounts := garray.NewArray(true)
+	accounts := array.New[*entity.WhatsAccount](true)
+	notAccounts := array.New[*entity.WhatsAccount](true)
 	wg := sync.WaitGroup{}
 	for _, item := range reqAccounts {
 		wg.Add(1)
@@ -56,7 +61,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 		simple.SafeGo(ctx, func(ctx context.Context) {
 			defer wg.Done()
 			//判断是否在登录中，已在登录中的号不执行登录操作
-			key := fmt.Sprintf("%s%s", consts.QueueActionLoginAccounts, whatsAccount.Account)
+			key := fmt.Sprintf("%s%s", consts.ActionLoginAccounts, whatsAccount.Account)
 			v, _ := g.Redis().Get(ctx, key)
 			if v.Val() == nil {
 
@@ -67,36 +72,29 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 					// 没在登录过程中
 					accounts.Append(&whatsAccount)
 				}
-				_ = g.Redis().SetEX(ctx, key, whatsAccount.Account, 2)
+				_ = g.Redis().SetEX(ctx, key, whatsAccount.Account, 10)
 			}
 		})
 	}
 	wg.Wait()
 	//随机代理
 	if notAccounts.Len() > 0 {
-		err, notAccounts = handlerRandomProxy(ctx, notAccounts)
-		if err != nil {
+		mutex := lock.Mutex(fmt.Sprintf("%s:%s", "lock", "arts_login"))
+		err = mutex.LockFunc(ctx, func() error {
+			err, notAccounts = s.handlerRandomProxy(ctx, notAccounts)
 			return err
-		}
-		accounts.Merge(notAccounts)
+		})
+		accounts.Merge(notAccounts.Slice())
 	}
 
-	if accounts.Len() == 0 {
-		return gerror.New("选择登录的账号已经在登录中....")
+	if accounts.IsEmpty() {
+		return gerror.Newf("选择登录的账号[%s]已经在登录中....", reqAccounts[0].Account)
 	}
-	var loginAccounts []entity.WhatsAccount
-	err = gconv.Scan(accounts.Slice(), &loginAccounts)
-	if err != nil {
-		return err
-	}
+	var loginAccounts = accounts.Slice()
+
 	//===================================
 	conn := grpc.GetManagerConn()
-	defer func(conn *grpc2.ClientConn) {
-		err = conn.Close()
-		if err != nil {
-			g.Log().Error(ctx, err)
-		}
-	}(conn)
+	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 
 	accountKeys, err := s.syncAccountKey(ctx, loginAccounts)
@@ -121,7 +119,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	return err
 }
 
-func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []entity.WhatsAccount) (*protobuf.RequestMessage, error) {
+func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []*entity.WhatsAccount) (*protobuf.RequestMessage, error) {
 	keyData := make(map[uint64]*protobuf.KeyData)
 	whatsConfig, _ := service.SysConfig().GetWhatsConfig(ctx)
 	keyBytes := []byte(whatsConfig.Aes.Key)
@@ -153,7 +151,7 @@ func (s *sWhatsArts) syncAccountKey(ctx context.Context, accounts []entity.Whats
 	return req, nil
 }
 
-func (s *sWhatsArts) login(ctx context.Context, accounts []entity.WhatsAccount) *protobuf.RequestMessage {
+func (s *sWhatsArts) login(ctx context.Context, accounts []*entity.WhatsAccount) *protobuf.RequestMessage {
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	for _, item := range accounts {
 		ld := &protobuf.LoginDetail{
@@ -242,10 +240,6 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
-		//msg, _ := proto.Marshal(syncContactMsg)
-		//if err := queue.Push(consts.QueueActionSyncContact, msg); err != nil {
-		//	g.Log().Warningf(ctx, "push err:%+v, models:%+v", err, msg)
-		//}
 		artsRes, err := c.Connect(ctx, syncContactMsg)
 		if err != nil {
 			return "", err
@@ -427,17 +421,18 @@ func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobu
 	return req
 }
 
-func handlerRandomProxy(ctx context.Context, notAccounts *garray.Array) (err error, result *garray.Array) {
+func (s *sWhatsArts) handlerRandomProxy(ctx context.Context, notAccounts *array.Array[*entity.WhatsAccount]) (err error, result *array.Array[*entity.WhatsAccount]) {
+
 	proxy, err := g.Redis().RPop(ctx, consts.RandomProxyList)
 	if err != nil {
 		return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
 	}
 	if proxy.IsEmpty() {
-		err = getRandomProxyToRedis(ctx)
+		err = s.getRandomProxyToRedis(ctx)
 		if err != nil {
 			return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
 		}
-		return handlerRandomProxy(ctx, notAccounts)
+		return s.handlerRandomProxy(ctx, notAccounts)
 	}
 	forNum := 0
 	proxyMap := proxy.MapStrVar()
@@ -446,7 +441,7 @@ func handlerRandomProxy(ctx context.Context, notAccounts *garray.Array) (err err
 	if num > notAccounts.Len() {
 		residue := num - notAccounts.Len()
 		forNum = notAccounts.Len()
-		err = handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
+		err = s.handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
 		if err != nil {
 			return
 		}
@@ -461,7 +456,7 @@ func handlerRandomProxy(ctx context.Context, notAccounts *garray.Array) (err err
 		result = notAccounts
 	} else if num == notAccounts.Len() {
 		forNum = num
-		err = handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
+		err = s.handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
 		if err != nil {
 			return
 		}
@@ -469,16 +464,16 @@ func handlerRandomProxy(ctx context.Context, notAccounts *garray.Array) (err err
 	} else {
 		//此时需要拆分数组
 		forNum = num
-		err = handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
+		err = s.handlerRandRomSetProxy(forNum, proxyAddress, notAccounts)
 		if err != nil {
 			return
 		}
-		newArray := garray.NewFrom(notAccounts.Slice()[:forNum], true)
-		err, array := handlerRandomProxy(ctx, garray.NewArrayFrom(notAccounts.Slice()[forNum:]))
+		newArray := array.NewFrom(notAccounts.Slice()[:forNum], true)
+		err, a := s.handlerRandomProxy(ctx, array.NewArrayFrom(notAccounts.Slice()[forNum:]))
 		if err != nil {
 			return err, nil
 		}
-		newArray.Merge(array)
+		newArray.Merge(a.Slice())
 		result = newArray
 	}
 	_, err = g.Redis().Set(ctx, consts.RandomProxyBindAccount+proxyAddress, 0)
@@ -488,25 +483,21 @@ func handlerRandomProxy(ctx context.Context, notAccounts *garray.Array) (err err
 	return
 }
 
-func handlerRandRomSetProxy(forNum int, proxyAddress string, notAccounts *garray.Array) (err error) {
+func (s *sWhatsArts) handlerRandRomSetProxy(forNum int, proxyAddress string, notAccounts *array.Array[*entity.WhatsAccount]) (err error) {
 	for i := 0; i < forNum; i++ {
 		v, _ := notAccounts.Get(i)
-		whatsAccount := &entity.WhatsAccount{}
-		err = gconv.Scan(v, whatsAccount)
-		if err != nil {
-			return
-		}
-		whatsAccount.ProxyAddress = proxyAddress
-		err = notAccounts.Set(i, whatsAccount)
-		if err != nil {
-			return
-		}
+		v.ProxyAddress = proxyAddress
 	}
 	return
 }
 
 // 预热代理
-func getRandomProxyToRedis(ctx context.Context) (err error) {
+func (s *sWhatsArts) getRandomProxyToRedis(ctx context.Context) (err error) {
+	exists, err := g.Redis().Exists(ctx, consts.RandomProxyList)
+	if err != nil || exists > 0 {
+		return
+	}
+
 	var (
 		fields = []string{"wp.`address`",
 			"wp.`max_connections`",

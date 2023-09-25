@@ -10,10 +10,8 @@ import (
 )
 
 var (
-	ctx      = gctx.GetInitCtx()
-	artsSvc  = g.Cfg().MustGet(ctx, "grpc.service.arts").String()
-	whatsSvc = g.Cfg().MustGet(ctx, "grpc.service.whats").String()
-	tgSvc    = g.Cfg().MustGet(ctx, "grpc.service.tg").String()
+	ctx     = gctx.GetInitCtx()
+	artsSvc = g.Cfg().MustGet(ctx, "grpc.service.arts").String()
 )
 
 var (
@@ -26,7 +24,15 @@ func GetManagerConn() *grpc.ClientConn {
 		interceptors = append(interceptors, service.Middleware().UnaryClientTestLimit)
 	}
 	interceptors = append(interceptors, service.Middleware().UnaryClientTimeout(time.Duration(deadlines)*time.Second))
+	return Dial(artsSvc, grpcx.Client.ChainUnary(interceptors...))
+}
 
-	conn := grpcx.Client.MustNewGrpcClientConn(artsSvc, grpcx.Client.ChainUnary(interceptors...))
-	return conn
+func CloseConn(conn *grpc.ClientConn) {
+	if conn == nil {
+		return
+	}
+	err := conn.Close()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
 }

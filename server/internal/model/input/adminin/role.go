@@ -112,6 +112,25 @@ type RoleListModel struct {
 	List []*RoleTree `json:"list"`
 }
 
+// RoleViewInp 获取指定信息
+type RoleViewInp struct {
+	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+}
+
+func (in *RoleViewInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type RoleViewModel struct {
+	Id       int64  `json:"id"         dc:"角色ID"`
+	Pid      int64  `json:"pid"        dc:"上级角色ID"`
+	Name     string `json:"name"       dc:"角色名称"`
+	Key      string `json:"key"        dc:"权限编码"`
+	Status   int    `json:"status"     dc:"角色状态"`
+	OrgAdmin int    `json:"orgAdmin"   dc:"组织管理员"`
+	Remark   string `json:"remark"     dc:"备注"`
+}
+
 // RoleMemberListInp 查询列表
 type RoleMemberListInp struct {
 	form.PageReq

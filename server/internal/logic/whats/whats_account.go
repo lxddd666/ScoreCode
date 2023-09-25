@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -21,6 +22,7 @@ import (
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
+	"hotgo/internal/websocket"
 	whatsutil "hotgo/utility/whats"
 
 	"strconv"
@@ -119,7 +121,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 	if totalCount == 0 {
 		return
 	}
-	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsAccount.Columns().UpdatedAt).Scan(&list); err != nil {
+	if err = mod.Fields(fields).Page(in.Page, in.PerPage).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取账号管理列表失败，请稍后重试！")
 		return
 	}
@@ -371,9 +373,13 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
 		// 记录普罗米修斯
+		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+		if err != nil {
+			return err
+		}
 		switch protobuf.AccountStatus(item.LoginStatus) {
 		case protobuf.AccountStatus_SUCCESS:
-			userId, _ := g.Redis().HGet(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+
 			// 登录成功
 			prometheus.LoginSuccessCounter.WithLabelValues(gconv.String(item.UserJid)).Inc()
 			prometheus.LoginProxySuccessCount.WithLabelValues(item.ProxyUrl).Inc()
@@ -410,6 +416,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			Comment:       item.Comment,
 			UpdatedAt:     gtime.Now(),
 		}
+
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.LoginStatus) != protobuf.AccountStatus_SUCCESS {
 			//如果失败,删除redis
@@ -433,12 +440,22 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 					_, _ = g.Redis().SAdd(ctx, key, p.Val())
 				}
 			}
-
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 		// 删除登录过程的redis
-		_, _ = g.Redis().SRem(ctx, consts.QueueActionLoginAccounts, userJid)
+		_, _ = g.Redis().SRem(ctx, consts.ActionLoginAccounts, userJid)
+		//websocket推送登录结果
+		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
+			Event: consts.WhatsLoginEvent,
+			Data: entity.WhatsAccount{
+				Account:       userJid,
+				AccountStatus: int(item.LoginStatus),
+			},
+			Code:      gcode.CodeOK.Code(),
+			ErrorMsg:  "",
+			Timestamp: gtime.Now().Unix(),
+		})
 	}
 	return nil
 }
@@ -469,7 +486,7 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
-		key := fmt.Sprintf("%s%d", consts.QueueActionLoginAccounts, item.UserJid)
+		key := fmt.Sprintf("%s%d", consts.ActionLoginAccounts, item.UserJid)
 		_, _ = g.Redis().Del(ctx, key)
 
 		// 记录普罗米修斯

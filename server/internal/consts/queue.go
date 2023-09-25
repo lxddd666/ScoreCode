@@ -16,8 +16,4 @@ const (
 	QueueWhatsReadMsgTopic     = `read`        // 已读消息回调
 	QueueWhatsTextMsgTopic     = `textMsg`     // 发送文本消息回调
 	QueueWhatsLogoutTopic      = `logout`      // 登出日志
-
-	QueueActionLoginAccounts = `action_login_accounts:`
-	QueueActionAccountKey    = `action_login_key`
-	QueueActionSyncContact   = `action_sync_contact`
 )

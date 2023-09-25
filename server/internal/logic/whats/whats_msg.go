@@ -233,7 +233,7 @@ func (s *sWhatsMsg) sendMsgToUser(ctx context.Context, msgList []entity.WhatsMsg
 			return true
 		}
 		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
-			Event:     "textMsg",
+			Event:     consts.WhatsMsgEvent,
 			Data:      msg,
 			Code:      gcode.CodeOK.Code(),
 			ErrorMsg:  "",
@@ -303,7 +303,7 @@ func (s *sWhatsMsg) sendReadToUser(ctx context.Context, readReqIds []callback.Re
 			continue
 		}
 		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
-			Event:     "read",
+			Event:     consts.WhatsMsgReadEvEnt,
 			Data:      msg.ReqId,
 			Code:      gcode.CodeOK.Code(),
 			ErrorMsg:  "",

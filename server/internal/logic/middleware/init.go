@@ -69,6 +69,7 @@ func (s *sMiddleware) Ctx(r *ghttp.Request) {
 	})
 
 	contexts.SetData(r.Context(), "request.body", gjson.New(r.GetBodyString()))
+
 	r.Middleware.Next()
 }
 
