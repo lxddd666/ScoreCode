@@ -280,8 +280,9 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 		}
 		return true
 	})
-
-	_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
+	if len(reqIds) > 0 {
+		_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
+	}
 
 	return err
 }
@@ -304,6 +305,58 @@ func (s *sWhatsMsg) sendReadToUser(ctx context.Context, readReqIds []callback.Re
 		}
 		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
 			Event:     consts.WhatsMsgReadEvEnt,
+			Data:      msg.ReqId,
+			Code:      gcode.CodeOK.Code(),
+			ErrorMsg:  "",
+			Timestamp: gtime.Now().Unix(),
+		})
+	}
+
+}
+
+// SendStatusCallback 发送状态回调
+func (s *sWhatsMsg) SendStatusCallback(ctx context.Context, res queue.MqMsg) (err error) {
+	callbackRes := make([]callback.SendStatusCallbackRes, 0)
+	err = json.Unmarshal(res.Body, &callbackRes)
+	if err != nil {
+		return err
+	}
+	g.Log().Info(ctx, "kafka SendStatusCallback: ", callbackRes)
+
+	reqIds := make([]string, 0)
+	for _, item := range callbackRes {
+		reqIds = append(reqIds, item.ReqId)
+		// 获取receiver
+	}
+	// update whats_msg set send_status = 1 where reqID in(reqIds)
+
+	//update + where
+	_, err = g.Model(dao.WhatsMsg.Table()).Data(dao.WhatsMsg.Columns().SendStatus, 1).WhereIn(dao.WhatsMsg.Columns().ReqId, reqIds).Update()
+	if err != nil {
+		return err
+	}
+	//_, err = g.Redis().HDel(ctx, consts.SendStatusReqKey, reqIds...)
+
+	return err
+}
+func (s *sWhatsMsg) SendStatusToUser(ctx context.Context, readReqIds []callback.SendStatusCallbackRes) {
+	var reqIds = make([]string, 0)
+	for _, item := range readReqIds {
+		reqIds = append(reqIds, item.ReqId)
+	}
+	var msgList []entity.WhatsMsg
+	err := s.Model(ctx).WhereIn(dao.WhatsMsg.Columns().ReqId, reqIds).Scan(&msgList)
+	if err != nil {
+
+	}
+	//推送给前端
+	for _, msg := range msgList {
+		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, gconv.String(msg.Initiator))
+		if err != nil {
+			continue
+		}
+		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
+			Event:     "send",
 			Data:      msg.ReqId,
 			Code:      gcode.CodeOK.Code(),
 			ErrorMsg:  "",

@@ -85,6 +85,8 @@ type (
 		TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
 		// ReadMsgCallback 已读消息回调
 		ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
+		//SendStatusCallback 发送状态回调
+		SendStatusCallback(ctx context.Context, res queue.MqMsg) (err error)
 	}
 	IWhatsProxy interface {
 		// Model 代理管理ORM模型

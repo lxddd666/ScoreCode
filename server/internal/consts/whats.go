@@ -1,9 +1,9 @@
 package consts
 
 const (
-	LoginAccountKey = "login_account"
-	MsgReadReqKey   = "unread"
-
+	LoginAccountKey            = "login_account"
+	MsgReadReqKey              = "unread"
+	SendStatusReqKey           = "send"
 	RedisSyncContactAccountKey = "sync_contacts_record_account:"
 	LastLoginAccountId         = "last_login_account_user_id"
 	RandomProxy                = "random_proxy:"
