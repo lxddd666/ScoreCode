@@ -13,12 +13,10 @@ export interface Option {
 
 export interface Options {
   [name: string]: Option[];
-  // [name:number]:Option[];
 }
 
 // 获取选项名称
 export function getOptionLabel(options: Option[], value) {
-  debugger
   if (options === undefined || options?.length === 0) {
     return `unknown`;
   }

@@ -25,5 +25,6 @@ type WhatsMsg struct {
 	MsgType       interface{} // 消息类型
 	SendTime      *gtime.Time // 发送时间
 	Read          interface{} // 是否已读
+	SendStatus    interface{} //发送状态
 	Comment       interface{} // 备注
 }
