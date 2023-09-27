@@ -7,8 +7,9 @@ package consts
 
 // cache
 const (
-	CacheToken     = "token"         // 登录token
-	CacheTokenBind = "token_bind"    // 登录用户身份绑定
-	CacheRoleKey   = "/auth/role/%d" //角色缓存key
-	CacheDeptKey   = "/auth/dept/%d" //部门缓存key
+	CacheToken     = "token"           // 登录token
+	CacheTokenBind = "token_bind"      // 登录用户身份绑定
+	CacheMemberKey = "/auth/member/%d" //用户缓存key
+	CacheRoleKey   = "/auth/role/%d"   //角色缓存key
+	CacheDeptKey   = "/auth/dept/%d"   //部门缓存key
 )

@@ -345,7 +345,7 @@
       positiveText: '确定',
       negativeText: '取消',
       onPositiveClick: () => {
-        Login({ users: checkedIds.value }).then((_res) => {
+        Login({ ids: checkedIds.value }).then((_res) => {
           message.success('操作成功');
           reloadTable();
         });

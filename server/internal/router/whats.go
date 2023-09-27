@@ -11,7 +11,7 @@ import (
 
 func Whats(ctx context.Context, group *ghttp.RouterGroup) {
 	group.Group(simple.RouterPrefix(ctx, consts.AppWhats), func(group *ghttp.RouterGroup) {
-		group.Middleware(service.Middleware().WhatsAuth)
+		group.Middleware(service.Middleware().ScAuth(consts.AppWhats))
 		group.Bind(
 			whats.WhatsAccount,  // 账号管理
 			whats.WhatsArts,     //whats相关API

@@ -7,6 +7,7 @@ package queue
 
 import (
 	"context"
+	"hotgo/utility/simple"
 	"sync"
 )
 
@@ -41,9 +42,11 @@ func RegisterConsumer(cs Consumer) {
 // StartConsumersListener 启动所有已注册的消费者监听
 func StartConsumersListener(ctx context.Context) {
 	for _, c := range consumers.list {
-		go func(c Consumer) {
-			consumerListen(ctx, c)
-		}(c)
+		thatC := c
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			consumerListen(ctx, thatC)
+		})
+
 	}
 }
 
@@ -59,7 +62,7 @@ func consumerListen(ctx context.Context, job Consumer) {
 		return
 	}
 
-	if listenErr := c.ListenReceiveMsgDo(topic, func(mqMsg MqMsg) {
+	if listenErr := c.ListenReceiveMsgDo(ctx, topic, func(mqMsg MqMsg) {
 		err = job.Handle(ctx, mqMsg)
 
 		// if err != nil {

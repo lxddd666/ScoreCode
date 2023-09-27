@@ -79,6 +79,19 @@ export const schemas = ref<FormSchema[]>([
     },
   },
   {
+    field: 'isOnline',
+    component: 'NSelect',
+    label: '是否在线',
+    defaultValue: null,
+    componentProps: {
+      placeholder: '请选择是否在线',
+      options: [],
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
     field: 'proxyAddress',
     component: 'NInput',
     label: '代理地址',
@@ -181,6 +194,10 @@ export const columns = [
   {
     title: '备注',
     key: 'comment',
+  },
+  {
+    title: '更新时间',
+    key: 'updatedAt',
   },
 ];
 

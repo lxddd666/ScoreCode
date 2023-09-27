@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/grand"
 	"hotgo/internal/consts"
+	"hotgo/internal/dao"
 	"hotgo/internal/library/payment/alipay"
 	"hotgo/internal/library/payment/qqpay"
 	"hotgo/internal/library/payment/wxpay"
@@ -55,7 +56,7 @@ func New(name ...string) PayClient {
 // GenOrderSn 生成业务订单号
 func GenOrderSn() string {
 	orderSn := fmt.Sprintf("HG@%v%v", gtime.Now().Format("YmdHis"), grand.S(4))
-	count, err := g.Model("pay_log").Where("order_sn", orderSn).Count()
+	count, err := g.Model(dao.PayLog.Table()).Where("order_sn", orderSn).Count()
 	if err != nil {
 		panic(fmt.Sprintf("payment.GenOrderSn err:%+v", err))
 	}
@@ -68,7 +69,7 @@ func GenOrderSn() string {
 // GenOutTradeNo 生成商户订单号
 func GenOutTradeNo() string {
 	outTradeNo := fmt.Sprintf("%v%v", gtime.Now().Format("YmdHis"), grand.N(10000000, 99999999))
-	count, err := g.Model("pay_log").Where("out_trade_no", outTradeNo).Count()
+	count, err := g.Model(dao.PayLog.Table()).Where("out_trade_no", outTradeNo).Count()
 	if err != nil {
 		panic(fmt.Sprintf("payment.GenOutTradeNo err:%+v", err))
 	}
@@ -81,7 +82,7 @@ func GenOutTradeNo() string {
 // GenRefundSn 生成退款订单号
 func GenRefundSn() string {
 	outTradeNo := fmt.Sprintf("%v%v", gtime.Now().Format("YmdHis"), grand.N(10000, 99999))
-	count, err := g.Model("pay_refund").Where("refund_trade_no", outTradeNo).Count()
+	count, err := g.Model(dao.PayRefund.Table()).Where("refund_trade_no", outTradeNo).Count()
 	if err != nil {
 		panic(fmt.Sprintf("payment.GenRefundSn err:%+v", err))
 	}

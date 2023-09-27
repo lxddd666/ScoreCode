@@ -294,7 +294,7 @@ func generateEntityMessageDefinition(entityName string, fieldMap map[string]*gdb
 // generateMessageFieldForPbEntity generates and returns the message definition for specified field.
 func generateMessageFieldForPbEntity(index int, field *gdb.TableField, in CGenPbEntityInternalInput) []string {
 	var (
-		typeName   string
+		typeName   gdb.LocalType
 		comment    string
 		jsonTagStr string
 		err        error
@@ -303,30 +303,6 @@ func generateMessageFieldForPbEntity(index int, field *gdb.TableField, in CGenPb
 	typeName, err = in.DB.CheckLocalTypeForField(ctx, field.Type, nil)
 	if err != nil {
 		panic(err)
-	}
-	var typeMapping = map[string]string{
-		gdb.LocalTypeString:      "string",
-		gdb.LocalTypeDate:        "google.protobuf.Timestamp",
-		gdb.LocalTypeDatetime:    "google.protobuf.Timestamp",
-		gdb.LocalTypeInt:         "int32",
-		gdb.LocalTypeUint:        "uint32",
-		gdb.LocalTypeInt64:       "int64",
-		gdb.LocalTypeUint64:      "uint64",
-		gdb.LocalTypeIntSlice:    "repeated int32",
-		gdb.LocalTypeInt64Slice:  "repeated int64",
-		gdb.LocalTypeUint64Slice: "repeated uint64",
-		gdb.LocalTypeInt64Bytes:  "repeated int64",
-		gdb.LocalTypeUint64Bytes: "repeated uint64",
-		gdb.LocalTypeFloat32:     "float",
-		gdb.LocalTypeFloat64:     "double",
-		gdb.LocalTypeBytes:       "bytes",
-		gdb.LocalTypeBool:        "bool",
-		gdb.LocalTypeJson:        "string",
-		gdb.LocalTypeJsonb:       "string",
-	}
-	typeName = typeMapping[typeName]
-	if typeName == "" {
-		typeName = "string"
 	}
 
 	comment = gstr.ReplaceByArray(field.Comment, g.SliceStr{
@@ -350,7 +326,7 @@ func generateMessageFieldForPbEntity(index int, field *gdb.TableField, in CGenPb
 		}
 	}
 	return []string{
-		"    #" + typeName,
+		string("    #" + typeName),
 		" #" + formatCase(field.Name, in.NameCase),
 		" #= " + gconv.String(index) + jsonTagStr + ";",
 		" #" + fmt.Sprintf(`// %s`, comment),

@@ -6,6 +6,7 @@
 package queue
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -34,7 +35,7 @@ func RegisterDiskMqConsumer(config *disk.Config) (client MqConsumer, err error) 
 }
 
 // ListenReceiveMsgDo 消费数据
-func (q *DiskConsumerMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) (err error) {
+func (q *DiskConsumerMq) ListenReceiveMsgDo(ctx context.Context, topic string, receiveDo func(mqMsg MqMsg)) (err error) {
 	if topic == "" {
 		return gerror.New("disk.ListenReceiveMsgDo topic is empty")
 	}

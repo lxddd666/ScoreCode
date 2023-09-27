@@ -18,45 +18,6 @@ import (
 )
 
 type (
-	IWhatsMsg interface {
-		// Model 消息记录ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取消息记录列表
-		List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list []*whatsin.WhatsMsgListModel, totalCount int, err error)
-		// Export 导出消息记录
-		Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (err error)
-		// Edit 修改/新增消息记录
-		Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err error)
-		// Delete 删除消息记录
-		Delete(ctx context.Context, in *whatsin.WhatsMsgDeleteInp) (err error)
-		// View 获取消息记录指定信息
-		View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res *whatsin.WhatsMsgViewModel, err error)
-		// TextMsgCallback 文本消息回调
-		TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
-		// ReadMsgCallback 已读消息回到
-		ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
-	}
-	IWhatsProxy interface {
-		// Model 代理管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取代理管理列表
-		List(ctx context.Context, in *whatsin.WhatsProxyListInp) (list []*whatsin.WhatsProxyListModel, totalCount int, err error)
-		// Export 导出代理管理
-		Export(ctx context.Context, in *whatsin.WhatsProxyListInp) (err error)
-		// Edit 修改/新增代理管理
-		Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (err error)
-		// Delete 删除代理管理
-		Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteInp) (err error)
-		// View 获取代理管理指定信息
-		View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (res *whatsin.WhatsProxyViewModel, err error)
-		// Status 更新代理管理状态
-		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
-		Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error)
-		// AddProxyToOrg 给指定公司加上代理
-		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)
-		// ListProxyToOrg 查看公司指定代理
-		ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgProxyReq) (list []*whatsin.WhatsProxyListProxyOrgModel, totalCount int, err error)
-	}
 	IWhatsAccount interface {
 		// Model 账号ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -107,15 +68,78 @@ type (
 		// Upload 上传联系人信息
 		Upload(ctx context.Context, list []*whatsin.WhatsContactsUploadInp) (res *whatsin.WhatsContactsUploadModel, err error)
 	}
+	IWhatsMsg interface {
+		// Model 消息记录ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取消息记录列表
+		List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list []*whatsin.WhatsMsgListModel, totalCount int, err error)
+		// Export 导出消息记录
+		Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (err error)
+		// Edit 修改/新增消息记录
+		Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err error)
+		// Delete 删除消息记录
+		Delete(ctx context.Context, in *whatsin.WhatsMsgDeleteInp) (err error)
+		// View 获取消息记录指定信息
+		View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res *whatsin.WhatsMsgViewModel, err error)
+		// TextMsgCallback 文本消息回调
+		TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
+		// ReadMsgCallback 已读消息回调
+		ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
+	}
+	IWhatsProxy interface {
+		// Model 代理管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取代理管理列表
+		List(ctx context.Context, in *whatsin.WhatsProxyListInp) (list []*whatsin.WhatsProxyListModel, totalCount int, err error)
+		// Export 导出代理管理
+		Export(ctx context.Context, in *whatsin.WhatsProxyListInp) (err error)
+		// Edit 修改/新增代理管理
+		Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (err error)
+		// Delete 删除代理管理
+		Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteInp) (err error)
+		// View 获取代理管理指定信息
+		View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (res *whatsin.WhatsProxyViewModel, err error)
+		// Status 更新代理管理状态
+		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
+		// Upload 上传代理
+		Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error)
+		// AddProxyToOrg 给指定公司加上代理
+		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)
+		// ListOrgProxy 查看公司指定代理
+		ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgProxyReq) (list []*whatsin.WhatsProxyListProxyOrgModel, totalCount int, err error)
+		UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) error
+	}
 )
 
 var (
+	localWhatsMsg      IWhatsMsg
 	localWhatsProxy    IWhatsProxy
 	localWhatsAccount  IWhatsAccount
 	localWhatsArts     IWhatsArts
 	localWhatsContacts IWhatsContacts
-	localWhatsMsg      IWhatsMsg
 )
+
+func WhatsAccount() IWhatsAccount {
+	if localWhatsAccount == nil {
+		panic("implement not found for interface IWhatsAccount, forgot register?")
+	}
+	return localWhatsAccount
+}
+
+func RegisterWhatsAccount(i IWhatsAccount) {
+	localWhatsAccount = i
+}
+
+func WhatsArts() IWhatsArts {
+	if localWhatsArts == nil {
+		panic("implement not found for interface IWhatsArts, forgot register?")
+	}
+	return localWhatsArts
+}
+
+func RegisterWhatsArts(i IWhatsArts) {
+	localWhatsArts = i
+}
 
 func WhatsContacts() IWhatsContacts {
 	if localWhatsContacts == nil {
@@ -148,26 +172,4 @@ func WhatsProxy() IWhatsProxy {
 
 func RegisterWhatsProxy(i IWhatsProxy) {
 	localWhatsProxy = i
-}
-
-func WhatsAccount() IWhatsAccount {
-	if localWhatsAccount == nil {
-		panic("implement not found for interface IWhatsAccount, forgot register?")
-	}
-	return localWhatsAccount
-}
-
-func RegisterWhatsAccount(i IWhatsAccount) {
-	localWhatsAccount = i
-}
-
-func WhatsArts() IWhatsArts {
-	if localWhatsArts == nil {
-		panic("implement not found for interface IWhatsArts, forgot register?")
-	}
-	return localWhatsArts
-}
-
-func RegisterWhatsArts(i IWhatsArts) {
-	localWhatsArts = i
 }

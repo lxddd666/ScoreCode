@@ -13,4 +13,5 @@ const (
 	AppWebSocket = "websocket"
 	AppDefault   = "default"
 	AppWhats     = "whats"
+	AppTg        = "tg"
 )

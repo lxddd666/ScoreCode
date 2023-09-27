@@ -116,15 +116,14 @@ func (l *Lock) Unlock(ctx context.Context) error {
 	return err
 }
 
-func (l *Lock) LockFunc(ctx context.Context, f func()) error {
+func (l *Lock) LockFunc(ctx context.Context, f func() error) error {
 	if err := l.Lock(ctx); err != nil {
 		return err
 	}
 	defer func() {
 		_ = l.Unlock(ctx)
 	}()
-	f()
-	return nil
+	return f()
 }
 
 // TryLockFunc tries locking the mutex for writing with given callback function `f`.

@@ -10,6 +10,8 @@ import (
 	"github.com/gogf/gf/v2/util/grand"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	cmember "hotgo/internal/library/cache/member"
+	crole "hotgo/internal/library/cache/role"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/token"
 	"hotgo/internal/model"
@@ -335,7 +337,7 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 // BindUserContext 绑定用户上下文
 func (s *sAdminSite) BindUserContext(ctx context.Context, claims *model.Identity) (err error) {
 	var mb *entity.AdminMember
-	if err = g.Model(dao.AdminMember.Table()).Ctx(ctx).Where("id", claims.Id).Scan(&mb); err != nil {
+	if err = g.Model(dao.AdminMember.Table()).Ctx(ctx).Cache(cmember.GetCache(claims.Id)).WherePri(claims.Id).Scan(&mb); err != nil {
 		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
 		return
 	}
@@ -351,7 +353,7 @@ func (s *sAdminSite) BindUserContext(ctx context.Context, claims *model.Identity
 	}
 
 	var role *entity.AdminRole
-	if err = g.Model(dao.AdminRole.Table()).Ctx(ctx).Fields("id,key,status").Where("id", mb.RoleId).Scan(&role); err != nil || role == nil {
+	if err = g.Model(dao.AdminRole.Table()).Ctx(ctx).Cache(crole.GetRoleCache(mb.RoleId)).Where("id", mb.RoleId).Scan(&role); err != nil || role == nil {
 		err = gerror.Wrap(err, "获取角色信息失败，请稍后重试！")
 		return
 	}

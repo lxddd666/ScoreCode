@@ -126,6 +126,7 @@ type GrpcConfig struct {
 }
 
 type GrpcSvcConfig struct {
+	Arts  string `json:"arts" yaml:"arts"`
 	Tg    string `json:"tg" yaml:"tg"`
 	Whats string `json:"whats" yaml:"whats"`
 }
@@ -149,6 +150,5 @@ type PrometheusConfig struct {
 }
 
 type PrometheusHandler struct {
-	Path   string `json:"path"`
-	Server string `json:"server"`
+	Path string `json:"path"`
 }

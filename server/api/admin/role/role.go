@@ -23,6 +23,16 @@ type ListRes struct {
 	form.PageRes
 }
 
+// ViewReq 获取指定信息
+type ViewReq struct {
+	g.Meta `path:"/role/view" method:"get" tags:"角色" summary:"获取指定信息"`
+	adminin.RoleViewInp
+}
+
+type ViewRes struct {
+	*adminin.RoleViewModel
+}
+
 // DynamicReq 动态路由
 type DynamicReq struct {
 	g.Meta `path:"/role/dynamic" method:"get" tags:"路由" summary:"获取动态路由" description:"获取登录用户动态路由"`

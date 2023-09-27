@@ -6,6 +6,8 @@ hotgo:
   ipMethod: "whois"
   # 是否为演示系统 false|true
   isDemo: false
+  # 是否是测试模式，测试模式直接响应请求成功
+  isTest: true
   # 是否为集群部署 false|true ，默认为false。开启集群必须配置redis，通过redis发布订阅进行集群之间的数据同步
   isCluster: false
   # 全局请求日志
@@ -27,7 +29,7 @@ server:
   address: ":4887"                            # 本地监听地址。默认":8000"，多个地址以","号分隔。例如："192.168.2.3:8000,10.0.3.10:8001"
   openapiPath: "/docs/api.json"                    # OpenAPI接口文档地址
   swaggerPath: "/docs/swagger"                     # 内置SwaggerUI展示地址
-  serverRoot: "resource/public"               # 静态文件服务的目录根路径，配置时自动开启静态文件服务。
+  serverRoot: "resource/public/dist"               # 静态文件服务的目录根路径，配置时自动开启静态文件服务。
   DumpRouterMap: false                        # 是否在Server启动时打印所有的路由列表。
   logPath: "logs/server"                      # 服务日志保存路径
   ErrorStack: true                            # 当Server捕获到异常时是否记录堆栈信息到日志中。默认为true
@@ -213,9 +215,9 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "103.205.6.236:32456"
+    address: "127.0.0.1:6379"
     db: "2"
-    pass: "sLAGAU1JHQpI"
+    pass: "nantian888"
     idleTimeout: "20"
 
 # etcd
@@ -309,8 +311,6 @@ whats:
   aes:
     key: "KJNJtV5vWqKgjOIZ7gD0afdzsbSXSNQl"
     vi: "cL0bVYHAUCMGDsK2"
-  manager:
-    name: arts_manager
 
 grpc:
   env:
@@ -320,5 +320,13 @@ grpc:
     GF_GSVC_NAMESPACE: prod
     GF_GSVC_VERSION: "latest"
   service:
-    tg: tg_manager
-    whats: whats_manager
+    arts: arts_manager
+    tg: arts_manager
+    whats: arts_manager
+
+prometheus:
+  address: "http://127.0.0.1:39090"
+  username: ""
+  password: ""
+  handler:
+    path: "/metrics"

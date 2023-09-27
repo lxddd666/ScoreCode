@@ -14,6 +14,7 @@ import (
 	_ "hotgo/internal/logic/sys"
 	_ "hotgo/internal/logic/tcpclient"
 	_ "hotgo/internal/logic/tcpserver"
+	_ "hotgo/internal/logic/tg"
 	_ "hotgo/internal/logic/view"
 	_ "hotgo/internal/logic/whats"
 )

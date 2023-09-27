@@ -2,7 +2,7 @@ package @{.templateGroup}
 
 import (
 	"context"
-	"@{.importApi}"
+	@{.varName | ToLower} "@{.importApi}"
 	"hotgo/internal/model/input/form"
 	"@{.importService}"
 	"hotgo/utility/validate"

@@ -5,21 +5,34 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"google.golang.org/grpc"
+	"hotgo/internal/service"
 	"time"
 )
 
 var (
-	ctx      = gctx.GetInitCtx()
-	whatsSvc = g.Cfg().MustGet(ctx, "grpc.service.whats").String()
-	tgSvc    = g.Cfg().MustGet(ctx, "grpc.service.tg").String()
+	ctx     = gctx.GetInitCtx()
+	artsSvc = g.Cfg().MustGet(ctx, "grpc.service.arts").String()
 )
 
-func GetWhatsManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(whatsSvc, grpc.WithTimeout(15*time.Second))
-	return conn
+var (
+	deadlines = 15
+)
+
+func GetManagerConn() *grpc.ClientConn {
+	interceptors := make([]grpc.UnaryClientInterceptor, 0)
+	if g.Cfg().MustGet(ctx, "hotgo.isTest", false).Bool() {
+		interceptors = append(interceptors, service.Middleware().UnaryClientTestLimit)
+	}
+	interceptors = append(interceptors, service.Middleware().UnaryClientTimeout(time.Duration(deadlines)*time.Second))
+	return Dial(artsSvc, grpcx.Client.ChainUnary(interceptors...))
 }
 
-func GetTgManagerConn() *grpc.ClientConn {
-	conn := grpcx.Client.MustNewGrpcClientConn(tgSvc, grpc.WithTimeout(15*time.Second))
-	return conn
+func CloseConn(conn *grpc.ClientConn) {
+	if conn == nil {
+		return
+	}
+	err := conn.Close()
+	if err != nil {
+		g.Log().Error(ctx, err)
+	}
 }

@@ -6,31 +6,42 @@ option go_package = "./protobuf";
 enum Action {
   LOGIN = 0;
   LOGOUT = 1;
+
+  //whatsapp
   SEND_MESSAGE = 2;
   SEND_GROUP_MESSAGE = 3;
-  SYNC_ACCOUNT_KEY = 4; // 添加同步账号密钥动作
+  SYNC_ACCOUNT_KEY = 4; // 添加同步帐号密钥动作
   GET_PREKEYBUNDLE = 5;
   SYNC_CONTACTS = 6;
   PING_PONG =7;
   SEND_VCARD_MESSAGE = 8;
   SET_HEAD_SCULPTURE = 9;
   GET_USER_HEAD_IMAGE = 10;
+
+  //telegram
+  SYNC_APP_INFO = 11;
+  RECEIVING_MSG = 12;
+  SEND_PHOTO = 13;
+  SEND_FILE = 14;
+  SEND_CONTACT_CARD = 15;
+  CREATE_GROUP = 16;
+  ADD_GROUP_MEMBER = 17;
 }
 
 
 // 定义普通动作消息
 //message OrdinaryAction {
-//  repeated uint64 account_ids = 1; // 账号的数组
+//  repeated uint64 account_ids = 1; // 帐号的数组
 //}
 
 message OrdinaryAction {
   map<uint64, loginDetail> login_detail = 1;
+  string Type  = 2;
 }
 
 message loginDetail {
   string proxyUrl = 1;
 }
-
 
 
 message GetUserHeadImageAction{
@@ -51,19 +62,19 @@ message SetHeadSculptureAction {
 
 //定义明信片
 message VCard{
-  string Begin = 1;
-  string Version = 2;
-  string Prodid = 3;
-  string  Fn = 4;
-  string Org = 5;
-  string Tel = 6;
-  string XWaBizName = 7;
-  string End = 9;
-  string DisplayName = 10;
-  string Family = 11;
-  string Given = 12;
-  string Prefixes = 13;
-  string Language = 14;
+    string Begin = 1;
+    string Version = 2;
+    string Prodid = 3;
+    string  Fn = 4;
+    string Org = 5;
+    string Tel = 6;
+    string XWaBizName = 7;
+    string End = 9;
+    string DisplayName = 10;
+    string Family = 11;
+    string Given = 12;
+    string Prefixes = 13;
+    string Language = 14;
 }
 
 // 定义明信片消息
@@ -71,6 +82,12 @@ message SendVCardMsgAction {
   map<uint64, VCard> Vcard_data = 1;
   uint64 Sender = 2;
   uint64 Receiver = 3;
+}
+
+//定义telegram app 信息
+message appData {
+  uint64 appId = 1;
+  string appHash = 2;
 }
 
 // 定义密钥数据
@@ -84,26 +101,40 @@ message KeyData {
   bytes identify = 7;
 }
 
-// 定义同步账号密钥动作消息
+// 定义同步帐号密钥动作消息
 message SyncAccountKeyAction {
   map<uint64, KeyData> key_data = 1;
+}
+
+//定义同步app信息动作消息
+message SyncAppInfoAction {
+  map<uint64,appData> app_data = 1;
 }
 
 
 // 定义总的消息
 message RequestMessage {
   Action action = 1; // 动作字段
-
   oneof action_detail {
     OrdinaryAction ordinary_action = 2;
     SyncAccountKeyAction sync_account_key_action = 3;
+    SyncAppInfoAction   sync_app_action =4;
     QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
     SendMessageDetail  sendmessage_detail = 8 ;
     string  ping_message = 9;
     SendVCardMsgAction send_vcard_message = 10;
     SetHeadSculptureAction set_head_sculpture_action = 11;
     GetUserHeadImageAction get_user_head_image = 12;
+    SyncContactDetail      sync_contact_detail = 13;
+    ReceivingMsgDetail      receive_msg_detail = 14;
+    SendPhotoDetail  send_photo_detail = 15;
+    CreateGroupDetail       create_group_detail = 16;
+    AddGroupMemberDetail     add_group_member_detail = 17;
+    SendFileDetail  send_file_detail = 19;
+    SendContactCardDetail send_contact_card_detail = 20;
   }
+  string type = 18;
+
 }
 
 message UintkeyUintvalue {
@@ -120,8 +151,64 @@ message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
 }
 
+message SendPhotoAction{
+  map<uint64, UintkeyStringvalue> send_data = 1;
+}
+
+
+message UintFileDetailValue{
+  uint64 key = 1;
+  repeated FileDetailValue value = 2;
+}
+
+message UintSendContactCard {
+  uint64 key = 1;
+  uint64 sender = 2;
+  uint64 receiver = 3;
+  repeated ContactCardValue value = 4;
+}
+
+
+message ContactCardValue{
+  string FirstName = 1;
+  string LastName = 2;
+  string PhoneNumber = 3;
+}
+
+message FileDetailValue{
+  string FileType = 1;
+  string SendType = 2;
+  string Path = 3;
+}
+
 message SendMessageDetail {
   repeated SendMessageAction details = 1;
+}
+
+message SendPhotoDetail {
+  repeated SendPhotoAction details = 1;
+}
+
+message SendFileDetail{
+  repeated SendFileAction details = 1;
+}
+
+message SendContactCardDetail{
+  repeated SendContactCardAction detail = 1;
+}
+
+message  ReceivingMsgDetail {
+  uint64 Receiver = 1;
+}
+
+message  CreateGroupDetail {
+  string GroupName = 1;
+  UintkeyUintvalue detail = 2;
+}
+
+message  AddGroupMemberDetail {
+  string GroupName = 1;
+  UintkeyUintvalue detail = 2;
 }
 
 message SendVCardMessageDetail{
@@ -131,6 +218,11 @@ message SendVCardMessageDetail{
 message QueryPreKeyBundleDetail {
   repeated UintkeyUintvalue details = 1;
 }
+
+message SyncContactDetail {
+  repeated UintkeyUintvalue details = 1;
+}
+
 message SetHeadSculptureDetail{
   repeated SetHeadSculptureAction detail = 1;
 }
@@ -144,7 +236,7 @@ enum ActionResult {
   PONG = 4;
 }
 
-// 定义单个账号的执行状态枚举
+// 定义单个帐号的执行状态枚举
 enum AccountStatus {
   SUCCESS = 0;   //成功
   FAIL = 1;      //失败
@@ -158,7 +250,7 @@ enum AccountStatus {
 // 定义返回消息
 message ResponseMessage {
   ActionResult action_result = 1; // 动作的返回状态
-  map<string, AccountStatus> account_status = 2; // 账号的执行状态字典
+  map<string, AccountStatus> account_status = 2; // 帐号的执行状态字典
   string   pong_message = 3;
   oneof callbackInfo {
     LoginCallbacks login_callbacks = 4;
@@ -179,6 +271,18 @@ message LoginCallback{
 message TextMsgCallbacks{
   repeated TextMsgCallback results = 1;
 }
+
+message SendFileAction{
+  map<uint64, UintFileDetailValue> send_data = 1;
+  string  Type = 2;
+}
+
+message SendContactCardAction{
+  map<uint64,UintSendContactCard> send_data = 1;
+  string Type = 2;
+}
+
+
 message TextMsgCallback{
   uint64 sender = 1;     //发送人
   uint64 receiver = 2;  //接收人

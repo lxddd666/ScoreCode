@@ -10,8 +10,10 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/net/goai"
+	"github.com/gogf/gf/v2/net/gsel"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/library/addons"
 	"hotgo/internal/library/casbin"
 	"hotgo/internal/library/hggen"
@@ -30,6 +32,7 @@ var (
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			// 初始化http服务
 			s := g.Server()
+			gsel.SetBuilder(gsel.NewBuilderRoundRobin())
 
 			// 错误状态码接管
 			s.BindStatusHandler(404, func(r *ghttp.Request) {
@@ -40,6 +43,8 @@ var (
 				r.Response.Writeln("403 - 网站拒绝显示此网页")
 			})
 
+			// 初始化普罗米修斯
+			prometheus.InitPrometheus(ctx, s)
 			// 初始化请求前回调
 			s.BindHookHandler("/*any", ghttp.HookBeforeServe, service.Hook().BeforeServe)
 
@@ -65,18 +70,17 @@ var (
 				router.Admin(ctx, group)
 				// 注册whats路由
 				router.Whats(ctx, group)
+				// 注册tg路由
+				router.Tg(ctx, group)
 				// 注册Api路由
 				router.Api(ctx, group)
-
 				// 注册websocket路由
 				router.WebSocket(ctx, group)
-
 				// 注册前台页面路由
 				router.Home(ctx, group)
 
 				// 注册插件路由
 				addons.RegisterModulesRouter(ctx, group)
-
 			})
 
 			// 设置插件静态目录映射
@@ -117,13 +121,6 @@ var (
 			}()
 
 			s.Run()
-			// Just run the server.
-			//if err := s.Start(); err != nil {
-			//	s.Logger().Fatalf(ctx, `%+v`, err)
-			//}
-			//// APIDoc
-			//
-			//ghttp.Wait()
 			return
 		},
 	}

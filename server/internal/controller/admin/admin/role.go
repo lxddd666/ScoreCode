@@ -10,6 +10,7 @@ import (
 	"hotgo/api/admin/role"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/contexts"
+	"hotgo/internal/model/input/adminin"
 	"hotgo/internal/service"
 )
 
@@ -29,6 +30,26 @@ func (c *cRole) List(ctx context.Context, req *role.ListReq) (res *role.ListRes,
 	res = new(role.ListRes)
 	res.RoleListModel = list
 	res.PageRes.Pack(req, totalCount)
+	return
+}
+
+// View 获取列表
+func (c *cRole) View(ctx context.Context, req *role.ViewReq) (res *role.ViewRes, err error) {
+	view, err := service.AdminRole().View(ctx, req.Id)
+	if err != nil {
+		return
+	}
+
+	res = new(role.ViewRes)
+	res.RoleViewModel = &adminin.RoleViewModel{
+		Id:       view.Id,
+		Pid:      view.Pid,
+		Name:     view.Name,
+		Key:      view.Key,
+		Status:   view.Status,
+		OrgAdmin: view.OrgAdmin,
+		Remark:   view.Remark,
+	}
 	return
 }
 

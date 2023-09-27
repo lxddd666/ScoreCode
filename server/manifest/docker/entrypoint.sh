@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd /app && ./hotgo &
-echo "hotgo start all server.."
+cd /app && ./grata &
+echo "grata start all server.."
 tail -f /dev/null

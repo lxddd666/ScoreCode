@@ -12,6 +12,7 @@ import (
 	controller "hotgo/internal/controller/websocket"
 	"hotgo/internal/controller/websocket/handler/admin"
 	"hotgo/internal/controller/websocket/handler/common"
+	"hotgo/internal/controller/websocket/handler/whats"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
 	"hotgo/utility/simple"
@@ -20,7 +21,6 @@ import (
 // WebSocket ws路由配置
 func WebSocket(ctx context.Context, group *ghttp.RouterGroup) {
 	group.Group(simple.RouterPrefix(ctx, consts.AppWebSocket), func(group *ghttp.RouterGroup) {
-		group.Middleware()
 		group.Bind(
 			controller.Send, // 通过http发送ws消息。方便测试没有放权限中间件，实际使用时请自行调整
 		)
@@ -42,5 +42,6 @@ func WebSocket(ctx context.Context, group *ghttp.RouterGroup) {
 		"quit":                  common.Site.Quit,      // 退出组
 		"admin/monitor/trends":  admin.Monitor.Trends,  // 后台监控，动态数据
 		"admin/monitor/runInfo": admin.Monitor.RunInfo, // 后台监控，运行信息
+		"whats/sendMsg":         whats.Whats.SendMsg,   //whats发送消息
 	})
 }

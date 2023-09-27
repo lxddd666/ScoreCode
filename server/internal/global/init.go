@@ -8,7 +8,6 @@ package global
 import (
 	"context"
 	"fmt"
-	"github.com/gogf/gf/contrib/registry/etcd/v2"
 	"github.com/gogf/gf/contrib/rpc/grpcx/v2"
 	"github.com/gogf/gf/contrib/trace/jaeger/v2"
 	"github.com/gogf/gf/v2"
@@ -22,7 +21,7 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	etcd3 "go.etcd.io/etcd/client/v3"
 	"hotgo/internal/consts"
-	"hotgo/internal/core/prometheus"
+	"hotgo/internal/core/registry/etcd"
 	"hotgo/internal/library/cache"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/entity"
@@ -43,7 +42,7 @@ func Init(ctx context.Context) {
 		return
 	}
 
-	fmt.Printf("欢迎使用HotGo！\r\n当前运行环境：%v, 运行根路径为：%v \r\nGrata版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
+	fmt.Printf("欢迎使用Grata！\r\n当前运行环境：%v, 运行根路径为：%v \r\nGrata版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
 
 	// etcd初始化
 	InitEtcd(ctx)
@@ -65,8 +64,6 @@ func Init(ctx context.Context) {
 	// 订阅集群同步
 	SubscribeClusterSync(ctx)
 
-	// 初始化普罗米修斯
-	prometheus.InitPrometheus(ctx)
 }
 
 // LoggingServeLogHandler 服务日志处理

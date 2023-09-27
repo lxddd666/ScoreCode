@@ -7,8 +7,10 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/gogf/gf/v2/net/ghttp"
+	"google.golang.org/grpc"
 )
 
 type (
@@ -17,6 +19,10 @@ type (
 		AdminAuth(r *ghttp.Request)
 		// ApiAuth API鉴权中间件
 		ApiAuth(r *ghttp.Request)
+		// UnaryClientTimeout 超时
+		UnaryClientTimeout(timeout time.Duration) grpc.UnaryClientInterceptor
+		// UnaryClientTestLimit 测试模式
+		UnaryClientTestLimit(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error
 		// HomeAuth 前台页面鉴权中间件
 		HomeAuth(r *ghttp.Request)
 		// Ctx 初始化请求上下文
@@ -33,6 +39,8 @@ type (
 		IsExceptAuth(ctx context.Context, appName, path string) bool
 		// IsExceptLogin 是否是不需要登录的路由地址
 		IsExceptLogin(ctx context.Context, appName, path string) bool
+		// TestLimit 测试模式
+		TestLimit(r *ghttp.Request)
 		// Blacklist IP黑名单限制中间件
 		Blacklist(r *ghttp.Request)
 		// Develop 开发工具白名单过滤
@@ -48,8 +56,8 @@ type (
 		ResponseHandler(r *ghttp.Request)
 		// WebSocketAuth websocket鉴权中间件
 		WebSocketAuth(r *ghttp.Request)
-		// WhatsAuth 后台鉴权中间件
-		WhatsAuth(r *ghttp.Request)
+		// ScAuth 后台鉴权中间件
+		ScAuth(prefix string) func(r *ghttp.Request)
 	}
 )
 

@@ -8,6 +8,7 @@ package queue
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -124,7 +125,7 @@ func (r *RedisMq) SendDelayMsg(topic string, body string, delaySecond int64) (mq
 }
 
 // ListenReceiveMsgDo 消费数据
-func (r *RedisMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) (err error) {
+func (r *RedisMq) ListenReceiveMsgDo(ctx context.Context, topic string, receiveDo func(mqMsg MqMsg)) (err error) {
 	if r.poolName == "" {
 		return gerror.New("RedisMq producer not register")
 	}
@@ -152,7 +153,7 @@ func (r *RedisMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) 
 			receiveDo(mqMsg)
 		}
 		for err = range errCh {
-			if err != nil && err != context.Canceled && err != context.DeadlineExceeded {
+			if err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, context.DeadlineExceeded) {
 				Logger().Infof(ctx, "ListenReceiveMsgDo Delay topic:%v, err:%+v", topic, err)
 			}
 		}

@@ -76,7 +76,9 @@ type WhatsAccountViewModel struct {
 // WhatsAccountListInp 获取账号管理列表
 type WhatsAccountListInp struct {
 	form.PageReq
-	AccountStatus int           `json:"accountStatus" dc:"账号状态"`
+	Account       string        `json:"account"       dc:"账号号码"`
+	AccountStatus *int          `json:"accountStatus" dc:"账号状态"`
+	IsOnline      *int          `json:"isOnline"      description:"是否在线"`
 	CreatedAt     []*gtime.Time `json:"createdAt"     dc:"创建时间"`
 	ProxyAddress  string        `json:"proxyAddress"  dc:"代理地址"`
 	Unbind        bool          `json:"unbind"        dc:"未绑定代理"`

@@ -80,7 +80,7 @@ func (r *KafkaMq) SendDelayMsg(topic string, body string, delaySecond int64) (mq
 }
 
 // ListenReceiveMsgDo 消费数据
-func (r *KafkaMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) (err error) {
+func (r *KafkaMq) ListenReceiveMsgDo(_ context.Context, topic string, receiveDo func(mqMsg MqMsg)) (err error) {
 	if r.consumerIns == nil {
 		return gerror.New("queue kafka consumer not register")
 	}
@@ -91,19 +91,19 @@ func (r *KafkaMq) ListenReceiveMsgDo(topic string, receiveDo func(mqMsg MqMsg)) 
 	}
 
 	consumerCtx, cancel := context.WithCancel(context.Background())
-	go func(consumerCtx context.Context) {
+	simple.SafeGo(consumerCtx, func(consumerCtx context.Context) {
 		for {
 			if err = r.consumerIns.Consume(consumerCtx, []string{topic}, &consumer); err != nil {
 				Logger().Fatalf(ctx, "kafka Error from consumer, err%+v", err)
 			}
 
-			if consumerCtx.Err() != nil {
-				Logger().Debugf(ctx, fmt.Sprintf("kafka consoumer stop : %v", consumerCtx.Err()))
+			if ctx.Err() != nil {
+				Logger().Debugf(ctx, fmt.Sprintf("kafka consoumer stop : %v", ctx.Err()))
 				return
 			}
 			consumer.ready = make(chan bool)
 		}
-	}(consumerCtx)
+	})
 
 	// await till the consumer has been set up
 	<-consumer.ready

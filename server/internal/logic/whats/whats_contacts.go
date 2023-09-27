@@ -242,8 +242,8 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 			key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.AccountDb)
 			g.Redis().SAdd(ctx, key, item.Synchro)
 			// 记录普罗米修斯
-			prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(item.AccountDb))
-			prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(item.Synchro))
+			prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(item.AccountDb)).Inc()
+			prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(item.Synchro)).Inc()
 		}
 	}
 	// 插入联表中
