@@ -34,6 +34,13 @@ func (c *cWhatsArts) SendVcardMsg(ctx context.Context, req *whatsarts.WhatsSendV
 	return
 }
 
+// SendFile 发送消息
+func (c *cWhatsArts) SendFile(ctx context.Context, req *whatsarts.WhatsSendFileReq) (res *whatsarts.WhatsSendFileRes, err error) {
+	data, err := service.WhatsArts().SendFile(ctx, req.WhatsMsgInp)
+	res = (*whatsarts.WhatsSendFileRes)(&data)
+	return
+}
+
 // SyncContactReq 同步联系人
 func (c *cWhatsArts) SyncContactReq(ctx context.Context, req *whatsarts.WhatsSyncContactReq) (res *whatsarts.WhatsSyncContactRes, err error) {
 	data, err := service.WhatsArts().AccountSyncContact(ctx, req.WhatsSyncContactInp)

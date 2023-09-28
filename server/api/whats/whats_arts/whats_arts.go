@@ -28,7 +28,15 @@ type WhatsSendVcardMsgReq struct {
 
 type WhatsSendVcardMsgRes string
 
-// SyncContactReq 同步联系人
+// WhatsSendFileReq whats发送文件
+type WhatsSendFileReq struct {
+	g.Meta `path:"/whats/sendFile" method:"post" tags:"whats-api" summary:"whats发送文件"`
+	*whatsin.WhatsMsgInp
+}
+
+type WhatsSendFileRes string
+
+// WhatsSyncContactReq 同步联系人
 type WhatsSyncContactReq struct {
 	g.Meta `path:"/whats/syncContact" method:"post" tags:"账号管理" summary:"同步联系人"`
 	*whatsin.WhatsSyncContactInp

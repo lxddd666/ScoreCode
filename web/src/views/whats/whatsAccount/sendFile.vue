@@ -6,7 +6,7 @@
         v-model:show="isShowModal"
         :show-icon="false"
         preset="dialog"
-        title="发送名片"
+        title="发送文件"
         :style="{
           width: dialogWidth,
         }"
@@ -16,7 +16,7 @@
           :rules="rules"
           ref="formRef"
           label-placement="left"
-          :label-width="120"
+          :label-width="80"
           class="py-4"
         >
           <n-form-item label="发送人" path="sender">
@@ -27,13 +27,7 @@
             <n-input placeholder="请输入接收人" v-model:value="params.receiver"/>
           </n-form-item>
 
-          <n-form-item label="名字" path="fn">
-            <n-input type="fn" placeholder="请输入名字" v-model:value="params.fn"/>
-          </n-form-item>
 
-          <n-form-item label="手机" path="tel">
-            <n-input type="tel" placeholder="请输入手机" v-model:value="params.tel"/>
-          </n-form-item>
 
         </n-form>
         <template #action>
@@ -49,11 +43,11 @@
 
 <script lang="ts" setup>
 import {computed, onMounted, ref, watch} from 'vue';
-import {SendMsg, SendVcardMsg} from '@/api/whats/whatsAccount';
+import {SendFile} from '@/api/whats/whatsAccount';
 import {useMessage} from 'naive-ui';
 import {adaModalWidth} from '@/utils/hotgo';
 
-const emit = defineEmits(['reloadTable', 'sendMsgShowModal', 'sendVcardMsgShowModal' ]);
+const emit = defineEmits(['reloadTable', 'sendMsgShowModal', 'sendVcardMsgShowModal']);
 
 interface Props {
   showModal: boolean;
@@ -63,18 +57,6 @@ interface Props {
 interface MsgReq {
   sender: string;
   receiver: string;
-  version: string;
-  prodid: string;
-  fn: string;
-  org: string;
-  tel: string;
-  xwabizname: string;
-  end: string;
-  displayname: string;
-  family: string;
-  given: string;
-  prefixes: string;
-  language: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -104,30 +86,13 @@ const rules = {
     trigger: ['blur', 'input'],
     message: '请输入接收人',
   },
-  textMsg: {
-    required: true,
-    trigger: ['blur', 'input'],
-    message: '请输入发送内容',
-  },
 };
 
 
 const loading = ref(false);
 const params = ref<MsgReq>({
   sender: '',
-  receiver: '',
-  version: '3.0',
-  prodid: '',
-  fn: '',
-  org: '',
-  tel: '',
-  xwabizname: '',
-  end: '',
-  displayname: '',
-  family: '',
-  given: '',
-  prefixes: '',
-  language: ''
+  receiver: ''
 });
 const message = useMessage();
 const formRef = ref<any>({});
@@ -139,17 +104,11 @@ function confirmForm(e) {
   formBtnLoading.value = true;
   formRef.value.validate((errors) => {
     if (!errors) {
-      let vacrd = {
-        'version': params.value.version,
-        'fn': params.value.fn,
-        'tel': params.value.tel,
-      }
       let req = {
         'sender': params.value.sender,
-        'receiver': params.value.receiver,
-        'vcard': vacrd,
+        'receiver': params.value.receiver
       }
-      SendVcardMsg(req).then((_res) => {
+      SendFile(req).then((_res) => {
         message.success('操作成功');
         setTimeout(() => {
           isShowModal.value = false;

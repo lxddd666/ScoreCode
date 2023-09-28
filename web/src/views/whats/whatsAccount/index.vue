@@ -102,6 +102,12 @@
       :showModal="showSendModal"
       :sender="account"
     />
+    <SendFile
+      @reloadTable="reloadTable"
+      @sendMsgShowModal="sendFileShowModal"
+      :showModal="showSendFileModal"
+      :sender="account"
+    />
     <SendVcardMsg
       @reloadTable="reloadTable"
       @sendMsgShowModal="sendVcardMsgShowModal"
@@ -135,6 +141,7 @@
   import FileUpload from './upload.vue';
   import { Attachment } from '@/components/FileChooser/src/model';
   import SyncContact from '@/views/whats/whatsAccount/syncContact.vue';
+  import SendFile from "@/views/whats/whatsAccount/sendFile.vue";
 
   const { hasPermission } = usePermission();
   const router = useRouter();
@@ -146,6 +153,7 @@
   const checkedIds = ref([]);
   const showEditModal = ref(false);
   const showSendModal = ref(false);
+  const showSendFileModal = ref(false);
   const showSyncContactModel = ref(false);
   const showSendVcardModel = ref(false);
   const formParams = ref<State>();
@@ -179,9 +187,9 @@
             auth: ['/whats/sendMsg'],
           },
           {
-            label: '发送名片',
-            onClick: handleSendVcardMsg.bind(null, record),
-            auth: ['/whats/sendMsg'],
+            label: '发送文件',
+            onClick: handleSendFile.bind(null, record),
+            auth: ['/whats/sendFile'],
           },
         ],
         dropDownActions: [
@@ -189,6 +197,11 @@
             label: '查看详情',
             key: 'view',
             auth: ['/whatsMsg/view'],
+          },
+          {
+            label: '发送名片',
+            key: 'sendVcardMsg',
+            auth: ['/whats/sendVcardMsg'],
           },
           {
             label: '同步联系人',
@@ -208,6 +221,8 @@
             return handleSyncContact(record);
           } else if (key === 'logout') {
             return handleLogout(record);
+          }else if(key=== 'sendVcardMsg'){
+            return handleSendVcardMsg(record);
           }
         },
       });
@@ -235,6 +250,10 @@
 
   function sendMsgShowModal(value) {
     showSendModal.value = value;
+  }
+
+  function sendFileShowModal(value) {
+    showSendFileModal.value = value;
   }
 
   function sendVcardMsgShowModal(value) {
@@ -286,6 +305,11 @@
 
   function handleSendMsg(record: Recordable) {
     showSendModal.value = true;
+    account.value = newState(record as State).account;
+  }
+
+  function handleSendFile(record: Recordable) {
+    showSendFileModal.value = true;
     account.value = newState(record as State).account;
   }
 

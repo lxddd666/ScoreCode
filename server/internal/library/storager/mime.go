@@ -59,6 +59,7 @@ var (
 		"pptx":     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
 		"pdf":      "application/pdf",
 		"txt":      "text/plain",
+		"text":     "text/plain",
 		"csv":      "text/csv",
 		"html":     "text/html",
 		"xml":      "text/xml",

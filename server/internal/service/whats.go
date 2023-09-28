@@ -49,6 +49,8 @@ type (
 		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
 		AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error)
 		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
+		//SendFile 发送文件
+		SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error)
 	}
 	IWhatsContacts interface {
 		// Model 联系人管理ORM模型

@@ -72,6 +72,14 @@ export function SendMsg(params: any) {
   });
 }
 
+// 发送消息
+export function SendFile(params: any) {
+  return whats.request({
+    url: '/whats/sendFile',
+    method: 'POST',
+    params,
+  });
+}
 // 发送名片
 export function SendVcardMsg(params: any) {
   return whats.request({

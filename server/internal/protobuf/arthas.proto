@@ -132,6 +132,7 @@ message RequestMessage {
     AddGroupMemberDetail     add_group_member_detail = 17;
     SendFileDetail  send_file_detail = 19;
     SendContactCardDetail send_contact_card_detail = 20;
+    SendGroupMessageDetail send_group_message_detail = 21;
   }
   string type = 18;
 
@@ -147,8 +148,17 @@ message UintkeyStringvalue {
   repeated string values = 2;
 }
 
+message StringKeyStringvalue{
+  string key = 1;
+  repeated string values = 2;
+}
+
 message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
+}
+
+message SendGroupMessageAction {
+  map<uint64,StringKeyStringvalue> send_data = 1;
 }
 
 message SendPhotoAction{
@@ -179,6 +189,10 @@ message FileDetailValue{
   string FileType = 1;
   string SendType = 2;
   string Path = 3;
+}
+
+message SendGroupMessageDetail {
+  repeated SendGroupMessageAction details = 1;
 }
 
 message SendMessageDetail {
