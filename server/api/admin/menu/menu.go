@@ -37,3 +37,12 @@ type ListRes struct {
 	*adminin.MenuListModel
 	form.PageRes
 }
+
+type ViewReq struct {
+	g.Meta `path:"/menu/view" method:"get" tags:"菜单" summary:"获取菜单明细"`
+	adminin.MenuViewInp
+}
+
+type ViewRes struct {
+	*adminin.MenuViewModel
+}

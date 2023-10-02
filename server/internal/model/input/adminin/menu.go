@@ -57,6 +57,15 @@ func (in *MenuListInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+// MenuViewInp 获取菜单明细
+type MenuViewInp struct {
+	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+}
+
+func (in *MenuViewInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
 // MenuSearchListInp 查询菜单列表
 type MenuSearchListInp struct {
 	Name string `json:"name" dc:"菜单名称"`
@@ -79,6 +88,10 @@ type MenuTree struct {
 
 type MenuListModel struct {
 	List []*MenuTree `json:"list"`
+}
+
+type MenuViewModel struct {
+	View entity.AdminMenu `json:"view"`
 }
 
 // MenuRouteMeta 菜单路由

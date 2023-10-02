@@ -244,6 +244,8 @@ type (
 		Edit(ctx context.Context, in *adminin.MenuEditInp) (err error)
 		// List 获取菜单列表
 		List(ctx context.Context, in *adminin.MenuListInp) (res *adminin.MenuListModel, err error)
+		// View 获取菜单明细
+		View(ctx context.Context, in *adminin.MenuViewInp) (res *adminin.MenuViewModel, err error)
 		// GetMenuList 获取菜单列表
 		GetMenuList(ctx context.Context, memberId int64) (res *role.DynamicRes, err error)
 		// LoginPermissions 获取登录成功后的细粒度权限

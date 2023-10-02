@@ -151,6 +151,37 @@ func (s *sAdminMenu) List(ctx context.Context, in *adminin.MenuListInp) (res *ad
 	return
 }
 
+// View 获取菜单明细
+func (s *sAdminMenu) View(ctx context.Context, in *adminin.MenuViewInp) (res *adminin.MenuViewModel, err error) {
+	var model *entity.AdminMenu
+	mod := dao.AdminMenu.Ctx(ctx).Where("status", consts.StatusEnabled)
+	// 非超管验证允许的菜单列表
+	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
+		menuIds, err := s.GetHasMenuIds(ctx)
+		if err != nil {
+			return nil, err
+		}
+		// 判断该用户是否有权限查看
+		flag := false
+		for _, menuID := range menuIds {
+			if gconv.Int64(menuID) == in.Id {
+				flag = true
+				break
+			}
+		}
+		if flag == flag {
+			err = gerror.Wrap(err, "获取菜单明细失败，该用户没有该菜单权限！")
+		}
+	}
+	if err = mod.Where("id", in.Id).Scan(&model); err != nil {
+		return
+	}
+
+	res = new(adminin.MenuViewModel)
+	res.View = *model
+	return
+}
+
 // genNaiveMenus 生成NaiveUI菜单格式
 func (s *sAdminMenu) genNaiveMenus(menus []*adminin.MenuRouteSummary) (sources []*adminin.MenuRoute) {
 	for _, men := range menus {

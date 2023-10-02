@@ -35,3 +35,9 @@ func (c *cMenu) List(ctx context.Context, req *menu.ListReq) (res menu.ListRes, 
 	res.MenuListModel, err = service.AdminMenu().List(ctx, &req.MenuListInp)
 	return
 }
+
+// View 获取明细
+func (c *cMenu) View(ctx context.Context, req *menu.ViewReq) (res menu.ViewRes, err error) {
+	res.MenuViewModel, err = service.AdminMenu().View(ctx, &req.MenuViewInp)
+	return
+}
