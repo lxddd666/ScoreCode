@@ -167,6 +167,14 @@ func (s *sSysCron) List(ctx context.Context, in *sysin.CronListInp) (list []*sys
 		mod = mod.Where("status", in.Status)
 	}
 
+	if in.GroupId != 0 && &in.GroupId != nil {
+		mod = mod.Where("group_id", in.GroupId)
+	}
+
+	if in.Policy != "" {
+		mod = mod.Where("policy", in.Policy)
+	}
+
 	totalCount, err = mod.Count()
 	if err != nil {
 		err = gerror.Wrap(err, consts.ErrorORM)
