@@ -67,3 +67,15 @@ type BindReq struct {
 
 // BindRes 绑定用户
 type BindRes struct{}
+
+// GetContactListReq 社交账号联系人
+type GetContactListReq struct {
+	g.Meta `path:"/whatsAccount/getContactList" method:"get" tags:"账号管理" summary:"获取账号的联系人"`
+	whatsin.WhatsAccountGetContactInp
+}
+
+// GetContactListRes 社交账号联系人
+type GetContactListRes struct {
+	form.PageRes
+	List []*whatsin.WhatsContactsListModel `json:"list"   dc:"联系人数据列表"`
+}

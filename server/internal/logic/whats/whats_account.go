@@ -514,3 +514,56 @@ func (s *sWhatsAccount) updateDateRoleById(ctx context.Context, id int64) bool {
 	}
 	return true
 }
+
+// GetContactList 获取账号联系人列表
+func (s *sWhatsAccount) GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error) {
+
+	user := contexts.GetUser(ctx)
+	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+
+	accountMember := entity.WhatsAccountMember{}
+	accountInfo := entity.WhatsAccount{}
+
+	if !flag {
+		err = g.Model(dao.WhatsAccountMember.Table()).
+			Where(dao.WhatsAccountMember.Columns().Account, in.Account).
+			Scan(&accountMember)
+		if err != nil {
+			err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+			return
+		}
+		if accountMember.OrgId != user.OrgId {
+			err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
+			return
+		}
+		err = s.Model(ctx).Fields(dao.WhatsAccount.Columns().Id).
+			Where(dao.WhatsAccount.Columns().Account, in.Account).Scan(&accountInfo)
+		if err != nil {
+			err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+			return
+		}
+
+		// 判断用户是否拥有权限
+		if !s.updateDateRoleById(ctx, gconv.Int64(accountInfo.Id)) {
+			err = gerror.Wrap(err, "该用户没权限查看该账号信息权限，请联系管理员！")
+			return
+		}
+	}
+
+	err = g.Model(dao.WhatsAccountContacts.Table()).As("ac").Fields("c.*").
+		InnerJoin(dao.WhatsContacts.Table()+" c", "ac."+dao.WhatsAccountContacts.Columns().Phone+"="+"c."+dao.WhatsContacts.Columns().Phone).
+		Where("ac."+dao.WhatsAccountContacts.Columns().Account, in.Account).
+		Scan(&res)
+
+	if err != nil {
+		err = gerror.Wrap(err, "获取联系人信息失败，请稍后重试！")
+		return
+	}
+
+	totalCount = len(res)
+	if totalCount == 0 {
+		return
+	}
+	return res, totalCount, nil
+
+}

@@ -39,15 +39,21 @@ type (
 		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
 		// LogoutCallback 登录回调处理
 		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
+		// GetContactList 获取社交帐号联系人
+		GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error)
 	}
 	IWhatsArts interface {
 		// Login 登录whats
 		Login(ctx context.Context, ids []int) (err error)
+		// SendVcardMsg 发名片
 		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 		// SendMsg 发送消息
 		SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error)
+		// AccountLogout 登出
 		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
+		// AccountSyncContact 同步联系人
 		AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error)
+		// GetUserHeadImage 获取头像
 		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
 		//SendFile 发送文件
 		SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error)
