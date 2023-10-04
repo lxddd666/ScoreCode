@@ -140,3 +140,13 @@ func (in *WhatsAccountBindInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsAccountBindModel struct{}
+
+// WhatsAccountGetContactInp 社交账号的联系人
+type WhatsAccountGetContactInp struct {
+	form.PageReq
+	Account string `json:"account" v:"required#账号不能为空" dc:"account"`
+}
+
+func (in *WhatsAccountGetContactInp) Filter(ctx context.Context) (err error) {
+	return
+}
