@@ -54,3 +54,10 @@ func (c *cWhatsArts) Logout(ctx context.Context, req *whatsarts.WhatsLogoutReq) 
 	res = (*whatsarts.WhatsLogoutRes)(&data)
 	return
 }
+
+// GetUserHeadImage 获取头像
+func (c *cWhatsArts) GetUserHeadImage(ctx context.Context, req *whatsarts.WhatsGetUserHeadImageReq) (res *whatsarts.WhatsGetUserHeadImageRes, err error) {
+	data, err := service.WhatsArts().AccountGetUserImage(ctx, req.WhatsGetUserHeadImageInp)
+	res = (*whatsarts.WhatsGetUserHeadImageRes)(&data)
+	return
+}
