@@ -46,6 +46,7 @@ func (s *sSysAttachment) View(ctx context.Context, in *sysin.AttachmentViewInp) 
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取附件信息失败，请稍后重试！")
 	}
+	res.FileUrl = storager.LastUrl(ctx, res.FileUrl, res.Drive)
 	return
 }
 

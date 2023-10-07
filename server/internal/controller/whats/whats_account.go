@@ -63,9 +63,22 @@ func (c *cWhatsAccount) UnBind(ctx context.Context, req *whatsaccount.UnBindReq)
 	return
 }
 
-// Bind绑定账号
+// Bind 绑定账号
 func (c *cWhatsAccount) Bind(ctx context.Context, req *whatsaccount.BindReq) (res *whatsaccount.BindRes, err error) {
 	result, err := service.WhatsAccount().Bind(ctx, &req.WhatsAccountBindInp)
 	res = (*whatsaccount.BindRes)(result)
+	return
+}
+
+// GetAccountContactList 获取社交账号联系人
+func (c *cWhatsAccount) GetAccountContactList(ctx context.Context, req *whatsaccount.GetContactListReq) (res *whatsaccount.GetContactListRes, err error) {
+	list, totalCount, err := service.WhatsAccount().GetContactList(ctx, &req.WhatsAccountGetContactInp)
+	if err != nil {
+		return
+	}
+
+	res = new(whatsaccount.GetContactListRes)
+	res.List = list
+	res.PageRes.Pack(req, totalCount)
 	return
 }

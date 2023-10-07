@@ -173,6 +173,7 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []*entity.WhatsAccount)
 	return req
 }
 
+// SendVcardMsg 发送名片
 func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
@@ -217,12 +218,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 // SendMsg 发送消息
 func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
-	defer func(conn *grpc2.ClientConn) {
-		err = conn.Close()
-		if err != nil {
-			g.Log().Error(ctx, err)
-		}
-	}(conn)
+	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
 	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(item.Receiver))
@@ -280,6 +276,41 @@ func (s *sWhatsArts) sendTextMessage(msgReq *whatsin.WhatsMsgInp) *protobuf.Requ
 	}
 
 	return req
+}
+
+// SendFile 发送文件
+func (s *sWhatsArts) SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error) {
+	list := make([]*protobuf.SendFileAction, 0)
+	sendData := make(map[uint64]*protobuf.UintFileDetailValue)
+	sendData[inp.Sender] = &protobuf.UintFileDetailValue{Key: inp.Receiver}
+	fileDetail := make([]*protobuf.FileDetailValue, 0)
+	tmp := &protobuf.SendFileAction{}
+	fileDetail = append(fileDetail, &protobuf.FileDetailValue{
+		FileType: "video/mp4",
+		SendType: "url",
+		Path:     "cmd/arthtoolTG/testFile/test.mp4",
+	})
+	sendData[inp.Sender].Value = fileDetail
+	tmp.SendData = sendData
+	list = append(list, tmp)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_SEND_FILE,
+		Type:   "whatsapp",
+		ActionDetail: &protobuf.RequestMessage_SendFileDetail{
+			SendFileDetail: &protobuf.SendFileDetail{
+				Details: list,
+			},
+		},
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	res = resp.String()
+	return
 }
 
 func (s *sWhatsArts) AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error) {

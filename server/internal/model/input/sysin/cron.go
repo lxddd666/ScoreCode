@@ -45,7 +45,9 @@ type CronListInp struct {
 	form.PageReq
 
 	form.StatusReq
-	Name string
+	Name    string
+	GroupId int64
+	Policy  string
 }
 
 type CronListModel struct {
