@@ -51,3 +51,11 @@ type DeleteReq struct {
 }
 
 type DeleteRes struct{}
+
+// MoveMsgReq 迁移聊天记录
+type MoveMsgReq struct {
+	g.Meta `path:"/whatsMsg/move" method:"post" tags:"消息记录" summary:"迁移消息记录"`
+	whatsin.WhatsMsgMoveInp
+}
+
+type MoveMsgRes struct{}

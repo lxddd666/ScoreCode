@@ -54,3 +54,9 @@ func (c *cWhatsMsg) Delete(ctx context.Context, req *whatsmsg.DeleteReq) (res *w
 	err = service.WhatsMsg().Delete(ctx, &req.WhatsMsgDeleteInp)
 	return
 }
+
+// Move 迁移消息记录
+func (c *cWhatsMsg) Move(ctx context.Context, req *whatsmsg.MoveMsgReq) (res *whatsmsg.MoveMsgRes, err error) {
+	err = service.WhatsMsg().Move(ctx, &req.WhatsMsgMoveInp)
+	return
+}

@@ -17,6 +17,7 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/model/entity"
+	"hotgo/internal/model/input/artsin"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
@@ -217,7 +218,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 }
 
 // SendMsg 发送消息
-func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error) {
+func (s *sWhatsArts) SendMsg(ctx context.Context, item *artsin.MsgInp) (res string, err error) {
 	conn := grpc.GetManagerConn()
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
@@ -256,7 +257,7 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (re
 	return
 }
 
-func (s *sWhatsArts) sendTextMessage(msgReq *whatsin.WhatsMsgInp) *protobuf.RequestMessage {
+func (s *sWhatsArts) sendTextMessage(msgReq *artsin.MsgInp) *protobuf.RequestMessage {
 	list := make([]*protobuf.SendMessageAction, 0)
 
 	tmp := &protobuf.SendMessageAction{}
@@ -296,7 +297,7 @@ func (s *sWhatsArts) SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (re
 	list = append(list, tmp)
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SEND_FILE,
-		Type:   "whatsapp",
+		Type:   consts.WhatsappSvc,
 		ActionDetail: &protobuf.RequestMessage_SendFileDetail{
 			SendFileDetail: &protobuf.SendFileDetail{
 				Details: list,

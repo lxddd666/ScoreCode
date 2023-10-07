@@ -14,6 +14,7 @@ func Tg(ctx context.Context, group *ghttp.RouterGroup) {
 		group.Middleware(service.Middleware().ScAuth(consts.AppTg))
 		group.Bind(
 			tg.TgUser, // 账号管理
+			tg.TgArts, // arts-api
 		)
 
 	})

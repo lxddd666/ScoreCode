@@ -11,7 +11,9 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
+	"hotgo/internal/model/input/artsin"
 	whatsin "hotgo/internal/model/input/whats"
+	"hotgo/internal/protobuf"
 
 	"github.com/gogf/gf/v2/database/gdb"
 )
@@ -38,24 +40,22 @@ type (
 		LoginCallback(ctx context.Context, res []callback.LoginCallbackRes) error
 		// LogoutCallback 登录回调处理
 		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
-		// GetContactList 获取社交帐号联系人
+		// GetContactList 获取账号联系人列表
 		GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error)
 	}
 	IWhatsArts interface {
 		// Login 登录whats
 		Login(ctx context.Context, ids []int) (err error)
-		// SendVcardMsg 发名片
+		// SendVcardMsg 发送名片
 		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 		// SendMsg 发送消息
-		SendMsg(ctx context.Context, item *whatsin.WhatsMsgInp) (res string, err error)
-		// AccountLogout 登出
-		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
-		// AccountSyncContact 同步联系人
-		AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error)
-		// GetUserHeadImage 获取头像
-		AccountGetUserImage(ctx context.Context, in *whatsin.WhatsGetUserHeadImageInp) (res string, err error)
-		//SendFile 发送文件
+		SendMsg(ctx context.Context, item *artsin.MsgInp) (res string, err error)
+		// SendFile 发送文件
 		SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error)
+		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
+		AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error)
+		AccountGetUserImage(ctx context.Context, req *whatsin.WhatsGetUserHeadImageInp) (res string, err error)
+		GetUserHeadImage(userHeadImageReq *whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
 	}
 	IWhatsContacts interface {
 		// Model 联系人管理ORM模型
@@ -92,6 +92,8 @@ type (
 		TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
 		// ReadMsgCallback 已读消息回调
 		ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
+		// Move 迁移聊天记录
+		Move(ctx context.Context, in *whatsin.WhatsMsgMoveInp) (err error)
 		//SendStatusCallback 发送状态回调
 		SendStatusCallback(ctx context.Context, res queue.MqMsg) (err error)
 	}
@@ -121,23 +123,12 @@ type (
 )
 
 var (
-	localWhatsMsg      IWhatsMsg
-	localWhatsProxy    IWhatsProxy
 	localWhatsAccount  IWhatsAccount
 	localWhatsArts     IWhatsArts
 	localWhatsContacts IWhatsContacts
+	localWhatsMsg      IWhatsMsg
+	localWhatsProxy    IWhatsProxy
 )
-
-func WhatsAccount() IWhatsAccount {
-	if localWhatsAccount == nil {
-		panic("implement not found for interface IWhatsAccount, forgot register?")
-	}
-	return localWhatsAccount
-}
-
-func RegisterWhatsAccount(i IWhatsAccount) {
-	localWhatsAccount = i
-}
 
 func WhatsArts() IWhatsArts {
 	if localWhatsArts == nil {
@@ -181,4 +172,15 @@ func WhatsProxy() IWhatsProxy {
 
 func RegisterWhatsProxy(i IWhatsProxy) {
 	localWhatsProxy = i
+}
+
+func WhatsAccount() IWhatsAccount {
+	if localWhatsAccount == nil {
+		panic("implement not found for interface IWhatsAccount, forgot register?")
+	}
+	return localWhatsAccount
+}
+
+func RegisterWhatsAccount(i IWhatsAccount) {
+	localWhatsAccount = i
 }

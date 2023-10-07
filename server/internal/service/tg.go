@@ -8,12 +8,19 @@ package service
 import (
 	"context"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/input/artsin"
 	tgin "hotgo/internal/model/input/tgin"
 
 	"github.com/gogf/gf/v2/database/gdb"
 )
 
 type (
+	ITgArts interface {
+		// Login 登录
+		Login(ctx context.Context, ids []int) (err error)
+		// SendMsg 发送消息
+		SendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+	}
 	ITgUser interface {
 		// Model TG账号ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -31,8 +38,20 @@ type (
 )
 
 var (
+	localTgArts ITgArts
 	localTgUser ITgUser
 )
+
+func TgArts() ITgArts {
+	if localTgArts == nil {
+		panic("implement not found for interface ITgArts, forgot register?")
+	}
+	return localTgArts
+}
+
+func RegisterTgArts(i ITgArts) {
+	localTgArts = i
+}
 
 func TgUser() ITgUser {
 	if localTgUser == nil {
