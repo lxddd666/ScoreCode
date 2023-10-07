@@ -17,6 +17,7 @@ enum Action {
   SEND_VCARD_MESSAGE = 8;
   SET_HEAD_SCULPTURE = 9;
   GET_USER_HEAD_IMAGE = 10;
+  SEND_VIDEO = 18;
 
   //telegram
   SYNC_APP_INFO = 11;
@@ -45,7 +46,11 @@ message loginDetail {
 
 
 message GetUserHeadImageAction{
-  uint64 account = 1;
+  map<uint64, getUserHeadImage> head_image = 1;
+}
+
+message getUserHeadImage{
+  repeated uint64 account = 1;
 }
 
 // 定义头像
@@ -62,26 +67,17 @@ message SetHeadSculptureAction {
 
 //定义明信片
 message VCard{
-    string Begin = 1;
-    string Version = 2;
-    string Prodid = 3;
-    string  Fn = 4;
-    string Org = 5;
-    string Tel = 6;
-    string XWaBizName = 7;
-    string End = 9;
-    string DisplayName = 10;
-    string Family = 11;
-    string Given = 12;
-    string Prefixes = 13;
-    string Language = 14;
+  string Fn = 1;
+  string Tel = 2;
 }
 
 // 定义明信片消息
-message SendVCardMsgAction {
-  map<uint64, VCard> Vcard_data = 1;
-  uint64 Sender = 2;
-  uint64 Receiver = 3;
+message SendVCardMsgDetail {
+  repeated SendVCardMsgDetailAction details = 1;
+}
+
+message SendMessageDetail {
+  repeated SendMessageAction details = 1;
 }
 
 //定义telegram app 信息
@@ -122,7 +118,7 @@ message RequestMessage {
     QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
     SendMessageDetail  sendmessage_detail = 8 ;
     string  ping_message = 9;
-    SendVCardMsgAction send_vcard_message = 10;
+    SendVCardMsgDetail send_vcard_message = 10;
     SetHeadSculptureAction set_head_sculpture_action = 11;
     GetUserHeadImageAction get_user_head_image = 12;
     SyncContactDetail      sync_contact_detail = 13;
@@ -130,9 +126,11 @@ message RequestMessage {
     SendPhotoDetail  send_photo_detail = 15;
     CreateGroupDetail       create_group_detail = 16;
     AddGroupMemberDetail     add_group_member_detail = 17;
-    SendFileDetail  send_file_detail = 19;
+    SendImageFileDetail  send_image_file_detail = 19;
     SendContactCardDetail send_contact_card_detail = 20;
     SendGroupMessageDetail send_group_message_detail = 21;
+    SendFileDetail  send_file_detail = 22;
+    SendVideoDetail send_video_detail = 23;
   }
   string type = 18;
 
@@ -153,8 +151,17 @@ message StringKeyStringvalue{
   repeated string values = 2;
 }
 
+message UintSenderVcard{
+  uint64 Receiver  = 1;
+  repeated VCard vcards = 2;
+}
+
 message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
+}
+
+message SendVCardMsgDetailAction {
+  map<uint64, UintSenderVcard> send_data = 1;
 }
 
 message SendGroupMessageAction {
@@ -189,21 +196,28 @@ message FileDetailValue{
   string FileType = 1;
   string SendType = 2;
   string Path = 3;
+  bytes  FileByte = 4;
+  string Name = 5;
 }
 
 message SendGroupMessageDetail {
   repeated SendGroupMessageAction details = 1;
 }
 
-message SendMessageDetail {
-  repeated SendMessageAction details = 1;
-}
 
 message SendPhotoDetail {
   repeated SendPhotoAction details = 1;
 }
 
 message SendFileDetail{
+  repeated SendFileAction details = 1;
+}
+
+message SendVideoDetail{
+  repeated SendFileAction details = 1;
+}
+
+message SendImageFileDetail{
   repeated SendFileAction details = 1;
 }
 
@@ -225,9 +239,6 @@ message  AddGroupMemberDetail {
   UintkeyUintvalue detail = 2;
 }
 
-message SendVCardMessageDetail{
-  repeated SendVCardMsgAction detail = 1;
-}
 
 message QueryPreKeyBundleDetail {
   repeated UintkeyUintvalue details = 1;

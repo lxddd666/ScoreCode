@@ -12,7 +12,6 @@ import (
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
 	whatsin "hotgo/internal/model/input/whats"
-	"hotgo/internal/protobuf"
 
 	"github.com/gogf/gf/v2/database/gdb"
 )
@@ -54,7 +53,7 @@ type (
 		// AccountSyncContact 同步联系人
 		AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error)
 		// GetUserHeadImage 获取头像
-		GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage
+		AccountGetUserImage(ctx context.Context, in *whatsin.WhatsGetUserHeadImageInp) (res string, err error)
 		//SendFile 发送文件
 		SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error)
 	}
