@@ -38,7 +38,7 @@ type WhatsSendFileRes string
 
 // WhatsSyncContactReq 同步联系人
 type WhatsSyncContactReq struct {
-	g.Meta `path:"/whats/syncContact" method:"post" tags:"账号管理" summary:"同步联系人"`
+	g.Meta `path:"/whats/syncContact" method:"post" tags:"whats-api" summary:"同步联系人"`
 	*whatsin.WhatsSyncContactInp
 }
 
@@ -46,8 +46,16 @@ type WhatsSyncContactRes string
 
 // WhatsLogoutReq 退出登录
 type WhatsLogoutReq struct {
-	g.Meta `path:"/whats/logout" method:"post" tags:"账号管理" summary:"退出登录"`
+	g.Meta `path:"/whats/logout" method:"post" tags:"whats-api" summary:"退出登录"`
 	*whatsin.WhatsLogoutInp
 }
 
 type WhatsLogoutRes string
+
+// WhatsGetUserHeadImageReq 获取用户头像
+type WhatsGetUserHeadImageReq struct {
+	g.Meta `path:"/whats/getUserHeadImage" method:"post" tags:"whats-api" summary:"获取用户头像"`
+	*whatsin.WhatsGetUserHeadImageInp
+}
+
+type WhatsGetUserHeadImageRes string

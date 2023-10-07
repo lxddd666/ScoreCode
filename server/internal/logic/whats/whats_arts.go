@@ -205,8 +205,9 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 		}
 		g.Log().Info(ctx, artsRes.GetActionResult().String())
 	}
-
-	sendMsg := s.sendVCardMessage(msg)
+	vcardList := make([]*whatsin.WhatVcardMsgInp, 0)
+	vcardList = append(vcardList, msg)
+	sendMsg := s.sendVCardMessage(vcardList)
 	artsRes, err := c.Connect(ctx, sendMsg)
 	if err != nil {
 		return "", err
@@ -407,45 +408,101 @@ func (s *sWhatsArts) syncContact(syncContactReq whatsin.SyncContactReq) *protobu
 	return req
 }
 
-func (s *sWhatsArts) GetUserHeadImage(userHeadImageReq whatsin.GetUserHeadImageReq) *protobuf.RequestMessage {
+func (s *sWhatsArts) AccountGetUserImage(ctx context.Context, req *whatsin.WhatsGetUserHeadImageInp) (res string, err error) {
+	conn := grpc.GetManagerConn()
+	defer func(conn *grpc2.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			g.Log().Error(ctx, err)
+		}
+	}(conn)
+	c := protobuf.NewArthasClient(conn)
+
+	if req.Account == 0 {
+		req.Account = gconv.Uint64(contexts.GetUser(ctx).Username)
+	}
+
+	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, req.Account)
+	for _, user := range req.GetUserAvatar {
+		flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(user))
+		if err != nil {
+			return "", err
+		}
+		if flag != 1 {
+			// 该联系人未同步
+			syncContactReq := whatsin.SyncContactReq{
+				Values: make([]uint64, 0),
+			}
+			syncContactReq.Key = req.Account
+			syncContactReq.Values = append(syncContactReq.Values, user)
+
+			//2.同步通讯录
+			syncContactMsg := s.syncContact(syncContactReq)
+			artsRes, err := c.Connect(ctx, syncContactMsg)
+			if err != nil {
+				return "", err
+			}
+			g.Log().Info(ctx, artsRes.GetActionResult().String())
+		}
+	}
+	content := &whatsin.GetUserHeadImageReq{
+		Account:       req.Account,
+		GetUserAvatar: req.GetUserAvatar,
+	}
+	getHeadImageMsg := s.GetUserHeadImage(content)
+	artsRes, err := c.Connect(ctx, getHeadImageMsg)
+	if err != nil {
+		return "", err
+	}
+	res = artsRes.String()
+	return
+}
+
+func (s *sWhatsArts) GetUserHeadImage(userHeadImageReq *whatsin.GetUserHeadImageReq) *protobuf.RequestMessage {
+	userImageHead := make(map[uint64]*protobuf.GetUserHeadImage)
+	userImage := &protobuf.GetUserHeadImage{
+		Account: userHeadImageReq.GetUserAvatar,
+	}
+	userImageHead[userHeadImageReq.Account] = userImage
+
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_GET_USER_HEAD_IMAGE,
+		Type:   "whatsapp",
 		ActionDetail: &protobuf.RequestMessage_GetUserHeadImage{
 			GetUserHeadImage: &protobuf.GetUserHeadImageAction{
-				Account: userHeadImageReq.Account,
+				HeadImage: userImageHead,
 			},
 		},
 	}
 	return req
 }
 
-func (s *sWhatsArts) sendVCardMessage(content *whatsin.WhatVcardMsgInp) *protobuf.RequestMessage {
-	vcard := content.Vcard
-	sendData := make(map[uint64]*protobuf.VCard)
-	sendData[content.Sender] = &protobuf.VCard{
-		Version:     vcard.Version,
-		Prodid:      vcard.Prodid,
-		Fn:          vcard.Fn,
-		Org:         vcard.Org,
-		Tel:         vcard.Tel,
-		XWaBizName:  vcard.XWaBizName,
-		End:         vcard.End,
-		DisplayName: vcard.DisplayName,
-		Family:      vcard.Family,
-		Given:       vcard.Given,
-		Prefixes:    vcard.Prefixes,
-		Language:    vcard.Language,
+func (s *sWhatsArts) sendVCardMessage(content []*whatsin.WhatVcardMsgInp) *protobuf.RequestMessage {
+	vcardList := make([]*protobuf.SendVCardMsgDetailAction, 0)
+	for _, v := range content {
+		tmp := &protobuf.SendVCardMsgDetailAction{}
+		sendData := make(map[uint64]*protobuf.UintSenderVcard)
+		vcards := make([]*protobuf.VCard, 0)
+		for _, card := range v.VCardDetails {
+			vcards = append(vcards, &protobuf.VCard{
+				Fn:  card.Fn,
+				Tel: card.Tel,
+			})
+		}
+		sendData[v.Sender] = &protobuf.UintSenderVcard{
+			Vcards:   vcards,
+			Receiver: v.Receiver,
+		}
+		tmp.SendData = sendData
+		vcardList = append(vcardList, tmp)
 	}
-	//tmp.SendData = sendData
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SEND_VCARD_MESSAGE,
-		Type:   consts.WhatsappSvc,
+		Type:   "whatsapp",
 		ActionDetail: &protobuf.RequestMessage_SendVcardMessage{
-			SendVcardMessage: &protobuf.SendVCardMsgAction{
-				VcardData: sendData,
-				Sender:    content.Sender,
-				Receiver:  content.Receiver,
+			SendVcardMessage: &protobuf.SendVCardMsgDetail{
+				Details: vcardList,
 			},
 		},
 	}
