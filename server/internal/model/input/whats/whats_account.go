@@ -150,3 +150,11 @@ type WhatsAccountGetContactInp struct {
 func (in *WhatsAccountGetContactInp) Filter(ctx context.Context) (err error) {
 	return
 }
+
+type MemberBindAccountInp struct {
+	Accounts []string `json:"accounts"  v:"required#社交小号不能为空" dc:"account"`
+}
+
+func (in *MemberBindAccountInp) Filter(ctx context.Context) (err error) {
+	return
+}

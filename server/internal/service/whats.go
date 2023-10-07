@@ -7,6 +7,7 @@ package service
 
 import (
 	"context"
+	whatsaccount "hotgo/api/whats/whats_account"
 	whatsproxy "hotgo/api/whats/whats_proxy"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/queue"
@@ -42,6 +43,8 @@ type (
 		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
 		// GetContactList 获取账号联系人列表
 		GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error)
+		// MemberBindAccount 绑定用户联系人
+		MemberBindAccount(ctx context.Context, in *whatsin.MemberBindAccountInp) (res *whatsaccount.MemberBindAccountRes, err error)
 	}
 	IWhatsArts interface {
 		// Login 登录whats
