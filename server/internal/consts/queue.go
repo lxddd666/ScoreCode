@@ -16,4 +16,5 @@ const (
 	QueueWhatsReadMsgTopic     = `read`        // 已读消息回调
 	QueueWhatsTextMsgTopic     = `textMsg`     // 发送文本消息回调
 	QueueWhatsLogoutTopic      = `logout`      // 登出日志
+	QueueWhatsSendStatusTopic  = `sendStatus`  // 发送状态回调
 )

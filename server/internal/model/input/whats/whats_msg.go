@@ -19,6 +19,7 @@ type WhatsMsgUpdateFields struct {
 	MsgType       int         `json:"msgType"       dc:"消息类型"`
 	SendTime      *gtime.Time `json:"sendTime"      dc:"发送时间"`
 	Read          int         `json:"read"          dc:"是否已读"`
+	SendStatus    int         `json:"sendStatus"    dc:"发送状态"`
 	Comment       string      `json:"comment"       dc:"备注"`
 }
 
@@ -33,6 +34,7 @@ type WhatsMsgInsertFields struct {
 	MsgType       int         `json:"msgType"       dc:"消息类型"`
 	SendTime      *gtime.Time `json:"sendTime"      dc:"发送时间"`
 	Read          int         `json:"read"          dc:"是否已读"`
+	SendStatus    int         `json:"sendStatus"    dc:"发送状态"`
 	Comment       string      `json:"comment"       dc:"备注"`
 }
 
@@ -97,30 +99,32 @@ func (in *WhatsMsgListInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsMsgListModel struct {
-	Id        int64       `json:"id"        dc:"id"`
-	CreatedAt *gtime.Time `json:"createdAt" dc:"created_at"`
-	UpdatedAt *gtime.Time `json:"updatedAt" dc:"updated_at"`
-	Initiator int64       `json:"initiator" dc:"聊天发起人"`
-	Sender    int64       `json:"sender"    dc:"发送人"`
-	Receiver  int64       `json:"receiver"  dc:"接收人"`
-	ReqId     string      `json:"reqId"     dc:"请求id"`
-	MsgType   int         `json:"msgType"   dc:"消息类型"`
-	SendTime  *gtime.Time `json:"sendTime"  dc:"发送时间"`
-	Read      int         `json:"read"      dc:"是否已读"`
-	Comment   string      `json:"comment"   dc:"备注"`
+	Id         int64       `json:"id"        dc:"id"`
+	CreatedAt  *gtime.Time `json:"createdAt" dc:"created_at"`
+	UpdatedAt  *gtime.Time `json:"updatedAt" dc:"updated_at"`
+	Initiator  int64       `json:"initiator" dc:"聊天发起人"`
+	Sender     int64       `json:"sender"    dc:"发送人"`
+	Receiver   int64       `json:"receiver"  dc:"接收人"`
+	ReqId      string      `json:"reqId"     dc:"请求id"`
+	MsgType    int         `json:"msgType"   dc:"消息类型"`
+	SendTime   *gtime.Time `json:"sendTime"  dc:"发送时间"`
+	Read       int         `json:"read"      dc:"是否已读"`
+	SendStatus int         `json:"sendStatus"  dc:"发送状态"`
+	Comment    string      `json:"comment"   dc:"备注"`
 }
 
 // WhatsMsgExportModel 导出消息记录
 type WhatsMsgExportModel struct {
-	Id        int64       `json:"id"        dc:"id"`
-	CreatedAt *gtime.Time `json:"createdAt" dc:"created_at"`
-	UpdatedAt *gtime.Time `json:"updatedAt" dc:"updated_at"`
-	Initiator int64       `json:"initiator" dc:"聊天发起人"`
-	Sender    int64       `json:"sender"    dc:"发送人"`
-	Receiver  int64       `json:"receiver"  dc:"接收人"`
-	ReqId     string      `json:"reqId"     dc:"请求id"`
-	MsgType   int         `json:"msgType"   dc:"消息类型"`
-	SendTime  *gtime.Time `json:"sendTime"  dc:"发送时间"`
-	Read      int         `json:"read"      dc:"是否已读"`
-	Comment   string      `json:"comment"   dc:"备注"`
+	Id         int64       `json:"id"        dc:"id"`
+	CreatedAt  *gtime.Time `json:"createdAt" dc:"created_at"`
+	UpdatedAt  *gtime.Time `json:"updatedAt" dc:"updated_at"`
+	Initiator  int64       `json:"initiator" dc:"聊天发起人"`
+	Sender     int64       `json:"sender"    dc:"发送人"`
+	Receiver   int64       `json:"receiver"  dc:"接收人"`
+	ReqId      string      `json:"reqId"     dc:"请求id"`
+	MsgType    int         `json:"msgType"   dc:"消息类型"`
+	SendTime   *gtime.Time `json:"sendTime"  dc:"发送时间"`
+	Read       int         `json:"read"      dc:"是否已读"`
+	SendStatus int         `json:"sendStatus"  dc:"发送状态"`
+	Comment    string      `json:"comment"   dc:"备注"`
 }

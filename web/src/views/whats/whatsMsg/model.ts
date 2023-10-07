@@ -25,6 +25,7 @@ export interface State {
   msgType: number;
   sendTime: string;
   read: number;
+  sendStatus:number;
   comment: string;
 }
 
@@ -42,6 +43,7 @@ export const defaultState = {
   msgType: 1,
   sendTime: '',
   read: 0,
+  sendStatus: 0,
   comment: '',
 };
 
@@ -55,6 +57,7 @@ export function newState(state: State | null): State {
 export const options = ref<Options>({
   msg_type: [],
   read_status: [],
+  send_status:[],
 });
 
 export const rules = {
@@ -152,6 +155,30 @@ export const columns = [
       );
     },
   },
+
+  {
+    title: '发送状态',
+    key: 'sendStatus',
+    render(row) {
+      if (isNullObject(row.sendStatus)) {
+        return ``;
+      }
+      return h(
+        NTag,
+        {
+          style: {
+            marginRight: '6px',
+          },
+          type: getOptionTag(options.value.send_status, row.sendStatus),
+          bordered: false,
+        },
+        {
+          default: () => getOptionLabel(options.value.send_status, row.sendStatus),
+        }
+      );
+    },
+  },
+
   {
     title: '备注',
     key: 'comment',
@@ -161,8 +188,9 @@ export const columns = [
 async function loadOptions() {
   options.value = await Dicts({
     types: [
-      'msg_type',
-    'read_status',
+        'msg_type',
+        'read_status',
+        'send_status',
    ],
   });
   for (const item of schemas.value) {
@@ -172,6 +200,9 @@ async function loadOptions() {
         break;
       case 'read':
         item.componentProps.options = options.value.read_status;
+        break;
+      case 'sendStatus':
+        item.componentProps.options = options.value.send_status;
         break;
      }
   }

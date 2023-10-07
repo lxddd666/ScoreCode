@@ -34,6 +34,7 @@ type WhatsMsgColumns struct {
 	SendTime      string // 发送时间
 	Read          string // 是否已读
 	Comment       string // 备注
+	SendStatus    string // 发送状态
 }
 
 // whatsMsgColumns holds the columns for table whats_msg.
@@ -52,6 +53,7 @@ var whatsMsgColumns = WhatsMsgColumns{
 	SendTime:      "send_time",
 	Read:          "read",
 	Comment:       "comment",
+	SendStatus:    "send_status",
 }
 
 // NewWhatsMsgDao creates and returns a new DAO object for table data access.

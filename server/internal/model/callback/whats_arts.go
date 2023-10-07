@@ -25,6 +25,10 @@ type ReadMsgCallbackRes struct {
 	ReqId string `json:"reqId"` //请求ID
 }
 
+type SendStatusCallbackRes struct {
+	ReqId string `json:"reqId"` //请求ID
+}
+
 type SyncContactMsgCallbackRes struct {
 	AccountDb uint64 `json:"accountdb"` // 发送人账号
 	Status    string `json:"status"`    // 同步状态 in/out
