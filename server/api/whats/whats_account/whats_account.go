@@ -79,3 +79,13 @@ type GetContactListRes struct {
 	form.PageRes
 	List []*whatsin.WhatsContactsListModel `json:"list"   dc:"联系人数据列表"`
 }
+
+// MemberBindAccountReq 员工账号绑定社交小号
+type MemberBindAccountReq struct {
+	g.Meta `path:"/whatsAccount/memberBindAccount" method:"post" tags:"账号管理" summary:"员工账号绑定社交小号"`
+	whatsin.MemberBindAccountInp
+}
+
+// MemberBindAccountRes 员工账号绑定社交小号
+type MemberBindAccountRes struct {
+}

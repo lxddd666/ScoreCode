@@ -82,3 +82,10 @@ func (c *cWhatsAccount) GetAccountContactList(ctx context.Context, req *whatsacc
 	res.PageRes.Pack(req, totalCount)
 	return
 }
+
+// MemberBindAccount 员工账号绑定社交账号
+func (c *cWhatsAccount) MemberBindAccount(ctx context.Context, req *whatsaccount.MemberBindAccountReq) (res *whatsaccount.MemberBindAccountRes, err error) {
+	result, err := service.WhatsAccount().MemberBindAccount(ctx, &req.MemberBindAccountInp)
+	res = (*whatsaccount.MemberBindAccountRes)(result)
+	return
+}
