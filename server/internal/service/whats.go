@@ -49,12 +49,12 @@ type (
 	IWhatsArts interface {
 		// Login 登录whats
 		Login(ctx context.Context, ids []int) (err error)
-		// CheckLogin 检查是否登录
+		// WhatsCheckLogin 检查是否登录
 		WhatsCheckLogin(ctx context.Context, account uint64) (err error)
 		// SendVcardMsg 发送名片
 		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 		// SendMsg 发送消息
-		WhatsSendMsg(ctx context.Context, item *artsin.MsgInp) (res string, err error)
+		WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
 		// SendFile 发送文件
 		SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error)
 		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
@@ -128,34 +128,12 @@ type (
 )
 
 var (
-	localWhatsProxy    IWhatsProxy
 	localWhatsAccount  IWhatsAccount
 	localWhatsArts     IWhatsArts
 	localWhatsContacts IWhatsContacts
 	localWhatsMsg      IWhatsMsg
+	localWhatsProxy    IWhatsProxy
 )
-
-func WhatsAccount() IWhatsAccount {
-	if localWhatsAccount == nil {
-		panic("implement not found for interface IWhatsAccount, forgot register?")
-	}
-	return localWhatsAccount
-}
-
-func RegisterWhatsAccount(i IWhatsAccount) {
-	localWhatsAccount = i
-}
-
-func WhatsArts() IWhatsArts {
-	if localWhatsArts == nil {
-		panic("implement not found for interface IWhatsArts, forgot register?")
-	}
-	return localWhatsArts
-}
-
-func RegisterWhatsArts(i IWhatsArts) {
-	localWhatsArts = i
-}
 
 func WhatsContacts() IWhatsContacts {
 	if localWhatsContacts == nil {
@@ -188,4 +166,26 @@ func WhatsProxy() IWhatsProxy {
 
 func RegisterWhatsProxy(i IWhatsProxy) {
 	localWhatsProxy = i
+}
+
+func WhatsAccount() IWhatsAccount {
+	if localWhatsAccount == nil {
+		panic("implement not found for interface IWhatsAccount, forgot register?")
+	}
+	return localWhatsAccount
+}
+
+func RegisterWhatsAccount(i IWhatsAccount) {
+	localWhatsAccount = i
+}
+
+func WhatsArts() IWhatsArts {
+	if localWhatsArts == nil {
+		panic("implement not found for interface IWhatsArts, forgot register?")
+	}
+	return localWhatsArts
+}
+
+func RegisterWhatsArts(i IWhatsArts) {
+	localWhatsArts = i
 }

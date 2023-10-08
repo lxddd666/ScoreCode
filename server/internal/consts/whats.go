@@ -13,6 +13,18 @@ const (
 )
 
 const (
+	TgLoginAccountKey            = "tg_login_account"
+	TgMsgReadReqKey              = "tg_unread"
+	TgSendStatusReqKey           = "tg_send"
+	TgRedisSyncContactAccountKey = "tg_sync_contacts_record_account:"
+	TgLastLoginAccountId         = "tg_last_login_account_user_id"
+	TgRandomProxy                = "tg_random_proxy:"
+	TgRandomProxyList            = "tg_random_proxy_list"
+	TgRandomProxyBindAccount     = "tg_random_proxy_bind_account:"
+	TgActionLoginAccounts        = "tg_action_login_accounts:"
+)
+
+const (
 	Read    = 1 //已读
 	Unread  = 2 //未读
 	Online  = 1 //在线
@@ -23,4 +35,10 @@ const (
 	WhatsLoginEvent   = "whatsLogin"
 	WhatsMsgEvent     = "whatsMsg"
 	WhatsMsgReadEvEnt = "whatsMsgRead"
+)
+
+const (
+	TgLoginEvent   = "tgLogin"
+	TgMsgEvent     = "tgMsg"
+	TgMsgReadEvEnt = "tgMsgRead"
 )

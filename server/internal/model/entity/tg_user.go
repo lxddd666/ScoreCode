@@ -11,6 +11,7 @@ import (
 // TgUser is the golang structure for table tg_user.
 type TgUser struct {
 	Id            uint64      `json:"id"            description:""`
+	TgId          int64       `json:"tgId"          description:"tg id"`
 	Username      string      `json:"username"      description:"账号号码"`
 	FirstName     string      `json:"firstName"     description:"First Name"`
 	LastName      string      `json:"lastName"      description:"Last Name"`
