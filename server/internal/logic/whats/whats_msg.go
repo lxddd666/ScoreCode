@@ -17,9 +17,11 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	whatsin "hotgo/internal/model/input/whats"
@@ -52,6 +54,25 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 	if in.Id > 0 {
 		mod = mod.Where(dao.WhatsMsg.Columns().Id, in.Id)
 	}
+	// 查询聊天发起人
+	if in.Initiator > 0 {
+		mod = mod.Where(dao.WhatsMsg.Columns().Initiator, in.Initiator)
+	}
+
+	// 查询发送人
+	if in.Sender > 0 {
+		mod = mod.Where(dao.WhatsMsg.Columns().Sender, in.Sender)
+	}
+
+	// 查询接收人
+	if in.Receiver > 0 {
+		mod = mod.Where(dao.WhatsMsg.Columns().Receiver, in.Receiver)
+	}
+
+	// 查询发送时间
+	if len(in.SendTime) == 2 {
+		mod = mod.WhereBetween(dao.WhatsMsg.Columns().SendTime, in.SendTime[0], in.SendTime[1])
+	}
 
 	// 查询created_at
 	if len(in.CreatedAt) == 2 {
@@ -72,6 +93,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
 		return
 	}
+	// 处理是否已读
 	reqIds := garray.NewStrArray()
 	for _, model := range list {
 		reqIds.PushRight(model.ReqId)
@@ -295,7 +317,7 @@ func (s *sWhatsMsg) sendReadToUser(ctx context.Context, readReqIds []callback.Re
 	var msgList []entity.WhatsMsg
 	err := s.Model(ctx).WhereIn(dao.WhatsMsg.Columns().ReqId, reqIds).Scan(&msgList)
 	if err != nil {
-
+		return
 	}
 	//推送给前端
 	for _, msg := range msgList {
@@ -312,6 +334,59 @@ func (s *sWhatsMsg) sendReadToUser(ctx context.Context, readReqIds []callback.Re
 		})
 	}
 
+}
+
+// Move 迁移聊天记录
+func (s *sWhatsMsg) Move(ctx context.Context, in *whatsin.WhatsMsgMoveInp) (err error) {
+	memberId := contexts.GetUserId(ctx)
+	// 超管
+	if !service.AdminMember().VerifySuperId(ctx, memberId) {
+		var accountMembers []int64
+		err = dao.WhatsAccountMember.Ctx(ctx).Fields(dao.WhatsAccountMember.Columns().Account).Where(do.WhatsAccountMember{
+			MemberId: contexts.GetUserId(ctx),
+			Account:  []int64{in.Source, in.Target},
+		}).Scan(&accountMembers)
+		if err != nil {
+			return
+		}
+
+		if len(accountMembers) < 1 {
+			return gerror.New("未找到该账号")
+		}
+	}
+
+	var list []entity.WhatsMsgHistory
+	err = s.Model(ctx).Where(dao.WhatsMsg.Columns().Initiator, in.Source).Scan(&list)
+	if err != nil {
+		return
+	}
+	for _, history := range list {
+		history.Source = in.Source
+		history.Target = in.Target
+	}
+	err = dao.WhatsMsg.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		//保存原纪录到历史
+		_, err = dao.WhatsMsgHistory.Ctx(ctx).Save(list)
+		if err != nil {
+			return
+		}
+		//更新原聊天记录
+		_, err = s.Model(ctx).Where(do.WhatsMsg{
+			Initiator: in.Source,
+			Sender:    in.Source,
+		}).Update(do.WhatsMsg{Initiator: in.Target, Sender: in.Target})
+		if err != nil {
+			return
+		}
+		_, err = s.Model(ctx).Where(do.WhatsMsg{
+			Initiator: in.Source,
+			Receiver:  in.Source,
+		}).Update(do.WhatsMsg{Initiator: in.Target, Receiver: in.Target})
+
+		return
+	})
+
+	return
 }
 
 // SendStatusCallback 发送状态回调

@@ -92,6 +92,12 @@ type WhatsMsgListInp struct {
 	form.PageReq
 	Id        int64         `json:"id"        dc:"id"`
 	CreatedAt []*gtime.Time `json:"createdAt" dc:"created_at"`
+	Initiator int64         `json:"initiator" dc:"聊天发起人"`
+	Sender    int64         `json:"sender"    dc:"发送人"`
+	Receiver  int64         `json:"receiver"  dc:"接收人"`
+	MsgType   int           `json:"msgType"   dc:"消息类型"`
+	SendTime  []*gtime.Time `json:"sendTime"  dc:"发送时间"`
+	Read      int           `json:"read"      dc:"是否已读"`
 }
 
 func (in *WhatsMsgListInp) Filter(ctx context.Context) (err error) {
@@ -128,3 +134,15 @@ type WhatsMsgExportModel struct {
 	SendStatus int         `json:"sendStatus"  dc:"发送状态"`
 	Comment    string      `json:"comment"   dc:"备注"`
 }
+
+// WhatsMsgMoveInp 修改/新增消息记录
+type WhatsMsgMoveInp struct {
+	Source int64 `json:"source" v:"required#原账号不能为空"       dc:"原账号"`
+	Target int64 `json:"target" v:"required#目标账号不能为空"       dc:"目标账号"`
+}
+
+func (in *WhatsMsgMoveInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type WhatsMsgMoveModel struct{}

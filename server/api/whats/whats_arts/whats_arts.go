@@ -2,6 +2,7 @@ package whatsarts
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/model/input/artsin"
 	whatsin "hotgo/internal/model/input/whats"
 )
 
@@ -16,7 +17,7 @@ type WhatsLoginRes string
 // WhatsSendMsgReq whats发送文本消息
 type WhatsSendMsgReq struct {
 	g.Meta `path:"/whats/sendMsg" method:"post" tags:"whats-api" summary:"whats发送消息"`
-	*whatsin.WhatsMsgInp
+	*artsin.MsgInp
 }
 
 type WhatsSendMsgRes string

@@ -22,7 +22,7 @@ func (c *cWhatsArts) Login(ctx context.Context, req *whatsarts.WhatsLoginReq) (r
 
 // SendMsg 发送消息
 func (c *cWhatsArts) SendMsg(ctx context.Context, req *whatsarts.WhatsSendMsgReq) (res *whatsarts.WhatsSendMsgRes, err error) {
-	data, err := service.WhatsArts().SendMsg(ctx, req.WhatsMsgInp)
+	data, err := service.WhatsArts().SendMsg(ctx, req.MsgInp)
 	res = (*whatsarts.WhatsSendMsgRes)(&data)
 	return
 }

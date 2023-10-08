@@ -2,7 +2,7 @@ package whats
 
 import (
 	"github.com/gogf/gf/v2/util/gconv"
-	whatsin "hotgo/internal/model/input/whats"
+	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
 )
@@ -14,7 +14,7 @@ var (
 type cWhats struct{}
 
 func (c *cWhats) SendMsg(client *websocket.Client, req *websocket.WRequest) {
-	var msgInp *whatsin.WhatsMsgInp
+	var msgInp *artsin.MsgInp
 	err := gconv.Scan(req.Data, msgInp)
 	if err != nil {
 		websocket.SendError(client, req.Event, err)

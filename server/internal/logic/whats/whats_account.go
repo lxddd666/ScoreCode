@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/gutil"
+	whatsaccount "hotgo/api/whats/whats_account"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
@@ -515,6 +516,26 @@ func (s *sWhatsAccount) updateDateRoleById(ctx context.Context, id int64) bool {
 	return true
 }
 
+func (s *sWhatsAccount) getDateRoleByAccount(ctx context.Context, account string) bool {
+	user := contexts.GetUser(ctx)
+	mod := s.Model(ctx).As("wa")
+
+	mod = mod.LeftJoin(dao.WhatsAccountMember.Table()+" wam", "wa."+dao.WhatsAccount.Columns().Account+"=wam."+dao.WhatsAccountMember.Columns().Account).
+		Where("wam."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId).
+		Where("wa."+dao.WhatsAccount.Columns().Account, account)
+	mod = mod.Handler(handler.FilterAuthWithField("wam." + dao.WhatsAccountMember.Columns().MemberId))
+	totalCount, err := mod.Clone().Count()
+	if err != nil {
+		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		return false
+	}
+
+	if totalCount == 0 {
+		return false
+	}
+	return true
+}
+
 // GetContactList 获取账号联系人列表
 func (s *sWhatsAccount) GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error) {
 
@@ -566,4 +587,68 @@ func (s *sWhatsAccount) GetContactList(ctx context.Context, in *whatsin.WhatsAcc
 	}
 	return res, totalCount, nil
 
+}
+
+// MemberBindAccount 绑定账号社交联系人
+func (s *sWhatsAccount) MemberBindAccount(ctx context.Context, in *whatsin.MemberBindAccountInp) (res *whatsaccount.MemberBindAccountRes, err error) {
+	user := contexts.GetUser(ctx)
+	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
+
+	if len(in.Accounts) > 0 {
+		if !flag {
+			for _, account := range in.Accounts {
+				accountMember := entity.WhatsAccountMember{}
+				err = g.Model(dao.WhatsAccountMember.Table()).
+					Where(dao.WhatsAccountMember.Columns().Account, account).
+					Scan(&accountMember)
+				if err != nil {
+					err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+					return
+				}
+				if accountMember.OrgId != user.OrgId {
+					err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
+					return
+				}
+				if !s.getDateRoleByAccount(ctx, account) {
+					err = gerror.Wrap(err, "该用户没权限绑定该账号信息权限，请联系管理员！")
+					return
+				}
+			}
+		}
+		insertList := make([]entity.WhatsAccountMember, 0)
+		updateList := make([]string, 0)
+		for _, account := range in.Accounts {
+			count, err := g.Model(dao.WhatsAccountMember.Table()).Where(dao.WhatsAccountMember.Columns().Account, account).Count()
+			if err != nil {
+				return nil, err
+			}
+			if count > 0 {
+				updateList = append(updateList, account)
+			} else {
+				insertList = append(insertList, entity.WhatsAccountMember{
+					Account:  account,
+					DeptId:   user.DeptId,
+					OrgId:    user.OrgId,
+					MemberId: user.Id,
+				})
+			}
+		}
+		if len(updateList) > 0 {
+			_, err = g.Model(dao.WhatsAccountMember.Table()).WhereIn(dao.WhatsAccountMember.Columns().Account, updateList).Update(
+				g.Map{
+					dao.WhatsAccountMember.Columns().MemberId: user.Id,
+					dao.WhatsAccountMember.Columns().DeptId:   user.DeptId,
+				})
+			if err != nil {
+				return nil, err
+			}
+		}
+		if len(insertList) > 0 {
+			_, err = g.Model(dao.WhatsAccountMember.Table()).Data(insertList).Save()
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return nil, nil
 }
