@@ -126,7 +126,7 @@ func (c *Client) SendMsg(msg *WResponse) {
 	}
 	defer func() {
 		if r := recover(); r != nil {
-			g.Log().Infof(mctx, "SendMsg err:%+v, stack:%+v", r, string(debug.Stack()))
+			g.Log().Infof(mctx, "TgSendMsg err:%+v, stack:%+v", r, string(debug.Stack()))
 		}
 	}()
 	c.Send <- msg

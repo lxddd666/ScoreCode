@@ -6,6 +6,7 @@ package logic
 
 import (
 	_ "hotgo/internal/logic/admin"
+	_ "hotgo/internal/logic/arts"
 	_ "hotgo/internal/logic/common"
 	_ "hotgo/internal/logic/hook"
 	_ "hotgo/internal/logic/middleware"

@@ -1,16 +1,15 @@
 package consts
 
 const (
-	LoginAccountKey            = "login_account"
-	MsgReadReqKey              = "unread"
-	SendStatusReqKey           = "send"
-	RedisSyncContactAccountKey = "sync_contacts_record_account:"
-	LastLoginAccountId         = "last_login_account_user_id"
-	RandomProxy                = "random_proxy:"
-	RandomProxyList            = "random_proxy_list"
-	RandomProxyBindAccount     = "random_proxy_bind_account:"
-
-	ActionLoginAccounts = `action_login_accounts:`
+	WhatsLoginAccountKey            = "whats_login_account"
+	WhatsMsgReadReqKey              = "whats_unread"
+	WhatsSendStatusReqKey           = "whats_send"
+	WhatsRedisSyncContactAccountKey = "whats_sync_contacts_record_account:"
+	WhatsLastLoginAccountId         = "whats_last_login_account_user_id"
+	WhatsRandomProxy                = "whats_random_proxy:"
+	WhatsRandomProxyList            = "whats_random_proxy_list"
+	WhatsRandomProxyBindAccount     = "whats_random_proxy_bind_account:"
+	WhatsActionLoginAccounts        = "whats_action_login_accounts:"
 )
 
 const (

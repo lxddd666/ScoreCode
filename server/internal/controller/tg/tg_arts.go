@@ -22,7 +22,7 @@ func (c *cTgArts) Login(ctx context.Context, req *tgarts.TgLoginReq) (res *tgart
 
 // SendMsg 发送消息
 func (c *cTgArts) SendMsg(ctx context.Context, req *tgarts.TgSendMsgReq) (res *tgarts.TgSendMsgRes, err error) {
-	data, err := service.TgArts().SendMsg(ctx, req.MsgInp)
+	data, err := service.TgArts().TgSendMsg(ctx, req.MsgInp)
 	res = (*tgarts.TgSendMsgRes)(&data)
 	return
 }

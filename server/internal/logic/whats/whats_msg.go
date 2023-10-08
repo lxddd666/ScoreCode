@@ -98,7 +98,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 	for _, model := range list {
 		reqIds.PushRight(model.ReqId)
 	}
-	if result, err := g.Redis().HKeys(ctx, consts.MsgReadReqKey); err != nil {
+	if result, err := g.Redis().HKeys(ctx, consts.WhatsMsgReadReqKey); err != nil {
 		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
 		return list, totalCount, err
 	} else {
@@ -218,7 +218,7 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
 		}
 	}
-	_, err = g.Redis().HSet(ctx, consts.MsgReadReqKey, unreadMap)
+	_, err = g.Redis().HSet(ctx, consts.WhatsMsgReadReqKey, unreadMap)
 	if err != nil {
 		return err
 	}
@@ -250,7 +250,7 @@ func (s *sWhatsMsg) sendMsgToUser(ctx context.Context, msgList []entity.WhatsMsg
 	//按消息发送时间推送给前端
 	a.Iterator(func(_ int, msg interface{}) bool {
 
-		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, gconv.String(msg.(entity.WhatsMsg).Initiator))
+		userId, err := g.Redis().HGet(ctx, consts.WhatsLoginAccountKey, gconv.String(msg.(entity.WhatsMsg).Initiator))
 		if err != nil {
 			return true
 		}
@@ -274,7 +274,7 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 	}
 	g.Log().Info(ctx, "kafka readMsgCallback: ", callbackRes)
 
-	allUnreadMsgVar, err := g.Redis().HGetAll(ctx, consts.MsgReadReqKey)
+	allUnreadMsgVar, err := g.Redis().HGetAll(ctx, consts.WhatsMsgReadReqKey)
 	if err != nil {
 		return
 	}
@@ -303,7 +303,7 @@ func (s *sWhatsMsg) ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 		return true
 	})
 	if len(reqIds) > 0 {
-		_, err = g.Redis().HDel(ctx, consts.MsgReadReqKey, reqIds...)
+		_, err = g.Redis().HDel(ctx, consts.WhatsMsgReadReqKey, reqIds...)
 	}
 
 	return err
@@ -321,7 +321,7 @@ func (s *sWhatsMsg) sendReadToUser(ctx context.Context, readReqIds []callback.Re
 	}
 	//推送给前端
 	for _, msg := range msgList {
-		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, gconv.String(msg.Initiator))
+		userId, err := g.Redis().HGet(ctx, consts.WhatsLoginAccountKey, gconv.String(msg.Initiator))
 		if err != nil {
 			continue
 		}
@@ -410,7 +410,7 @@ func (s *sWhatsMsg) SendStatusCallback(ctx context.Context, res queue.MqMsg) (er
 	if err != nil {
 		return err
 	}
-	//_, err = g.Redis().HDel(ctx, consts.SendStatusReqKey, reqIds...)
+	//_, err = g.Redis().HDel(ctx, consts.WhatsSendStatusReqKey, reqIds...)
 
 	return err
 }
@@ -426,7 +426,7 @@ func (s *sWhatsMsg) SendStatusToUser(ctx context.Context, readReqIds []callback.
 	}
 	//推送给前端
 	for _, msg := range msgList {
-		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, gconv.String(msg.Initiator))
+		userId, err := g.Redis().HGet(ctx, consts.WhatsLoginAccountKey, gconv.String(msg.Initiator))
 		if err != nil {
 			continue
 		}

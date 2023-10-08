@@ -374,7 +374,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 	accountColumns := dao.WhatsAccount.Columns()
 	for _, item := range res {
 		// 记录普罗米修斯
-		userId, err := g.Redis().HGet(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+		userId, err := g.Redis().HGet(ctx, consts.WhatsLoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 		if err != nil {
 			return err
 		}
@@ -385,7 +385,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			prometheus.LoginSuccessCounter.WithLabelValues(gconv.String(item.UserJid)).Inc()
 			prometheus.LoginProxySuccessCount.WithLabelValues(item.ProxyUrl).Inc()
 			// 获取上次登录的员工号
-			key := consts.LastLoginAccountId + gconv.String(item.UserJid)
+			key := consts.WhatsLastLoginAccountId + gconv.String(item.UserJid)
 			result, _ := g.Redis().Get(ctx, key)
 			if result.Int64() == 0 {
 				_, _ = g.Redis().Set(ctx, key, userId.Int64())
@@ -421,7 +421,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.LoginStatus) != protobuf.AccountStatus_SUCCESS {
 			//如果失败,删除redis
-			_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+			_, _ = g.Redis().HDel(ctx, consts.WhatsLoginAccountKey, strconv.FormatUint(item.UserJid, 10))
 			data.AccountStatus = int(item.LoginStatus)
 		} else {
 			data.IsOnline = consts.Online
@@ -436,7 +436,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			if len(contactPhoneList) > 0 {
 				// 存放到redis中以集合方式存储
 				// key
-				key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+				key := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, item.UserJid)
 				for _, p := range contactPhoneList {
 					_, _ = g.Redis().SAdd(ctx, key, p.Val())
 				}
@@ -445,7 +445,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
 		// 删除登录过程的redis
-		_, _ = g.Redis().SRem(ctx, consts.ActionLoginAccounts, userJid)
+		_, _ = g.Redis().SRem(ctx, consts.WhatsActionLoginAccounts, userJid)
 		//websocket推送登录结果
 		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
 			Event: consts.WhatsLoginEvent,
@@ -470,12 +470,12 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 			IsOnline: consts.Offline,
 		}
 		//删除redis
-		_, _ = g.Redis().HDel(ctx, consts.LoginAccountKey, strconv.FormatUint(item.UserJid, 10))
-		syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.UserJid)
+		_, _ = g.Redis().HDel(ctx, consts.WhatsLoginAccountKey, strconv.FormatUint(item.UserJid, 10))
+		syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, item.UserJid)
 		_, _ = g.Redis().Del(ctx, syncContactKey)
 		data.LastLoginTime = gtime.Now()
 		// 如果随机代理代理，则添加回redis,先查询是否为代理
-		flag, err := IsRedisKeyExists(ctx, consts.RandomProxyBindAccount+item.Proxy)
+		flag, err := IsRedisKeyExists(ctx, consts.WhatsRandomProxyBindAccount+item.Proxy)
 		if err != nil {
 			return err
 		}
@@ -487,7 +487,7 @@ func (s *sWhatsAccount) LogoutCallback(ctx context.Context, res []callback.Logou
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).Where(accountColumns.Account, userJid).Update(data)
-		key := fmt.Sprintf("%s%d", consts.ActionLoginAccounts, item.UserJid)
+		key := fmt.Sprintf("%s%d", consts.WhatsActionLoginAccounts, item.UserJid)
 		_, _ = g.Redis().Del(ctx, key)
 
 		// 记录普罗米修斯

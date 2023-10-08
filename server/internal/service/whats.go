@@ -43,16 +43,18 @@ type (
 		LogoutCallback(ctx context.Context, res []callback.LogoutCallbackRes) error
 		// GetContactList 获取账号联系人列表
 		GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error)
-		// MemberBindAccount 绑定用户联系人
+		// MemberBindAccount 绑定账号社交联系人
 		MemberBindAccount(ctx context.Context, in *whatsin.MemberBindAccountInp) (res *whatsaccount.MemberBindAccountRes, err error)
 	}
 	IWhatsArts interface {
 		// Login 登录whats
 		Login(ctx context.Context, ids []int) (err error)
+		// CheckLogin 检查是否登录
+		WhatsCheckLogin(ctx context.Context, account uint64) (err error)
 		// SendVcardMsg 发送名片
 		SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error)
 		// SendMsg 发送消息
-		SendMsg(ctx context.Context, item *artsin.MsgInp) (res string, err error)
+		WhatsSendMsg(ctx context.Context, item *artsin.MsgInp) (res string, err error)
 		// SendFile 发送文件
 		SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (res string, err error)
 		AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error)
@@ -97,8 +99,9 @@ type (
 		ReadMsgCallback(ctx context.Context, res queue.MqMsg) (err error)
 		// Move 迁移聊天记录
 		Move(ctx context.Context, in *whatsin.WhatsMsgMoveInp) (err error)
-		//SendStatusCallback 发送状态回调
+		// SendStatusCallback 发送状态回调
 		SendStatusCallback(ctx context.Context, res queue.MqMsg) (err error)
+		SendStatusToUser(ctx context.Context, readReqIds []callback.SendStatusCallbackRes)
 	}
 	IWhatsProxy interface {
 		// Model 代理管理ORM模型
@@ -115,7 +118,6 @@ type (
 		View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (res *whatsin.WhatsProxyViewModel, err error)
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *whatsin.WhatsProxyStatusInp) (err error)
-		// Upload 上传代理
 		Upload(ctx context.Context, in []*whatsin.WhatsProxyUploadInp) (res *whatsin.WhatsProxyUploadModel, err error)
 		// AddProxyToOrg 给指定公司加上代理
 		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)
@@ -126,12 +128,23 @@ type (
 )
 
 var (
+	localWhatsProxy    IWhatsProxy
 	localWhatsAccount  IWhatsAccount
 	localWhatsArts     IWhatsArts
 	localWhatsContacts IWhatsContacts
 	localWhatsMsg      IWhatsMsg
-	localWhatsProxy    IWhatsProxy
 )
+
+func WhatsAccount() IWhatsAccount {
+	if localWhatsAccount == nil {
+		panic("implement not found for interface IWhatsAccount, forgot register?")
+	}
+	return localWhatsAccount
+}
+
+func RegisterWhatsAccount(i IWhatsAccount) {
+	localWhatsAccount = i
+}
 
 func WhatsArts() IWhatsArts {
 	if localWhatsArts == nil {
@@ -175,15 +188,4 @@ func WhatsProxy() IWhatsProxy {
 
 func RegisterWhatsProxy(i IWhatsProxy) {
 	localWhatsProxy = i
-}
-
-func WhatsAccount() IWhatsAccount {
-	if localWhatsAccount == nil {
-		panic("implement not found for interface IWhatsAccount, forgot register?")
-	}
-	return localWhatsAccount
-}
-
-func RegisterWhatsAccount(i IWhatsAccount) {
-	localWhatsAccount = i
 }

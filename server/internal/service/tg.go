@@ -18,8 +18,10 @@ type (
 	ITgArts interface {
 		// Login 登录
 		Login(ctx context.Context, ids []int) (err error)
-		// SendMsg 发送消息
-		SendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// WhatsSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// CheckLogin 检查是否登录
+		CheckLogin(ctx context.Context, account uint64) (err error)
 	}
 	ITgUser interface {
 		// Model TG账号ORM模型

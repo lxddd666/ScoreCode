@@ -174,7 +174,7 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 	if flag {
 		proxies := map[string]interface{}{}
 		proxies[in.Address] = in.MaxConnections - in.ConnectedCount
-		_, err := g.Redis().HSet(ctx, consts.RandomProxy, proxies)
+		_, err := g.Redis().HSet(ctx, consts.WhatsRandomProxy, proxies)
 		if err != nil {
 			return nil
 		}
@@ -238,8 +238,8 @@ func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteIn
 	} else {
 		// 超管删除的是否为随机代理
 		if pdModel.OrgId == 0 || &pdModel == nil {
-			_, _ = g.Redis().HDel(ctx, consts.RandomProxy, whatsProxy.Address)
-			_, _ = g.Redis().Del(ctx, consts.RandomProxyBindAccount+whatsProxy.Address)
+			_, _ = g.Redis().HDel(ctx, consts.WhatsRandomProxy, whatsProxy.Address)
+			_, _ = g.Redis().Del(ctx, consts.WhatsRandomProxyBindAccount+whatsProxy.Address)
 		}
 	}
 
@@ -348,7 +348,7 @@ func (s *sWhatsProxy) Upload(ctx context.Context, in []*whatsin.WhatsProxyUpload
 		proxies := map[string]interface{}{}
 		for _, inp := range in {
 			proxies[inp.Address] = inp.MaxConnections - inp.ConnectedCount
-			_, err := g.Redis().HSet(ctx, consts.RandomProxy, proxies)
+			_, err := g.Redis().HSet(ctx, consts.WhatsRandomProxy, proxies)
 			if err != nil {
 				return nil, err
 			}

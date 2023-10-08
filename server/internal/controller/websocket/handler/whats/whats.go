@@ -20,7 +20,7 @@ func (c *cWhats) SendMsg(client *websocket.Client, req *websocket.WRequest) {
 		websocket.SendError(client, req.Event, err)
 		return
 	}
-	res, err := service.WhatsArts().SendMsg(client.Context(), msgInp)
+	res, err := service.WhatsArts().TgSendMsg(client.Context(), msgInp)
 	if err != nil {
 		websocket.SendError(client, req.Event, err)
 		return
