@@ -27,6 +27,7 @@ enum Action {
   SEND_CONTACT_CARD = 15;
   CREATE_GROUP = 16;
   ADD_GROUP_MEMBER = 17;
+  SEND_CODE = 19;
 }
 
 
@@ -67,8 +68,8 @@ message SetHeadSculptureAction {
 
 //定义明信片
 message VCard{
-  string Fn = 1;
-  string Tel = 2;
+    string Fn = 1;
+    string Tel = 2;
 }
 
 // 定义明信片消息
@@ -131,6 +132,7 @@ message RequestMessage {
     SendGroupMessageDetail send_group_message_detail = 21;
     SendFileDetail  send_file_detail = 22;
     SendVideoDetail send_video_detail = 23;
+    SendCodeDetail send_code_detail = 24;
   }
   string type = 18;
 
@@ -212,6 +214,16 @@ message SendPhotoDetail {
 message SendFileDetail{
   repeated SendFileAction details = 1;
 }
+
+message  SendCodeDetail{
+  sendCodeAction details = 1;
+}
+
+message sendCodeAction{
+  map<uint64, string> send_code = 1;
+}
+
+
 
 message SendVideoDetail{
   repeated SendFileAction details = 1;

@@ -62,7 +62,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 		simple.SafeGo(ctx, func(ctx context.Context) {
 			defer wg.Done()
 			//判断是否在登录中，已在登录中的号不执行登录操作
-			key := fmt.Sprintf("%s%s", consts.ActionLoginAccounts, whatsAccount.Account)
+			key := fmt.Sprintf("%s%s", consts.WhatsActionLoginAccounts, whatsAccount.Account)
 			v, _ := g.Redis().Get(ctx, key)
 			if v.Val() == nil {
 
@@ -115,7 +115,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	for _, item := range loginAccounts {
 		usernameMap.Set(item.Account, userId)
 	}
-	_, _ = g.Redis().HSet(ctx, consts.LoginAccountKey, usernameMap.Map())
+	_, _ = g.Redis().HSet(ctx, consts.WhatsLoginAccountKey, usernameMap.Map())
 	g.Log().Info(ctx, "登录结果：", loginRes.GetActionResult().String())
 	return err
 }
@@ -174,8 +174,31 @@ func (s *sWhatsArts) login(ctx context.Context, accounts []*entity.WhatsAccount)
 	return req
 }
 
+// WhatsCheckLogin 检查是否登录
+func (s *sWhatsArts) WhatsCheckLogin(ctx context.Context, account uint64) (err error) {
+	userJid, err := g.Redis().HGet(ctx, consts.WhatsLoginAccountKey, strconv.FormatUint(account, 10))
+	if err != nil {
+		return err
+	}
+	if userJid.IsEmpty() {
+		return gerror.New("未登录")
+	}
+	key := fmt.Sprintf("%s%d", consts.WhatsActionLoginAccounts, account)
+	v, err := g.Redis().Get(ctx, key)
+	if err != nil {
+		return err
+	}
+	if v.IsEmpty() {
+		return gerror.New("未登录")
+	}
+	return
+}
+
 // SendVcardMsg 发送名片
 func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsgInp) (res string, err error) {
+	if err = s.WhatsCheckLogin(ctx, msg.Sender); err != nil {
+		return
+	}
 	conn := grpc.GetManagerConn()
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
@@ -185,7 +208,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 	}(conn)
 	c := protobuf.NewArthasClient(conn)
 
-	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, msg.Sender)
+	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, msg.Sender)
 	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(msg.Receiver))
 	if err != nil {
 		return "", err
@@ -218,12 +241,15 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 }
 
 // SendMsg 发送消息
-func (s *sWhatsArts) SendMsg(ctx context.Context, item *artsin.MsgInp) (res string, err error) {
+func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
+	if err = s.WhatsCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
 	conn := grpc.GetManagerConn()
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.Sender)
-	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(item.Receiver))
+	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, inp.Sender)
+	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(inp.Receiver))
 	if err != nil {
 		return "", err
 	}
@@ -233,8 +259,8 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *artsin.MsgInp) (res stri
 			Values: make([]uint64, 0),
 		}
 
-		syncContactReq.Key = item.Sender
-		syncContactReq.Values = append(syncContactReq.Values, item.Receiver)
+		syncContactReq.Key = inp.Sender
+		syncContactReq.Values = append(syncContactReq.Values, inp.Receiver)
 
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
@@ -245,8 +271,8 @@ func (s *sWhatsArts) SendMsg(ctx context.Context, item *artsin.MsgInp) (res stri
 		g.Log().Info(ctx, artsRes.GetActionResult().String())
 	}
 
-	if len(item.TextMsg) > 0 {
-		requestMessage := s.sendTextMessage(item)
+	if len(inp.TextMsg) > 0 {
+		requestMessage := s.sendTextMessage(inp)
 		artsRes, err := c.Connect(ctx, requestMessage)
 		if err != nil {
 			return "", err
@@ -369,7 +395,7 @@ func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSy
 	account := in.Account
 	contacts := in.Contacts
 	if len(contacts) > 0 {
-		syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, account)
+		syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, account)
 		syncContactReq := whatsin.SyncContactReq{
 			Key:    account,
 			Values: make([]uint64, 0),
@@ -423,7 +449,7 @@ func (s *sWhatsArts) AccountGetUserImage(ctx context.Context, req *whatsin.Whats
 		req.Account = gconv.Uint64(contexts.GetUser(ctx).Username)
 	}
 
-	syncContactKey := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, req.Account)
+	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, req.Account)
 	for _, user := range req.GetUserAvatar {
 		flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(user))
 		if err != nil {
@@ -512,7 +538,7 @@ func (s *sWhatsArts) sendVCardMessage(content []*whatsin.WhatVcardMsgInp) *proto
 
 func (s *sWhatsArts) handlerRandomProxy(ctx context.Context, notAccounts *array.Array[*entity.WhatsAccount]) (err error, result *array.Array[*entity.WhatsAccount]) {
 
-	proxy, err := g.Redis().RPop(ctx, consts.RandomProxyList)
+	proxy, err := g.Redis().RPop(ctx, consts.WhatsRandomProxyList)
 	if err != nil {
 		return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
 	}
@@ -535,7 +561,7 @@ func (s *sWhatsArts) handlerRandomProxy(ctx context.Context, notAccounts *array.
 			return
 		}
 		//没用完重新放入redis
-		_, err = g.Redis().LPush(ctx, consts.RandomProxyList, g.MapStrAny{
+		_, err = g.Redis().LPush(ctx, consts.WhatsRandomProxyList, g.MapStrAny{
 			"address": proxyMap["address"].String(),
 			"num":     residue,
 		})
@@ -565,7 +591,7 @@ func (s *sWhatsArts) handlerRandomProxy(ctx context.Context, notAccounts *array.
 		newArray.Merge(a.Slice())
 		result = newArray
 	}
-	_, err = g.Redis().Set(ctx, consts.RandomProxyBindAccount+proxyAddress, 0)
+	_, err = g.Redis().Set(ctx, consts.WhatsRandomProxyBindAccount+proxyAddress, 0)
 	if err != nil {
 		return
 	}
@@ -582,7 +608,7 @@ func (s *sWhatsArts) handlerRandRomSetProxy(forNum int, proxyAddress string, not
 
 // 预热代理
 func (s *sWhatsArts) getRandomProxyToRedis(ctx context.Context) (err error) {
-	exists, err := g.Redis().Exists(ctx, consts.RandomProxyList)
+	exists, err := g.Redis().Exists(ctx, consts.WhatsRandomProxyList)
 	if err != nil || exists > 0 {
 		return
 	}
@@ -614,7 +640,7 @@ func (s *sWhatsArts) getRandomProxyToRedis(ctx context.Context) (err error) {
 			"num":     proxy.MaxConnections - proxy.ConnectedCount,
 		})
 	}
-	_, err = g.Redis().LPush(ctx, consts.RandomProxyList, proxies...)
+	_, err = g.Redis().LPush(ctx, consts.WhatsRandomProxyList, proxies...)
 	return err
 
 }
@@ -622,7 +648,7 @@ func (s *sWhatsArts) getRandomProxyToRedis(ctx context.Context) (err error) {
 // UpBindProxyWithPhoneToRedis 解除绑定手机号和随机代理
 func UpBindProxyWithPhoneToRedis(ctx context.Context, proxy string) (err error) {
 	//重新放回队列
-	_, err = g.Redis().LPush(ctx, consts.RandomProxyList, g.MapStrAny{
+	_, err = g.Redis().LPush(ctx, consts.WhatsRandomProxyList, g.MapStrAny{
 		"address": proxy,
 		"num":     1,
 	})

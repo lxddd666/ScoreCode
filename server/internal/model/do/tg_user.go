@@ -13,6 +13,7 @@ import (
 type TgUser struct {
 	g.Meta        `orm:"table:tg_user, do:true"`
 	Id            interface{} //
+	TgId          interface{} // tg id
 	Username      interface{} // 账号号码
 	FirstName     interface{} // First Name
 	LastName      interface{} // Last Name

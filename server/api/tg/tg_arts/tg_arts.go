@@ -8,7 +8,7 @@ import (
 // TgLoginReq tg登录
 type TgLoginReq struct {
 	g.Meta `path:"/tg/login" method:"post" tags:"tg-api" summary:"登录"`
-	Ids    []int `json:"ids" v:"required#请选择登录账号|array#登录账号为数组格式" dc:"登录账号"`
+	Id     int `json:"id" v:"required#请选择登录账号|array#登录账号为数组格式" dc:"登录账号"`
 }
 
 type TgLoginRes string

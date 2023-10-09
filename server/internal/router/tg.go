@@ -15,6 +15,7 @@ func Tg(ctx context.Context, group *ghttp.RouterGroup) {
 		group.Bind(
 			tg.TgUser, // 账号管理
 			tg.TgArts, // arts-api
+			tg.TgMsg,  // 消息记录
 		)
 
 	})

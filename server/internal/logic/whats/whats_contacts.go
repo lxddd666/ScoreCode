@@ -239,7 +239,7 @@ func (s *sWhatsContacts) SyncContactCallback(ctx context.Context, res []callback
 			}
 			list = append(list, ac)
 			// 插入到redis中
-			key := fmt.Sprintf("%s%d", consts.RedisSyncContactAccountKey, item.AccountDb)
+			key := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, item.AccountDb)
 			g.Redis().SAdd(ctx, key, item.Synchro)
 			// 记录普罗米修斯
 			prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(item.AccountDb)).Inc()
