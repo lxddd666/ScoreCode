@@ -17,6 +17,7 @@ type TgContacts struct {
 	LastName  string      `json:"lastName"  description:"Last Name"`
 	Phone     string      `json:"phone"     description:"phone"`
 	Photo     string      `json:"photo"     description:"photo"`
+	Type      int         `json:"type"      description:"type"`
 	OrgId     int64       `json:"orgId"     description:"organization id"`
 	Comment   string      `json:"comment"   description:"comment"`
 	DeletedAt *gtime.Time `json:"deletedAt" description:"删除时间"`

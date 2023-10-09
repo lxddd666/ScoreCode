@@ -2,7 +2,6 @@ package tg
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/util/gconv"
 	tgarts "hotgo/api/tg/tg_arts"
 	"hotgo/internal/service"
 )
@@ -15,9 +14,14 @@ type cTgArts struct{}
 
 // Login 登录账号
 func (c *cTgArts) Login(ctx context.Context, req *tgarts.TgLoginReq) (res *tgarts.TgLoginRes, err error) {
-	result, err := service.TgArts().CodeLogin(ctx, req.Id)
-	data := gconv.String(result)
-	res = (*tgarts.TgLoginRes)(&data)
+	result, err := service.TgArts().CodeLogin(ctx, req.Phone)
+	res.LoginModel = result
+	return
+}
+
+// SendCode 验证码
+func (c *cTgArts) SendCode(ctx context.Context, req *tgarts.TgSendCodeReq) (res *tgarts.TgSendCodeRes, err error) {
+	err = service.TgArts().SendCode(ctx, req.SendCodeInp)
 	return
 }
 

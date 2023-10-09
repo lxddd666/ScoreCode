@@ -17,6 +17,7 @@ type TgContactsUpdateFields struct {
 	LastName  string `json:"lastName"  dc:"Last Name"`
 	Phone     string `json:"phone"     dc:"phone"`
 	Photo     string `json:"photo"     dc:"photo"`
+	Type      int    `json:"type"      dc:"type"`
 	OrgId     int64  `json:"orgId"     dc:"organization id"`
 	Comment   string `json:"comment"   dc:"comment"`
 }
@@ -29,6 +30,7 @@ type TgContactsInsertFields struct {
 	LastName  string `json:"lastName"  dc:"Last Name"`
 	Phone     string `json:"phone"     dc:"phone"`
 	Photo     string `json:"photo"     dc:"photo"`
+	Type      int    `json:"type"      dc:"type"`
 	OrgId     int64  `json:"orgId"     dc:"organization id"`
 	Comment   string `json:"comment"   dc:"comment"`
 }
@@ -76,6 +78,8 @@ type TgContactsViewModel struct {
 // TgContactsListInp 获取联系人管理列表
 type TgContactsListInp struct {
 	form.PageReq
+	Phone     string        `json:"phone"     dc:"phone"`
+	Type      int           `json:"type"      dc:"type"`
 	CreatedAt []*gtime.Time `json:"createdAt" dc:"创建时间"`
 }
 
@@ -90,6 +94,7 @@ type TgContactsListModel struct {
 	FirstName string      `json:"firstName" dc:"First Name"`
 	LastName  string      `json:"lastName"  dc:"Last Name"`
 	Phone     string      `json:"phone"     dc:"phone"`
+	Type      int         `json:"type"      dc:"type"`
 	OrgId     int64       `json:"orgId"     dc:"organization id"`
 	Comment   string      `json:"comment"   dc:"comment"`
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
@@ -104,6 +109,7 @@ type TgContactsExportModel struct {
 	FirstName string      `json:"firstName" dc:"First Name"`
 	LastName  string      `json:"lastName"  dc:"Last Name"`
 	Phone     string      `json:"phone"     dc:"phone"`
+	Type      int         `json:"type"      dc:"type"`
 	OrgId     int64       `json:"orgId"     dc:"organization id"`
 	Comment   string      `json:"comment"   dc:"comment"`
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`

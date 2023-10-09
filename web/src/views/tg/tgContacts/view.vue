@@ -35,6 +35,15 @@
           <n-image style="margin-left: 10px; height: 100px; width: 100px" :src="formValue.photo"
         /></n-descriptions-item>
 
+        <n-descriptions-item label="type">
+          <n-tag
+            :type="getOptionTag(options.contacts_type, formValue?.type)"
+            size="small"
+            class="min-left-space"
+            >{{ getOptionLabel(options.contacts_type, formValue?.type) }}</n-tag
+          >
+        </n-descriptions-item>
+
         <n-descriptions-item>
           <template #label>organization id</template>
           {{ formValue.orgId }}

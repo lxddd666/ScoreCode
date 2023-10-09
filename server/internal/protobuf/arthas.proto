@@ -271,6 +271,7 @@ enum ActionResult {
   ALL_FAIL = 2;
   ALL_UNKNOWN = 3;
   PONG = 4;
+  LOGIN_NEED_CODE = 5;
 }
 
 // 定义单个帐号的执行状态枚举
@@ -282,6 +283,7 @@ enum AccountStatus {
   PROXY_ERR = 4; // 代理地址报错
   SEAL = 403; //登录失败，已封号
   PERMISSION = 401; // 登录失败，权限错误
+  NEED_SEND_CODE = 5; // 需要发送验证码
 }
 
 // 定义返回消息
@@ -294,6 +296,7 @@ message ResponseMessage {
     TextMsgCallbacks text_msg_callbacks = 5;
     ReadMsgCallbacks read_msg_callbacks = 6;
   }
+  string   chat_id = 7;
 }
 message LoginCallbacks{
   repeated LoginCallback results = 1;

@@ -19,6 +19,7 @@ export interface State {
   lastName: string;
   phone: string;
   photo: string;
+  type: number;
   orgId: number;
   comment: string;
   deletedAt: string;
@@ -34,6 +35,7 @@ export const defaultState = {
   lastName: '',
   phone: '',
   photo: '',
+  type: 0,
   orgId: 0,
   comment: '',
   deletedAt: '',
@@ -48,6 +50,9 @@ export function newState(state: State | null): State {
   return cloneDeep(defaultState);
 }
 
+export const options = ref<Options>({
+  contacts_type: [],
+});
 
 export const rules = {
   orgId: {
@@ -59,6 +64,31 @@ export const rules = {
 };
 
 export const schemas = ref<FormSchema[]>([
+  {
+    field: 'phone',
+    component: 'NInput',
+    label: 'phone',
+    componentProps: {
+      placeholder: '请输入phone',
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
+    field: 'type',
+    component: 'NRadioGroup',
+    label: 'type',
+    giProps: {
+      //span: 24,
+    },
+    componentProps: {
+      options: [],
+      onUpdateChecked: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
   {
     field: 'createdAt',
     component: 'NDatePicker',
@@ -100,6 +130,28 @@ export const columns = [
     key: 'phone',
   },
   {
+    title: 'type',
+    key: 'type',
+    render(row) {
+      if (isNullObject(row.type)) {
+        return ``;
+      }
+      return h(
+        NTag,
+        {
+          style: {
+            marginRight: '6px',
+          },
+          type: getOptionTag(options.value.contacts_type, row.type),
+          bordered: false,
+        },
+        {
+          default: () => getOptionLabel(options.value.contacts_type, row.type),
+        }
+      );
+    },
+  },
+  {
     title: 'organization id',
     key: 'orgId',
   },
@@ -116,3 +168,20 @@ export const columns = [
     key: 'updatedAt',
   },
 ];
+
+async function loadOptions() {
+  options.value = await Dicts({
+    types: [
+      'contacts_type',
+   ],
+  });
+  for (const item of schemas.value) {
+    switch (item.field) {
+      case 'type':
+        item.componentProps.options = options.value.contacts_type;
+        break;
+     }
+  }
+}
+
+await loadOptions();

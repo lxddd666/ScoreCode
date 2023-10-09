@@ -19,6 +19,7 @@ type TgContacts struct {
 	LastName  interface{} // Last Name
 	Phone     interface{} // phone
 	Photo     interface{} // photo
+	Type      interface{} // type
 	OrgId     interface{} // organization id
 	Comment   interface{} // comment
 	DeletedAt *gtime.Time // 删除时间

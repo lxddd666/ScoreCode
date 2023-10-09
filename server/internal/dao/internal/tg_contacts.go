@@ -27,6 +27,7 @@ type TgContactsColumns struct {
 	LastName  string // Last Name
 	Phone     string // phone
 	Photo     string // photo
+	Type      string // type
 	OrgId     string // organization id
 	Comment   string // comment
 	DeletedAt string // 删除时间
@@ -43,6 +44,7 @@ var tgContactsColumns = TgContactsColumns{
 	LastName:  "last_name",
 	Phone:     "phone",
 	Photo:     "photo",
+	Type:      "type",
 	OrgId:     "org_id",
 	Comment:   "comment",
 	DeletedAt: "deleted_at",

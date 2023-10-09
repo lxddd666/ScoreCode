@@ -46,9 +46,9 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 }
 
 // CodeLogin 登录
-func (s *sTgArts) CodeLogin(ctx context.Context, id int) (result int, err error) {
+func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
 	var user entity.TgUser
-	err = dao.TgUser.Ctx(ctx).WherePri(id).Scan(&user)
+	err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&user)
 	if err != nil {
 		return
 	}
@@ -72,8 +72,18 @@ func (s *sTgArts) CodeLogin(ctx context.Context, id int) (result int, err error)
 			},
 		},
 	}
-	res, err := c.Connect(ctx, req)
-	result = int(res.ActionResult.Number())
+	resp, err := c.Connect(ctx, req)
+	res = &artsin.LoginModel{
+		Status: int(resp.ActionResult.Number()),
+		ReqId:  "",
+		Phone:  phone,
+	}
+	return
+}
+
+// SendCode 发送验证码
+func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error) {
+
 	return
 }
 

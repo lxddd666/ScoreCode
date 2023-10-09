@@ -42,6 +42,17 @@
             <UploadImage :maxNumber="1" v-model:value="params.photo" />
           </n-form-item>
 
+          <n-form-item label="type" path="type">
+            <n-radio-group v-model:value="params.type" name="type">
+            <n-radio-button
+              v-for="type in options.contacts_type"
+              :key="type.value"
+              :value="type.value"
+              :label="type.label"
+            />
+          </n-radio-group>
+          </n-form-item>
+
           <n-form-item label="organization id" path="orgId">
             <n-input-number placeholder="请输入organization id" v-model:value="params.orgId" />
           </n-form-item>

@@ -38,6 +38,16 @@ func (s *sTgContacts) Model(ctx context.Context, option ...*handler.Option) *gdb
 func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
+	// 查询phone
+	if in.Phone != "" {
+		mod = mod.WhereLike(dao.TgContacts.Columns().Phone, in.Phone)
+	}
+
+	// 查询type
+	if in.Type > 0 {
+		mod = mod.Where(dao.TgContacts.Columns().Type, in.Type)
+	}
+
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
 		mod = mod.WhereBetween(dao.TgContacts.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])

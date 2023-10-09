@@ -16,6 +16,36 @@ import (
 )
 
 type (
+	ITgArts interface {
+		// SyncAccount 同步账号
+		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
+		// CodeLogin 登录
+		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
+		// SendCode 发送验证码
+		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
+		// SessionLogin 登录
+		SessionLogin(ctx context.Context, phones []int) (err error)
+		// TgSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgCheckLogin 检查是否登录
+		TgCheckLogin(ctx context.Context, account uint64) (err error)
+		// TgCheckContact 检查是否是好友
+		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
+	}
+	ITgContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
+	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -61,34 +91,6 @@ type (
 		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
 		// View 获取TG账号指定信息
 		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
-	}
-	ITgArts interface {
-		// SyncAccount 同步账号
-		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
-		// CodeLogin 登录
-		CodeLogin(ctx context.Context, id int) (result int, err error)
-		// SessionLogin 登录
-		SessionLogin(ctx context.Context, phones []int) (err error)
-		// TgSendMsg 发送消息
-		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
-		// TgCheckLogin 检查是否登录
-		TgCheckLogin(ctx context.Context, account uint64) (err error)
-		// TgCheckContact 检查是否是好友
-		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
-	}
-	ITgContacts interface {
-		// Model 联系人管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取联系人管理列表
-		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
-		// Export 导出联系人管理
-		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
-		// Edit 修改/新增联系人管理
-		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
-		// Delete 删除联系人管理
-		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
-		// View 获取联系人管理指定信息
-		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
 	}
 )
 
