@@ -274,7 +274,7 @@ func (s *sTgMsg) TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err er
 	}
 	if len(msgList) > 0 {
 		//入库
-		_, err = s.Model(ctx).Insert(msgList)
+		_, err = s.Model(ctx).Fields(tgin.TgMsgInsertFields{}).Save(msgList)
 		for _, item := range msgList {
 			item.Read = consts.Unread
 		}
@@ -337,7 +337,7 @@ func (s *sTgMsg) handlerReadMsgCallback(ctx context.Context, callbackRes callbac
 		return
 	}
 	msg.Read = consts.Read
-	_, err = g.Redis().HDel(ctx, consts.TgMsgReadReqKey, fmt.Sprintf("%d-%d", callbackRes.MsgFromId, callbackRes.MsgId))
+	_, err = g.Redis().HDel(ctx, consts.TgMsgReadReqKey, fmt.Sprintf("%s-%d", tgUser.Phone, callbackRes.MsgId))
 	s.sendMsgToUser(ctx, []entity.TgMsg{msg})
 	return err
 }

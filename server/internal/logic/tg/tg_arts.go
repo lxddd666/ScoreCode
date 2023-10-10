@@ -58,7 +58,7 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 // CodeLogin 登录
 func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
 	var user entity.TgUser
-	err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().IsOnline, consts.Offline).Where(dao.TgUser.Columns().Phone, phone).Scan(&user)
+	err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&user)
 	if err != nil {
 		err = gerror.Wrap(err, "未找到该账号")
 		return
@@ -116,7 +116,33 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 
 // SendCode 发送验证码
 func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error) {
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
 
+	sendCodeMap := make(map[uint64]string)
+	sendCodeMap[req.Phone] = req.Code
+	detail := &protobuf.SendCodeAction{
+		SendCode: sendCodeMap,
+		LoginId:  req.ReqId,
+	}
+
+	grpcReq := &protobuf.RequestMessage{
+		Action: protobuf.Action_SEND_CODE,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_SendCodeDetail{
+			SendCodeDetail: &protobuf.SendCodeDetail{
+				Details: detail,
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, grpcReq)
+	if err != nil {
+		return
+	}
+	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+		err = gerror.New(resp.ActionResult.String())
+	}
 	return
 }
 
@@ -159,12 +185,42 @@ func (s *sTgArts) TgCheckContact(ctx context.Context, account, contact uint64) (
 
 // TgGetDialogs 获取chats
 func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, phone); err != nil {
+		return
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+	msg := &protobuf.GetDialogList{
+		Account: phone,
+	}
 
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_DIALOG_LIST,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetDialogList{
+			GetDialogList: msg,
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	jsonVar := protojson.Format(resp)
+	g.Log().Info(ctx, jsonVar)
+	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
+		err = gjson.DecodeTo(resp.Data, &list)
+	}
 	return
 }
 
 // TgGetContacts 获取contacts
 func (s *sTgArts) TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, phone); err != nil {
+		return
+	}
 	conn := grpc.GetManagerConn()
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
@@ -243,4 +299,41 @@ func (s *sTgArts) handlerSaveContacts(ctx context.Context, phone uint64, list []
 		return
 	})
 
+}
+
+// TgGetMsgHistory 获取聊天历史
+func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Phone); err != nil {
+		return
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_Get_MSG_HISTORY,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetMsgHistory{
+			GetMsgHistory: &protobuf.GetMsgHistory{
+				Self:      inp.Phone,
+				Other:     inp.Contact,
+				Limit:     int32(inp.Limit),
+				OffsetDat: int64(inp.OffsetDate),
+				OffsetID:  int64(inp.OffsetID),
+				MaxID:     int64(inp.MaxID),
+				MinID:     int64(inp.MinID),
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	jsonVar := protojson.Format(resp)
+	g.Log().Info(ctx, jsonVar)
+	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
+		err = gjson.DecodeTo(resp.Data, &list)
+	}
+	return
 }

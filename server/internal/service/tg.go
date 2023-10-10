@@ -18,6 +18,28 @@ import (
 )
 
 type (
+	ITgArts interface {
+		// SyncAccount 同步账号
+		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
+		// CodeLogin 登录
+		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
+		// SendCode 发送验证码
+		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
+		// SessionLogin 登录
+		SessionLogin(ctx context.Context, phones []int) (err error)
+		// TgSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgCheckLogin 检查是否登录
+		TgCheckLogin(ctx context.Context, account uint64) (err error)
+		// TgCheckContact 检查是否是好友
+		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
+		// TgGetDialogs 获取chats
+		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetContacts 获取contacts
+		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetMsgHistory 获取聊天历史
+		TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -88,34 +110,14 @@ type (
 		// LoginCallback 登录回调
 		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
 	}
-	ITgArts interface {
-		// SyncAccount 同步账号
-		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
-		// CodeLogin 登录
-		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
-		// SendCode 发送验证码
-		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
-		// SessionLogin 登录
-		SessionLogin(ctx context.Context, phones []int) (err error)
-		// TgSendMsg 发送消息
-		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
-		// TgCheckLogin 检查是否登录
-		TgCheckLogin(ctx context.Context, account uint64) (err error)
-		// TgCheckContact 检查是否是好友
-		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
-		// TgGetDialogs 获取chats
-		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
-		// TgGetContacts 获取contacts
-		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
-	}
 )
 
 var (
+	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
 	localTgUser     ITgUser
-	localTgArts     ITgArts
 )
 
 func TgArts() ITgArts {

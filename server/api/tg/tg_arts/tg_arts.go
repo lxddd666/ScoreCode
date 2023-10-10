@@ -91,3 +91,13 @@ type TgGetContactsReq struct {
 type TgGetContactsRes struct {
 	List []*tgin.TgContactsListModel `json:"list"   dc:"数据列表"`
 }
+
+// TgGetMsgHistoryReq 获取聊天历史
+type TgGetMsgHistoryReq struct {
+	g.Meta `path:"/arts/getMsgHistory" method:"post" tags:"tg-api" summary:"获取聊天历史"`
+	*tgin.GetMsgHistoryInp
+}
+
+type TgGetMsgHistoryRes struct {
+	List []*tgin.TgMsgListModel `json:"list"   dc:"数据列表"`
+}

@@ -30,6 +30,7 @@ enum Action {
   SEND_CODE = 19;
   CONTACT_LIST = 20;
   DIALOG_LIST = 21;
+  Get_MSG_HISTORY = 22;
 }
 
 
@@ -112,6 +113,7 @@ message SyncAppInfoAction {
 }
 
 
+
 // 定义总的消息
 message RequestMessage {
   Action action = 1; // 动作字段
@@ -138,6 +140,7 @@ message RequestMessage {
     SendCodeDetail send_code_detail = 24;
     GetContactList      get_contact_list = 25;.
     GetDialogList  get_dialog_list = 26;
+    GetMsgHistory  get_msg_history = 27;
   }
   string type = 18;
 
@@ -232,9 +235,21 @@ message GetDialogList{
   uint64 Account = 1;
 }
 
+message GetMsgHistory{
+  uint64 Self = 1;
+  uint64 Other = 2;
+  int32  Limit = 3;
+  int64   OffsetDat = 4;
+  int64  OffsetID = 5;
+  int64  MaxID = 6;
+  int64  MinID = 7;
+}
+
 message sendCodeAction{
   map<uint64, string> send_code = 1;
   string loginId = 2;
+  bool   flag = 3;
+  string comments = 4;
 }
 
 

@@ -54,3 +54,14 @@ func (c *cTgArts) GetContacts(ctx context.Context, req *tgarts.TgGetContactsReq)
 	res.List = list
 	return
 }
+
+// GetMsgHistory 获取聊天历史
+func (c *cTgArts) GetMsgHistory(ctx context.Context, req *tgarts.TgGetMsgHistoryReq) (res *tgarts.TgGetMsgHistoryRes, err error) {
+	list, err := service.TgArts().TgGetMsgHistory(ctx, req.GetMsgHistoryInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgGetMsgHistoryRes)
+	res.List = list
+	return
+}
