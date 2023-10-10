@@ -12,6 +12,7 @@ import (
 	controller "hotgo/internal/controller/websocket"
 	"hotgo/internal/controller/websocket/handler/admin"
 	"hotgo/internal/controller/websocket/handler/common"
+	"hotgo/internal/controller/websocket/handler/tg"
 	"hotgo/internal/controller/websocket/handler/whats"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
@@ -43,5 +44,6 @@ func WebSocket(ctx context.Context, group *ghttp.RouterGroup) {
 		"admin/monitor/trends":  admin.Monitor.Trends,  // 后台监控，动态数据
 		"admin/monitor/runInfo": admin.Monitor.RunInfo, // 后台监控，运行信息
 		"whats/sendMsg":         whats.Whats.SendMsg,   //whats发送消息
+		"tg/sendMsg":            tg.Tg.SendMsg,         //tg发送消息
 	})
 }

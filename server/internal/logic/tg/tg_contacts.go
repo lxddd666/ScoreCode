@@ -139,3 +139,26 @@ func (s *sTgContacts) View(ctx context.Context, in *tgin.TgContactsViewInp) (res
 	}
 	return
 }
+
+// ByTgUser 获取TG账号联系人
+func (s *sTgContacts) ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error) {
+	var contactIds []int64
+	err = dao.TgUserContacts.Ctx(ctx).
+		Fields(dao.TgUserContacts.Columns().TgContactsId).
+		Where(dao.TgUserContacts.Columns().TgUserId, tgUserId).Scan(&contactIds)
+	if err != nil {
+		err = gerror.Wrap(err, "获取该账号联系人失败，请稍后重试！")
+		return
+	}
+	if len(contactIds) == 0 {
+		list = make([]*tgin.TgContactsListModel, 0)
+		return
+	}
+	if err = s.Model(ctx).Fields(tgin.TgContactsListModel{}).
+		WhereIn(dao.TgContacts.Columns().Id, contactIds).
+		OrderDesc(dao.TgContacts.Columns().Id).Scan(&list); err != nil {
+		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
+		return
+	}
+	return
+}

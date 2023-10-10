@@ -28,6 +28,8 @@ enum Action {
   CREATE_GROUP = 16;
   ADD_GROUP_MEMBER = 17;
   SEND_CODE = 19;
+  CONTACT_LIST = 20;
+  DIALOG_LIST = 21;
 }
 
 
@@ -43,6 +45,7 @@ message OrdinaryAction {
 
 message loginDetail {
   string proxyUrl = 1;
+  string loginId = 2;  //登录的id 用来收验证码
 }
 
 
@@ -133,6 +136,8 @@ message RequestMessage {
     SendFileDetail  send_file_detail = 22;
     SendVideoDetail send_video_detail = 23;
     SendCodeDetail send_code_detail = 24;
+    GetContactList      get_contact_list = 25;.
+    GetDialogList  get_dialog_list = 26;
   }
   string type = 18;
 
@@ -219,8 +224,17 @@ message  SendCodeDetail{
   sendCodeAction details = 1;
 }
 
+message GetContactList{
+  uint64 Account = 1;
+}
+
+message GetDialogList{
+  uint64 Account = 1;
+}
+
 message sendCodeAction{
   map<uint64, string> send_code = 1;
+  string loginId = 2;
 }
 
 
@@ -296,7 +310,10 @@ message ResponseMessage {
     TextMsgCallbacks text_msg_callbacks = 5;
     ReadMsgCallbacks read_msg_callbacks = 6;
   }
-  string   chat_id = 7;
+  string   login_id = 7;
+  string   account = 8;
+  string   comment = 9;
+  bytes    data    = 10;
 }
 message LoginCallbacks{
   repeated LoginCallback results = 1;

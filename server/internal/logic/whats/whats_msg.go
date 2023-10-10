@@ -192,13 +192,13 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 	unreadMap := make(map[string]interface{})
 	for _, item := range callbackRes {
 		msg := entity.WhatsMsg{
-			Initiator:     item.Initiator,
-			Sender:        item.Sender,
-			Receiver:      item.Receiver,
-			SendMsg:       []byte(item.SendText),
-			TranslatedMsg: []byte(item.SendText),
+			Initiator:     int64(item.Initiator),
+			Sender:        int64(item.Sender),
+			Receiver:      int64(item.Receiver),
+			SendMsg:       item.SendMsg,
+			TranslatedMsg: item.TranslatedMsg,
 			MsgType:       1,
-			SendTime:      &item.SendTime,
+			SendTime:      gtime.NewFromTime(item.SendTime),
 			Read:          consts.Read, //默认是已读
 			Comment:       "",
 			ReqId:         item.ReqId,

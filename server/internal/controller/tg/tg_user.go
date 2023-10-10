@@ -54,3 +54,15 @@ func (c *cTgUser) Delete(ctx context.Context, req *tguser.DeleteReq) (res *tguse
 	err = service.TgUser().Delete(ctx, &req.TgUserDeleteInp)
 	return
 }
+
+// BindMember 绑定用户
+func (c *cTgUser) BindMember(ctx context.Context, req *tguser.BindMemberReq) (res *tguser.BindMemberRes, err error) {
+	err = service.TgUser().BindMember(ctx, &req.TgUserBindMemberInp)
+	return
+}
+
+// UnBindMember 接触绑定用户
+func (c *cTgUser) UnBindMember(ctx context.Context, req *tguser.UnBindMemberReq) (res *tguser.UnBindMemberRes, err error) {
+	err = service.TgUser().UnBindMember(ctx, &req.TgUserBindMemberInp)
+	return
+}

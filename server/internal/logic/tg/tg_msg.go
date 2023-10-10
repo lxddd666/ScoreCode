@@ -4,9 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
@@ -14,6 +19,7 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	tgin "hotgo/internal/model/input/tgin"
@@ -22,12 +28,6 @@ import (
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/simple"
-
-	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sTgMsg struct{}
@@ -98,6 +98,24 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
 		return
 	}
+
+	// 处理是否已读
+	reqIds := garray.NewStrArray()
+	for _, model := range list {
+		reqIds.PushRight(model.ReqId)
+	}
+	if result, err := g.Redis().HKeys(ctx, consts.TgMsgReadReqKey); err != nil {
+		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
+		return list, totalCount, err
+	} else {
+		reqIds.SetArray(result)
+		for _, model := range list {
+			if reqIds.Contains(fmt.Sprintf("%d-%s", model.Initiator, model.ReqId)) {
+				model.Read = consts.Unread
+			}
+		}
+	}
+
 	return
 }
 
@@ -171,63 +189,6 @@ func (s *sTgMsg) View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgM
 	return
 }
 
-// TextMsgCallback 消息回调
-func (s *sTgMsg) TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err error) {
-	var msg callback.ImCallback
-	err = gjson.DecodeTo(mqMsg.Body, &msg)
-	if err != nil {
-		return
-	}
-	var textMsgList []callback.TextMsgCallbackRes
-	err = gjson.DecodeTo(msg.Data, &textMsgList)
-	if err != nil {
-		return
-	}
-	g.Log().Info(ctx, "kafka textMsgCallback: ", textMsgList)
-	var msgList = make([]entity.TgMsg, 0)
-	unreadMap := make(map[string]interface{})
-	for _, item := range textMsgList {
-		msg := entity.TgMsg{
-			Initiator:     item.Initiator,
-			Sender:        item.Sender,
-			Receiver:      item.Receiver,
-			SendMsg:       []byte(item.SendText),
-			TranslatedMsg: []byte(item.SendText),
-			MsgType:       1,
-			SendTime:      &item.SendTime,
-			Read:          consts.Read, //默认是已读
-			Comment:       "",
-			ReqId:         item.ReqId,
-		}
-		msgList = append(msgList, msg)
-		unreadMap[msg.ReqId] = map[string]interface{}{
-			"read":     consts.Unread,
-			"sender":   msg.Sender,
-			"receiver": msg.Receiver,
-		}
-		//记录普罗米修斯发送消息次数
-		if msg.Initiator == msg.Sender {
-			// 发送消息
-			prometheus.SendMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
-		} else {
-			//回复消息
-			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
-		}
-	}
-	_, err = g.Redis().HSet(ctx, consts.TgMsgReadReqKey, unreadMap)
-	if err != nil {
-		return err
-	}
-	if len(msgList) > 0 {
-		simple.SafeGo(ctx, func(ctx context.Context) {
-			s.sendMsgToUser(ctx, msgList)
-		})
-		//入库
-		_, err = s.Model(ctx).Insert(msgList)
-	}
-	return
-}
-
 func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	// 自定义排序数组，降序排序(SortedIntArray管理的数据是升序)
 	a := garray.NewSortedArray(func(v1, v2 interface{}) int {
@@ -248,7 +209,7 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	//按消息发送时间推送给前端
 	a.Iterator(func(_ int, msg interface{}) bool {
 
-		userId, err := g.Redis().HGet(ctx, consts.WhatsLoginAccountKey, gconv.String(msg.(entity.TgMsg).Initiator))
+		userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, gconv.String(msg.(entity.TgMsg).Initiator))
 		if err != nil {
 			return true
 		}
@@ -261,4 +222,122 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 		})
 		return true
 	})
+}
+
+// TextMsgCallback 发送消息回调
+func (s *sTgMsg) TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err error) {
+	var imCallback callback.ImCallback
+	err = gjson.DecodeTo(mqMsg.Body, &imCallback)
+	if err != nil {
+		return
+	}
+	var textMsgList []callback.TextMsgCallbackRes
+	err = gjson.DecodeTo(imCallback.Data, &textMsgList)
+	if err != nil {
+		return
+	}
+	g.Log().Info(ctx, "kafka textMsgCallback: ", textMsgList)
+	var msgList = make([]entity.TgMsg, 0)
+	unreadMap := make(map[string]interface{})
+	for _, item := range textMsgList {
+		msg := entity.TgMsg{
+			Initiator:     int64(item.Initiator),
+			Sender:        int64(item.Sender),
+			Receiver:      int64(item.Receiver),
+			SendMsg:       item.SendMsg,
+			TranslatedMsg: item.TranslatedMsg,
+			MsgType:       1,
+			SendTime:      gtime.NewFromTime(item.SendTime),
+			Read:          consts.Read, //默认是已读
+			Comment:       "",
+			ReqId:         item.ReqId,
+			SendStatus:    item.SendStatus,
+		}
+		msgList = append(msgList, msg)
+		unreadMap[fmt.Sprintf("%d-%s", msg.Sender, msg.ReqId)] = map[string]interface{}{
+			"read":     consts.Unread,
+			"sender":   msg.Sender,
+			"receiver": msg.Receiver,
+		}
+		//记录普罗米修斯发送消息次数
+		if msg.Initiator == msg.Sender {
+			// 发送消息
+			prometheus.SendMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
+		} else {
+			//回复消息
+			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
+		}
+	}
+	_, err = g.Redis().HSet(ctx, consts.TgMsgReadReqKey, unreadMap)
+	if err != nil {
+		return err
+	}
+	if len(msgList) > 0 {
+		//入库
+		_, err = s.Model(ctx).Insert(msgList)
+		for _, item := range msgList {
+			item.Read = consts.Unread
+		}
+		s.sendMsgToUser(ctx, msgList)
+	}
+	return
+}
+
+// ReceiverCallback 接收消息回调
+func (s *sTgMsg) ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error) {
+
+	//已读
+	if callbackRes.Out {
+		return s.handlerReadMsgCallback(ctx, callbackRes)
+	}
+	//接收消息
+	var msg = entity.TgMsg{
+		Initiator:     callbackRes.PeerId,
+		Sender:        callbackRes.MsgFromId,
+		Receiver:      0,
+		ReqId:         gconv.String(callbackRes.MsgId),
+		SendMsg:       []byte(callbackRes.Msg),
+		TranslatedMsg: []byte(callbackRes.Msg),
+		MsgType:       0,
+		SendTime:      nil,
+		Read:          consts.Read,
+		SendStatus:    1,
+	}
+
+	if !g.IsEmpty(msg) {
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			s.sendMsgToUser(ctx, []entity.TgMsg{msg})
+		})
+		//入库
+		_, err = s.Model(ctx).Insert(msg)
+	}
+	return
+}
+
+// 已读标记
+func (s *sTgMsg) handlerReadMsgCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error) {
+	// 删除未读标记
+	var msg entity.TgMsg
+	var tgUser entity.TgUser
+	var contact entity.TgContacts
+	err = dao.TgUser.Ctx(ctx).Where(do.TgUser{TgId: callbackRes.MsgFromId}).Scan(&tgUser)
+	if err != nil {
+		return
+	}
+	err = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{TgId: callbackRes.PeerId}).Scan(&contact)
+	if err != nil {
+		return
+	}
+	err = s.Model(ctx).Where(do.TgMsg{
+		Initiator: tgUser.Phone,
+		Receiver:  contact.Phone,
+		ReqId:     callbackRes.MsgId,
+	}).Scan(&msg)
+	if err != nil {
+		return
+	}
+	msg.Read = consts.Read
+	_, err = g.Redis().HDel(ctx, consts.TgMsgReadReqKey, fmt.Sprintf("%d-%d", callbackRes.MsgFromId, callbackRes.MsgId))
+	s.sendMsgToUser(ctx, []entity.TgMsg{msg})
+	return err
 }

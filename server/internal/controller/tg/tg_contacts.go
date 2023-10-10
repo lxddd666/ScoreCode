@@ -54,3 +54,14 @@ func (c *cTgContacts) Delete(ctx context.Context, req *tgcontacts.DeleteReq) (re
 	err = service.TgContacts().Delete(ctx, &req.TgContactsDeleteInp)
 	return
 }
+
+// ByTgUser 获取TG账号联系人
+func (c *cTgContacts) ByTgUser(ctx context.Context, req *tgcontacts.ByTgUserReq) (res *tgcontacts.ByTgUserRes, err error) {
+	list, err := service.TgContacts().ByTgUser(ctx, req.TgUserId)
+	if err != nil {
+		return
+	}
+	res = new(tgcontacts.ByTgUserRes)
+	res.List = list
+	return
+}

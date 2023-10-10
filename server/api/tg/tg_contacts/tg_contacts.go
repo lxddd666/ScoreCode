@@ -51,3 +51,13 @@ type DeleteReq struct {
 }
 
 type DeleteRes struct{}
+
+// ByTgUserReq 获取TG账号联系人
+type ByTgUserReq struct {
+	g.Meta   `path:"/tgContacts/byTgUser" method:"get" tags:"联系人管理" summary:"获取TG账号联系人"`
+	TgUserId int64 `json:"tgUserId"          dc:"tgUserId"`
+}
+
+type ByTgUserRes struct {
+	List []*tgin.TgContactsListModel `json:"list"   dc:"数据列表"`
+}

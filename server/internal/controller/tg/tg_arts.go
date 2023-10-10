@@ -15,6 +15,7 @@ type cTgArts struct{}
 // Login 登录账号
 func (c *cTgArts) Login(ctx context.Context, req *tgarts.TgLoginReq) (res *tgarts.TgLoginRes, err error) {
 	result, err := service.TgArts().CodeLogin(ctx, req.Phone)
+	res = new(tgarts.TgLoginRes)
 	res.LoginModel = result
 	return
 }
@@ -29,5 +30,27 @@ func (c *cTgArts) SendCode(ctx context.Context, req *tgarts.TgSendCodeReq) (res 
 func (c *cTgArts) SendMsg(ctx context.Context, req *tgarts.TgSendMsgReq) (res *tgarts.TgSendMsgRes, err error) {
 	data, err := service.TgArts().TgSendMsg(ctx, req.MsgInp)
 	res = (*tgarts.TgSendMsgRes)(&data)
+	return
+}
+
+// GetDialogs 获取chats
+func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
+	list, err := service.TgArts().TgGetDialogs(ctx, req.Phone)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgGetDialogsRes)
+	res.List = list
+	return
+}
+
+// GetContacts 获取contacts
+func (c *cTgArts) GetContacts(ctx context.Context, req *tgarts.TgGetContactsReq) (res *tgarts.TgGetContactsRes, err error) {
+	list, err := service.TgArts().TgGetContacts(ctx, req.Phone)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgGetContactsRes)
+	res.List = list
 	return
 }

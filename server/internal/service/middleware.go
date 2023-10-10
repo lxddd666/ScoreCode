@@ -25,6 +25,8 @@ type (
 		UnaryClientTestLimit(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error
 		// HomeAuth 前台页面鉴权中间件
 		HomeAuth(r *ghttp.Request)
+		// ScAuth 后台鉴权中间件
+		ScAuth(prefix string) func(r *ghttp.Request)
 		// Ctx 初始化请求上下文
 		Ctx(r *ghttp.Request)
 		// CORS allows Cross-origin resource sharing.
@@ -56,8 +58,6 @@ type (
 		ResponseHandler(r *ghttp.Request)
 		// WebSocketAuth websocket鉴权中间件
 		WebSocketAuth(r *ghttp.Request)
-		// ScAuth 后台鉴权中间件
-		ScAuth(prefix string) func(r *ghttp.Request)
 	}
 )
 

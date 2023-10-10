@@ -18,6 +18,7 @@ const (
 	QueueWhatsLogoutTopic      = `logout`      // 登出日志
 	QueueWhatsSendStatusTopic  = `sendStatus`  // 发送状态回调
 
-	QueueTgLoginTopic   = `tgLogin`
-	QueueTgTextMsgTopic = `tgTextMsg`
+	QueueTgLoginTopic       = `tgLogin`
+	QueueTgTextMsgTopic     = `tgTextMsg`
+	QueueTgReceiverMsgTopic = `tgReceiver`
 )
