@@ -21,6 +21,8 @@ type TgUserDao struct {
 // TgUserColumns defines and stores column names for table tg_user.
 type TgUserColumns struct {
 	Id            string //
+	OrgId         string // 组织ID
+	MemberId      string // 用户ID
 	TgId          string // tg id
 	Username      string // 账号号码
 	FirstName     string // First Name
@@ -41,6 +43,8 @@ type TgUserColumns struct {
 // tgUserColumns holds the columns for table tg_user.
 var tgUserColumns = TgUserColumns{
 	Id:            "id",
+	OrgId:         "org_id",
+	MemberId:      "member_id",
 	TgId:          "tg_id",
 	Username:      "username",
 	FirstName:     "first_name",

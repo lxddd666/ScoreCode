@@ -90,6 +90,7 @@ func (in *TgUserListInp) Filter(ctx context.Context) (err error) {
 
 type TgUserListModel struct {
 	Id            int64       `json:"id"            dc:"id"`
+	OrgId         int64       `json:"orgId"         dc:"公司ID"`
 	Username      string      `json:"username"      dc:"账号号码"`
 	FirstName     string      `json:"firstName"     dc:"First Name"`
 	LastName      string      `json:"lastName"      dc:"Last Name"`
@@ -120,3 +121,15 @@ type TgUserExportModel struct {
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     dc:"更新时间"`
 }
+
+// TgUserBindMemberInp 绑定用户
+type TgUserBindMemberInp struct {
+	MemberId int64   `json:"memberId" v:"required#用户ID不能为空" dc:"用户ID"`
+	Ids      []int64 `json:"ids" v:"required#id不能为空" dc:"id"`
+}
+
+func (in *TgUserBindMemberInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type TgUserBindMemberModel struct{}

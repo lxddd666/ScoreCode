@@ -172,6 +172,10 @@ export const columns = [
     key: 'reqId',
   },
   {
+    title: '消息内容',
+    key: 'sendMsg',
+  },
+  {
     title: '消息类型',
     key: 'msgType',
   },

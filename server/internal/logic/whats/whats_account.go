@@ -73,7 +73,6 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 				Where("wam."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId)
 			mod = mod.Handler(handler.FilterAuthWithField("wam." + dao.WhatsAccountMember.Columns().MemberId))
 		} else {
-			//deptId := user.DeptId
 			orgId := user.OrgId
 			if err != nil {
 				return nil, 0, err

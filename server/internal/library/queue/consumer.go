@@ -65,10 +65,16 @@ func consumerListen(ctx context.Context, job Consumer) {
 	if listenErr := c.ListenReceiveMsgDo(ctx, topic, func(mqMsg MqMsg) {
 		err = job.Handle(ctx, mqMsg)
 
-		// if err != nil {
+		//if err != nil {
 		//	// 遇到错误，重新加入到队列
-		//	//queue.Push(topic, mqMsg.Body)
-		// }
+		//	thatTopic := topic
+		//	thatMqMsg := mqMsg.Body
+		//	simple.SafeGo(ctx, func(ctx context.Context) {
+		//		time.Sleep(5 * time.Second)
+		//		_ = Push(thatTopic, thatMqMsg)
+		//	})
+		//
+		//}
 
 		// 记录消费队列日志
 		ConsumerLog(ctx, topic, mqMsg, err)

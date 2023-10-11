@@ -51,3 +51,19 @@ type DeleteReq struct {
 }
 
 type DeleteRes struct{}
+
+// BindMemberReq 绑定用户
+type BindMemberReq struct {
+	g.Meta `path:"/tgUser/bindMember" method:"post" tags:"TG账号" summary:"绑定用户"`
+	tgin.TgUserBindMemberInp
+}
+
+type BindMemberRes struct{}
+
+// UnBindMemberReq 解绑用户
+type UnBindMemberReq struct {
+	g.Meta `path:"/tgUser/unBindMember" method:"post" tags:"TG账号" summary:"解绑用户"`
+	tgin.TgUserBindMemberInp
+}
+
+type UnBindMemberRes struct{}

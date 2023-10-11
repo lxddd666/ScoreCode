@@ -1,7 +1,7 @@
 package callback
 
 import (
-	"github.com/gogf/gf/v2/os/gtime"
+	"time"
 )
 
 type LoginCallbackRes struct {
@@ -12,13 +12,17 @@ type LoginCallbackRes struct {
 }
 
 type TextMsgCallbackRes struct {
-	Sender    int64      `json:"sender"`    //发送人
-	Receiver  int64      `json:"receiver"`  //接收人
-	SendText  string     `json:"sendText"`  //消息内容
-	SendTime  gtime.Time `json:"sendTime"`  //发送时间
-	ReqId     string     `json:"reqId"`     //请求ID
-	Read      int        `json:"read"`      //是否已读
-	Initiator int64      `json:"initiator"` //发起人
+	Initiator     uint64    `json:"initiator"     description:"聊天发起人"`
+	Sender        uint64    `json:"sender"        description:"发送人"`
+	Receiver      uint64    `json:"receiver"      description:"接收人"`
+	ReqId         string    `json:"reqId"         description:"请求id"`
+	SendMsg       []byte    `json:"sendMsg"       description:"发送消息原文(加密)"`
+	TranslatedMsg []byte    `json:"translatedMsg" description:"发送消息译文(加密)"`
+	MsgType       int       `json:"msgType"       description:"消息类型"`
+	SendTime      time.Time `json:"sendTime"      description:"发送时间"`
+	Read          int       `json:"read"          description:"是否已读"`
+	Comment       string    `json:"comment"       description:"备注"`
+	SendStatus    int       `json:"sendStatus"    description:"发送状态"`
 }
 
 type ReadMsgCallbackRes struct {

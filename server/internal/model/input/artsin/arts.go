@@ -2,12 +2,19 @@ package artsin
 
 import "context"
 
-type LoginInp struct {
-	Username string `json:"username" dc:"账号"`
-	ProxyUrl string `json:"proxyUrl" dc:"代理地址"`
+type LoginModel struct {
+	Status int    `json:"status" dc:"状态"`
+	ReqId  string `json:"reqId" dc:"请求ID"`
+	Phone  uint64 `json:"phone" dc:"手机号"`
 }
 
-func (in *LoginInp) Filter(ctx context.Context) (err error) {
+type SendCodeInp struct {
+	Phone uint64 `json:"phone" dc:"手机号"`
+	ReqId string `json:"reqId" dc:"请求ID"`
+	Code  string `json:"code" dc:"验证码"`
+}
+
+func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
