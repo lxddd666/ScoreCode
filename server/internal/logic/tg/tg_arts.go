@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gmap"
-	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -152,19 +151,6 @@ func (s *sTgArts) SessionLogin(ctx context.Context, phones []int) (err error) {
 	return
 }
 
-// TgSendMsg 发送消息
-func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
-	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
-	// 检查是否为好友
-	if err = s.TgCheckContact(ctx, inp.Sender, inp.Receiver); err != nil {
-		return
-	}
-	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
-}
-
 // TgCheckLogin 检查是否登录
 func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) {
 	userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, strconv.FormatUint(account, 10))
@@ -181,6 +167,24 @@ func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) 
 func (s *sTgArts) TgCheckContact(ctx context.Context, account, contact uint64) (err error) {
 
 	return
+}
+
+// TgSendMsg 发送消息
+func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
+}
+
+// TgSyncContact 同步联系人
+func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	return service.Arts().SyncContact(ctx, inp, consts.TgSvc)
 }
 
 // TgGetDialogs 获取chats
@@ -252,53 +256,9 @@ func (s *sTgArts) TgGetContacts(ctx context.Context, phone uint64) (list []*tgin
 }
 
 func (s *sTgArts) handlerSaveContacts(ctx context.Context, phone uint64, list []*tgin.TgContactsListModel) {
-	userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, gconv.String(phone))
-	if err != nil {
-		return
-	}
-	var user entity.AdminMember
-	err = dao.AdminMember.Ctx(ctx).WherePri(userId.Int64()).Scan(&user)
-	if err != nil {
-		return
-	}
-	var tgUser entity.TgUser
-	err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
-	if err != nil {
-		return
-	}
-	var phones = make([]string, 0)
-	for _, model := range list {
-		model.OrgId = user.OrgId
-		phones = append(phones, model.Phone)
-	}
-
-	err = dao.TgContacts.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		result, err := dao.TgContacts.Ctx(ctx).Fields(tgin.TgContactsInsertFields{}).Save(&list)
-		if err != nil {
-			return err
-		}
-		fmt.Println(result)
-		var contacts []entity.TgContacts
-		err = dao.TgContacts.Ctx(ctx).Where(dao.TgContacts.Columns().Phone, phones).Scan(&contacts)
-		if err != nil {
-			return
-		}
-		tgUserContacts := make([]entity.TgUserContacts, 0)
-		for _, contact := range contacts {
-			tgUserContacts = append(tgUserContacts, entity.TgUserContacts{
-				TgUserId:     int64(tgUser.Id),
-				TgContactsId: contact.Id,
-			})
-		}
-		result, err = dao.TgUserContacts.Ctx(ctx).Fields(dao.TgUserContacts.Columns().TgContactsId, dao.TgUserContacts.Columns().TgUserId).Save(&tgUserContacts)
-		if err != nil {
-			return err
-		}
-		fmt.Println(result)
-
-		return
-	})
-
+	in := make(map[uint64][]*tgin.TgContactsListModel)
+	in[phone] = list
+	_ = service.TgContacts().SyncContactCallback(ctx, in)
 }
 
 // TgGetMsgHistory 获取聊天历史
@@ -330,8 +290,6 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryIn
 	if err != nil {
 		return
 	}
-	jsonVar := protojson.Format(resp)
-	g.Log().Info(ctx, jsonVar)
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
 		err = gjson.DecodeTo(resp.Data, &list)
 	}

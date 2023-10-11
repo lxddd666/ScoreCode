@@ -118,7 +118,7 @@ type TgContactsExportModel struct {
 
 type GetMsgHistoryInp struct {
 	Phone      uint64 `json:"phone" dc:"TG账号"`
-	Contact    uint64 `json:"contact" dc:"联系人"`
+	Contact    string `json:"contact" dc:"联系人"`
 	Limit      int    `json:"limit" dc:"查询条数"`
 	OffsetDate int    `json:"offsetDate" dc:"时间戳(查询该时间前的聊天记录)"`
 	OffsetID   int    `json:"offsetId" dc:"消息ID(查询该ID之前的聊天记录)"`

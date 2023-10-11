@@ -20,7 +20,7 @@ func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
 
 type MsgInp struct {
 	Sender      uint64   `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
-	Receiver    uint64   `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
+	Receiver    string   `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
 	TextMsg     []string `json:"textMsg" dc:"文本消息"`
 	ImageMsg    [][]byte `json:"pictureMsg" dc:"图片消息"`
 	DocumentMsg [][]byte `json:"documentMsg" dc:"文件消息"`
@@ -29,11 +29,6 @@ type MsgInp struct {
 
 func (in *MsgInp) Filter(ctx context.Context) (err error) {
 	return
-}
-
-type SyncContactReq struct {
-	Key    uint64   `json:"key"`
-	Values []uint64 `json:"values"`
 }
 
 type VcardMsgInp struct {

@@ -110,7 +110,7 @@ type TgMsgListModel struct {
 	UpdatedAt  *gtime.Time `json:"updatedAt"  dc:"更新时间"`
 	Initiator  int64       `json:"initiator"  dc:"聊天发起人"`
 	Sender     int64       `json:"sender"     dc:"发送人"`
-	Receiver   int64       `json:"receiver"   dc:"接收人"`
+	Receiver   string      `json:"receiver"   dc:"接收人"`
 	ReqId      string      `json:"reqId"      dc:"请求id"`
 	MsgType    int         `json:"msgType"    dc:"消息类型"`
 	SendTime   *gtime.Time `json:"sendTime"   dc:"发送时间"`

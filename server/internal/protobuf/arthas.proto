@@ -168,6 +168,7 @@ message UintSenderVcard{
 
 message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
+  map<uint64,StringKeyStringvalue> send_tgData = 2;
 }
 
 message SendVCardMsgDetailAction {
@@ -188,10 +189,15 @@ message UintFileDetailValue{
   repeated FileDetailValue value = 2;
 }
 
+message UintTgFileDetailValue{
+  string key = 1;
+  repeated FileDetailValue value = 2;
+}
+
 message UintSendContactCard {
   uint64 key = 1;
   uint64 sender = 2;
-  uint64 receiver = 3;
+  string receiver = 3;
   repeated ContactCardValue value = 4;
 }
 
@@ -237,7 +243,7 @@ message GetDialogList{
 
 message GetMsgHistory{
   uint64 Self = 1;
-  uint64 Other = 2;
+  string  Other = 2;
   int32  Limit = 3;
   int64   OffsetDat = 4;
   int64  OffsetID = 5;
@@ -272,12 +278,12 @@ message  ReceivingMsgDetail {
 
 message  CreateGroupDetail {
   string GroupName = 1;
-  UintkeyUintvalue detail = 2;
+  UintkeyStringvalue detail = 2;
 }
 
 message  AddGroupMemberDetail {
   string GroupName = 1;
-  UintkeyUintvalue detail = 2;
+  UintkeyStringvalue detail = 2;
 }
 
 
@@ -301,6 +307,8 @@ enum ActionResult {
   ALL_UNKNOWN = 3;
   PONG = 4;
   LOGIN_NEED_CODE = 5;
+  LOGIN_VERIFY_CODE_FAIL = 6;
+
 }
 
 // 定义单个帐号的执行状态枚举
@@ -313,6 +321,7 @@ enum AccountStatus {
   SEAL = 403; //登录失败，已封号
   PERMISSION = 401; // 登录失败，权限错误
   NEED_SEND_CODE = 5; // 需要发送验证码
+  LOGIN_CODE_FAIL = 6;// 验证码错误
 }
 
 // 定义返回消息
@@ -346,7 +355,8 @@ message TextMsgCallbacks{
 
 message SendFileAction{
   map<uint64, UintFileDetailValue> send_data = 1;
-  string  Type = 2;
+  map<uint64, UintTgFileDetailValue> send_tgData = 2;
+  string  Type = 3;
 }
 
 message SendContactCardAction{

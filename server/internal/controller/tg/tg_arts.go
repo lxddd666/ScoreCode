@@ -33,6 +33,13 @@ func (c *cTgArts) SendMsg(ctx context.Context, req *tgarts.TgSendMsgReq) (res *t
 	return
 }
 
+// SyncContact 同步联系人
+func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq) (res *tgarts.TgSyncContactRes, err error) {
+	data, err := service.TgArts().TgSyncContact(ctx, req.SyncContactInp)
+	res = (*tgarts.TgSyncContactRes)(&data)
+	return
+}
+
 // GetDialogs 获取chats
 func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
 	list, err := service.TgArts().TgGetDialogs(ctx, req.Phone)

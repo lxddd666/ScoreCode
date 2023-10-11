@@ -260,7 +260,7 @@ func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res 
 		}
 
 		syncContactReq.Key = inp.Sender
-		syncContactReq.Values = append(syncContactReq.Values, inp.Receiver)
+		syncContactReq.Values = append(syncContactReq.Values, gconv.Uint64(inp.Receiver))
 
 		//2.同步通讯录
 		syncContactMsg := s.syncContact(syncContactReq)
@@ -288,7 +288,7 @@ func (s *sWhatsArts) sendTextMessage(msgReq *artsin.MsgInp) *protobuf.RequestMes
 
 	tmp := &protobuf.SendMessageAction{}
 	sendData := make(map[uint64]*protobuf.UintkeyStringvalue)
-	sendData[msgReq.Sender] = &protobuf.UintkeyStringvalue{Key: msgReq.Receiver, Values: msgReq.TextMsg}
+	sendData[msgReq.Sender] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(msgReq.Receiver), Values: msgReq.TextMsg}
 	tmp.SendData = sendData
 
 	list = append(list, tmp)

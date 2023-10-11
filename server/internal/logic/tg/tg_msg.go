@@ -243,7 +243,7 @@ func (s *sTgMsg) TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err er
 		msg := entity.TgMsg{
 			Initiator:     int64(item.Initiator),
 			Sender:        int64(item.Sender),
-			Receiver:      int64(item.Receiver),
+			Receiver:      gconv.Int64(item.Receiver),
 			SendMsg:       item.SendMsg,
 			TranslatedMsg: item.TranslatedMsg,
 			MsgType:       1,
@@ -285,20 +285,15 @@ func (s *sTgMsg) TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err er
 
 // ReceiverCallback 接收消息回调
 func (s *sTgMsg) ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error) {
-
-	//已读
-	if callbackRes.Out {
-		return s.handlerReadMsgCallback(ctx, callbackRes)
-	}
 	//接收消息
 	var msg = entity.TgMsg{
-		Initiator:     callbackRes.PeerId,
+		Initiator:     callbackRes.MsgFromId,
 		Sender:        callbackRes.MsgFromId,
-		Receiver:      0,
+		Receiver:      callbackRes.PeerId,
 		ReqId:         gconv.String(callbackRes.MsgId),
 		SendMsg:       []byte(callbackRes.Msg),
 		TranslatedMsg: []byte(callbackRes.Msg),
-		MsgType:       0,
+		MsgType:       1,
 		SendTime:      nil,
 		Read:          consts.Read,
 		SendStatus:    1,
@@ -309,7 +304,11 @@ func (s *sTgMsg) ReceiverCallback(ctx context.Context, callbackRes callback.Rece
 			s.sendMsgToUser(ctx, []entity.TgMsg{msg})
 		})
 		//入库
-		_, err = s.Model(ctx).Insert(msg)
+		_, err = s.Model(ctx).Save(msg)
+	}
+	//自己发出的消息，都标记为已读
+	if callbackRes.Out {
+		return s.handlerReadMsgCallback(ctx, callbackRes)
 	}
 	return
 }
@@ -329,8 +328,8 @@ func (s *sTgMsg) handlerReadMsgCallback(ctx context.Context, callbackRes callbac
 		return
 	}
 	err = s.Model(ctx).Where(do.TgMsg{
-		Initiator: tgUser.Phone,
-		Receiver:  contact.Phone,
+		Initiator: callbackRes.MsgFromId,
+		Receiver:  callbackRes.PeerId,
 		ReqId:     callbackRes.MsgId,
 	}).Scan(&msg)
 	if err != nil {

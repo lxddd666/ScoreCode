@@ -14,6 +14,8 @@ type (
 	IArts interface {
 		// SendMsg 发送消息
 		SendMsg(ctx context.Context, item *artsin.MsgInp, imType string) (res string, err error)
+		// SyncContact 同步联系人
+		SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error)
 	}
 )
 

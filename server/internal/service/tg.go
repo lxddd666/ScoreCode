@@ -18,62 +18,6 @@ import (
 )
 
 type (
-	ITgArts interface {
-		// SyncAccount 同步账号
-		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
-		// CodeLogin 登录
-		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
-		// SendCode 发送验证码
-		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
-		// SessionLogin 登录
-		SessionLogin(ctx context.Context, phones []int) (err error)
-		// TgSendMsg 发送消息
-		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
-		// TgCheckLogin 检查是否登录
-		TgCheckLogin(ctx context.Context, account uint64) (err error)
-		// TgCheckContact 检查是否是好友
-		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
-		// TgGetDialogs 获取chats
-		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
-		// TgGetContacts 获取contacts
-		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
-		// TgGetMsgHistory 获取聊天历史
-		TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
-	}
-	ITgContacts interface {
-		// Model 联系人管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取联系人管理列表
-		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
-		// Export 导出联系人管理
-		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
-		// Edit 修改/新增联系人管理
-		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
-		// Delete 删除联系人管理
-		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
-		// View 获取联系人管理指定信息
-		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
-		// ByTgUser 获取TG账号联系人
-		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
-	}
-	ITgMsg interface {
-		// Model 消息记录ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取消息记录列表
-		List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.TgMsgListModel, totalCount int, err error)
-		// Export 导出消息记录
-		Export(ctx context.Context, in *tgin.TgMsgListInp) (err error)
-		// Edit 修改/新增消息记录
-		Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error)
-		// Delete 删除消息记录
-		Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error)
-		// View 获取消息记录指定信息
-		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
-		// TextMsgCallback 发送消息回调
-		TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err error)
-		// ReceiverCallback 接收消息回调
-		ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error)
-	}
 	ITgProxy interface {
 		// Model 代理管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -110,14 +54,74 @@ type (
 		// LoginCallback 登录回调
 		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
 	}
+	ITgArts interface {
+		// SyncAccount 同步账号
+		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
+		// CodeLogin 登录
+		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
+		// SendCode 发送验证码
+		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
+		// SessionLogin 登录
+		SessionLogin(ctx context.Context, phones []int) (err error)
+		// TgCheckLogin 检查是否登录
+		TgCheckLogin(ctx context.Context, account uint64) (err error)
+		// TgCheckContact 检查是否是好友
+		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
+		// TgSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgSyncContact 同步联系人
+		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
+		// TgGetDialogs 获取chats
+		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetContacts 获取contacts
+		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetMsgHistory 获取聊天历史
+		TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+	}
+	ITgContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
+		// ByTgUser 获取TG账号联系人
+		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
+		// SyncContactCallback 同步联系人
+		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
+	}
+	ITgMsg interface {
+		// Model 消息记录ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取消息记录列表
+		List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.TgMsgListModel, totalCount int, err error)
+		// Export 导出消息记录
+		Export(ctx context.Context, in *tgin.TgMsgListInp) (err error)
+		// Edit 修改/新增消息记录
+		Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error)
+		// Delete 删除消息记录
+		Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error)
+		// View 获取消息记录指定信息
+		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
+		// TextMsgCallback 发送消息回调
+		TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err error)
+		// ReceiverCallback 接收消息回调
+		ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error)
+	}
 )
 
 var (
+	localTgUser     ITgUser
 	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
-	localTgUser     ITgUser
 )
 
 func TgArts() ITgArts {

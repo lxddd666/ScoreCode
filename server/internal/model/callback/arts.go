@@ -14,7 +14,7 @@ type LoginCallbackRes struct {
 type TextMsgCallbackRes struct {
 	Initiator     uint64    `json:"initiator"     description:"聊天发起人"`
 	Sender        uint64    `json:"sender"        description:"发送人"`
-	Receiver      uint64    `json:"receiver"      description:"接收人"`
+	Receiver      string    `json:"receiver"      description:"接收人"`
 	ReqId         string    `json:"reqId"         description:"请求id"`
 	SendMsg       []byte    `json:"sendMsg"       description:"发送消息原文(加密)"`
 	TranslatedMsg []byte    `json:"translatedMsg" description:"发送消息译文(加密)"`

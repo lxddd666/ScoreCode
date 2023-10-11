@@ -2,7 +2,9 @@ package arts
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/consts"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/protobuf"
@@ -40,9 +42,9 @@ func (s *sArts) sendTextMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 	list := make([]*protobuf.SendMessageAction, 0)
 
 	tmp := &protobuf.SendMessageAction{}
-	sendData := make(map[uint64]*protobuf.UintkeyStringvalue)
-	sendData[msgReq.Sender] = &protobuf.UintkeyStringvalue{Key: msgReq.Receiver, Values: msgReq.TextMsg}
-	tmp.SendData = sendData
+	sendData := make(map[uint64]*protobuf.StringKeyStringvalue)
+	sendData[msgReq.Sender] = &protobuf.StringKeyStringvalue{Key: msgReq.Receiver, Values: msgReq.TextMsg}
+	tmp.SendTgData = sendData
 
 	list = append(list, tmp)
 
@@ -57,4 +59,28 @@ func (s *sArts) sendTextMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 	}
 
 	return req
+}
+
+// SyncContact 同步联系人
+func (s *sArts) SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error) {
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+
+	var req = &protobuf.RequestMessage{
+		Action: protobuf.Action_SYNC_CONTACTS,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_SyncContactDetail{
+			SyncContactDetail: &protobuf.SyncContactDetail{
+				Details: []*protobuf.UintkeyUintvalue{
+					{Key: item.Account, Values: item.Contacts}},
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+		err = gerror.New("同步联系人失败，请稍后重试")
+	}
+
+	return
 }

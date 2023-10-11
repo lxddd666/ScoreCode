@@ -194,7 +194,7 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 		msg := entity.WhatsMsg{
 			Initiator:     int64(item.Initiator),
 			Sender:        int64(item.Sender),
-			Receiver:      int64(item.Receiver),
+			Receiver:      gconv.Int64(item.Receiver),
 			SendMsg:       item.SendMsg,
 			TranslatedMsg: item.TranslatedMsg,
 			MsgType:       1,
