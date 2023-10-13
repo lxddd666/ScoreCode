@@ -64,11 +64,29 @@ func (c *cTgArts) GetContacts(ctx context.Context, req *tgarts.TgGetContactsReq)
 
 // GetMsgHistory 获取聊天历史
 func (c *cTgArts) GetMsgHistory(ctx context.Context, req *tgarts.TgGetMsgHistoryReq) (res *tgarts.TgGetMsgHistoryRes, err error) {
-	list, err := service.TgArts().TgGetMsgHistory(ctx, req.GetMsgHistoryInp)
+	list, err := service.TgArts().TgGetMsgHistory(ctx, req.TgGetMsgHistoryInp)
 	if err != nil {
 		return
 	}
 	res = new(tgarts.TgGetMsgHistoryRes)
 	res.List = list
+	return
+}
+
+// CreateGroup 创建群
+func (c *cTgArts) CreateGroup(ctx context.Context, req *tgarts.TgCreateGroupReq) (res *tgarts.TgCreateGroupRes, err error) {
+	err = service.TgArts().TgCreateGroup(ctx, req.TgCreateGroupInp)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// AddGroupMembers 添加群成员
+func (c *cTgArts) AddGroupMembers(ctx context.Context, req *tgarts.TgAddGroupMembersReq) (res *tgarts.TgAddGroupMembersRes, err error) {
+	err = service.TgArts().TgAddGroupMembers(ctx, req.TgGroupAddMembersInp)
+	if err != nil {
+		return
+	}
 	return
 }

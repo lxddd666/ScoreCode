@@ -2,8 +2,11 @@ package tg
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/queue"
+	"hotgo/internal/model/callback"
 	"hotgo/internal/service"
 )
 
@@ -23,5 +26,16 @@ func (q *qTgTextMsgLog) GetTopic() string {
 
 // Handle 处理消息
 func (q *qTgTextMsgLog) Handle(ctx context.Context, mqMsg queue.MqMsg) (err error) {
-	return service.TgMsg().TextMsgCallback(ctx, mqMsg)
+	var imCallback callback.ImCallback
+	err = gjson.DecodeTo(mqMsg.Body, &imCallback)
+	if err != nil {
+		return
+	}
+	var textMsgList []callback.TextMsgCallbackRes
+	err = gjson.DecodeTo(imCallback.Data, &textMsgList)
+	if err != nil {
+		return
+	}
+	g.Log().Info(ctx, "kafka textMsgCallback: ", textMsgList)
+	return service.TgMsg().TextMsgCallback(ctx, textMsgList)
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -17,7 +16,6 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -225,18 +223,7 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 }
 
 // TextMsgCallback 发送消息回调
-func (s *sTgMsg) TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err error) {
-	var imCallback callback.ImCallback
-	err = gjson.DecodeTo(mqMsg.Body, &imCallback)
-	if err != nil {
-		return
-	}
-	var textMsgList []callback.TextMsgCallbackRes
-	err = gjson.DecodeTo(imCallback.Data, &textMsgList)
-	if err != nil {
-		return
-	}
-	g.Log().Info(ctx, "kafka textMsgCallback: ", textMsgList)
+func (s *sTgMsg) TextMsgCallback(ctx context.Context, textMsgList []callback.TextMsgCallbackRes) (err error) {
 	var msgList = make([]entity.TgMsg, 0)
 	unreadMap := make(map[string]interface{})
 	for _, item := range textMsgList {

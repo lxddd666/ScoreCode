@@ -44,9 +44,18 @@ message OrdinaryAction {
   string Type  = 2;
 }
 
+message LogoutAction {
+  map<uint64, logoutDetail> logout_detail = 1;
+  string Type  = 2;
+}
+
 message loginDetail {
   string proxyUrl = 1;
   string loginId = 2;  //登录的id 用来收验证码
+}
+
+message logoutDetail {
+  string proxyUrl = 1;
 }
 
 
@@ -141,6 +150,7 @@ message RequestMessage {
     GetContactList      get_contact_list = 25;.
     GetDialogList  get_dialog_list = 26;
     GetMsgHistory  get_msg_history = 27;
+    LogoutAction     logout_action = 28;
   }
   string type = 18;
 
@@ -322,6 +332,7 @@ enum AccountStatus {
   PERMISSION = 401; // 登录失败，权限错误
   NEED_SEND_CODE = 5; // 需要发送验证码
   LOGIN_CODE_FAIL = 6;// 验证码错误
+  LOGOUT_FAIL = 7;// 登出失败
 }
 
 // 定义返回消息

@@ -13,6 +13,7 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
+	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/tgin"
@@ -193,13 +194,9 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.
 	if err = s.TgCheckLogin(ctx, phone); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 	msg := &protobuf.GetDialogList{
 		Account: phone,
 	}
-
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_DIALOG_LIST,
 		Type:   consts.TgSvc,
@@ -207,15 +204,11 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.
 			GetDialogList: msg,
 		},
 	}
-	resp, err := c.Connect(ctx, req)
+	resp, err := service.Arts().Send(ctx, req)
 	if err != nil {
 		return
 	}
-	jsonVar := protojson.Format(resp)
-	g.Log().Info(ctx, jsonVar)
-	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
-		err = gjson.DecodeTo(resp.Data, &list)
-	}
+	err = gjson.DecodeTo(resp.Data, &list)
 	return
 }
 
@@ -262,7 +255,7 @@ func (s *sTgArts) handlerSaveContacts(ctx context.Context, phone uint64, list []
 }
 
 // TgGetMsgHistory 获取聊天历史
-func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
+func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Phone); err != nil {
 		return
@@ -292,6 +285,76 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryIn
 	}
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
 		err = gjson.DecodeTo(resp.Data, &list)
+	}
+	return
+}
+
+func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
+	var list []callback.TextMsgCallbackRes
+	_ = gjson.DecodeTo(data, &list)
+	_ = service.TgMsg().TextMsgCallback(ctx, list)
+}
+
+// TgAddGroupMembers 添加群成员
+func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Initiator); err != nil {
+		return
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_ADD_GROUP_MEMBER,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_AddGroupMemberDetail{
+			AddGroupMemberDetail: &protobuf.AddGroupMemberDetail{
+				GroupName: inp.GroupId,
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Initiator,
+					Values: inp.AddMembers,
+				},
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+		err = gerror.New(resp.Comment)
+	}
+	return
+}
+
+// TgCreateGroup 创建群聊
+func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Initiator); err != nil {
+		return
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_CREATE_GROUP,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_CreateGroupDetail{
+			CreateGroupDetail: &protobuf.CreateGroupDetail{
+				GroupName: inp.GroupTitle,
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Initiator,
+					Values: inp.AddMembers,
+				},
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+		err = gerror.New(resp.Comment)
 	}
 	return
 }
