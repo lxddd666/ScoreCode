@@ -30,7 +30,8 @@ jobs:
       - name: Docker build
         run: |
           echo '=====开始构建镜像====='
-          docker build -t registry.cn-guangzhou.aliyuncs.com/it00021hot/grata:latest -f ./server/manifest/docker/Dockerfile .
+          cd server
+          docker build -t registry.cn-guangzhou.aliyuncs.com/it00021hot/grata:latest -f manifest/docker/Dockerfile .
           echo '=====镜像构建结束====='
 
       # 登录到 阿里云镜像服务，使用 GitHub secrets 传入账号密码，密码被加密存储在 GitHub 服务器
