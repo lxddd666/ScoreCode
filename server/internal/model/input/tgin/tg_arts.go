@@ -11,13 +11,18 @@ type TgGetMsgHistoryInp struct {
 }
 
 type TgCreateGroupInp struct {
-	Initiator  uint64   `json:"initiator" dc:"群聊创建人"`
+	Account    uint64   `json:"account" dc:"账号"`
 	GroupTitle string   `json:"groupTitle" dc:"群名称"`
 	AddMembers []string `json:"addMembers" dc:"群成员"`
 }
 
 type TgGroupAddMembersInp struct {
-	Initiator  uint64   `json:"initiator" dc:"群聊创建人"`
+	Account    uint64   `json:"account" dc:"账号"`
 	GroupId    string   `json:"groupId" dc:"群ID"`
 	AddMembers []string `json:"addMembers" dc:"群成员"`
+}
+
+type TgGetGroupMembersInp struct {
+	Account uint64 `json:"account" dc:"账号"`
+	GroupId int64  `json:"groupId" dc:"群ID"`
 }

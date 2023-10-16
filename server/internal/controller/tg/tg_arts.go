@@ -90,3 +90,14 @@ func (c *cTgArts) AddGroupMembers(ctx context.Context, req *tgarts.TgAddGroupMem
 	}
 	return
 }
+
+// GetGroupMembers 获取群成员
+func (c *cTgArts) GetGroupMembers(ctx context.Context, req *tgarts.TgGetGroupMembersReq) (res *tgarts.TgGetGroupMembersRes, err error) {
+	list, err := service.TgArts().TgGetGroupMembers(ctx, req.TgGetGroupMembersInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgGetGroupMembersRes)
+	res.List = list
+	return
+}

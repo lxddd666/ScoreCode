@@ -44,6 +44,8 @@ type (
 		TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error)
 		// TgCreateGroup 创建群聊
 		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
+		// TgGetGroupMembers 获取群成员
+		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -120,34 +122,12 @@ type (
 )
 
 var (
+	localTgUser     ITgUser
+	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
-	localTgUser     ITgUser
-	localTgArts     ITgArts
 )
-
-func TgArts() ITgArts {
-	if localTgArts == nil {
-		panic("implement not found for interface ITgArts, forgot register?")
-	}
-	return localTgArts
-}
-
-func RegisterTgArts(i ITgArts) {
-	localTgArts = i
-}
-
-func TgContacts() ITgContacts {
-	if localTgContacts == nil {
-		panic("implement not found for interface ITgContacts, forgot register?")
-	}
-	return localTgContacts
-}
-
-func RegisterTgContacts(i ITgContacts) {
-	localTgContacts = i
-}
 
 func TgMsg() ITgMsg {
 	if localTgMsg == nil {
@@ -180,4 +160,26 @@ func TgUser() ITgUser {
 
 func RegisterTgUser(i ITgUser) {
 	localTgUser = i
+}
+
+func TgArts() ITgArts {
+	if localTgArts == nil {
+		panic("implement not found for interface ITgArts, forgot register?")
+	}
+	return localTgArts
+}
+
+func RegisterTgArts(i ITgArts) {
+	localTgArts = i
+}
+
+func TgContacts() ITgContacts {
+	if localTgContacts == nil {
+		panic("implement not found for interface ITgContacts, forgot register?")
+	}
+	return localTgContacts
+}
+
+func RegisterTgContacts(i ITgContacts) {
+	localTgContacts = i
 }

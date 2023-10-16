@@ -117,3 +117,13 @@ type TgCreateGroupReq struct {
 }
 
 type TgCreateGroupRes string
+
+// TgGetGroupMembersReq 获取群成员
+type TgGetGroupMembersReq struct {
+	g.Meta `path:"/arts/group/members" method:"post" tags:"tg-api" summary:"获取群成员"`
+	*tgin.TgGetGroupMembersInp
+}
+
+type TgGetGroupMembersRes struct {
+	List []*tgin.TgContactsListModel `json:"list"   dc:"数据列表"`
+}

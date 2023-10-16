@@ -13,7 +13,7 @@ enum Action {
   SYNC_ACCOUNT_KEY = 4; // 添加同步帐号密钥动作
   GET_PREKEYBUNDLE = 5;
   SYNC_CONTACTS = 6;
-  PING_PONG =7;
+  PING_PONG = 7;
   SEND_VCARD_MESSAGE = 8;
   SET_HEAD_SCULPTURE = 9;
   GET_USER_HEAD_IMAGE = 10;
@@ -27,6 +27,7 @@ enum Action {
   SEND_CONTACT_CARD = 15;
   CREATE_GROUP = 16;
   ADD_GROUP_MEMBER = 17;
+  GET_GROUP_MEMBERS = 23;
   SEND_CODE = 19;
   CONTACT_LIST = 20;
   DIALOG_LIST = 21;
@@ -41,12 +42,12 @@ enum Action {
 
 message OrdinaryAction {
   map<uint64, loginDetail> login_detail = 1;
-  string Type  = 2;
+  string Type = 2;
 }
 
 message LogoutAction {
   map<uint64, logoutDetail> logout_detail = 1;
-  string Type  = 2;
+  string Type = 2;
 }
 
 message loginDetail {
@@ -69,7 +70,7 @@ message getUserHeadImage{
 
 // 定义头像
 message HeadSculpture{
-  bytes  image    = 1;
+  bytes  image = 1;
   uint64 account = 2;
 }
 
@@ -81,8 +82,8 @@ message SetHeadSculptureAction {
 
 //定义明信片
 message VCard{
-    string Fn = 1;
-    string Tel = 2;
+  string Fn = 1;
+  string Tel = 2;
 }
 
 // 定义明信片消息
@@ -118,7 +119,7 @@ message SyncAccountKeyAction {
 
 //定义同步app信息动作消息
 message SyncAppInfoAction {
-  map<uint64,appData> app_data = 1;
+  map<uint64, appData> app_data = 1;
 }
 
 
@@ -129,7 +130,7 @@ message RequestMessage {
   oneof action_detail {
     OrdinaryAction ordinary_action = 2;
     SyncAccountKeyAction sync_account_key_action = 3;
-    SyncAppInfoAction   sync_app_action =4;
+    SyncAppInfoAction   sync_app_action = 4;
     QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
     SendMessageDetail  sendmessage_detail = 8 ;
     string  ping_message = 9;
@@ -141,13 +142,14 @@ message RequestMessage {
     SendPhotoDetail  send_photo_detail = 15;
     CreateGroupDetail       create_group_detail = 16;
     AddGroupMemberDetail     add_group_member_detail = 17;
+    GetGroupMembersDetail get_group_members_detail = 29;
     SendImageFileDetail  send_image_file_detail = 19;
     SendContactCardDetail send_contact_card_detail = 20;
     SendGroupMessageDetail send_group_message_detail = 21;
     SendFileDetail  send_file_detail = 22;
     SendVideoDetail send_video_detail = 23;
     SendCodeDetail send_code_detail = 24;
-    GetContactList      get_contact_list = 25;.
+    GetContactList      get_contact_list = 25;
     GetDialogList  get_dialog_list = 26;
     GetMsgHistory  get_msg_history = 27;
     LogoutAction     logout_action = 28;
@@ -172,13 +174,13 @@ message StringKeyStringvalue{
 }
 
 message UintSenderVcard{
-  uint64 Receiver  = 1;
+  uint64 Receiver = 1;
   repeated VCard vcards = 2;
 }
 
 message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
-  map<uint64,StringKeyStringvalue> send_tgData = 2;
+  map<uint64, StringKeyStringvalue> send_tgData = 2;
 }
 
 message SendVCardMsgDetailAction {
@@ -186,7 +188,7 @@ message SendVCardMsgDetailAction {
 }
 
 message SendGroupMessageAction {
-  map<uint64,StringKeyStringvalue> send_data = 1;
+  map<uint64, StringKeyStringvalue> send_data = 1;
 }
 
 message SendPhotoAction{
@@ -296,6 +298,10 @@ message  AddGroupMemberDetail {
   UintkeyStringvalue detail = 2;
 }
 
+message  GetGroupMembersDetail {
+  uint64 Account = 1;
+  int64 ChatId = 2;
+}
 
 message QueryPreKeyBundleDetail {
   repeated UintkeyUintvalue details = 1;
@@ -348,7 +354,7 @@ message ResponseMessage {
   string   login_id = 7;
   string   account = 8;
   string   comment = 9;
-  bytes    data    = 10;
+  bytes    data = 10;
 }
 message LoginCallbacks{
   repeated LoginCallback results = 1;
@@ -371,7 +377,7 @@ message SendFileAction{
 }
 
 message SendContactCardAction{
-  map<uint64,UintSendContactCard> send_data = 1;
+  map<uint64, UintSendContactCard> send_data = 1;
   string Type = 2;
 }
 

@@ -50,11 +50,6 @@ func (in *VcardMsgInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
-type GetUserHeadImageReq struct {
-	Account       uint64
-	GetUserAvatar []uint64
-}
-
 type SyncContactInp struct {
 	Account  uint64   `json:"account" v:"required#账号号码不能为空" dc:"账号"`
 	Contacts []uint64 `json:"contacts" v:"required#联系不能为空"    dc:"同步联系人小号号码"`

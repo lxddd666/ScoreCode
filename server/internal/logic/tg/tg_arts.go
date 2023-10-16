@@ -298,7 +298,7 @@ func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
 // TgAddGroupMembers 添加群成员
 func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Initiator); err != nil {
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
 	conn := grpc.GetManagerConn()
@@ -311,7 +311,7 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 			AddGroupMemberDetail: &protobuf.AddGroupMemberDetail{
 				GroupName: inp.GroupId,
 				Detail: &protobuf.UintkeyStringvalue{
-					Key:    inp.Initiator,
+					Key:    inp.Account,
 					Values: inp.AddMembers,
 				},
 			},
@@ -330,7 +330,7 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 // TgCreateGroup 创建群聊
 func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Initiator); err != nil {
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
 	conn := grpc.GetManagerConn()
@@ -343,7 +343,7 @@ func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp)
 			CreateGroupDetail: &protobuf.CreateGroupDetail{
 				GroupName: inp.GroupTitle,
 				Detail: &protobuf.UintkeyStringvalue{
-					Key:    inp.Initiator,
+					Key:    inp.Account,
 					Values: inp.AddMembers,
 				},
 			},
@@ -356,5 +356,29 @@ func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp)
 	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
 		err = gerror.New(resp.Comment)
 	}
+	return
+}
+
+// TgGetGroupMembers 获取群成员
+func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_GET_GROUP_MEMBERS,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetGroupMembersDetail{
+			GetGroupMembersDetail: &protobuf.GetGroupMembersDetail{
+				Account: inp.Account,
+				ChatId:  inp.GroupId,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	err = gjson.DecodeTo(resp.Data, &list)
 	return
 }

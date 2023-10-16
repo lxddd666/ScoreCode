@@ -2,15 +2,15 @@ ROOT_DIR    = $(shell pwd)
 NAMESPACE   = "default"
 DEPLOY_NAME = "template-single"
 DOCKER_NAME = "template-single"
-ADMIN_RESOURCE_PATH = "/resource/public/admin/"
+ADMIN_RESOURCE_PATH = "/resource/public/"
 
 # 一键编译。编译web前端，并将编译后的包移动到服务端对应静态资源路径下，最后编译服务端
 .PHONY: build
 build:
-	@rm -rf ./$(ADMIN_RESOURCE_PATH)
-	@mkdir ./$(ADMIN_RESOURCE_PATH)
-	@cd ../web && yarn build && \cp -rf ./dist/*  ../server$(ADMIN_RESOURCE_PATH)
-	@echo "y" | gf build
+	@rm -rf ./server/$(ADMIN_RESOURCE_PATH)
+	@mkdir ./server/$(ADMIN_RESOURCE_PATH)
+	@cd ../web && npm run build && \cp -rf ./dist/*  ../server$(ADMIN_RESOURCE_PATH)
+	@cd server && go build -o ./temp/linux_amd64/grata main.go
 
 # 通过热编译启动所有服务
 .PHONY: all

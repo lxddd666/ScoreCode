@@ -1,0 +1,36 @@
+name: Release Linux Version
+
+on: [push]
+
+
+jobs:
+  release-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Golang Installation
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.21'
+      - name:  build
+        run: |
+          make build
+      - name: Docker build
+        run: |
+          echo '=====开始构建镜像====='
+          docker build -t registry.cn-guangzhou.aliyuncs.com/it00021hot/grata:latest -f manifest/docker/Dockerfile .
+          echo '=====镜像构建结束====='
+
+      # 登录到 阿里云镜像服务，使用 GitHub secrets 传入账号密码，密码被加密存储在 GitHub 服务器
+      - name: Login to registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Push Docker Image
+        run: |
+          echo '=====开始上传镜像====='
+          echo '=====开始上传grata====='
+          docker push registry.cn-guangzhou.aliyuncs.com/it00021hot/grata:latest
+
+          echo '=====镜像上传结束====='
