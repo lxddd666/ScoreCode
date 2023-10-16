@@ -1,0 +1,36 @@
+package test
+
+import (
+	"encoding/hex"
+	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"testing"
+)
+
+var (
+	ctx = gctx.New()
+)
+
+func panicErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestIp(t *testing.T) {
+	resp, err := g.Client().Proxy("socks5://XiaoLiangZai:@LiangZai156@47.254.230.138:48888").Get(gctx.New(), "https://whois.pconline.com.cn/ipJson.jsp?json=true")
+	if err != nil {
+		panic(err)
+	}
+	g.DumpJson(resp.ReadAllString())
+}
+
+func TestSession(t *testing.T) {
+	ss := "0x54B424480D5EEA4955CECCCDDE02B7E3263307722C2CEC175E9743D612575C24D34CD83A80696702B4FAE8BCFD35A1B76E97E7D7440FDA4A5B8C13F56431FE3ACCCFFAE3803D88FE4E5C23D343E1B0C27505D3B5E854FD01B0ABBC41152794C7CD5499D26E96EA581818F6390A30DC91727DA06616CD1BC87BCE59D680EBA7028D4B1CA091A06504E1BA9E0EC725D1C46D6B4B2CCCEE5394BCEE6457DB096C78526927F5DB09ED165F409EAA7BE29C265099E6C277705B1940F777BB91520DD8C9BF3D94FD14B8E1C92BEA0123EC84B364186900383CA9C602697DC0459E5ADB03D3A0ADBAF0D158213D902789F7ADBF5CDED94D9166946E65769E32D43D87B9"
+	bytes, err := hex.DecodeString(ss)
+	if err != nil {
+		return
+	}
+	fmt.Println(bytes)
+}
