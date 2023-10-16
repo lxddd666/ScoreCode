@@ -15,7 +15,7 @@ jobs:
         run: |
           rm -rf ./server/resource/public/
           mkdir -p ./server/resource/public
-          cd ../web && npm run build && \cp -rf ./dist/*  ../server/resource/public/
+          cd ./web && npm run build && \cp -rf ./dist/*  ../server/resource/public/
           cd ../server && go build -o ./temp/linux_amd64/grata main.go
       - name: Docker build
         run: |
