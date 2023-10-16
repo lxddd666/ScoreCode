@@ -11,10 +11,9 @@ jobs:
         uses: actions/setup-go@v3
         with:
           go-version: '1.21'
-        run: ls
       - name:  build
         run: |
-          ls
+          pwd
           rm -rf server/resource/public/
           mkdir -p server/resource/public
           cd web && npm run build && \cp -rf ./dist/*  ../server/resource/public/
