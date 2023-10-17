@@ -79,7 +79,7 @@ type (
 		// View 获取消息记录指定信息
 		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
 		// TextMsgCallback 发送消息回调
-		TextMsgCallback(ctx context.Context, textMsgList []callback.TextMsgCallbackRes) (err error)
+		TextMsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error)
 		// ReceiverCallback 接收消息回调
 		ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error)
 	}

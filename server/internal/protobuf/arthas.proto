@@ -53,6 +53,17 @@ message LogoutAction {
 message loginDetail {
   string proxyUrl = 1;
   string loginId = 2;  //登录的id 用来收验证码
+  TgDeviceConfig tgDevice = 3; // 登录设备信息
+}
+
+message TgDeviceConfig {
+  string deviceModel = 1;
+  string SystemVersion = 2;
+  string AppVersion = 3;
+  string LangCode = 4;
+  string SystemLangCode = 5;
+  string LangPack = 6;
+
 }
 
 message logoutDetail {

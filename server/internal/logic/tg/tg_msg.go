@@ -14,8 +14,8 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -146,10 +146,6 @@ func (s *sTgMsg) Export(ctx context.Context, in *tgin.TgMsgListInp) (err error) 
 
 // Edit 修改/新增消息记录
 func (s *sTgMsg) Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error) {
-	// 验证'ReqId'唯一
-	if err = hgorm.IsUnique(ctx, &dao.TgMsg, g.Map{dao.TgMsg.Columns().ReqId: in.ReqId}, "请求id已存在", in.Id); err != nil {
-		return
-	}
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
@@ -223,22 +219,52 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 }
 
 // TextMsgCallback 发送消息回调
-func (s *sTgMsg) TextMsgCallback(ctx context.Context, textMsgList []callback.TextMsgCallbackRes) (err error) {
+func (s *sTgMsg) TextMsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error) {
 	var msgList = make([]entity.TgMsg, 0)
 	unreadMap := make(map[string]interface{})
 	for _, item := range textMsgList {
+
 		msg := entity.TgMsg{
 			Initiator:     int64(item.Initiator),
 			Sender:        int64(item.Sender),
 			Receiver:      gconv.Int64(item.Receiver),
 			SendMsg:       item.SendMsg,
 			TranslatedMsg: item.TranslatedMsg,
-			MsgType:       1,
+			MsgType:       item.MsgType,
 			SendTime:      gtime.NewFromTime(item.SendTime),
 			Read:          consts.Read, //默认是已读
-			Comment:       "",
+			Comment:       item.Comment,
 			ReqId:         item.ReqId,
 			SendStatus:    item.SendStatus,
+			Out:           item.Out,
+		}
+		if item.MsgType != 1 && item.SendStatus == 1 {
+
+			result, err := storager.HasFile(ctx, string(item.SendMsg))
+			if err != nil {
+				return
+			}
+
+			if result != nil {
+				msg.SendMsg = []byte(gconv.String(result.Id))
+			} else {
+				// TODO 下载文件
+			}
+			//mime := mimetype.Detect(item.SendMsg)
+			//var meta = &storager.FileMeta{
+			//	Filename: item.FileName,
+			//	Size:     gconv.Int64(len(item.SendMsg)),
+			//	MimeType: mime.String(),
+			//	Ext:      storager.Ext(item.FileName),
+			//	Md5:      gmd5.MustEncryptBytes(item.SendMsg),
+			//	Content:  item.SendMsg,
+			//}
+			//meta.Kind = storager.GetFileKind(meta.Ext)
+			//result, err := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
+			//if err != nil {
+			//	return err
+			//}
+			//msg.SendMsg = []byte(gconv.String(result.Id))
 		}
 		msgList = append(msgList, msg)
 		unreadMap[fmt.Sprintf("%d-%s", msg.Sender, msg.ReqId)] = map[string]interface{}{

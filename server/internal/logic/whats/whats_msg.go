@@ -182,7 +182,7 @@ func (s *sWhatsMsg) View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res 
 
 // TextMsgCallback 文本消息回调
 func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err error) {
-	callbackRes := make([]callback.TextMsgCallbackRes, 0)
+	callbackRes := make([]callback.MsgCallbackRes, 0)
 	err = gjson.Unmarshal(res.Body, &callbackRes)
 	if err != nil {
 		return err

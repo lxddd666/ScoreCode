@@ -36,6 +36,7 @@ type TgMsgInsertFields struct {
 	Read          int         `json:"read"          dc:"是否已读"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	SendStatus    int         `json:"sendStatus"    dc:"发送状态"`
+	Out           int         `json:"out"           dc:"是否自己发出"`
 }
 
 // TgMsgEditInp 修改/新增消息记录

@@ -11,27 +11,27 @@ import (
 )
 
 func init() {
-	queue.RegisterConsumer(TextMsgLog)
+	queue.RegisterConsumer(Msg)
 }
 
-// TextMsgLog TgTextMsgLog 消息回调
-var TextMsgLog = &qTgTextMsgLog{}
+// Msg 消息回调
+var Msg = &qTgMsg{}
 
-type qTgTextMsgLog struct{}
+type qTgMsg struct{}
 
 // GetTopic 主题
-func (q *qTgTextMsgLog) GetTopic() string {
-	return consts.QueueTgTextMsgTopic
+func (q *qTgMsg) GetTopic() string {
+	return consts.QueueTgMsgTopic
 }
 
 // Handle 处理消息
-func (q *qTgTextMsgLog) Handle(ctx context.Context, mqMsg queue.MqMsg) (err error) {
+func (q *qTgMsg) Handle(ctx context.Context, mqMsg queue.MqMsg) (err error) {
 	var imCallback callback.ImCallback
 	err = gjson.DecodeTo(mqMsg.Body, &imCallback)
 	if err != nil {
 		return
 	}
-	var textMsgList []callback.TextMsgCallbackRes
+	var textMsgList []callback.MsgCallbackRes
 	err = gjson.DecodeTo(imCallback.Data, &textMsgList)
 	if err != nil {
 		return

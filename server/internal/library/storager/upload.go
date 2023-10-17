@@ -18,6 +18,8 @@ import (
 	"hotgo/internal/model/entity"
 	"hotgo/utility/url"
 	"hotgo/utility/validate"
+	"io"
+	"mime/multipart"
 	"strconv"
 	"strings"
 )
@@ -25,7 +27,7 @@ import (
 // UploadDrive 存储驱动
 type UploadDrive interface {
 	// Upload 上传
-	Upload(ctx context.Context, file *ghttp.UploadFile) (fullPath string, err error)
+	Upload(ctx context.Context, file *FileMeta) (fullPath string, err error)
 }
 
 // New 初始化存储驱动
@@ -57,16 +59,7 @@ func New(name ...string) UploadDrive {
 }
 
 // DoUpload 上传入口
-func DoUpload(ctx context.Context, typ string, file *ghttp.UploadFile) (result *entity.SysAttachment, err error) {
-	if file == nil {
-		err = gerror.New("文件必须!")
-		return
-	}
-
-	meta, err := GetFileMeta(file)
-	if err != nil {
-		return
-	}
+func DoUpload(ctx context.Context, typ string, meta *FileMeta) (result *entity.SysAttachment, err error) {
 
 	if _, err = GetFileMimeType(meta.Ext); err != nil {
 		return
@@ -112,7 +105,7 @@ func DoUpload(ctx context.Context, typ string, file *ghttp.UploadFile) (result *
 		}
 	}
 
-	result, err = hasFile(ctx, meta.Md5)
+	result, err = HasFile(ctx, meta.Md5)
 	if err != nil {
 		return
 	}
@@ -122,7 +115,7 @@ func DoUpload(ctx context.Context, typ string, file *ghttp.UploadFile) (result *
 	}
 
 	// 上传到驱动
-	fullPath, err := New(config.Drive).Upload(ctx, file)
+	fullPath, err := New(config.Drive).Upload(ctx, meta)
 	if err != nil {
 		return
 	}
@@ -173,6 +166,12 @@ func GetFileMeta(file *ghttp.UploadFile) (meta *FileMeta, err error) {
 
 	// 计算md5值
 	meta.Md5, err = CalcFileMd5(file)
+	if err != nil {
+		return
+	}
+	f, err := file.Open()
+	defer func(f multipart.File) { _ = f.Close() }(f)
+	meta.Content, err = io.ReadAll(f)
 	return
 }
 
@@ -210,8 +209,8 @@ func write(ctx context.Context, meta *FileMeta, fullPath string) (models *entity
 	return
 }
 
-// hasFile 检查附件是否存在
-func hasFile(ctx context.Context, md5 string) (res *entity.SysAttachment, err error) {
+// HasFile 检查附件是否存在
+func HasFile(ctx context.Context, md5 string) (res *entity.SysAttachment, err error) {
 	if err = GetModel(ctx).Where("md5", md5).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "检查文件hash时出现错误")
 		return

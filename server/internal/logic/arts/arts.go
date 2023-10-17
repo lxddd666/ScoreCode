@@ -2,6 +2,7 @@ package arts
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
@@ -31,7 +32,7 @@ func (s *sArts) SendMsg(ctx context.Context, item *artsin.MsgInp, imType string)
 		}
 	}
 	if len(item.Files) > 0 {
-		requestMessage := s.sendTextMessage(item, imType)
+		requestMessage := s.sendFileMessage(item, imType)
 		_, err := s.Send(ctx, requestMessage)
 		if err != nil {
 			return "", err
@@ -53,6 +54,36 @@ func (s *sArts) sendTextMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 		Type:   imType,
 		ActionDetail: &protobuf.RequestMessage_SendmessageDetail{
 			SendmessageDetail: &protobuf.SendMessageDetail{
+				Details: list,
+			},
+		},
+	}
+
+	return req
+}
+
+func (s *sArts) sendFileMessage(msgReq *artsin.MsgInp, imType string) *protobuf.RequestMessage {
+	list := make([]*protobuf.SendFileAction, 0)
+	tmp := &protobuf.SendFileAction{}
+	sendData := make(map[uint64]*protobuf.UintTgFileDetailValue)
+
+	fileDetail := make([]*protobuf.FileDetailValue, 0)
+	for _, fileMsg := range msgReq.Files {
+		fileDetail = append(fileDetail, &protobuf.FileDetailValue{
+			FileType: fileMsg.MIME,
+			SendType: consts.SendTypeByte,
+			Name:     fileMsg.Name,
+			FileByte: gbase64.MustDecode(fileMsg.Data),
+		})
+	}
+	sendData[msgReq.Sender] = &protobuf.UintTgFileDetailValue{Key: msgReq.Receiver, Value: fileDetail}
+	tmp.SendTgData = sendData
+	list = append(list, tmp)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_SEND_FILE,
+		Type:   imType,
+		ActionDetail: &protobuf.RequestMessage_SendFileDetail{
+			SendFileDetail: &protobuf.SendFileDetail{
 				Details: list,
 			},
 		},

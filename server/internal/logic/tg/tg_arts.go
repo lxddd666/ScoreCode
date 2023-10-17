@@ -87,6 +87,14 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	ld := &protobuf.LoginDetail{
 		ProxyUrl: user.ProxyAddress,
+		TgDevice: &protobuf.TgDeviceConfig{
+			DeviceModel:    "Desktop",
+			SystemVersion:  "Windows 10",
+			AppVersion:     "4.2.4 x64",
+			LangCode:       "en",
+			SystemLangCode: "en-US",
+			LangPack:       "tdesktop",
+		},
 	}
 	loginDetail[gconv.Uint64(user.Phone)] = ld
 
@@ -290,7 +298,7 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 }
 
 func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
-	var list []callback.TextMsgCallbackRes
+	var list []callback.MsgCallbackRes
 	_ = gjson.DecodeTo(data, &list)
 	_ = service.TgMsg().TextMsgCallback(ctx, list)
 }
