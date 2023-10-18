@@ -19,21 +19,20 @@ func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
 }
 
 type MsgInp struct {
-	Sender      uint64   `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
-	Receiver    uint64   `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
-	TextMsg     []string `json:"textMsg" dc:"文本消息"`
-	ImageMsg    [][]byte `json:"pictureMsg" dc:"图片消息"`
-	DocumentMsg [][]byte `json:"documentMsg" dc:"文件消息"`
-	VideoMsg    [][]byte `json:"videoMsg" dc:"视频消息"`
+	Sender   uint64    `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
+	Receiver string    `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
+	TextMsg  []string  `json:"textMsg" dc:"文本消息"`
+	Files    []FileMsg `json:"files" dc:"文件消息"`
+}
+
+type FileMsg struct {
+	Data []byte `json:"data" dc:"文件byte数组"`
+	MIME string `json:"MIME" dc:"文件类型"`
+	Name string `json:"name" dc:"文件名称"`
 }
 
 func (in *MsgInp) Filter(ctx context.Context) (err error) {
 	return
-}
-
-type SyncContactReq struct {
-	Key    uint64   `json:"key"`
-	Values []uint64 `json:"values"`
 }
 
 type VcardMsgInp struct {
@@ -49,11 +48,6 @@ type VCardDetail struct {
 
 func (in *VcardMsgInp) Filter(ctx context.Context) (err error) {
 	return
-}
-
-type GetUserHeadImageReq struct {
-	Account       uint64
-	GetUserAvatar []uint64
 }
 
 type SyncContactInp struct {
@@ -85,4 +79,16 @@ type GetUserHeadImageInp struct {
 
 func (in *GetUserHeadImageInp) Filter(ctx context.Context) (err error) {
 	return
+}
+
+type ContactCardInp struct {
+	Sender       uint64        `json:"sender" dc:"发送人"`
+	Receiver     string        `json:"receiver" dc:"接收人"`
+	ContactCards []ContactCard `json:"contactCards" dc:"名片列表"`
+}
+
+type ContactCard struct {
+	FirstName   string `json:"firstName" dc:"first name"`
+	LastName    string `json:"lastName" dc:"last name"`
+	PhoneNumber string `json:"phoneNumber" dc:"phone number"`
 }

@@ -33,5 +33,10 @@ func (c *cUpload) UploadFile(ctx context.Context, _ *common.UploadFileReq) (res 
 		err = gerror.New("没有找到上传的文件")
 		return
 	}
-	return service.CommonUpload().UploadFile(ctx, uploadType, file)
+
+	meta, err := storager.GetFileMeta(file)
+	if err != nil {
+		return
+	}
+	return service.CommonUpload().UploadFile(ctx, uploadType, meta)
 }

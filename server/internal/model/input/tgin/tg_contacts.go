@@ -115,13 +115,3 @@ type TgContactsExportModel struct {
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
 	UpdatedAt *gtime.Time `json:"updatedAt" dc:"更新时间"`
 }
-
-type GetMsgHistoryInp struct {
-	Phone      uint64 `json:"phone" dc:"TG账号"`
-	Contact    uint64 `json:"contact" dc:"联系人"`
-	Limit      int    `json:"limit" dc:"查询条数"`
-	OffsetDate int    `json:"offsetDate" dc:"时间戳(查询该时间前的聊天记录)"`
-	OffsetID   int    `json:"offsetId" dc:"消息ID(查询该ID之前的聊天记录)"`
-	MaxID      int    `json:"maxID" dc:"最大ID"`
-	MinID      int    `json:"minID" dc:"最小ID"`
-}

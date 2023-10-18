@@ -14,8 +14,8 @@ func TestEms(t *testing.T) {
 	smtpPort := "587"
 
 	// 发件人和收件人邮箱
-	from := "support@hiseven.com"
-	to := []string{"liu15077731547@gmail.com"}
+	from := "liu15077731547@gmail.com"
+	to := []string{"15077731547@163.com"}
 
 	// 邮件内容
 	subject := "Test Email from Go"
@@ -28,7 +28,7 @@ func TestEms(t *testing.T) {
 	}
 
 	// 进行 SMTP 身份验证 vlzfqsbomhcchwlo
-	auth := smtp.PlainAuth("", from, "vlzfqsbomhcchwlo", smtpHost)
+	auth := smtp.PlainAuth("", from, "iydtrbsmucjnufsl", smtpHost)
 	//if err = conn.Auth(auth); err != nil {
 	//	panic(err)
 	//}

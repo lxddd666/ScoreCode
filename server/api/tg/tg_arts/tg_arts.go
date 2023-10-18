@@ -95,9 +95,35 @@ type TgGetContactsRes struct {
 // TgGetMsgHistoryReq 获取聊天历史
 type TgGetMsgHistoryReq struct {
 	g.Meta `path:"/arts/getMsgHistory" method:"post" tags:"tg-api" summary:"获取聊天历史"`
-	*tgin.GetMsgHistoryInp
+	*tgin.TgGetMsgHistoryInp
 }
 
 type TgGetMsgHistoryRes struct {
 	List []*tgin.TgMsgListModel `json:"list"   dc:"数据列表"`
+}
+
+// TgAddGroupMembersReq 添加群成员
+type TgAddGroupMembersReq struct {
+	g.Meta `path:"/arts/group/addMembers" method:"post" tags:"tg-api" summary:"添加群成员"`
+	*tgin.TgGroupAddMembersInp
+}
+
+type TgAddGroupMembersRes string
+
+// TgCreateGroupReq 创建群聊
+type TgCreateGroupReq struct {
+	g.Meta `path:"/arts/group/create" method:"post" tags:"tg-api" summary:"创建群聊"`
+	*tgin.TgCreateGroupInp
+}
+
+type TgCreateGroupRes string
+
+// TgGetGroupMembersReq 获取群成员
+type TgGetGroupMembersReq struct {
+	g.Meta `path:"/arts/group/members" method:"post" tags:"tg-api" summary:"获取群成员"`
+	*tgin.TgGetGroupMembersInp
+}
+
+type TgGetGroupMembersRes struct {
+	List []*tgin.TgContactsListModel `json:"list"   dc:"数据列表"`
 }

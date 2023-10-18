@@ -1,4 +1,4 @@
-# hotgo配置
+# grata配置
 hotgo:
   # debug开关，开启后接口出现错误时会向前端输出堆栈信息，默认为true
   debug: true
@@ -7,7 +7,7 @@ hotgo:
   # 是否为演示系统 false|true
   isDemo: false
   # 是否是测试模式，测试模式直接响应请求成功
-  isTest: true
+  isTest: false
   # 是否为集群部署 false|true ，默认为false。开启集群必须配置redis，通过redis发布订阅进行集群之间的数据同步
   isCluster: false
   # 全局请求日志
@@ -55,21 +55,21 @@ server:
 tcp:
   # 服务器
   server:
-    address: ":8099"
+    address: ":4886"
   # 客户端
   client:
     # 定时任务
     cron:
       group: "cron"                                                 # 分组名称
       name: "cron1"                                                 # 客户端名称
-      address: "127.0.0.1:8099"                                     # 服务器地址
+      address: "127.0.0.1:4886"                                     # 服务器地址
       appId: "1002"                                                 # 应用名称
       secretKey: "grata"                                            # 密钥
     # 系统授权
     auth:
       group: "auth"                                                 # 分组名称
       name: "auth1"                                                 # 客户端名称
-      address: "127.0.0.1:8099"                                     # 服务器地址
+      address: "127.0.0.1:4886"                                     # 服务器地址
       appId: "1003"                                            # 应用名称
       secretKey: "grata"                                           # 密钥
 
@@ -206,8 +206,8 @@ queue:
     address: "127.0.0.1:9876"                         # broker地址+端口
     logLevel: "all"                                   # 系统日志级别，可选：all|close|debug|info|warn|error|fatal
   kafka:
-    address: "101.35.51.132:30092"                         # kafka地址+端口
-    version: "3.3.1"                                # kafka专属配置，默认2.0.0.0
+    address: "127.0.0.1:9092"                         # kafka地址+端口
+    version: "3.5.1"                                # kafka专属配置，默认3.3.1.0
     randClient: true                                  # 开启随机生成clientID，可以实现启动多实例同时一起消费相同topic，加速消费能力的特性，默认为true
     multiConsumer: true                               # 是否支持创建多个消费者
 
@@ -234,7 +234,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "tidb:root:hY7iaIFYHHJu!@tcp(103.205.6.236:32698)/hotgo?loc=Local&parseTime=true"
+    link: "tidb:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true"
     debug: true
 
 
@@ -316,20 +316,18 @@ whats:
 
 grpc:
   env:
-    GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
-    GF_GSVC_DEPLOYMENT: dev
-    GF_GSVC_NAMESPACE: ns
+    GF_GSVC_DEPLOYMENT: prod
+    GF_GSVC_NAMESPACE: prod
     GF_GSVC_VERSION: "latest"
   service:
+    arts: arts_manager
     tg: tg_manager
-    whats: whats_manager
-
+    whats: arts_manager
 
 prometheus:
-  address: "http://10.8.5.21:9091"
+  address: "http://127.0.0.1:39090"
   username: ""
   password: ""
   handler:
     path: "/metrics"
-    server: ":9092"

@@ -3,9 +3,11 @@ package tg
 import (
 	"context"
 	"fmt"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	tgin "hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
@@ -159,6 +161,57 @@ func (s *sTgContacts) ByTgUser(ctx context.Context, tgUserId int64) (list []*tgi
 		OrderDesc(dao.TgContacts.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
 		return
+	}
+	return
+}
+
+// SyncContactCallback 同步联系人
+func (s *sTgContacts) SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error) {
+	for phone, list := range in {
+		userId, err1 := g.Redis().HGet(ctx, consts.TgLoginAccountKey, gconv.String(phone))
+		if err1 != nil {
+			err = err1
+			return
+		}
+		var user entity.AdminMember
+		err = dao.AdminMember.Ctx(ctx).WherePri(userId.Int64()).Scan(&user)
+		if err != nil {
+			return
+		}
+		var tgUser entity.TgUser
+		err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
+		if err != nil {
+			return
+		}
+		var phones = make([]string, 0)
+		for _, model := range list {
+			model.OrgId = user.OrgId
+			phones = append(phones, model.Phone)
+		}
+		err = dao.TgContacts.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+			result, err := dao.TgContacts.Ctx(ctx).Fields(tgin.TgContactsInsertFields{}).Save(&list)
+			if err != nil {
+				return err
+			}
+			fmt.Println(result)
+			var contacts []entity.TgContacts
+			err = dao.TgContacts.Ctx(ctx).Where(dao.TgContacts.Columns().Phone, phones).Scan(&contacts)
+			if err != nil {
+				return
+			}
+			tgUserContacts := make([]entity.TgUserContacts, 0)
+			for _, contact := range contacts {
+				tgUserContacts = append(tgUserContacts, entity.TgUserContacts{
+					TgUserId:     int64(tgUser.Id),
+					TgContactsId: contact.Id,
+				})
+			}
+			_, err = dao.TgUserContacts.Ctx(ctx).Fields(dao.TgUserContacts.Columns().TgContactsId, dao.TgUserContacts.Columns().TgUserId).Save(&tgUserContacts)
+			if err != nil {
+				return err
+			}
+			return
+		})
 	}
 	return
 }

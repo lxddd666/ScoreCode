@@ -8,7 +8,6 @@ package service
 import (
 	"context"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
@@ -27,18 +26,26 @@ type (
 		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
 		// SessionLogin 登录
 		SessionLogin(ctx context.Context, phones []int) (err error)
-		// TgSendMsg 发送消息
-		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
 		// TgCheckLogin 检查是否登录
 		TgCheckLogin(ctx context.Context, account uint64) (err error)
 		// TgCheckContact 检查是否是好友
 		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
+		// TgSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgSyncContact 同步联系人
+		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
 		// TgGetDialogs 获取chats
 		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetContacts 获取contacts
 		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetMsgHistory 获取聊天历史
-		TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+		// TgAddGroupMembers 添加群成员
+		TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error)
+		// TgCreateGroup 创建群聊
+		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
+		// TgGetGroupMembers 获取群成员
+		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -55,6 +62,8 @@ type (
 		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
 		// ByTgUser 获取TG账号联系人
 		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
+		// SyncContactCallback 同步联系人
+		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
 	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
@@ -70,7 +79,7 @@ type (
 		// View 获取消息记录指定信息
 		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
 		// TextMsgCallback 发送消息回调
-		TextMsgCallback(ctx context.Context, mqMsg queue.MqMsg) (err error)
+		TextMsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error)
 		// ReceiverCallback 接收消息回调
 		ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error)
 	}
@@ -113,34 +122,12 @@ type (
 )
 
 var (
+	localTgUser     ITgUser
 	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
-	localTgUser     ITgUser
 )
-
-func TgArts() ITgArts {
-	if localTgArts == nil {
-		panic("implement not found for interface ITgArts, forgot register?")
-	}
-	return localTgArts
-}
-
-func RegisterTgArts(i ITgArts) {
-	localTgArts = i
-}
-
-func TgContacts() ITgContacts {
-	if localTgContacts == nil {
-		panic("implement not found for interface ITgContacts, forgot register?")
-	}
-	return localTgContacts
-}
-
-func RegisterTgContacts(i ITgContacts) {
-	localTgContacts = i
-}
 
 func TgMsg() ITgMsg {
 	if localTgMsg == nil {
@@ -173,4 +160,26 @@ func TgUser() ITgUser {
 
 func RegisterTgUser(i ITgUser) {
 	localTgUser = i
+}
+
+func TgArts() ITgArts {
+	if localTgArts == nil {
+		panic("implement not found for interface ITgArts, forgot register?")
+	}
+	return localTgArts
+}
+
+func RegisterTgArts(i ITgArts) {
+	localTgArts = i
+}
+
+func TgContacts() ITgContacts {
+	if localTgContacts == nil {
+		panic("implement not found for interface ITgContacts, forgot register?")
+	}
+	return localTgContacts
+}
+
+func RegisterTgContacts(i ITgContacts) {
+	localTgContacts = i
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gmap"
-	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -14,6 +13,7 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
+	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/tgin"
@@ -87,6 +87,14 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	ld := &protobuf.LoginDetail{
 		ProxyUrl: user.ProxyAddress,
+		TgDevice: &protobuf.TgDeviceConfig{
+			DeviceModel:    "Desktop",
+			SystemVersion:  "Windows 10",
+			AppVersion:     "4.2.4 x64",
+			LangCode:       "en",
+			SystemLangCode: "en-US",
+			LangPack:       "tdesktop",
+		},
 	}
 	loginDetail[gconv.Uint64(user.Phone)] = ld
 
@@ -152,19 +160,6 @@ func (s *sTgArts) SessionLogin(ctx context.Context, phones []int) (err error) {
 	return
 }
 
-// TgSendMsg 发送消息
-func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
-	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
-	// 检查是否为好友
-	if err = s.TgCheckContact(ctx, inp.Sender, inp.Receiver); err != nil {
-		return
-	}
-	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
-}
-
 // TgCheckLogin 检查是否登录
 func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) {
 	userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, strconv.FormatUint(account, 10))
@@ -183,19 +178,33 @@ func (s *sTgArts) TgCheckContact(ctx context.Context, account, contact uint64) (
 	return
 }
 
+// TgSendMsg 发送消息
+func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
+}
+
+// TgSyncContact 同步联系人
+func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	return service.Arts().SyncContact(ctx, inp, consts.TgSvc)
+}
+
 // TgGetDialogs 获取chats
 func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, phone); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 	msg := &protobuf.GetDialogList{
 		Account: phone,
 	}
-
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_DIALOG_LIST,
 		Type:   consts.TgSvc,
@@ -203,15 +212,11 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.
 			GetDialogList: msg,
 		},
 	}
-	resp, err := c.Connect(ctx, req)
+	resp, err := service.Arts().Send(ctx, req)
 	if err != nil {
 		return
 	}
-	jsonVar := protojson.Format(resp)
-	g.Log().Info(ctx, jsonVar)
-	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
-		err = gjson.DecodeTo(resp.Data, &list)
-	}
+	err = gjson.DecodeTo(resp.Data, &list)
 	return
 }
 
@@ -252,57 +257,13 @@ func (s *sTgArts) TgGetContacts(ctx context.Context, phone uint64) (list []*tgin
 }
 
 func (s *sTgArts) handlerSaveContacts(ctx context.Context, phone uint64, list []*tgin.TgContactsListModel) {
-	userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, gconv.String(phone))
-	if err != nil {
-		return
-	}
-	var user entity.AdminMember
-	err = dao.AdminMember.Ctx(ctx).WherePri(userId.Int64()).Scan(&user)
-	if err != nil {
-		return
-	}
-	var tgUser entity.TgUser
-	err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
-	if err != nil {
-		return
-	}
-	var phones = make([]string, 0)
-	for _, model := range list {
-		model.OrgId = user.OrgId
-		phones = append(phones, model.Phone)
-	}
-
-	err = dao.TgContacts.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		result, err := dao.TgContacts.Ctx(ctx).Fields(tgin.TgContactsInsertFields{}).Save(&list)
-		if err != nil {
-			return err
-		}
-		fmt.Println(result)
-		var contacts []entity.TgContacts
-		err = dao.TgContacts.Ctx(ctx).Where(dao.TgContacts.Columns().Phone, phones).Scan(&contacts)
-		if err != nil {
-			return
-		}
-		tgUserContacts := make([]entity.TgUserContacts, 0)
-		for _, contact := range contacts {
-			tgUserContacts = append(tgUserContacts, entity.TgUserContacts{
-				TgUserId:     int64(tgUser.Id),
-				TgContactsId: contact.Id,
-			})
-		}
-		result, err = dao.TgUserContacts.Ctx(ctx).Fields(dao.TgUserContacts.Columns().TgContactsId, dao.TgUserContacts.Columns().TgUserId).Save(&tgUserContacts)
-		if err != nil {
-			return err
-		}
-		fmt.Println(result)
-
-		return
-	})
-
+	in := make(map[uint64][]*tgin.TgContactsListModel)
+	in[phone] = list
+	_ = service.TgContacts().SyncContactCallback(ctx, in)
 }
 
 // TgGetMsgHistory 获取聊天历史
-func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
+func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Phone); err != nil {
 		return
@@ -330,10 +291,102 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.GetMsgHistoryIn
 	if err != nil {
 		return
 	}
-	jsonVar := protojson.Format(resp)
-	g.Log().Info(ctx, jsonVar)
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
 		err = gjson.DecodeTo(resp.Data, &list)
 	}
+	return
+}
+
+func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
+	var list []callback.MsgCallbackRes
+	_ = gjson.DecodeTo(data, &list)
+	_ = service.TgMsg().TextMsgCallback(ctx, list)
+}
+
+// TgAddGroupMembers 添加群成员
+func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_ADD_GROUP_MEMBER,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_AddGroupMemberDetail{
+			AddGroupMemberDetail: &protobuf.AddGroupMemberDetail{
+				GroupName: inp.GroupId,
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Account,
+					Values: inp.AddMembers,
+				},
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+		err = gerror.New(resp.Comment)
+	}
+	return
+}
+
+// TgCreateGroup 创建群聊
+func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	conn := grpc.GetManagerConn()
+	defer grpc.CloseConn(conn)
+	c := protobuf.NewArthasClient(conn)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_CREATE_GROUP,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_CreateGroupDetail{
+			CreateGroupDetail: &protobuf.CreateGroupDetail{
+				GroupName: inp.GroupTitle,
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Account,
+					Values: inp.AddMembers,
+				},
+			},
+		},
+	}
+	resp, err := c.Connect(ctx, req)
+	if err != nil {
+		return
+	}
+	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+		err = gerror.New(resp.Comment)
+	}
+	return
+}
+
+// TgGetGroupMembers 获取群成员
+func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_GET_GROUP_MEMBERS,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetGroupMembersDetail{
+			GetGroupMembersDetail: &protobuf.GetGroupMembersDetail{
+				Account: inp.Account,
+				ChatId:  inp.GroupId,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	err = gjson.DecodeTo(resp.Data, &list)
 	return
 }
