@@ -40,6 +40,8 @@ type (
 		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetMsgHistory 获取聊天历史
 		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+		// TgDownloadFile 下载聊天文件
+		TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error)
 		// TgAddGroupMembers 添加群成员
 		TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error)
 		// TgCreateGroup 创建群聊
@@ -78,8 +80,8 @@ type (
 		Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error)
 		// View 获取消息记录指定信息
 		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
-		// TextMsgCallback 发送消息回调
-		TextMsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error)
+		// MsgCallback 发送消息回调
+		MsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error)
 		// ReceiverCallback 接收消息回调
 		ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error)
 	}
@@ -122,23 +124,12 @@ type (
 )
 
 var (
-	localTgUser     ITgUser
 	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
+	localTgUser     ITgUser
 )
-
-func TgMsg() ITgMsg {
-	if localTgMsg == nil {
-		panic("implement not found for interface ITgMsg, forgot register?")
-	}
-	return localTgMsg
-}
-
-func RegisterTgMsg(i ITgMsg) {
-	localTgMsg = i
-}
 
 func TgProxy() ITgProxy {
 	if localTgProxy == nil {
@@ -182,4 +173,15 @@ func TgContacts() ITgContacts {
 
 func RegisterTgContacts(i ITgContacts) {
 	localTgContacts = i
+}
+
+func TgMsg() ITgMsg {
+	if localTgMsg == nil {
+		panic("implement not found for interface ITgMsg, forgot register?")
+	}
+	return localTgMsg
+}
+
+func RegisterTgMsg(i ITgMsg) {
+	localTgMsg = i
 }

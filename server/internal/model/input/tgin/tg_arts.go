@@ -1,5 +1,9 @@
 package tgin
 
+import (
+	"hotgo/internal/model/input/sysin"
+)
+
 type TgGetMsgHistoryInp struct {
 	Phone      uint64 `json:"phone" dc:"TG账号"`
 	Contact    string `json:"contact" dc:"联系人"`
@@ -25,4 +29,17 @@ type TgGroupAddMembersInp struct {
 type TgGetGroupMembersInp struct {
 	Account uint64 `json:"account" dc:"账号"`
 	GroupId int64  `json:"groupId" dc:"群ID"`
+}
+
+type TgDownloadMsgInp struct {
+	Phone  uint64 `json:"phone" dc:"TG账号"`
+	ChatId int64  `json:"chatId" dc:"会话ID"`
+	MsgId  int64  `json:"msgId" dc:"消息ID"`
+}
+
+type TgDownloadMsgModel struct {
+	Phone  uint64 `json:"phone"     dc:"TG账号"`
+	ChatId int64  `json:"chatId"    dc:"会话ID"`
+	MsgId  int64  `json:"msgId"     dc:"消息ID"`
+	*sysin.AttachmentListModel
 }

@@ -73,6 +73,17 @@ func (c *cTgArts) GetMsgHistory(ctx context.Context, req *tgarts.TgGetMsgHistory
 	return
 }
 
+// DownloadFile 下载聊天文件
+func (c *cTgArts) DownloadFile(ctx context.Context, req *tgarts.TgDownloadMsgReq) (res *tgarts.TgDownloadMsgRes, err error) {
+	resp, err := service.TgArts().TgDownloadFile(ctx, req.TgDownloadMsgInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgDownloadMsgRes)
+	res.TgDownloadMsgModel = resp
+	return
+}
+
 // CreateGroup 创建群
 func (c *cTgArts) CreateGroup(ctx context.Context, req *tgarts.TgCreateGroupReq) (res *tgarts.TgCreateGroupRes, err error) {
 	err = service.TgArts().TgCreateGroup(ctx, req.TgCreateGroupInp)

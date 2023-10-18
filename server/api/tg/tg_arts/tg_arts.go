@@ -102,6 +102,16 @@ type TgGetMsgHistoryRes struct {
 	List []*tgin.TgMsgListModel `json:"list"   dc:"数据列表"`
 }
 
+// TgDownloadMsgReq 获取聊天历史
+type TgDownloadMsgReq struct {
+	g.Meta `path:"/arts/msg/download" method:"post" tags:"tg-api" summary:"下载聊天文件"`
+	*tgin.TgDownloadMsgInp
+}
+
+type TgDownloadMsgRes struct {
+	*tgin.TgDownloadMsgModel
+}
+
 // TgAddGroupMembersReq 添加群成员
 type TgAddGroupMembersReq struct {
 	g.Meta `path:"/arts/group/addMembers" method:"post" tags:"tg-api" summary:"添加群成员"`

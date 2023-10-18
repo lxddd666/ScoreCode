@@ -27,6 +27,7 @@ type MsgCallbackRes struct {
 	FileSize      int64     `json:"fileSize"      dc:"文件大小"` //文件大小
 	FileType      string    `json:"fileType"      dc:"文件大小"` //文件大小
 	Out           int       `json:"out"           dc:"自己发出"`
+	Md5           string    `json:"md5"           dc:"md5"`
 }
 
 type ReadMsgCallbackRes struct {

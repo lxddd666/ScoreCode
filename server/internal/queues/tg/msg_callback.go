@@ -3,7 +3,6 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
@@ -36,6 +35,5 @@ func (q *qTgMsg) Handle(ctx context.Context, mqMsg queue.MqMsg) (err error) {
 	if err != nil {
 		return
 	}
-	g.Log().Info(ctx, "kafka textMsgCallback: ", textMsgList)
-	return service.TgMsg().TextMsgCallback(ctx, textMsgList)
+	return service.TgMsg().MsgCallback(ctx, textMsgList)
 }

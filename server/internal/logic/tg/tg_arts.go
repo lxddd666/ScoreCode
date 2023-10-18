@@ -3,7 +3,9 @@ package tg
 import (
 	"context"
 	"fmt"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/gmap"
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -13,6 +15,7 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/grpc"
+	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
@@ -293,6 +296,9 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 	}
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
 		err = gjson.DecodeTo(resp.Data, &list)
+		if err == nil {
+			s.handlerSaveMsg(ctx, resp.Data)
+		}
 	}
 	return
 }
@@ -300,7 +306,56 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
 	var list []callback.MsgCallbackRes
 	_ = gjson.DecodeTo(data, &list)
-	_ = service.TgMsg().TextMsgCallback(ctx, list)
+	_ = service.TgMsg().MsgCallback(ctx, list)
+}
+
+// TgDownloadFile 下载聊天文件
+func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Phone); err != nil {
+		return
+	}
+	msgMap := make(map[uint64]*protobuf.DownLoadFileMsg)
+	msgMap[inp.Phone] = &protobuf.DownLoadFileMsg{
+		ChatId:    inp.ChatId,
+		MessageId: inp.MsgId,
+	}
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_DOWNLOAD_FILE,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetDownLoadFileDetail{
+			GetDownLoadFileDetail: &protobuf.GetDownLoadFileDetail{
+				DownloadFile: msgMap,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	var data callback.MsgCallbackRes
+	err = gjson.DecodeTo(resp.Data, &data)
+	if err != nil {
+		return
+	}
+	mime := mimetype.Detect(data.SendMsg)
+	var meta = &storager.FileMeta{
+		Filename: data.FileName,
+		Size:     gconv.Int64(len(data.SendMsg)),
+		MimeType: mime.String(),
+		Ext:      storager.Ext(data.FileName),
+		Md5:      gmd5.MustEncryptBytes(data.SendMsg),
+		Content:  data.SendMsg,
+	}
+	meta.Kind = storager.GetFileKind(meta.Ext)
+	result, err := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
+	if err != nil {
+		return
+	}
+	res = new(tgin.TgDownloadMsgModel)
+	res.AttachmentListModel = result
+	res.Phone = inp.Phone
+	res.MsgId = inp.MsgId
+	res.ChatId = inp.ChatId
+	return
+
 }
 
 // TgAddGroupMembers 添加群成员
@@ -341,9 +396,6 @@ func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp)
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_CREATE_GROUP,
 		Type:   consts.TgSvc,
@@ -357,13 +409,7 @@ func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp)
 			},
 		},
 	}
-	resp, err := c.Connect(ctx, req)
-	if err != nil {
-		return
-	}
-	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
-		err = gerror.New(resp.Comment)
-	}
+	_, err = service.Arts().Send(ctx, req)
 	return
 }
 

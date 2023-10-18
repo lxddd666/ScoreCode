@@ -3,7 +3,9 @@ package tg
 import (
 	"context"
 	"fmt"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -203,11 +205,7 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	//按消息发送时间推送给前端
 	a.Iterator(func(_ int, msg interface{}) bool {
 
-		userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, gconv.String(msg.(entity.TgMsg).Initiator))
-		if err != nil {
-			return true
-		}
-		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
+		websocket.SendToTag(gconv.String(msg.(entity.TgMsg).Initiator), &websocket.WResponse{
 			Event:     consts.TgMsgEvent,
 			Data:      msg,
 			Code:      gcode.CodeOK.Code(),
@@ -218,8 +216,8 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	})
 }
 
-// TextMsgCallback 发送消息回调
-func (s *sTgMsg) TextMsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error) {
+// MsgCallback 发送消息回调
+func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error) {
 	var msgList = make([]entity.TgMsg, 0)
 	unreadMap := make(map[string]interface{})
 	for _, item := range textMsgList {
@@ -239,32 +237,64 @@ func (s *sTgMsg) TextMsgCallback(ctx context.Context, textMsgList []callback.Msg
 			Out:           item.Out,
 		}
 		if item.MsgType != 1 && item.SendStatus == 1 {
-
-			result, err := storager.HasFile(ctx, string(item.SendMsg))
-			if err != nil {
-				return
+			var result *entity.SysAttachment
+			// md5不为空，判断文件是否已存在
+			if item.Md5 != "" {
+				result, err = storager.HasFile(ctx, item.Md5)
+				if err != nil {
+					return err
+				}
 			}
-
 			if result != nil {
 				msg.SendMsg = []byte(gconv.String(result.Id))
 			} else {
-				// TODO 下载文件
+				if item.SendMsg == nil {
+					//判断是否下载过该消息
+					var sendMsg []byte
+					_ = s.Model(ctx).Where(do.TgMsg{
+						Initiator: item.Initiator,
+						Sender:    item.Sender,
+						Receiver:  item.Receiver,
+					}).Fields(dao.TgMsg.Columns().SendMsg).Scan(&sendMsg)
+					if sendMsg != nil {
+						msg.SendMsg = sendMsg
+					}
+					msgInp := &tgin.TgDownloadMsgInp{
+						Phone: item.Initiator,
+						MsgId: gconv.Int64(item.ReqId),
+					}
+					if item.Out != 1 {
+						msgInp.ChatId = gconv.Int64(item.Sender)
+					} else {
+						msgInp.ChatId = gconv.Int64(item.Receiver)
+					}
+					res, err := service.TgArts().TgDownloadFile(ctx, msgInp)
+					if err != nil {
+						return err
+					}
+
+					msg.SendMsg = []byte(gconv.String(res.Id))
+
+				} else {
+					mime := mimetype.Detect(item.SendMsg)
+					var meta = &storager.FileMeta{
+						Filename: item.FileName,
+						Size:     gconv.Int64(len(item.SendMsg)),
+						MimeType: mime.String(),
+						Ext:      storager.Ext(item.FileName),
+						Md5:      gmd5.MustEncryptBytes(item.SendMsg),
+						Content:  item.SendMsg,
+					}
+					meta.Kind = storager.GetFileKind(meta.Ext)
+					result, err := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
+					if err != nil {
+						return err
+					}
+					msg.SendMsg = []byte(gconv.String(result.Id))
+				}
+
 			}
-			//mime := mimetype.Detect(item.SendMsg)
-			//var meta = &storager.FileMeta{
-			//	Filename: item.FileName,
-			//	Size:     gconv.Int64(len(item.SendMsg)),
-			//	MimeType: mime.String(),
-			//	Ext:      storager.Ext(item.FileName),
-			//	Md5:      gmd5.MustEncryptBytes(item.SendMsg),
-			//	Content:  item.SendMsg,
-			//}
-			//meta.Kind = storager.GetFileKind(meta.Ext)
-			//result, err := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
-			//if err != nil {
-			//	return err
-			//}
-			//msg.SendMsg = []byte(gconv.String(result.Id))
+
 		}
 		msgList = append(msgList, msg)
 		unreadMap[fmt.Sprintf("%d-%s", msg.Sender, msg.ReqId)] = map[string]interface{}{

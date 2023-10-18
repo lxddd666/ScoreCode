@@ -32,6 +32,8 @@ enum Action {
   CONTACT_LIST = 20;
   DIALOG_LIST = 21;
   Get_MSG_HISTORY = 22;
+  CREATE_CHANNEL = 24;
+  DOWNLOAD_FILE = 25;
 }
 
 
@@ -164,6 +166,8 @@ message RequestMessage {
     GetDialogList  get_dialog_list = 26;
     GetMsgHistory  get_msg_history = 27;
     LogoutAction     logout_action = 28;
+    CreateChannelDetail create_channel_detail = 30;
+    GetDownLoadFileDetail get_downLoad_file_detail = 31;
   }
   string type = 18;
 
@@ -264,6 +268,15 @@ message GetDialogList{
   uint64 Account = 1;
 }
 
+message GetDownLoadFileDetail{
+  map<uint64, DownLoadFileMsg> download_file = 1;
+}
+
+message DownLoadFileMsg{
+  int64 chatId = 1;
+  int64 messageId = 2;
+}
+
 message GetMsgHistory{
   uint64 Self = 1;
   string  Other = 2;
@@ -302,6 +315,13 @@ message  ReceivingMsgDetail {
 message  CreateGroupDetail {
   string GroupName = 1;
   UintkeyStringvalue detail = 2;
+}
+
+message CreateChannelDetail {
+  string ChannelTitle = 1;
+  string   ChannelUserName   = 2;
+  string   ChannelDescription  =3;
+  UintkeyStringvalue detail = 4;
 }
 
 message  AddGroupMemberDetail {
