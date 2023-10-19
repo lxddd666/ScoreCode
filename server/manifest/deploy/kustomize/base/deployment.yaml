@@ -1,21 +1,67 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: template-single
   labels:
-    app: template-single
+    app/name: grata
+  name: grata
+  namespace: arts-system
 spec:
   replicas: 1
+  revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: template-single
+      app/name: grata
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
-        app: template-single
+        app/name: grata
+      namespace: arts-system
     spec:
       containers:
-        - name : main
-          image: template-single
+        - image: liuzhihu1-docker.pkg.coding.net/arts/arts/grata:latest
           imagePullPolicy: Always
-
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /home
+              port: 4887
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            successThreshold: 1
+            timeoutSeconds: 3
+          name: grata
+          ports:
+            - containerPort: 4887
+              name: http
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /home
+              port: 4887
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources: {}
+          volumeMounts:
+            - mountPath: /app/config.yaml
+              name: config
+              subPath: config.yaml
+          workingDir: /app
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: arts-image-secret
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+            name: grata-config
