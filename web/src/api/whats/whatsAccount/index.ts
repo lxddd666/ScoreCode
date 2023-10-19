@@ -114,3 +114,13 @@ export function Bind(params: any) {
     params,
   });
 }
+
+// 迁移联系人
+export function MigrateContacts(params: any) {
+  return whats.request({
+    url: '/whatsAccount/migrateContacts',
+    method: 'POST',
+    params,
+  });
+}
+

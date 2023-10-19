@@ -89,3 +89,13 @@ type MemberBindAccountReq struct {
 // MemberBindAccountRes 员工账号绑定社交小号
 type MemberBindAccountRes struct {
 }
+
+// MigrateContactsReq 迁移联系人
+type MigrateContactsReq struct {
+	g.Meta `path:"/whatsAccount/migrateContacts" method:"post" tags:"账号管理" summary:"迁移联系人"`
+	whatsin.MigrateContactsInp
+}
+
+// MigrateContactsRes 迁移联系人
+type MigrateContactsRes struct {
+}

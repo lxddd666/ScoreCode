@@ -89,3 +89,10 @@ func (c *cWhatsAccount) MemberBindAccount(ctx context.Context, req *whatsaccount
 	res = (*whatsaccount.MemberBindAccountRes)(result)
 	return
 }
+
+// MigrateContacts 迁移联系人
+func (c *cWhatsAccount) MigrateContacts(ctx context.Context, req *whatsaccount.MigrateContactsReq) (res *whatsaccount.MigrateContactsRes, err error) {
+	result, err := service.WhatsAccount().MigrateContacts(ctx, &req.MigrateContactsInp)
+	res = (*whatsaccount.MigrateContactsRes)(result)
+	return
+}
