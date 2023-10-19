@@ -17,7 +17,7 @@ jobs:
       - name:  build
         run: |
           cd ./web 
-          npm run install
+          npm install
           npm run build 
           
           cp -rf ./dist/*  ../server/resource/public/
