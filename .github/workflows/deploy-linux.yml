@@ -39,7 +39,7 @@ jobs:
           context: server
           file: server/manifest/docker/Dockerfile
           push: true
-          tags: liuzhihu1-docker.pkg.coding.net/arts/arts/grata:latest
+          tags: liuzhihu1-docker.pkg.coding.net/arts/arts/grata:${{ github.sha }}
       - uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
@@ -85,3 +85,6 @@ jobs:
       - uses: Azure/k8s-deploy@v4
         with:
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
+          images: |
+            liuzhihu1-docker.pkg.coding.net/arts/arts/grata:${{ github.sha }}
+          namespace: arts-system
