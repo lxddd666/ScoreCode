@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
-./grata &
+
+pwd && ls && ./grata &
 tail -f /dev/null

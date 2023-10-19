@@ -7,6 +7,7 @@ package queue
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
@@ -79,6 +80,7 @@ var (
 func init() {
 	mqProducerInstanceMap = make(map[string]MqProducer)
 	mqConsumerInstanceMap = make(map[string]MqConsumer)
+	fmt.Println(g.Cfg().Data(ctx))
 	if err := g.Cfg().MustGet(ctx, "queue").Scan(&config); err != nil {
 		Logger().Warningf(ctx, "queue init err:%+v", err)
 	}
