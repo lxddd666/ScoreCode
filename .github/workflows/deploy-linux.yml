@@ -2,7 +2,6 @@ name: Release Linux Version
 
 on: [push]
 
-
 jobs:
   release-linux:
     runs-on: ubuntu-latest
@@ -18,8 +17,8 @@ jobs:
       - name:  build
         run: |
           cd ./web 
-          yarn install
-          yarn build 
+          npm run install
+          npm run build 
           
           cp -rf ./dist/*  ../server/resource/public/
           
