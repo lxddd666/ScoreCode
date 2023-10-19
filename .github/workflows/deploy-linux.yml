@@ -29,9 +29,9 @@ jobs:
       - name: Login to registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ secrets.REGISTRY_URL }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          registry: liuzhihu1-docker.pkg.coding.net
+          username: vdpTODGnke
+          password: 6a792aa8e716fafb358ff3008621a83920fbb896
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Docker build and push
@@ -40,4 +40,4 @@ jobs:
           context: server
           file: server/manifest/docker/Dockerfile
           push: true
-          tags: ${{ secrets.REGISTRY_URL }}/it00021hot/grata:latest
+          tags: liuzhihu1-docker.pkg.coding.net/arts/arts/grata:latest
