@@ -1,5 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 ./grata &
-echo "grata start all server.."
 tail -f /dev/null

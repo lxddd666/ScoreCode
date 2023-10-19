@@ -1,8 +1,5 @@
-FROM alpine:3.18
+FROM ubuntu
 
-###############################################################################
-#                                INSTALLATION
-###############################################################################
 ENV WORKDIR                 /app
 WORKDIR $WORKDIR
 ADD hack                                     $WORKDIR/hack/
@@ -15,10 +12,5 @@ RUN chmod +x $WORKDIR/grata
 RUN chmod +x $WORKDIR/entrypoint.sh
 
 
-###############################################################################
-#                                   START
-###############################################################################
-
-
-CMD ./entrypoint.sh
+ENTRYPOINT ["/app/entrypoint.sh"]
 
