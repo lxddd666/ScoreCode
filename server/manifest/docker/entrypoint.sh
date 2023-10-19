@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cd /app && ./grata &
+./grata &
 echo "grata start all server.."
 tail -f /dev/null
