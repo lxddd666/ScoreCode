@@ -317,8 +317,8 @@ whats:
 grpc:
   env:
     GF_GSVC_PREFIX: service
-    GF_GSVC_DEPLOYMENT: prod
-    GF_GSVC_NAMESPACE: prod
+    GF_GSVC_DEPLOYMENT: test
+    GF_GSVC_NAMESPACE: test
     GF_GSVC_VERSION: "latest"
   service:
     arts: arts_manager
