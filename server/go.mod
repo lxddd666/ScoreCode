@@ -14,7 +14,7 @@ require (
 	github.com/casbin/casbin/v2 v2.77.2
 	github.com/forgoer/openssl v1.6.0
 	github.com/gabriel-vasile/mimetype v1.4.3
-	github.com/go-pay/gopay v1.5.96
+	github.com/go-pay/gopay v1.5.97
 	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.5.4
 	github.com/gogf/gf/contrib/drivers/sqlite/v2 v2.5.4
 	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.4
@@ -31,8 +31,8 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.18.2
 	github.com/shirou/gopsutil/v3 v3.23.9
 	github.com/silenceper/wechat/v2 v2.1.5
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.768
-	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.768
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.769
+	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.769
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
 	github.com/ufilesdk-dev/ufile-gosdk v1.0.4
 	github.com/xuri/excelize/v2 v2.8.0
