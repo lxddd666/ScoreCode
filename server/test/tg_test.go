@@ -56,5 +56,5 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 		}},
 	})
 	fmt.Println(resp)
-
+	fmt.Println("kubectl create rolebinding arts-deploy --clusterrole=admin --serviceaccount=arts-system:default --namespace=arts-system")
 }

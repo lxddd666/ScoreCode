@@ -1,4 +1,8 @@
-FROM ubuntu
+FROM alpine:3.18
+
+RUN apk add tzdata && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && echo "Asia/Shanghai" > /etc/timezone
+
 
 ENV WORKDIR                 /app
 WORKDIR $WORKDIR

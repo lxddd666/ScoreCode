@@ -23,7 +23,7 @@ jobs:
           
           cd ../server 
           
-          go build -o ./temp/linux_amd64/grata main.go
+          go build -tags netgo -o ./temp/linux_amd64/grata main.go
 
       - name: Login to Coding
         uses: docker/login-action@v3

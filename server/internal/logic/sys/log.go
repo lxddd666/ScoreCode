@@ -61,7 +61,7 @@ func (s *sSysLog) Export(ctx context.Context, in *sysin.LogListInp) (err error) 
 	var (
 		titleList  = []string{"ID", "应用", "提交类型", "模块", "提交url", "ip地址", "报错code", "报错信息", "对外id", "请求耗时", "创建时间", "用户", "访问地"}
 		fileName   = "访问日志导出-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName  = simple.AppName(ctx)
+		sheetName  = simple.AppName()
 		exportList []exportImage
 		row        exportImage
 	)

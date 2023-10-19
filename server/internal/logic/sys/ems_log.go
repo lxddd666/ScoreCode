@@ -172,7 +172,7 @@ func (s *sSysEmsLog) Send(ctx context.Context, in *sysin.SendEmsInp) (err error)
 
 	subject, ok := consts.EmsSubjectMap[in.Event]
 	if !ok {
-		subject = simple.AppName(ctx)
+		subject = simple.AppName()
 	}
 
 	err = ems.Send(config, in.Email, subject, in.Content)
@@ -236,7 +236,7 @@ func (s *sSysEmsLog) newView(ctx context.Context, in *sysin.SendEmsInp, config *
 
 	if basic == nil {
 		basic = new(model.BasicConfig)
-		basic.Name = simple.AppName(ctx)
+		basic.Name = simple.AppName()
 		basic.Domain = "https://hotgo.facms.cn"
 		basic.Logo = "http://bufanyun.cn-bj.ufileos.com/haoka/attachment/images/2023-02-04/cq9kf7s66jt7hkpvbh.png"
 		basic.SystemOpen = true

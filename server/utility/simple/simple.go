@@ -20,7 +20,7 @@ import (
 )
 
 // AppName 应用名称
-func AppName(ctx context.Context) string {
+func AppName() string {
 	return g.Server().GetName()
 }
 
