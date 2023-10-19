@@ -4,7 +4,6 @@ metadata:
   labels:
     app/name: grata
   name: grata
-  namespace: arts-system
 spec:
   replicas: 1
   revisionHistoryLimit: 10
