@@ -33,6 +33,13 @@ func (c *cTgArts) SendMsg(ctx context.Context, req *tgarts.TgSendMsgReq) (res *t
 	return
 }
 
+// SyncContact 同步联系人
+func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq) (res *tgarts.TgSyncContactRes, err error) {
+	data, err := service.TgArts().TgSyncContact(ctx, req.SyncContactInp)
+	res = (*tgarts.TgSyncContactRes)(&data)
+	return
+}
+
 // GetDialogs 获取chats
 func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
 	list, err := service.TgArts().TgGetDialogs(ctx, req.Phone)
@@ -57,11 +64,51 @@ func (c *cTgArts) GetContacts(ctx context.Context, req *tgarts.TgGetContactsReq)
 
 // GetMsgHistory 获取聊天历史
 func (c *cTgArts) GetMsgHistory(ctx context.Context, req *tgarts.TgGetMsgHistoryReq) (res *tgarts.TgGetMsgHistoryRes, err error) {
-	list, err := service.TgArts().TgGetMsgHistory(ctx, req.GetMsgHistoryInp)
+	list, err := service.TgArts().TgGetMsgHistory(ctx, req.TgGetMsgHistoryInp)
 	if err != nil {
 		return
 	}
 	res = new(tgarts.TgGetMsgHistoryRes)
+	res.List = list
+	return
+}
+
+// DownloadFile 下载聊天文件
+func (c *cTgArts) DownloadFile(ctx context.Context, req *tgarts.TgDownloadMsgReq) (res *tgarts.TgDownloadMsgRes, err error) {
+	resp, err := service.TgArts().TgDownloadFile(ctx, req.TgDownloadMsgInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgDownloadMsgRes)
+	res.TgDownloadMsgModel = resp
+	return
+}
+
+// CreateGroup 创建群
+func (c *cTgArts) CreateGroup(ctx context.Context, req *tgarts.TgCreateGroupReq) (res *tgarts.TgCreateGroupRes, err error) {
+	err = service.TgArts().TgCreateGroup(ctx, req.TgCreateGroupInp)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// AddGroupMembers 添加群成员
+func (c *cTgArts) AddGroupMembers(ctx context.Context, req *tgarts.TgAddGroupMembersReq) (res *tgarts.TgAddGroupMembersRes, err error) {
+	err = service.TgArts().TgAddGroupMembers(ctx, req.TgGroupAddMembersInp)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// GetGroupMembers 获取群成员
+func (c *cTgArts) GetGroupMembers(ctx context.Context, req *tgarts.TgGetGroupMembersReq) (res *tgarts.TgGetGroupMembersRes, err error) {
+	list, err := service.TgArts().TgGetGroupMembers(ctx, req.TgGetGroupMembersInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgGetGroupMembersRes)
 	res.List = list
 	return
 }

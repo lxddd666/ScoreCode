@@ -19,6 +19,6 @@ const (
 	QueueWhatsSendStatusTopic  = `sendStatus`  // 发送状态回调
 
 	QueueTgLoginTopic       = `tgLogin`
-	QueueTgTextMsgTopic     = `tgTextMsg`
+	QueueTgMsgTopic         = `tgMsg`
 	QueueTgReceiverMsgTopic = `tgReceiver`
 )

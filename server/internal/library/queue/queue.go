@@ -9,7 +9,6 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
 	"hotgo/internal/library/queue/disk"
 	"hotgo/utility/charset"
 	"sync"
@@ -69,14 +68,15 @@ type MqMsg struct {
 }
 
 var (
-	ctx                   = gctx.GetInitCtx()
+	ctx                   context.Context
 	mqProducerInstanceMap map[string]MqProducer
 	mqConsumerInstanceMap map[string]MqConsumer
 	mutex                 sync.Mutex
 	config                Config
 )
 
-func init() {
+func InitQueue(context context.Context) {
+	ctx = context
 	mqProducerInstanceMap = make(map[string]MqProducer)
 	mqConsumerInstanceMap = make(map[string]MqConsumer)
 	if err := g.Cfg().MustGet(ctx, "queue").Scan(&config); err != nil {

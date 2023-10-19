@@ -9,7 +9,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/gtime"
 	"strings"
 )
@@ -19,7 +19,7 @@ type LocalDrive struct {
 }
 
 // Upload 上传到本地
-func (d *LocalDrive) Upload(ctx context.Context, file *ghttp.UploadFile) (fullPath string, err error) {
+func (d *LocalDrive) Upload(ctx context.Context, file *FileMeta) (fullPath string, err error) {
 	var (
 		sp      = g.Cfg().MustGet(ctx, "server.serverRoot")
 		nowDate = gtime.Date()
@@ -36,12 +36,12 @@ func (d *LocalDrive) Upload(ctx context.Context, file *ghttp.UploadFile) (fullPa
 	}
 
 	// 包含静态文件夹的路径
-	fullDirPath := strings.Trim(sp.String(), "/") + "/" + config.LocalPath + nowDate
-	fileName, err := file.Save(fullDirPath, true)
+	fullDirPath := strings.Trim(sp.String(), "/") + "/" + config.LocalPath + nowDate + "/" + file.Filename
+	err = gfile.PutBytes(fullDirPath, file.Content)
 	if err != nil {
 		return
 	}
 	// 不含静态文件夹的路径
-	fullPath = config.LocalPath + nowDate + "/" + fileName
+	fullPath = config.LocalPath + nowDate + "/" + file.Filename
 	return
 }

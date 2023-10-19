@@ -13,7 +13,7 @@ enum Action {
   SYNC_ACCOUNT_KEY = 4; // 添加同步帐号密钥动作
   GET_PREKEYBUNDLE = 5;
   SYNC_CONTACTS = 6;
-  PING_PONG =7;
+  PING_PONG = 7;
   SEND_VCARD_MESSAGE = 8;
   SET_HEAD_SCULPTURE = 9;
   GET_USER_HEAD_IMAGE = 10;
@@ -27,10 +27,13 @@ enum Action {
   SEND_CONTACT_CARD = 15;
   CREATE_GROUP = 16;
   ADD_GROUP_MEMBER = 17;
+  GET_GROUP_MEMBERS = 23;
   SEND_CODE = 19;
   CONTACT_LIST = 20;
   DIALOG_LIST = 21;
   Get_MSG_HISTORY = 22;
+  CREATE_CHANNEL = 24;
+  DOWNLOAD_FILE = 25;
 }
 
 
@@ -41,12 +44,32 @@ enum Action {
 
 message OrdinaryAction {
   map<uint64, loginDetail> login_detail = 1;
-  string Type  = 2;
+  string Type = 2;
+}
+
+message LogoutAction {
+  map<uint64, logoutDetail> logout_detail = 1;
+  string Type = 2;
 }
 
 message loginDetail {
   string proxyUrl = 1;
   string loginId = 2;  //登录的id 用来收验证码
+  TgDeviceConfig tgDevice = 3; // 登录设备信息
+}
+
+message TgDeviceConfig {
+  string deviceModel = 1;
+  string SystemVersion = 2;
+  string AppVersion = 3;
+  string LangCode = 4;
+  string SystemLangCode = 5;
+  string LangPack = 6;
+
+}
+
+message logoutDetail {
+  string proxyUrl = 1;
 }
 
 
@@ -60,7 +83,7 @@ message getUserHeadImage{
 
 // 定义头像
 message HeadSculpture{
-  bytes  image    = 1;
+  bytes  image = 1;
   uint64 account = 2;
 }
 
@@ -72,8 +95,8 @@ message SetHeadSculptureAction {
 
 //定义明信片
 message VCard{
-    string Fn = 1;
-    string Tel = 2;
+  string Fn = 1;
+  string Tel = 2;
 }
 
 // 定义明信片消息
@@ -109,7 +132,7 @@ message SyncAccountKeyAction {
 
 //定义同步app信息动作消息
 message SyncAppInfoAction {
-  map<uint64,appData> app_data = 1;
+  map<uint64, appData> app_data = 1;
 }
 
 
@@ -120,7 +143,7 @@ message RequestMessage {
   oneof action_detail {
     OrdinaryAction ordinary_action = 2;
     SyncAccountKeyAction sync_account_key_action = 3;
-    SyncAppInfoAction   sync_app_action =4;
+    SyncAppInfoAction   sync_app_action = 4;
     QueryPreKeyBundleDetail query_prekeybundle_detail = 7;
     SendMessageDetail  sendmessage_detail = 8 ;
     string  ping_message = 9;
@@ -132,15 +155,19 @@ message RequestMessage {
     SendPhotoDetail  send_photo_detail = 15;
     CreateGroupDetail       create_group_detail = 16;
     AddGroupMemberDetail     add_group_member_detail = 17;
+    GetGroupMembersDetail get_group_members_detail = 29;
     SendImageFileDetail  send_image_file_detail = 19;
     SendContactCardDetail send_contact_card_detail = 20;
     SendGroupMessageDetail send_group_message_detail = 21;
     SendFileDetail  send_file_detail = 22;
     SendVideoDetail send_video_detail = 23;
     SendCodeDetail send_code_detail = 24;
-    GetContactList      get_contact_list = 25;.
+    GetContactList      get_contact_list = 25;
     GetDialogList  get_dialog_list = 26;
     GetMsgHistory  get_msg_history = 27;
+    LogoutAction     logout_action = 28;
+    CreateChannelDetail create_channel_detail = 30;
+    GetDownLoadFileDetail get_downLoad_file_detail = 31;
   }
   string type = 18;
 
@@ -162,12 +189,13 @@ message StringKeyStringvalue{
 }
 
 message UintSenderVcard{
-  uint64 Receiver  = 1;
+  uint64 Receiver = 1;
   repeated VCard vcards = 2;
 }
 
 message SendMessageAction {
   map<uint64, UintkeyStringvalue> send_data = 1;
+  map<uint64, StringKeyStringvalue> send_tgData = 2;
 }
 
 message SendVCardMsgDetailAction {
@@ -175,7 +203,7 @@ message SendVCardMsgDetailAction {
 }
 
 message SendGroupMessageAction {
-  map<uint64,StringKeyStringvalue> send_data = 1;
+  map<uint64, StringKeyStringvalue> send_data = 1;
 }
 
 message SendPhotoAction{
@@ -188,10 +216,15 @@ message UintFileDetailValue{
   repeated FileDetailValue value = 2;
 }
 
+message UintTgFileDetailValue{
+  string key = 1;
+  repeated FileDetailValue value = 2;
+}
+
 message UintSendContactCard {
   uint64 key = 1;
   uint64 sender = 2;
-  uint64 receiver = 3;
+  string receiver = 3;
   repeated ContactCardValue value = 4;
 }
 
@@ -235,9 +268,18 @@ message GetDialogList{
   uint64 Account = 1;
 }
 
+message GetDownLoadFileDetail{
+  map<uint64, DownLoadFileMsg> download_file = 1;
+}
+
+message DownLoadFileMsg{
+  int64 chatId = 1;
+  int64 messageId = 2;
+}
+
 message GetMsgHistory{
   uint64 Self = 1;
-  uint64 Other = 2;
+  string  Other = 2;
   int32  Limit = 3;
   int64   OffsetDat = 4;
   int64  OffsetID = 5;
@@ -272,14 +314,25 @@ message  ReceivingMsgDetail {
 
 message  CreateGroupDetail {
   string GroupName = 1;
-  UintkeyUintvalue detail = 2;
+  UintkeyStringvalue detail = 2;
+}
+
+message CreateChannelDetail {
+  string ChannelTitle = 1;
+  string   ChannelUserName   = 2;
+  string   ChannelDescription  =3;
+  UintkeyStringvalue detail = 4;
 }
 
 message  AddGroupMemberDetail {
   string GroupName = 1;
-  UintkeyUintvalue detail = 2;
+  UintkeyStringvalue detail = 2;
 }
 
+message  GetGroupMembersDetail {
+  uint64 Account = 1;
+  int64 ChatId = 2;
+}
 
 message QueryPreKeyBundleDetail {
   repeated UintkeyUintvalue details = 1;
@@ -301,6 +354,8 @@ enum ActionResult {
   ALL_UNKNOWN = 3;
   PONG = 4;
   LOGIN_NEED_CODE = 5;
+  LOGIN_VERIFY_CODE_FAIL = 6;
+
 }
 
 // 定义单个帐号的执行状态枚举
@@ -313,6 +368,8 @@ enum AccountStatus {
   SEAL = 403; //登录失败，已封号
   PERMISSION = 401; // 登录失败，权限错误
   NEED_SEND_CODE = 5; // 需要发送验证码
+  LOGIN_CODE_FAIL = 6;// 验证码错误
+  LOGOUT_FAIL = 7;// 登出失败
 }
 
 // 定义返回消息
@@ -328,7 +385,7 @@ message ResponseMessage {
   string   login_id = 7;
   string   account = 8;
   string   comment = 9;
-  bytes    data    = 10;
+  bytes    data = 10;
 }
 message LoginCallbacks{
   repeated LoginCallback results = 1;
@@ -346,11 +403,12 @@ message TextMsgCallbacks{
 
 message SendFileAction{
   map<uint64, UintFileDetailValue> send_data = 1;
-  string  Type = 2;
+  map<uint64, UintTgFileDetailValue> send_tgData = 2;
+  string  Type = 3;
 }
 
 message SendContactCardAction{
-  map<uint64,UintSendContactCard> send_data = 1;
+  map<uint64, UintSendContactCard> send_data = 1;
   string Type = 2;
 }
 

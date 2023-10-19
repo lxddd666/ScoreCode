@@ -14,4 +14,5 @@ type FileMeta struct {
 	NaiveType string // NaiveUI类型
 	Ext       string // 文件扩展名
 	Md5       string // 文件hash
+	Content   []byte //文件内容
 }

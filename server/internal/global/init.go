@@ -44,6 +44,8 @@ func Init(ctx context.Context) {
 
 	fmt.Printf("欢迎使用Grata！\r\n当前运行环境：%v, 运行根路径为：%v \r\nGrata版本：v%v, gf版本：%v \n", runtime.GOOS, gfile.Pwd(), consts.VersionApp, gf.VERSION)
 
+	// queue初始化
+	queue.InitQueue(ctx)
 	// etcd初始化
 	InitEtcd(ctx)
 	// 初始化注册中心
@@ -137,7 +139,7 @@ func InitTrace(ctx context.Context) {
 		return
 	}
 
-	tp, err := jaeger.Init(simple.AppName(ctx), g.Cfg().MustGet(ctx, "jaeger.endpoint").String())
+	tp, err := jaeger.Init(simple.AppName(), g.Cfg().MustGet(ctx, "jaeger.endpoint").String())
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 	}

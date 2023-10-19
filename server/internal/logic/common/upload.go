@@ -7,7 +7,6 @@ package common
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
@@ -25,7 +24,7 @@ func init() {
 }
 
 // UploadFile 上传文件
-func (s *sCommonUpload) UploadFile(ctx context.Context, uploadType string, file *ghttp.UploadFile) (res *sysin.AttachmentListModel, err error) {
+func (s *sCommonUpload) UploadFile(ctx context.Context, uploadType string, file *storager.FileMeta) (res *sysin.AttachmentListModel, err error) {
 	attachment, err := storager.DoUpload(ctx, uploadType, file)
 	if err != nil {
 		return

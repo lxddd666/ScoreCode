@@ -18,6 +18,7 @@ type TgMsg struct {
 	Sender        int64       `json:"sender"        description:"发送人"`
 	Receiver      int64       `json:"receiver"      description:"接收人"`
 	ReqId         string      `json:"reqId"         description:"请求id"`
+	Out           int         `json:"out"           description:"是否自己发出"`
 	SendMsg       []byte      `json:"sendMsg"       description:"发送消息原文(加密)"`
 	TranslatedMsg []byte      `json:"translatedMsg" description:"发送消息译文(加密)"`
 	MsgType       int         `json:"msgType"       description:"消息类型"`

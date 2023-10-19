@@ -28,6 +28,7 @@ type TgMsgColumns struct {
 	Sender        string // 发送人
 	Receiver      string // 接收人
 	ReqId         string // 请求id
+	Out           string // 是否自己发出
 	SendMsg       string // 发送消息原文(加密)
 	TranslatedMsg string // 发送消息译文(加密)
 	MsgType       string // 消息类型
@@ -47,6 +48,7 @@ var tgMsgColumns = TgMsgColumns{
 	Sender:        "sender",
 	Receiver:      "receiver",
 	ReqId:         "req_id",
+	Out:           "out",
 	SendMsg:       "send_msg",
 	TranslatedMsg: "translated_msg",
 	MsgType:       "msg_type",

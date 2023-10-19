@@ -1,5 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-cd /app && ./grata &
-echo "grata start all server.."
+
+pwd && ls && ./grata &
 tail -f /dev/null

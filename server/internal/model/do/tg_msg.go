@@ -20,6 +20,7 @@ type TgMsg struct {
 	Sender        interface{} // 发送人
 	Receiver      interface{} // 接收人
 	ReqId         interface{} // 请求id
+	Out           interface{} // 是否自己发出
 	SendMsg       []byte      // 发送消息原文(加密)
 	TranslatedMsg []byte      // 发送消息译文(加密)
 	MsgType       interface{} // 消息类型

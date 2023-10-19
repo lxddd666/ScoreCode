@@ -190,14 +190,8 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 
 	cols := dao.TgUser.Columns()
 	for _, item := range res {
-		userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, item.Phone)
-		if err != nil {
-			return err
-		}
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
-			//如果失败,删除redis
-			_, _ = g.Redis().HDel(ctx, consts.TgLoginAccountKey, item.Phone)
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
@@ -208,7 +202,7 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		// 删除登录过程的redis
 		_, _ = g.Redis().SRem(ctx, consts.TgActionLoginAccounts, item.Phone)
 		//websocket推送登录结果
-		websocket.SendToUser(userId.Int64(), &websocket.WResponse{
+		websocket.SendToTag(gconv.String(item.TgId), &websocket.WResponse{
 			Event:     consts.TgLoginEvent,
 			Data:      item,
 			Code:      gcode.CodeOK.Code(),

@@ -36,7 +36,7 @@ func (s *sTCPServer) Start(ctx context.Context) {
 		g.Log().Debug(ctx, "TCPServer start..")
 
 		s.serv = tcp.NewServer(&tcp.ServerConfig{
-			Name: simple.AppName(ctx),
+			Name: simple.AppName(),
 			Addr: g.Cfg().MustGet(ctx, "tcp.server.address").String(),
 		})
 

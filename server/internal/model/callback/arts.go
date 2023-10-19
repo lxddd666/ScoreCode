@@ -11,18 +11,23 @@ type LoginCallbackRes struct {
 	Comment     string `json:"comment"`
 }
 
-type TextMsgCallbackRes struct {
-	Initiator     uint64    `json:"initiator"     description:"聊天发起人"`
-	Sender        uint64    `json:"sender"        description:"发送人"`
-	Receiver      uint64    `json:"receiver"      description:"接收人"`
-	ReqId         string    `json:"reqId"         description:"请求id"`
-	SendMsg       []byte    `json:"sendMsg"       description:"发送消息原文(加密)"`
-	TranslatedMsg []byte    `json:"translatedMsg" description:"发送消息译文(加密)"`
-	MsgType       int       `json:"msgType"       description:"消息类型"`
-	SendTime      time.Time `json:"sendTime"      description:"发送时间"`
-	Read          int       `json:"read"          description:"是否已读"`
-	Comment       string    `json:"comment"       description:"备注"`
-	SendStatus    int       `json:"sendStatus"    description:"发送状态"`
+type MsgCallbackRes struct {
+	Initiator     uint64    `json:"initiator"     dc:"聊天发起人"`
+	Sender        uint64    `json:"sender"        dc:"发送人"`
+	Receiver      string    `json:"receiver"      dc:"接收人"`
+	ReqId         string    `json:"reqId"         dc:"请求id"`
+	SendMsg       []byte    `json:"sendMsg"       dc:"发送消息原文(加密)"`
+	TranslatedMsg []byte    `json:"translatedMsg" dc:"发送消息译文(加密)"`
+	MsgType       int       `json:"msgType"       dc:"消息类型"`
+	SendTime      time.Time `json:"sendTime"      dc:"发送时间"`
+	Read          int       `json:"read"          dc:"是否已读"`
+	Comment       string    `json:"comment"       dc:"备注"`
+	SendStatus    int       `json:"sendStatus"    dc:"发送状态"`
+	FileName      string    `json:"fileName"      dc:"文件名称"`
+	FileSize      int64     `json:"fileSize"      dc:"文件大小"` //文件大小
+	FileType      string    `json:"fileType"      dc:"文件大小"` //文件大小
+	Out           int       `json:"out"           dc:"自己发出"`
+	Md5           string    `json:"md5"           dc:"md5"`
 }
 
 type ReadMsgCallbackRes struct {

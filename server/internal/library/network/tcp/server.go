@@ -57,7 +57,7 @@ func NewServer(config *ServerConfig) (server *Server) {
 	}
 
 	if config.Name == "" {
-		config.Name = simple.AppName(server.ctx)
+		config.Name = simple.AppName()
 	}
 
 	server.addr = config.Addr

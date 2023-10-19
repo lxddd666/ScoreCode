@@ -9,7 +9,7 @@ import (
 
 // ListReq 查询消息记录列表
 type ListReq struct {
-	g.Meta `path:"/tgMsg/list" method:"get" tags:"消息记录" summary:"获取消息记录列表"`
+	g.Meta `path:"/tgMsg/list" method:"get" tags:"tg-消息记录" summary:"获取消息记录列表"`
 	tgin.TgMsgListInp
 }
 
@@ -20,7 +20,7 @@ type ListRes struct {
 
 // ExportReq 导出消息记录列表
 type ExportReq struct {
-	g.Meta `path:"/tgMsg/export" method:"get" tags:"消息记录" summary:"导出消息记录列表"`
+	g.Meta `path:"/tgMsg/export" method:"get" tags:"tg-消息记录" summary:"导出消息记录列表"`
 	tgin.TgMsgListInp
 }
 
@@ -28,7 +28,7 @@ type ExportRes struct{}
 
 // ViewReq 获取消息记录指定信息
 type ViewReq struct {
-	g.Meta `path:"/tgMsg/view" method:"get" tags:"消息记录" summary:"获取消息记录指定信息"`
+	g.Meta `path:"/tgMsg/view" method:"get" tags:"tg-消息记录" summary:"获取消息记录指定信息"`
 	tgin.TgMsgViewInp
 }
 
@@ -38,7 +38,7 @@ type ViewRes struct {
 
 // EditReq 修改/新增消息记录
 type EditReq struct {
-	g.Meta `path:"/tgMsg/edit" method:"post" tags:"消息记录" summary:"修改/新增消息记录"`
+	g.Meta `path:"/tgMsg/edit" method:"post" tags:"tg-消息记录" summary:"修改/新增消息记录"`
 	tgin.TgMsgEditInp
 }
 
@@ -46,7 +46,7 @@ type EditRes struct{}
 
 // DeleteReq 删除消息记录
 type DeleteReq struct {
-	g.Meta `path:"/tgMsg/delete" method:"post" tags:"消息记录" summary:"删除消息记录"`
+	g.Meta `path:"/tgMsg/delete" method:"post" tags:"tg-消息记录" summary:"删除消息记录"`
 	tgin.TgMsgDeleteInp
 }
 
