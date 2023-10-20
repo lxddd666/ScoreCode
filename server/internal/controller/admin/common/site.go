@@ -88,7 +88,8 @@ func (c *cSite) Captcha(ctx context.Context, _ *common.LoginCaptchaReq) (res *co
 
 // Register 账号注册
 func (c *cSite) Register(ctx context.Context, req *common.RegisterReq) (res *common.RegisterRes, err error) {
-	err = service.AdminSite().Register(ctx, &req.RegisterInp)
+	res = new(common.RegisterRes)
+	res.RegisterModel, err = service.AdminSite().Register(ctx, &req.RegisterInp)
 	return
 }
 

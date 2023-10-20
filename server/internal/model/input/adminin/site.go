@@ -32,6 +32,21 @@ func (in *RegisterInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+// RegisterModel 统一注册响应
+type RegisterModel struct {
+	Id         int64  `json:"id"              dc:"用户ID"`
+	Username   string `json:"username"        dc:"用户名"`
+	Pid        int64  `json:"pid"                dc:"上级ID"`
+	Level      int    `json:"level"              dc:"等级"`
+	Tree       string `json:"tree"               dc:"关系树"`
+	InviteCode string `json:"inviteCode"         dc:"邀请码"`
+	RealName   string `json:"realName"                                      dc:"真实姓名"`
+	Avatar     string `json:"avatar"                                        dc:"头像"`
+	Sex        int    `json:"sex"                                           dc:"性别"`
+	Email      string `json:"email"                                         dc:"邮箱"`
+	Mobile     string `json:"mobile"                                        dc:"手机号码"`
+}
+
 // RegisterCodeInp 账号注册验证码
 type RegisterCodeInp struct {
 	Mobile string `json:"mobile" v:"required-without:Email#手机号不能为空" dc:"手机号,邮箱为空时必填"`
