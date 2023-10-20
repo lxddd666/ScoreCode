@@ -74,8 +74,8 @@ type TgGetUserHeadImageRes string
 
 // TgGetDialogsReq 获取chats
 type TgGetDialogsReq struct {
-	g.Meta `path:"/arts/getDialogs" method:"post" tags:"tg-api" summary:"获取chats"`
-	Phone  uint64 `json:"phone" dc:"phone"`
+	g.Meta  `path:"/arts/getDialogs" method:"post" tags:"tg-api" summary:"获取chats"`
+	Account uint64 `json:"account" dc:"IM账号"`
 }
 
 type TgGetDialogsRes struct {
@@ -84,8 +84,8 @@ type TgGetDialogsRes struct {
 
 // TgGetContactsReq 获取contacts
 type TgGetContactsReq struct {
-	g.Meta `path:"/arts/getContacts" method:"post" tags:"tg-api" summary:"获取contacts"`
-	Phone  uint64 `json:"phone" dc:"phone"`
+	g.Meta  `path:"/arts/getContacts" method:"post" tags:"tg-api" summary:"获取contacts"`
+	Account uint64 `json:"account" dc:"IM账号"`
 }
 
 type TgGetContactsRes struct {

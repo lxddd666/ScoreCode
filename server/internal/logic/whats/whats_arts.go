@@ -242,13 +242,13 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 
 // SendMsg 发送消息
 func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
-	if err = s.WhatsCheckLogin(ctx, inp.Sender); err != nil {
+	if err = s.WhatsCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
 	conn := grpc.GetManagerConn()
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, inp.Sender)
+	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, inp.Account)
 	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(inp.Receiver))
 	if err != nil {
 		return "", err
@@ -259,7 +259,7 @@ func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res 
 			Values: make([]uint64, 0),
 		}
 
-		syncContactReq.Key = inp.Sender
+		syncContactReq.Key = inp.Account
 		syncContactReq.Values = append(syncContactReq.Values, gconv.Uint64(inp.Receiver))
 
 		//2.同步通讯录
@@ -288,7 +288,7 @@ func (s *sWhatsArts) sendTextMessage(msgReq *artsin.MsgInp) *protobuf.RequestMes
 
 	tmp := &protobuf.SendMessageAction{}
 	sendData := make(map[uint64]*protobuf.UintkeyStringvalue)
-	sendData[msgReq.Sender] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(msgReq.Receiver), Values: msgReq.TextMsg}
+	sendData[msgReq.Account] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(msgReq.Receiver), Values: msgReq.TextMsg}
 	tmp.SendData = sendData
 
 	list = append(list, tmp)

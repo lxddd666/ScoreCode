@@ -260,8 +260,8 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 						msg.SendMsg = sendMsg
 					}
 					msgInp := &tgin.TgDownloadMsgInp{
-						Phone: item.Initiator,
-						MsgId: gconv.Int64(item.ReqId),
+						Account: item.Initiator,
+						MsgId:   gconv.Int64(item.ReqId),
 					}
 					if item.Out != 1 {
 						msgInp.ChatId = gconv.Int64(item.Sender)
