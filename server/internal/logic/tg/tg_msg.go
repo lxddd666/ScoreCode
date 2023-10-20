@@ -221,7 +221,6 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 	var msgList = make([]entity.TgMsg, 0)
 	unreadMap := make(map[string]interface{})
 	for _, item := range textMsgList {
-
 		msg := entity.TgMsg{
 			Initiator:     int64(item.Initiator),
 			Sender:        int64(item.Sender),
@@ -235,6 +234,15 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 			ReqId:         item.ReqId,
 			SendStatus:    item.SendStatus,
 			Out:           item.Out,
+		}
+		//转换id
+		if item.AccountType != 1 {
+			if item.Out == 1 {
+				_ = dao.TgUser.Ctx(ctx).Where(do.TgUser{Phone: item.Initiator}).Fields(dao.TgUser.Columns().TgId).Scan(&msg.Initiator)
+				msg.Sender = msg.Initiator
+				_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.Receiver}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.Receiver)
+			}
+
 		}
 		if item.MsgType != 1 && item.SendStatus == 1 {
 			var result *entity.SysAttachment
