@@ -192,12 +192,16 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 	for _, item := range res {
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
+			item.IsOnline = consts.Offline
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
 		}
 		//更新登录状态
-		_, _ = s.Model(ctx).Fields(cols.TgId, cols.Username, cols.FirstName, cols.LastName, cols.IsOnline).OmitEmpty().Where(cols.Phone, item.Phone).Update(item)
+		_, _ = s.Model(ctx).
+			Fields(cols.TgId, cols.Username, cols.FirstName, cols.LastName, cols.IsOnline, cols.LastLoginTime, cols.AccountStatus).
+			OmitEmpty().
+			Where(cols.Phone, item.Phone).Update(item)
 		item.Session = nil
 		// 删除登录过程的redis
 		_, _ = g.Redis().SRem(ctx, consts.TgActionLoginAccounts, item.Phone)

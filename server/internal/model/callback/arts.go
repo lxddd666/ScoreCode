@@ -28,6 +28,7 @@ type MsgCallbackRes struct {
 	FileType      string    `json:"fileType"      dc:"文件大小"` //文件大小
 	Out           int       `json:"out"           dc:"自己发出"`
 	Md5           string    `json:"md5"           dc:"md5"`
+	AccountType   int       `json:"accountType"   dc:"账号类型"` // 1:id,2:phone,3:username
 }
 
 type ReadMsgCallbackRes struct {

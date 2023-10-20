@@ -174,7 +174,7 @@ type (
 	}
 	IAdminSite interface {
 		// Register 账号注册
-		Register(ctx context.Context, in *adminin.RegisterInp) (err error)
+		Register(ctx context.Context, in *adminin.RegisterInp) (result *adminin.RegisterModel, err error)
 		// RegisterCode 账号注册验证码
 		RegisterCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
 		// AccountLogin 账号登录

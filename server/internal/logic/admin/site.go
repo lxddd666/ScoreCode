@@ -33,7 +33,7 @@ func init() {
 }
 
 // Register 账号注册
-func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err error) {
+func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (result *adminin.RegisterModel, err error) {
 	config, err := service.SysConfig().GetLogin(ctx)
 	if err != nil {
 		return
@@ -53,12 +53,12 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 	if in.InviteCode != "" {
 		pmb, err := service.AdminMember().GetIdByCode(ctx, &adminin.GetIdByCodeInp{Code: in.InviteCode})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if pmb == nil {
 			err = gerror.New("邀请人信息不存在")
-			return err
+			return nil, err
 		}
 
 		data.Pid = pmb.Id
@@ -74,21 +74,12 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 		return
 	}
 
-	if config.DeptId < 1 {
-		err = gerror.New("管理员未配置默认部门")
-		return
-	}
-
-	if len(config.PostIds) == 0 {
-		err = gerror.New("管理员未配置默认岗位")
-		return
-	}
-
 	// 验证唯一性
 	err = service.AdminMember().VerifyUnique(ctx, &adminin.VerifyUniqueInp{
 		Where: g.Map{
 			dao.AdminMember.Columns().Username: in.Username,
 			dao.AdminMember.Columns().Mobile:   in.Mobile,
+			dao.AdminMember.Columns().Username: in.Username,
 		},
 	})
 	if err != nil {
@@ -138,19 +129,31 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 	}
 
 	// 提交注册信息
-	return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		id, err := dao.AdminMember.Ctx(ctx).Data(data).InsertAndGetId()
 		if err != nil {
 			err = gerror.Wrap(err, consts.ErrorORM)
 			return
 		}
-
-		// 更新岗位
-		if err = service.AdminMemberPost().UpdatePostIds(ctx, id, config.PostIds); err != nil {
-			err = gerror.Wrap(err, consts.ErrorORM)
-		}
+		data.Id = id
 		return
 	})
+	if err != nil {
+		result = &adminin.RegisterModel{
+			Id:         data.Id,
+			Username:   data.Username,
+			Pid:        data.Pid,
+			Level:      data.Level,
+			Tree:       data.Tree,
+			InviteCode: data.InviteCode,
+			RealName:   data.RealName,
+			Avatar:     data.Avatar,
+			Sex:        data.Sex,
+			Email:      data.Email,
+			Mobile:     data.Mobile,
+		}
+	}
+	return
 }
 
 // RegisterCode 账号注册验证码
