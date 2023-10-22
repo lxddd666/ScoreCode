@@ -1,6 +1,7 @@
 package tguser
 
 import (
+	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/tgin"
 
@@ -67,3 +68,12 @@ type UnBindMemberReq struct {
 }
 
 type UnBindMemberRes struct{}
+
+// ImportSessionReq 上传session
+type ImportSessionReq struct {
+	g.Meta `path:"/tgUser/importSession" method:"post" tags:"tg-账号管理" summary:"上传session"`
+	File   *ghttp.UploadFile `json:"file" type:"file" dc:"zip文件"`
+}
+
+// ImportSessionRes 上传session
+type ImportSessionRes string

@@ -24,6 +24,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/kayon/iploc v0.0.0-20200312105652-bda3e968a794
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/minio/selfupdate v0.6.0
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/olekukonko/tablewriter v0.0.5
