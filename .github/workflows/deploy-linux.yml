@@ -1,6 +1,12 @@
 name: Release Linux Version
 
-on: [ push ]
+on:
+  label:
+    types:
+      - created
+  push:
+    branches:
+      - main
 
 jobs:
   release-linux:
