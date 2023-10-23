@@ -65,12 +65,12 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 	}
 
 	if config.RegisterSwitch != 1 {
-		err = gerror.New("管理员未开放注册")
+		err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotOpenRegistration}"))
 		return
 	}
 
 	if config.RoleId < 1 {
-		err = gerror.New("管理员未配置默认角色")
+		err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotConfiguredDefaultRole}"))
 		return
 	}
 
@@ -184,7 +184,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 	}
 
 	if mb == nil {
-		err = gerror.New("账号不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 		return
 	}
 
@@ -192,7 +192,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 	res.Id = mb.Id
 	res.Username = mb.Username
 	if mb.Salt == "" {
-		err = gerror.New("用户信息错误")
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationError}"))
 		return
 	}
 
@@ -201,7 +201,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
 		return
 	}
 
@@ -222,7 +222,7 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 	}
 
 	if mb == nil {
-		err = gerror.New("账号不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 		return
 	}
 
@@ -241,7 +241,7 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
 		return
 	}
 
@@ -262,7 +262,7 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 	}
 
 	if mb == nil {
-		err = gerror.New("账号不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 		return
 	}
 
@@ -281,7 +281,7 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
 		return
 	}
 
@@ -298,12 +298,12 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 	}
 
 	if ro == nil {
-		err = gerror.New("角色不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#RoleNotExist}"))
 		return
 	}
 
 	if ro.Status != consts.StatusEnabled {
-		err = gerror.New("角色已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#RoleDisabled}"))
 		return
 	}
 
