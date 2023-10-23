@@ -28,14 +28,14 @@ func init() {
 func (s *sArts) SendMsg(ctx context.Context, item *artsin.MsgInp, imType string) (res string, err error) {
 	if len(item.TextMsg) > 0 {
 		requestMessage := s.sendTextMessage(item, imType)
-		_, err := s.Send(ctx, requestMessage)
+		_, err = s.Send(ctx, requestMessage)
 		if err != nil {
 			return "", err
 		}
 	}
 	if len(item.Files) > 0 {
 		requestMessage := s.sendFileMessage(item, imType)
-		_, err := s.Send(ctx, requestMessage)
+		_, err = s.Send(ctx, requestMessage)
 		if err != nil {
 			return "", err
 		}

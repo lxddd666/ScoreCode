@@ -60,6 +60,7 @@ var (
 				group.Middleware(
 					service.Middleware().Ctx,             // 初始化请求上下文，一般需要第一个进行加载，后续中间件存在依赖关系
 					service.Middleware().CORS,            // 跨域中间件，自动处理跨域问题
+					service.Middleware().I18n,            // 处理国际化
 					service.Middleware().Blacklist,       // IP黑名单中间件，如果请求IP被后台拉黑，所有请求将被拒绝
 					service.Middleware().DemoLimit,       // 演示系統操作限制，当开启演示模式时，所有POST请求将被拒绝
 					service.Middleware().PreFilter,       // 请求输入预处理，api使用gf规范路由并且XxxReq结构体实现了validate.Filter接口即可隐式预处理

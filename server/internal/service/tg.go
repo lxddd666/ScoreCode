@@ -48,6 +48,14 @@ type (
 		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
 		// TgGetGroupMembers 获取群成员
 		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
+		// TgCreateChannel 创建频道
+		TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error)
+		// TgChannelAddMembers 添加频道成员
+		TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error)
+		// TgChannelJoinByLink 加入频道
+		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
+		// TgGetEmojiGroup 获取emoji分组
+		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -131,6 +139,17 @@ var (
 	localTgUser     ITgUser
 )
 
+func TgMsg() ITgMsg {
+	if localTgMsg == nil {
+		panic("implement not found for interface ITgMsg, forgot register?")
+	}
+	return localTgMsg
+}
+
+func RegisterTgMsg(i ITgMsg) {
+	localTgMsg = i
+}
+
 func TgProxy() ITgProxy {
 	if localTgProxy == nil {
 		panic("implement not found for interface ITgProxy, forgot register?")
@@ -173,15 +192,4 @@ func TgContacts() ITgContacts {
 
 func RegisterTgContacts(i ITgContacts) {
 	localTgContacts = i
-}
-
-func TgMsg() ITgMsg {
-	if localTgMsg == nil {
-		panic("implement not found for interface ITgMsg, forgot register?")
-	}
-	return localTgMsg
-}
-
-func RegisterTgMsg(i ITgMsg) {
-	localTgMsg = i
 }

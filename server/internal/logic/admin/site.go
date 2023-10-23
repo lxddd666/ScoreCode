@@ -40,7 +40,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 	}
 
 	if config.ForceInvite == 1 && in.InviteCode == "" {
-		err = gerror.New("请填写邀请码")
+		err = gerror.New(g.I18n().T(ctx, "{#InviteCodeCheck}"))
 		return
 	}
 
@@ -57,7 +57,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		}
 
 		if pmb == nil {
-			err = gerror.New("邀请人信息不存在")
+			err = gerror.New(g.I18n().T(ctx, "{#InviteUserCheck}"))
 			return nil, err
 		}
 
