@@ -406,3 +406,100 @@ func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMem
 	err = gjson.DecodeTo(resp.Data, &list)
 	return
 }
+
+// TgCreateChannel 创建频道
+func (s *sTgArts) TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_CREATE_CHANNEL,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_CreateChannelDetail{
+			CreateChannelDetail: &protobuf.CreateChannelDetail{
+				ChannelTitle:       inp.Title,
+				ChannelUserName:    inp.UserName,
+				ChannelDescription: inp.Description,
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Account,
+					Values: inp.Members,
+				},
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	return
+}
+
+// TgChannelAddMembers 添加频道成员
+func (s *sTgArts) TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_INVITE_TO_CHANNEL,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_InviteToChannelDetail{
+			InviteToChannelDetail: &protobuf.InviteToChannelDetail{
+				Channel: inp.Channel,
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Account,
+					Values: inp.Members,
+				},
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	return
+}
+
+// TgChannelJoinByLink 加入频道
+func (s *sTgArts) TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_JOIN_BY_LINK,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_JoinByLinkDetail{
+			JoinByLinkDetail: &protobuf.JoinByLinkDetail{
+				Detail: &protobuf.UintkeyStringvalue{
+					Key:    inp.Account,
+					Values: inp.Link,
+				},
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	return
+}
+
+// TgGetEmojiGroup 获取emoji分组
+func (s *sTgArts) TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_GET_EMOJI_GROUP,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_GetEmojiGroupDetail{
+			GetEmojiGroupDetail: &protobuf.GetEmojiGroupsDetail{
+				Sender: inp.Account,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	err = gjson.DecodeTo(resp.Data, &res)
+	return
+}
