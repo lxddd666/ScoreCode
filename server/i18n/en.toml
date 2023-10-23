@@ -1,6 +1,8 @@
 UsernameNotEmpty = "Username can not be empty"
 PasswordNotEmpty = "Pwssword can not be empty"
 EmailAndPhoneWithoutEmpty = "Please fill in your mobile phone or email address"
+PhoneNotEmpty = "Please fill in your mobile phone"
+EmailNotEmpty = "Please fill in your mobile email"
 EmailFormat = "E-mail format is incorrect"
 CodeNotEmpty = "Code can not be empty"
 InviteCodeCheck = "Please fill in the invitation code"

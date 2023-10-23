@@ -48,8 +48,8 @@ type RegisterModel struct {
 
 // RegisterCodeInp 账号注册验证码
 type RegisterCodeInp struct {
-	Mobile string `json:"mobile" v:"required-without:Email#手机号不能为空" dc:"手机号,邮箱为空时必填"`
-	Email  string `json:"email" v:"required-without:Mobile|email#手机号不能为空|邮箱格式不正确"  dc:"邮箱,手机号为空时必填"`
+	Mobile string `json:"mobile" v:"required-without:Email#PhoneNotEmpty" dc:"手机号,邮箱为空时必填"`
+	Email  string `json:"email" v:"required-without:Mobile|email#EmailNotEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
 }
 
 // LoginModel 统一登录响应
