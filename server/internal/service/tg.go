@@ -56,6 +56,8 @@ type (
 		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
 		// TgGetEmojiGroup 获取emoji分组
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
+		// TgSendReaction 发送消息动作
+		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -132,11 +134,11 @@ type (
 )
 
 var (
+	localTgProxy    ITgProxy
+	localTgUser     ITgUser
 	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
-	localTgProxy    ITgProxy
-	localTgUser     ITgUser
 )
 
 func TgMsg() ITgMsg {

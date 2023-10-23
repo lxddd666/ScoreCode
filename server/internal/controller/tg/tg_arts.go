@@ -140,3 +140,8 @@ func (c *cTgArts) GetEmojiGroup(ctx context.Context, req *tgarts.TgGetEmojiGroup
 	res.List = resp
 	return
 }
+
+func (c *cTgArts) SendReaction(ctx context.Context, req *tgarts.TgSendReactionReq) (res *tgarts.TgSendReactionRes, err error) {
+	err = service.TgArts().TgSendReaction(ctx, req.TgSendReactionInp)
+	return
+}

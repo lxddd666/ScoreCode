@@ -169,3 +169,10 @@ type TgGetEmojiGroupReq struct {
 type TgGetEmojiGroupRes struct {
 	List []*tgin.TgGetEmojiGroupModel `json:"list" dc:"emojis"`
 }
+
+type TgSendReactionReq struct {
+	g.Meta `path:"/arts/msg/reaction" method:"post" tags:"tg-api" summary:"消息互动"`
+	*tgin.TgSendReactionInp
+}
+
+type TgSendReactionRes struct{}

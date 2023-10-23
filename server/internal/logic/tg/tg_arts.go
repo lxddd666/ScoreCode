@@ -55,17 +55,10 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 // CodeLogin 登录
 func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
 	var user entity.TgUser
-	err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&user)
-	if err != nil {
-		err = gerror.Wrap(err, "未找到该账号")
-		return
-	}
-	if g.IsEmpty(user) {
-		err = gerror.New("该账号已在线")
-		return
-	}
+	_ = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&user)
+
 	//判断是否在登录中，已在登录中的号不执行登录操作
-	key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, user.Phone)
+	key := fmt.Sprintf("%s%d", consts.TgActionLoginAccounts, phone)
 	v, err := g.Redis().Get(ctx, key)
 	if err != nil {
 		return
@@ -74,8 +67,12 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		err = gerror.New("正在登录，请勿频繁操作")
 		return
 	}
-	_, err = s.SyncAccount(ctx, []uint64{gconv.Uint64(user.Phone)})
-	if err != nil {
+
+	if g.IsEmpty(user) {
+		_, err = s.SyncAccount(ctx, []uint64{phone})
+		if err != nil {
+			return
+		}
 		return
 	}
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
@@ -501,5 +498,30 @@ func (s *sTgArts) TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroup
 		return
 	}
 	err = gjson.DecodeTo(resp.Data, &res)
+	return
+}
+
+// TgSendReaction 发送消息动作
+func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_MESSAGES_REACTION,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_MessagesReactionDetail{
+			MessagesReactionDetail: &protobuf.MessagesReactionDetail{
+				Emotion: inp.Emoticon,
+				Detail: &protobuf.UintkeyUintvalue{
+					Key:    inp.Account,
+					Values: inp.MsgIds,
+				},
+				Receiver: gconv.String(inp.ChatId),
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
 	return
 }

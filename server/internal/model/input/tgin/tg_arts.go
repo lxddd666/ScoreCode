@@ -72,3 +72,10 @@ type TgGetEmojiGroupModel struct {
 	IconEmojiID int64    `json:"iconEmojiID" dc:"emoji分组ID"`
 	Emoticons   []string `json:"emoticons" dc:"emoji集合"`
 }
+
+type TgSendReactionInp struct {
+	Account  uint64   `json:"account" dc:"账号"`
+	ChatId   int64    `json:"chatId" dc:"会话ID"`
+	MsgIds   []uint64 `json:"msgIds" dc:"msgId"`
+	Emoticon string   `json:"emoticon" dc:"emoji"`
+}
