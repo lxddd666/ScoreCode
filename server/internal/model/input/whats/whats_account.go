@@ -158,3 +158,13 @@ type MemberBindAccountInp struct {
 func (in *MemberBindAccountInp) Filter(ctx context.Context) (err error) {
 	return
 }
+
+// MigrateContacts 迁移联系人
+type MigrateContactsInp struct {
+	ModifiedAccounts []string `json:"modifiedAccounts"   dc:"被修改账号"`
+	UpdateAccount    string   `json:"updateAccount"   dc:"修改账号"`
+}
+
+func (in *MigrateContactsInp) Filter(ctx context.Context) (err error) {
+	return
+}

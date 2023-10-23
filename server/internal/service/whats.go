@@ -45,6 +45,8 @@ type (
 		GetContactList(ctx context.Context, in *whatsin.WhatsAccountGetContactInp) (res []*whatsin.WhatsContactsListModel, totalCount int, err error)
 		// MemberBindAccount 绑定账号社交联系人
 		MemberBindAccount(ctx context.Context, in *whatsin.MemberBindAccountInp) (res *whatsaccount.MemberBindAccountRes, err error)
+		//MigrateContacts 迁移联系人
+		MigrateContacts(ctx context.Context, in *whatsin.MigrateContactsInp) (res *whatsaccount.MigrateContactsRes, err error)
 	}
 	IWhatsArts interface {
 		// Login 登录whats

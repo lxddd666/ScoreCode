@@ -75,13 +75,13 @@ type MemberUpdateProfileInp struct {
 // MemberUpdatePwdInp 修改登录密码
 type MemberUpdatePwdInp struct {
 	Id          int64  `json:"id" dc:"用户ID"`
-	OldPassword string `json:"oldPassword" v:"required#原密码不能为空"  dc:"原密码"`
-	NewPassword string `json:"newPassword" v:"required|length:6,20#新密码不能为空#新密码需在6~20之间"  dc:"新密码"`
+	OldPassword string `json:"oldPassword" v:"required#OriginalPasswordNotEmpty"  dc:"原密码"`
+	NewPassword string `json:"newPassword" v:"required|length:6,20#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
 }
 
 // MemberResetPwdInp 重置密码
 type MemberResetPwdInp struct {
-	Password string `json:"password" v:"required#密码不能为空"  dc:"密码"`
+	Password string `json:"password" v:"required#PasswordNotEmpty"  dc:"密码"`
 	Id       int64  `json:"id" dc:"用户ID"`
 }
 
@@ -167,7 +167,7 @@ type VerifyUniqueInp struct {
 
 // MemberDeleteInp 删除用户
 type MemberDeleteInp struct {
-	Id interface{} `json:"id" v:"required#用户ID不能为空" dc:"用户ID"`
+	Id interface{} `json:"id" v:"required#UserIDNotEmpty" dc:"用户ID"`
 }
 
 type MemberDeleteModel struct{}

@@ -330,7 +330,7 @@ func (s *sAdminMember) UpdatePwd(ctx context.Context, in *adminin.MemberUpdatePw
 	}
 
 	if gmd5.MustEncryptString(in.OldPassword+mb.Salt) != mb.PasswordHash {
-		err = gerror.New("原密码不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#OriginalNotCorrect}"))
 		return
 	}
 
@@ -358,7 +358,7 @@ func (s *sAdminMember) ResetPwd(ctx context.Context, in *adminin.MemberResetPwdI
 	}
 
 	if mb == nil {
-		err = gerror.New("用户信息不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationNotExist}"))
 		return
 	}
 
@@ -406,13 +406,13 @@ func (s *sAdminMember) VerifyUnique(ctx context.Context, in *adminin.VerifyUniqu
 // Delete 删除用户
 func (s *sAdminMember) Delete(ctx context.Context, in *adminin.MemberDeleteInp) (err error) {
 	if s.VerifySuperId(ctx, gconv.Int64(in.Id)) {
-		err = gerror.New("超管账号禁止删除！")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountProhibitsDeletion}"))
 		return
 	}
 
 	memberId := contexts.GetUserId(ctx)
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#ObtainUserInformationFailed}"))
 		return
 	}
 
@@ -423,7 +423,7 @@ func (s *sAdminMember) Delete(ctx context.Context, in *adminin.MemberDeleteInp) 
 	}
 
 	if models == nil {
-		err = gerror.New("需要删除的用户不存在或已删除！")
+		err = gerror.New(g.I18n().T(ctx, "{#UserNotExistOrDeleted}"))
 		return
 	}
 

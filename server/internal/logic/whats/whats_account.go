@@ -651,3 +651,15 @@ func (s *sWhatsAccount) MemberBindAccount(ctx context.Context, in *whatsin.Membe
 	}
 	return nil, nil
 }
+
+// MigrateContacts 迁移联系人
+func (s *sWhatsAccount) MigrateContacts(ctx context.Context, in *whatsin.MigrateContactsInp) (res *whatsaccount.MigrateContactsRes, err error) {
+	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = tx.Model(dao.WhatsAccountContacts.Table()).WhereIn(dao.WhatsAccountContacts.Columns().Account, in.ModifiedAccounts).Update(do.WhatsAccountContacts{Account: in.UpdateAccount})
+		if len(in.ModifiedAccounts) == 0 || len(in.UpdateAccount) == 0 {
+			return nil
+		}
+		return nil
+	})
+	return nil, err
+}
