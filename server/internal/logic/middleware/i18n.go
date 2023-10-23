@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	i18nList = []string{"zh-CN", "en"}
+	i18nList = []string{"zh-CN", "en", "vi-VN", "zh-HK"}
 )
 
 // I18n 国际化
