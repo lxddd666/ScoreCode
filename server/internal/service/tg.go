@@ -35,9 +35,9 @@ type (
 		// TgSyncContact 同步联系人
 		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
 		// TgGetDialogs 获取chats
-		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetContacts 获取contacts
-		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetMsgHistory 获取聊天历史
 		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
 		// TgDownloadFile 下载聊天文件

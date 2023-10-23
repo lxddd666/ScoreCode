@@ -34,6 +34,9 @@ enum Action {
   Get_MSG_HISTORY = 22;
   CREATE_CHANNEL = 24;
   DOWNLOAD_FILE = 25;
+  INVITE_TO_CHANNEL = 26;
+  JOIN_BY_LINK = 27;
+  GET_EMOJI_GROUP=28;
 }
 
 
@@ -168,8 +171,12 @@ message RequestMessage {
     LogoutAction     logout_action = 28;
     CreateChannelDetail create_channel_detail = 30;
     GetDownLoadFileDetail get_downLoad_file_detail = 31;
+    InviteToChannelDetail invite_to_channel_detail = 32;
+    JoinByLinkDetail join_by_link_detail = 33;
+      GetEmojiGroupsDetail get_emoji_group_detail = 34;
   }
   string type = 18;
+  uint64 account = 35; //账号
 
 }
 
@@ -319,14 +326,27 @@ message  CreateGroupDetail {
 
 message CreateChannelDetail {
   string ChannelTitle = 1;
-  string   ChannelUserName   = 2;
-  string   ChannelDescription  =3;
+  string   ChannelUserName = 2;
+  string   ChannelDescription = 3;
   UintkeyStringvalue detail = 4;
 }
 
 message  AddGroupMemberDetail {
   string GroupName = 1;
   UintkeyStringvalue detail = 2;
+}
+
+message  InviteToChannelDetail {
+  string Channel = 1;
+  UintkeyStringvalue detail = 2;
+}
+
+message JoinByLinkDetail {
+  UintkeyStringvalue detail = 1;
+}
+
+message GetEmojiGroupsDetail {
+  uint64 Sender =1;
 }
 
 message  GetGroupMembersDetail {

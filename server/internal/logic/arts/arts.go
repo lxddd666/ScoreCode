@@ -3,8 +3,10 @@ package arts
 import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gbase64"
+	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/model/input/artsin"
@@ -46,12 +48,13 @@ func (s *sArts) sendTextMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 	list := make([]*protobuf.SendMessageAction, 0)
 	tmp := &protobuf.SendMessageAction{}
 	sendData := make(map[uint64]*protobuf.StringKeyStringvalue)
-	sendData[msgReq.Sender] = &protobuf.StringKeyStringvalue{Key: msgReq.Receiver, Values: msgReq.TextMsg}
+	sendData[msgReq.Account] = &protobuf.StringKeyStringvalue{Key: gconv.String(msgReq.Receiver), Values: msgReq.TextMsg}
 	tmp.SendTgData = sendData
 	list = append(list, tmp)
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_SEND_MESSAGE,
-		Type:   imType,
+		Action:  protobuf.Action_SEND_MESSAGE,
+		Account: msgReq.Account,
+		Type:    imType,
 		ActionDetail: &protobuf.RequestMessage_SendmessageDetail{
 			SendmessageDetail: &protobuf.SendMessageDetail{
 				Details: list,
@@ -76,12 +79,13 @@ func (s *sArts) sendFileMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 			FileByte: gbase64.MustDecode(fileMsg.Data),
 		})
 	}
-	sendData[msgReq.Sender] = &protobuf.UintTgFileDetailValue{Key: msgReq.Receiver, Value: fileDetail}
+	sendData[msgReq.Account] = &protobuf.UintTgFileDetailValue{Key: gconv.String(msgReq.Receiver), Value: fileDetail}
 	tmp.SendTgData = sendData
 	list = append(list, tmp)
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_SEND_FILE,
-		Type:   imType,
+		Action:  protobuf.Action_SEND_FILE,
+		Type:    imType,
+		Account: msgReq.Account,
 		ActionDetail: &protobuf.RequestMessage_SendFileDetail{
 			SendFileDetail: &protobuf.SendFileDetail{
 				Details: list,
@@ -95,8 +99,9 @@ func (s *sArts) sendFileMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 // SyncContact 同步联系人
 func (s *sArts) SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error) {
 	var req = &protobuf.RequestMessage{
-		Action: protobuf.Action_SYNC_CONTACTS,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_SYNC_CONTACTS,
+		Type:    consts.TgSvc,
+		Account: item.Account,
 		ActionDetail: &protobuf.RequestMessage_SyncContactDetail{
 			SyncContactDetail: &protobuf.SyncContactDetail{
 				Details: []*protobuf.UintkeyUintvalue{
@@ -114,9 +119,9 @@ func (s *sArts) SendVcard(ctx context.Context, inp []*artsin.ContactCardInp, imT
 	for _, detail := range inp {
 		tmp := &protobuf.SendContactCardAction{}
 		sendData := make(map[uint64]*protobuf.UintSendContactCard)
-		sendData[detail.Sender] = &protobuf.UintSendContactCard{
-			Sender:   detail.Sender,
-			Receiver: detail.Receiver,
+		sendData[detail.Account] = &protobuf.UintSendContactCard{
+			Sender:   detail.Account,
+			Receiver: gconv.String(detail.Receiver),
 		}
 		cardList := make([]*protobuf.ContactCardValue, 0)
 		for _, card := range detail.ContactCards {
@@ -126,7 +131,7 @@ func (s *sArts) SendVcard(ctx context.Context, inp []*artsin.ContactCardInp, imT
 				PhoneNumber: card.PhoneNumber,
 			})
 		}
-		sendData[detail.Sender].Value = cardList
+		sendData[detail.Account].Value = cardList
 		tmp.SendData = sendData
 		list = append(list, tmp)
 	}
@@ -154,7 +159,7 @@ func (s *sArts) Send(ctx context.Context, req *protobuf.RequestMessage) (res *pr
 		return nil, gerror.Wrap(err, "请求服务端失败，请稍后重试!")
 	}
 	if res.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
-		return nil, gerror.New(res.Comment)
+		return nil, gerror.NewCode(gcode.New(int(res.ActionResult), res.Comment, nil), res.Comment)
 	}
 	return
 }

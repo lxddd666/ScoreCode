@@ -10,11 +10,9 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
-	"google.golang.org/protobuf/encoding/protojson"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
-	"hotgo/internal/library/grpc"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
@@ -37,9 +35,6 @@ func init() {
 
 // SyncAccount 同步账号
 func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result string, err error) {
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 	appData := make(map[uint64]*protobuf.AppData)
 	for _, phone := range phones {
 		appData[phone] = &protobuf.AppData{AppId: 0, AppHash: ""}
@@ -53,8 +48,7 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 			},
 		},
 	}
-	res, err := c.Connect(ctx, req)
-	result = res.String()
+	_, err = service.Arts().Send(ctx, req)
 	return
 }
 
@@ -84,9 +78,6 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	if err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	ld := &protobuf.LoginDetail{
 		ProxyUrl: user.ProxyAddress,
@@ -110,13 +101,12 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 			},
 		},
 	}
-	resp, err := c.Connect(ctx, req)
-	jsonVar := protojson.Format(resp)
-	g.Log().Info(ctx, jsonVar)
+	resp, err := service.Arts().Send(ctx, req)
 	res = &artsin.LoginModel{
-		Status: int(resp.ActionResult.Number()),
-		ReqId:  resp.LoginId,
-		Phone:  phone,
+		Status:  int(resp.ActionResult.Number()),
+		ReqId:   resp.LoginId,
+		Phone:   phone,
+		Account: gconv.Uint64(resp.Account),
 	}
 	userId := contexts.GetUserId(ctx)
 	usernameMap := gmap.NewStrAnyMap(true)
@@ -127,9 +117,6 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 
 // SendCode 发送验证码
 func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error) {
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 
 	sendCodeMap := make(map[uint64]string)
 	sendCodeMap[req.Phone] = req.Code
@@ -147,13 +134,7 @@ func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err er
 			},
 		},
 	}
-	resp, err := c.Connect(ctx, grpcReq)
-	if err != nil {
-		return
-	}
-	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
-		err = gerror.New(resp.ActionResult.String())
-	}
+	_, err = service.Arts().Send(ctx, grpcReq)
 	return
 }
 
@@ -184,7 +165,7 @@ func (s *sTgArts) TgCheckContact(ctx context.Context, account, contact uint64) (
 // TgSendMsg 发送消息
 func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
 	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
@@ -200,17 +181,18 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 }
 
 // TgGetDialogs 获取chats
-func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error) {
+func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, phone); err != nil {
+	if err = s.TgCheckLogin(ctx, account); err != nil {
 		return
 	}
 	msg := &protobuf.GetDialogList{
-		Account: phone,
+		Account: account,
 	}
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_DIALOG_LIST,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_DIALOG_LIST,
+		Type:    consts.TgSvc,
+		Account: account,
 		ActionDetail: &protobuf.RequestMessage_GetDialogList{
 			GetDialogList: msg,
 		},
@@ -224,63 +206,58 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.
 }
 
 // TgGetContacts 获取contacts
-func (s *sTgArts) TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error) {
+func (s *sTgArts) TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, phone); err != nil {
+	if err = s.TgCheckLogin(ctx, account); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
+
 	msg := &protobuf.GetContactList{
-		Account: phone,
+		Account: account,
 	}
 
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_CONTACT_LIST,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_CONTACT_LIST,
+		Type:    consts.TgSvc,
+		Account: account,
 		ActionDetail: &protobuf.RequestMessage_GetContactList{
 			GetContactList: msg,
 		},
 	}
-	resp, err := c.Connect(ctx, req)
+	resp, err := service.Arts().Send(ctx, req)
 	if err != nil {
 		return
 	}
-	jsonVar := protojson.Format(resp)
-	g.Log().Info(ctx, jsonVar)
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
 		err = gjson.DecodeTo(resp.Data, &list)
 		if err == nil {
-			s.handlerSaveContacts(ctx, phone, list)
+			s.handlerSaveContacts(ctx, account, list)
 		}
 	}
 
 	return
 }
 
-func (s *sTgArts) handlerSaveContacts(ctx context.Context, phone uint64, list []*tgin.TgContactsListModel) {
+func (s *sTgArts) handlerSaveContacts(ctx context.Context, account uint64, list []*tgin.TgContactsListModel) {
 	in := make(map[uint64][]*tgin.TgContactsListModel)
-	in[phone] = list
+	in[account] = list
 	_ = service.TgContacts().SyncContactCallback(ctx, in)
 }
 
 // TgGetMsgHistory 获取聊天历史
 func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Phone); err != nil {
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_Get_MSG_HISTORY,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_Get_MSG_HISTORY,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_GetMsgHistory{
 			GetMsgHistory: &protobuf.GetMsgHistory{
-				Self:      inp.Phone,
+				Self:      inp.Account,
 				Other:     inp.Contact,
 				Limit:     int32(inp.Limit),
 				OffsetDat: int64(inp.OffsetDate),
@@ -290,15 +267,13 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 			},
 		},
 	}
-	resp, err := c.Connect(ctx, req)
+	resp, err := service.Arts().Send(ctx, req)
 	if err != nil {
 		return
 	}
-	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
-		err = gjson.DecodeTo(resp.Data, &list)
-		if err == nil {
-			s.handlerSaveMsg(ctx, resp.Data)
-		}
+	err = gjson.DecodeTo(resp.Data, &list)
+	if err == nil {
+		s.handlerSaveMsg(ctx, resp.Data)
 	}
 	return
 }
@@ -312,17 +287,18 @@ func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
 // TgDownloadFile 下载聊天文件
 func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Phone); err != nil {
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
 	msgMap := make(map[uint64]*protobuf.DownLoadFileMsg)
-	msgMap[inp.Phone] = &protobuf.DownLoadFileMsg{
+	msgMap[inp.Account] = &protobuf.DownLoadFileMsg{
 		ChatId:    inp.ChatId,
 		MessageId: inp.MsgId,
 	}
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_DOWNLOAD_FILE,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_DOWNLOAD_FILE,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_GetDownLoadFileDetail{
 			GetDownLoadFileDetail: &protobuf.GetDownLoadFileDetail{
 				DownloadFile: msgMap,
@@ -351,7 +327,7 @@ func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp
 	}
 	res = new(tgin.TgDownloadMsgModel)
 	res.AttachmentListModel = result
-	res.Phone = inp.Phone
+	res.Account = inp.Account
 	res.MsgId = inp.MsgId
 	res.ChatId = inp.ChatId
 	return
@@ -364,12 +340,10 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_ADD_GROUP_MEMBER,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_ADD_GROUP_MEMBER,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_AddGroupMemberDetail{
 			AddGroupMemberDetail: &protobuf.AddGroupMemberDetail{
 				GroupName: inp.GroupId,
@@ -380,13 +354,7 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 			},
 		},
 	}
-	resp, err := c.Connect(ctx, req)
-	if err != nil {
-		return
-	}
-	if resp.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
-		err = gerror.New(resp.Comment)
-	}
+	_, err = service.Arts().Send(ctx, req)
 	return
 }
 
@@ -397,8 +365,9 @@ func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp)
 		return
 	}
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_CREATE_GROUP,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_CREATE_GROUP,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_CreateGroupDetail{
 			CreateGroupDetail: &protobuf.CreateGroupDetail{
 				GroupName: inp.GroupTitle,
@@ -420,8 +389,9 @@ func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMem
 		return
 	}
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_GET_GROUP_MEMBERS,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_GET_GROUP_MEMBERS,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_GetGroupMembersDetail{
 			GetGroupMembersDetail: &protobuf.GetGroupMembersDetail{
 				Account: inp.Account,

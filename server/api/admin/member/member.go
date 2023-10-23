@@ -45,7 +45,7 @@ type UpdateProfileRes struct{}
 
 // UpdatePwdReq 修改登录密码
 type UpdatePwdReq struct {
-	g.Meta `path:"/member/updatePwd" method:"post" tags:"用户" summary:"重置密码"`
+	g.Meta `path:"/member/updatePwd" method:"post" tags:"用户" summary:"修改密码"`
 	adminin.MemberUpdatePwdInp
 }
 

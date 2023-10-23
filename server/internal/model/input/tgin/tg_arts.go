@@ -5,7 +5,7 @@ import (
 )
 
 type TgGetMsgHistoryInp struct {
-	Phone      uint64 `json:"phone" dc:"TG账号"`
+	Account    uint64 `json:"account" dc:"IM账号"`
 	Contact    string `json:"contact" dc:"联系人"`
 	Limit      int    `json:"limit" dc:"查询条数"`
 	OffsetDate int    `json:"offsetDate" dc:"时间戳(查询该时间前的聊天记录)"`
@@ -32,14 +32,14 @@ type TgGetGroupMembersInp struct {
 }
 
 type TgDownloadMsgInp struct {
-	Phone  uint64 `json:"phone" dc:"TG账号"`
-	ChatId int64  `json:"chatId" dc:"会话ID"`
-	MsgId  int64  `json:"msgId" dc:"消息ID"`
+	Account uint64 `json:"account" dc:"IM账号"`
+	ChatId  int64  `json:"chatId" dc:"会话ID"`
+	MsgId   int64  `json:"msgId" dc:"消息ID"`
 }
 
 type TgDownloadMsgModel struct {
-	Phone  uint64 `json:"phone"     dc:"TG账号"`
-	ChatId int64  `json:"chatId"    dc:"会话ID"`
-	MsgId  int64  `json:"msgId"     dc:"消息ID"`
+	Account uint64 `json:"account"     dc:"IM账号"`
+	ChatId  int64  `json:"chatId"    dc:"会话ID"`
+	MsgId   int64  `json:"msgId"     dc:"消息ID"`
 	*sysin.AttachmentListModel
 }

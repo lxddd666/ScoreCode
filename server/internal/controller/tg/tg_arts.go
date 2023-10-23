@@ -42,7 +42,7 @@ func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq)
 
 // GetDialogs 获取chats
 func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
-	list, err := service.TgArts().TgGetDialogs(ctx, req.Phone)
+	list, err := service.TgArts().TgGetDialogs(ctx, req.Account)
 	if err != nil {
 		return
 	}
@@ -53,7 +53,7 @@ func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (
 
 // GetContacts 获取contacts
 func (c *cTgArts) GetContacts(ctx context.Context, req *tgarts.TgGetContactsReq) (res *tgarts.TgGetContactsRes, err error) {
-	list, err := service.TgArts().TgGetContacts(ctx, req.Phone)
+	list, err := service.TgArts().TgGetContacts(ctx, req.Account)
 	if err != nil {
 		return
 	}
