@@ -133,3 +133,37 @@ func (in *TgUserBindMemberInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgUserBindMemberModel struct{}
+
+// TgImportSessionModel 导入session账号
+type TgImportSessionModel struct {
+	SessionFile    string                     `json:"session_file"    dc:"session文件前缀"`
+	Phone          string                     `json:"phone"           dc:"手机号"`
+	RegisterTime   float64                    `json:"register_time"   dc:"注册时间"`
+	AppID          int                        `json:"app_id"          dc:"appId"`
+	AppHash        string                     `json:"app_hash"        dc:"appHash"`
+	Sdk            string                     `json:"sdk"             dc:"sdk"`
+	AppVersion     string                     `json:"app_version"     dc:"app版本"`
+	Device         string                     `json:"device"          dc:"设备"`
+	LastCheckTime  float64                    `json:"last_check_time" dc:"LastCheckTime"`
+	Avatar         string                     `json:"avatar"          dc:"化名（用户名）"`
+	FirstName      string                     `json:"first_name"      dc:"头名称"`
+	LastName       interface{}                `json:"last_name"       dc:"最后名称"`
+	Username       interface{}                `json:"username"        dc:"用户名"`
+	Sex            int                        `json:"sex"             dc:"性别"`
+	LangPack       string                     `json:"lang_pack"       dc:"语言"`
+	SystemLangPack string                     `json:"system_lang_pack" dc:"语言包"`
+	Proxy          interface{}                `json:"proxy"           dc:"代理"`
+	Ipv6           bool                       `json:"ipv6"            dc:"是否用ipv6"`
+	TwoFA          string                     `json:"twoFA"           dc:"身份验证机制"`
+	SessionAuthKey *TgImportSessionAuthKeyMsg `json:"SessionAuthKey"  dc:"身份验证机制"`
+}
+
+type TgImportSessionAuthKeyMsg struct {
+	Account   uint64 `json:"account"     dc:"账号"`
+	DC        int64  `json:"DC"          dc:"dc"`
+	Addr      string `json:"addr"        dc:"登录地址"`
+	Port      string `json:"port"        dc:"登录端口"`
+	TakeOutId string `json:"takeout_id"   dc:"takeoutId"`
+	AuthKey   []byte `json:"authKey"     dc:"账号session"`
+	AuthKeyId []byte `json:"authKeyId"   dc:"账号session的ID"`
+}

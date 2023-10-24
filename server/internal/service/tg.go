@@ -8,6 +8,7 @@ package service
 import (
 	"context"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
@@ -130,6 +131,8 @@ type (
 		UnBindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
 		// LoginCallback 登录回调
 		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// ImportSession 导入session文件
+		ImportSession(ctx context.Context, file *storager.FileMeta) (msg string, err error)
 	}
 )
 

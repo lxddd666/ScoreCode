@@ -2,7 +2,9 @@ package tg
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
 	tguser "hotgo/api/tg/tg_user"
+	"hotgo/internal/library/storager"
 	"hotgo/internal/service"
 )
 
@@ -64,5 +66,30 @@ func (c *cTgUser) BindMember(ctx context.Context, req *tguser.BindMemberReq) (re
 // UnBindMember 接触绑定用户
 func (c *cTgUser) UnBindMember(ctx context.Context, req *tguser.UnBindMemberReq) (res *tguser.UnBindMemberRes, err error) {
 	err = service.TgUser().UnBindMember(ctx, &req.TgUserBindMemberInp)
+	return
+}
+
+// ImportSession 导入用户session
+func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionReq) (res *tguser.ImportSessionRes, err error) {
+	if req.File == nil {
+		err = gerror.New("没有找到上传的文件")
+		return
+	}
+
+	meta, err := storager.GetFileMeta(req.File)
+	if err != nil {
+		return
+	}
+	if meta.Kind != "zip" {
+		err = gerror.New("上传文件类型不是zip")
+		return
+	}
+	if meta.Size == 0 {
+		err = gerror.New("上传zip包内文件为空")
+		return
+	}
+
+	data, err := service.TgUser().ImportSession(ctx, meta)
+	res = (*tguser.ImportSessionRes)(&data)
 	return
 }
