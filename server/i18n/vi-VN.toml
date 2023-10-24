@@ -75,4 +75,4 @@ UserNameExistChangeOne = "Tên người dùng đã tồn tại, vui lòng thay �
 MailboxExistChangeOne = "Hộp thư đã tồn tại, vui lòng thay đổi nó"
 PhoneNumberExistChangeOne = "Số điện thoại di động đã tồn tại, vui lòng thay đổi một"
 InvitationCOdeExistChangeOne = "Mã lời mời đã tồn tại, vui lòng thay đổi một"
-
+LoginIdentityInvalidTryAgain ="Nhận dạng đăng nhập đã không hợp lệ, vui lòng đăng nhập lại"

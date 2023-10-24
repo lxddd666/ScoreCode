@@ -37,7 +37,7 @@ type Token struct {
 
 var (
 	config          *model.TokenConfig
-	errorLogin      = gerror.New("登录身份已失效，请重新登录！")
+	errorLogin      = gerror.New(g.I18n().T(context.TODO(), "{#LoginIdentityInvalidTryAgain}"))
 	errorMultiLogin = gerror.New("账号存在异地登录，如非本人操作请及时修改登录密码！")
 )
 
