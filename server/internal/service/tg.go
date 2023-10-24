@@ -36,9 +36,9 @@ type (
 		// TgSyncContact 同步联系人
 		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
 		// TgGetDialogs 获取chats
-		TgGetDialogs(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetContacts 获取contacts
-		TgGetContacts(ctx context.Context, phone uint64) (list []*tgin.TgContactsListModel, err error)
+		TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetMsgHistory 获取聊天历史
 		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
 		// TgDownloadFile 下载聊天文件
@@ -49,6 +49,16 @@ type (
 		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
 		// TgGetGroupMembers 获取群成员
 		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
+		// TgCreateChannel 创建频道
+		TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error)
+		// TgChannelAddMembers 添加频道成员
+		TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error)
+		// TgChannelJoinByLink 加入频道
+		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
+		// TgGetEmojiGroup 获取emoji分组
+		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
+		// TgSendReaction 发送消息动作
+		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -127,12 +137,23 @@ type (
 )
 
 var (
+	localTgProxy    ITgProxy
+	localTgUser     ITgUser
 	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
-	localTgProxy    ITgProxy
-	localTgUser     ITgUser
 )
+
+func TgMsg() ITgMsg {
+	if localTgMsg == nil {
+		panic("implement not found for interface ITgMsg, forgot register?")
+	}
+	return localTgMsg
+}
+
+func RegisterTgMsg(i ITgMsg) {
+	localTgMsg = i
+}
 
 func TgProxy() ITgProxy {
 	if localTgProxy == nil {
@@ -176,15 +197,4 @@ func TgContacts() ITgContacts {
 
 func RegisterTgContacts(i ITgContacts) {
 	localTgContacts = i
-}
-
-func TgMsg() ITgMsg {
-	if localTgMsg == nil {
-		panic("implement not found for interface ITgMsg, forgot register?")
-	}
-	return localTgMsg
-}
-
-func RegisterTgMsg(i ITgMsg) {
-	localTgMsg = i
 }

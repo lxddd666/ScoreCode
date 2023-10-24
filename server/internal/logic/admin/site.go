@@ -33,14 +33,14 @@ func init() {
 }
 
 // Register 账号注册
-func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err error) {
+func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (result *adminin.RegisterModel, err error) {
 	config, err := service.SysConfig().GetLogin(ctx)
 	if err != nil {
 		return
 	}
 
 	if config.ForceInvite == 1 && in.InviteCode == "" {
-		err = gerror.New("请填写邀请码")
+		err = gerror.New(g.I18n().T(ctx, "{#InviteCodeCheck}"))
 		return
 	}
 
@@ -53,34 +53,24 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 	if in.InviteCode != "" {
 		pmb, err := service.AdminMember().GetIdByCode(ctx, &adminin.GetIdByCodeInp{Code: in.InviteCode})
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if pmb == nil {
-			err = gerror.New("邀请人信息不存在")
-			return err
+			err = gerror.New(g.I18n().T(ctx, "{#InviteUserCheck}"))
+			return nil, err
 		}
 
 		data.Pid = pmb.Id
 	}
 
 	if config.RegisterSwitch != 1 {
-		err = gerror.New("管理员未开放注册")
+		err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotOpenRegistration}"))
 		return
 	}
 
 	if config.RoleId < 1 {
-		err = gerror.New("管理员未配置默认角色")
-		return
-	}
-
-	if config.DeptId < 1 {
-		err = gerror.New("管理员未配置默认部门")
-		return
-	}
-
-	if len(config.PostIds) == 0 {
-		err = gerror.New("管理员未配置默认岗位")
+		err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotConfiguredDefaultRole}"))
 		return
 	}
 
@@ -89,6 +79,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 		Where: g.Map{
 			dao.AdminMember.Columns().Username: in.Username,
 			dao.AdminMember.Columns().Mobile:   in.Mobile,
+			dao.AdminMember.Columns().Username: in.Username,
 		},
 	})
 	if err != nil {
@@ -138,19 +129,31 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (err
 	}
 
 	// 提交注册信息
-	return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		id, err := dao.AdminMember.Ctx(ctx).Data(data).InsertAndGetId()
 		if err != nil {
 			err = gerror.Wrap(err, consts.ErrorORM)
 			return
 		}
-
-		// 更新岗位
-		if err = service.AdminMemberPost().UpdatePostIds(ctx, id, config.PostIds); err != nil {
-			err = gerror.Wrap(err, consts.ErrorORM)
-		}
+		data.Id = id
 		return
 	})
+	if err != nil {
+		result = &adminin.RegisterModel{
+			Id:         data.Id,
+			Username:   data.Username,
+			Pid:        data.Pid,
+			Level:      data.Level,
+			Tree:       data.Tree,
+			InviteCode: data.InviteCode,
+			RealName:   data.RealName,
+			Avatar:     data.Avatar,
+			Sex:        data.Sex,
+			Email:      data.Email,
+			Mobile:     data.Mobile,
+		}
+	}
+	return
 }
 
 // RegisterCode 账号注册验证码
@@ -181,7 +184,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 	}
 
 	if mb == nil {
-		err = gerror.New("账号不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 		return
 	}
 
@@ -189,7 +192,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 	res.Id = mb.Id
 	res.Username = mb.Username
 	if mb.Salt == "" {
-		err = gerror.New("用户信息错误")
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationError}"))
 		return
 	}
 
@@ -198,7 +201,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
 		return
 	}
 
@@ -219,7 +222,7 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 	}
 
 	if mb == nil {
-		err = gerror.New("账号不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 		return
 	}
 
@@ -238,7 +241,7 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
 		return
 	}
 
@@ -259,7 +262,7 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 	}
 
 	if mb == nil {
-		err = gerror.New("账号不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 		return
 	}
 
@@ -278,7 +281,7 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
 		return
 	}
 
@@ -295,12 +298,12 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 	}
 
 	if ro == nil {
-		err = gerror.New("角色不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#RoleNotExist}"))
 		return
 	}
 
 	if ro.Status != consts.StatusEnabled {
-		err = gerror.New("角色已被禁用")
+		err = gerror.New(g.I18n().T(ctx, "{#RoleDisabled}"))
 		return
 	}
 

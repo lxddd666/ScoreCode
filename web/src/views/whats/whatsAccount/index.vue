@@ -120,6 +120,12 @@
       :showModal="showSyncContactModel"
       :sender="account"
     />
+    <MigrateContacts
+      @reloadTable="reloadTable"
+      @migrateContactsShowModal="migrateContactsShowModal"
+      :showModal="showMigrateContactsModal"
+      :sender="account"
+    />
 
     <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
@@ -142,6 +148,7 @@
   import { Attachment } from '@/components/FileChooser/src/model';
   import SyncContact from '@/views/whats/whatsAccount/syncContact.vue';
   import SendFile from "@/views/whats/whatsAccount/sendFile.vue";
+  import MigrateContacts from "@/views/whats/whatsAccount/migrateContacts.vue";
 
   const { hasPermission } = usePermission();
   const router = useRouter();
@@ -156,6 +163,7 @@
   const showSendFileModal = ref(false);
   const showSyncContactModel = ref(false);
   const showSendVcardModel = ref(false);
+  const showMigrateContactsModal =ref(false);
   const formParams = ref<State>();
   const account = ref<string>();
 
@@ -209,6 +217,11 @@
             auth: ['/whatsMsg/view'],
           },
           {
+            label: '迁移联系人',
+            key: 'migrateContacts',
+            auth: ['/whatsMsg/view'],
+          },
+          {
             label: '登出',
             key: 'logout',
             auth: ['/whatsMsg/view'],
@@ -223,7 +236,10 @@
             return handleLogout(record);
           }else if(key=== 'sendVcardMsg'){
             return handleSendVcardMsg(record);
+          }else if (key === 'migrateContacts'){
+            return handleMigrateContacts(record);
           }
+
         },
       });
     },
@@ -262,7 +278,9 @@
   function sendSyncContactModel(value) {
     showSyncContactModel.value = value;
   }
-
+  function migrateContactsShowModal(value) {
+    showMigrateContactsModal.value = value;
+  }
   function handleUpload() {
     fileUploadRef.value.openModal();
   }
@@ -343,6 +361,11 @@
     showSendVcardModel.value = true;
     account.value = newState(record as State).account;
   }
+  function handleMigrateContacts(record: Recordable) {
+    showMigrateContactsModal.value = true;
+    account.value = newState(record as State).account;
+  }
+
 
   function handleBatchDelete() {
     dialog.warning({

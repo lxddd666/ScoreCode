@@ -22,8 +22,7 @@ type TgSendCodeReq struct {
 	*artsin.SendCodeInp
 }
 
-type TgSendCodeRes struct {
-}
+type TgSendCodeRes struct{}
 
 // TgSendMsgReq 发送文本消息
 type TgSendMsgReq struct {
@@ -31,14 +30,14 @@ type TgSendMsgReq struct {
 	*artsin.MsgInp
 }
 
-type TgSendMsgRes string
+type TgSendMsgRes struct{}
 
 type TgSendVcardMsgReq struct {
 	g.Meta `path:"/arts/sendVcardMsg" method:"post" tags:"tg-api" summary:"发送名片"`
 	*artsin.VcardMsgInp
 }
 
-type TgSendVcardMsgRes string
+type TgSendVcardMsgRes struct{}
 
 // TgSendFileReq whats发送文件
 type TgSendFileReq struct {
@@ -46,7 +45,7 @@ type TgSendFileReq struct {
 	*artsin.MsgInp
 }
 
-type TgSendFileRes string
+type TgSendFileRes struct{}
 
 // TgSyncContactReq 同步联系人
 type TgSyncContactReq struct {
@@ -54,7 +53,7 @@ type TgSyncContactReq struct {
 	*artsin.SyncContactInp
 }
 
-type TgSyncContactRes string
+type TgSyncContactRes struct{}
 
 // TgLogoutReq 退出登录
 type TgLogoutReq struct {
@@ -62,7 +61,7 @@ type TgLogoutReq struct {
 	*artsin.LogoutInp
 }
 
-type TgLogoutRes string
+type TgLogoutRes struct{}
 
 // TgGetUserHeadImageReq 获取用户头像
 type TgGetUserHeadImageReq struct {
@@ -70,12 +69,12 @@ type TgGetUserHeadImageReq struct {
 	*artsin.GetUserHeadImageInp
 }
 
-type TgGetUserHeadImageRes string
+type TgGetUserHeadImageRes struct{}
 
 // TgGetDialogsReq 获取chats
 type TgGetDialogsReq struct {
-	g.Meta `path:"/arts/getDialogs" method:"post" tags:"tg-api" summary:"获取chats"`
-	Phone  uint64 `json:"phone" dc:"phone"`
+	g.Meta  `path:"/arts/getDialogs" method:"post" tags:"tg-api" summary:"获取chats"`
+	Account uint64 `json:"account" dc:"IM账号"`
 }
 
 type TgGetDialogsRes struct {
@@ -84,8 +83,8 @@ type TgGetDialogsRes struct {
 
 // TgGetContactsReq 获取contacts
 type TgGetContactsReq struct {
-	g.Meta `path:"/arts/getContacts" method:"post" tags:"tg-api" summary:"获取contacts"`
-	Phone  uint64 `json:"phone" dc:"phone"`
+	g.Meta  `path:"/arts/getContacts" method:"post" tags:"tg-api" summary:"获取contacts"`
+	Account uint64 `json:"account" dc:"IM账号"`
 }
 
 type TgGetContactsRes struct {
@@ -118,7 +117,7 @@ type TgAddGroupMembersReq struct {
 	*tgin.TgGroupAddMembersInp
 }
 
-type TgAddGroupMembersRes string
+type TgAddGroupMembersRes struct{}
 
 // TgCreateGroupReq 创建群聊
 type TgCreateGroupReq struct {
@@ -126,7 +125,7 @@ type TgCreateGroupReq struct {
 	*tgin.TgCreateGroupInp
 }
 
-type TgCreateGroupRes string
+type TgCreateGroupRes struct{}
 
 // TgGetGroupMembersReq 获取群成员
 type TgGetGroupMembersReq struct {
@@ -137,3 +136,43 @@ type TgGetGroupMembersReq struct {
 type TgGetGroupMembersRes struct {
 	List []*tgin.TgContactsListModel `json:"list"   dc:"数据列表"`
 }
+
+// TgCreateChannelReq 创建频道
+type TgCreateChannelReq struct {
+	g.Meta `path:"/arts/channel/create" method:"post" tags:"tg-api" summary:"创建频道"`
+	*tgin.TgChannelCreateInp
+}
+
+type TgCreateChannelRes struct{}
+
+// TgChannelAddMembersReq 频道添加成员
+type TgChannelAddMembersReq struct {
+	g.Meta `path:"/arts/channel/addMembers" method:"post" tags:"tg-api" summary:"频道添加成员"`
+	*tgin.TgChannelAddMembersInp
+}
+
+type TgChannelAddMembersRes struct{}
+
+// TgChannelJoinByLinkReq 通过链接加入频道
+type TgChannelJoinByLinkReq struct {
+	g.Meta `path:"/arts/channel/joinByLink" method:"post" tags:"tg-api" summary:"通过链接加入频道"`
+	*tgin.TgChannelJoinByLinkInp
+}
+
+type TgChannelJoinByLinkRes struct{}
+
+type TgGetEmojiGroupReq struct {
+	g.Meta `path:"/arts/emoji/group" method:"post" tags:"tg-api" summary:"获取emoji分组"`
+	*tgin.TgGetEmojiGroupInp
+}
+
+type TgGetEmojiGroupRes struct {
+	List []*tgin.TgGetEmojiGroupModel `json:"list" dc:"emojis"`
+}
+
+type TgSendReactionReq struct {
+	g.Meta `path:"/arts/msg/reaction" method:"post" tags:"tg-api" summary:"消息互动"`
+	*tgin.TgSendReactionInp
+}
+
+type TgSendReactionRes struct{}

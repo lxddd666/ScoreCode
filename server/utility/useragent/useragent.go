@@ -22,7 +22,7 @@ func GetOs(userAgent string) string {
 
 	var (
 		strRe, _   = regexp.Compile(`(?i:\((.*?)\))`)
-		levelNames = ":micromessenger:dart:Windows NT:Windows Mobile:Windows Phone:Windows Phone OS:Macintosh|Macintosh:Mac OS:CrOS|CrOS:iPhone OS:iPad|iPad:OS:Android:Linux:blackberry:hpwOS:Series:Symbian:PalmOS:SymbianOS:J2ME:Sailfish:Bada:MeeGo:webOS|hpwOS:Maemo:"
+		levelNames = ":micromessenger:dart:Windows NT:Windows Mobile:Windows Account:Windows Account OS:Macintosh|Macintosh:Mac OS:CrOS|CrOS:iPhone OS:iPad|iPad:OS:Android:Linux:blackberry:hpwOS:Series:Symbian:PalmOS:SymbianOS:J2ME:Sailfish:Bada:MeeGo:webOS|hpwOS:Maemo:"
 		namesArr   = strings.Split(strings.Trim(levelNames, ":"), ":")
 		regStrArr  = make([]string, len(namesArr))
 	)

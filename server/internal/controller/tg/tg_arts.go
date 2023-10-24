@@ -28,21 +28,20 @@ func (c *cTgArts) SendCode(ctx context.Context, req *tgarts.TgSendCodeReq) (res 
 
 // SendMsg 发送消息
 func (c *cTgArts) SendMsg(ctx context.Context, req *tgarts.TgSendMsgReq) (res *tgarts.TgSendMsgRes, err error) {
-	data, err := service.TgArts().TgSendMsg(ctx, req.MsgInp)
-	res = (*tgarts.TgSendMsgRes)(&data)
+	_, err = service.TgArts().TgSendMsg(ctx, req.MsgInp)
+
 	return
 }
 
 // SyncContact 同步联系人
 func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq) (res *tgarts.TgSyncContactRes, err error) {
-	data, err := service.TgArts().TgSyncContact(ctx, req.SyncContactInp)
-	res = (*tgarts.TgSyncContactRes)(&data)
+	_, err = service.TgArts().TgSyncContact(ctx, req.SyncContactInp)
 	return
 }
 
 // GetDialogs 获取chats
 func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
-	list, err := service.TgArts().TgGetDialogs(ctx, req.Phone)
+	list, err := service.TgArts().TgGetDialogs(ctx, req.Account)
 	if err != nil {
 		return
 	}
@@ -53,7 +52,7 @@ func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (
 
 // GetContacts 获取contacts
 func (c *cTgArts) GetContacts(ctx context.Context, req *tgarts.TgGetContactsReq) (res *tgarts.TgGetContactsRes, err error) {
-	list, err := service.TgArts().TgGetContacts(ctx, req.Phone)
+	list, err := service.TgArts().TgGetContacts(ctx, req.Account)
 	if err != nil {
 		return
 	}
@@ -110,5 +109,39 @@ func (c *cTgArts) GetGroupMembers(ctx context.Context, req *tgarts.TgGetGroupMem
 	}
 	res = new(tgarts.TgGetGroupMembersRes)
 	res.List = list
+	return
+}
+
+// CreateChannel 创建频道
+func (c *cTgArts) CreateChannel(ctx context.Context, req *tgarts.TgCreateChannelReq) (res *tgarts.TgCreateChannelRes, err error) {
+	err = service.TgArts().TgCreateChannel(ctx, req.TgChannelCreateInp)
+	return
+}
+
+// ChannelAddMembers 频道添加成员
+func (c *cTgArts) ChannelAddMembers(ctx context.Context, req *tgarts.TgChannelAddMembersReq) (res *tgarts.TgChannelAddMembersRes, err error) {
+	err = service.TgArts().TgChannelAddMembers(ctx, req.TgChannelAddMembersInp)
+	return
+}
+
+// ChannelJoinByLink 通过链接加入频道
+func (c *cTgArts) ChannelJoinByLink(ctx context.Context, req *tgarts.TgChannelJoinByLinkReq) (res *tgarts.TgChannelJoinByLinkRes, err error) {
+	err = service.TgArts().TgChannelJoinByLink(ctx, req.TgChannelJoinByLinkInp)
+	return
+}
+
+// GetEmojiGroup 获取emoji分组
+func (c *cTgArts) GetEmojiGroup(ctx context.Context, req *tgarts.TgGetEmojiGroupReq) (res *tgarts.TgGetEmojiGroupRes, err error) {
+	resp, err := service.TgArts().TgGetEmojiGroup(ctx, req.TgGetEmojiGroupInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.TgGetEmojiGroupRes)
+	res.List = resp
+	return
+}
+
+func (c *cTgArts) SendReaction(ctx context.Context, req *tgarts.TgSendReactionReq) (res *tgarts.TgSendReactionRes, err error) {
+	err = service.TgArts().TgSendReaction(ctx, req.TgSendReactionInp)
 	return
 }

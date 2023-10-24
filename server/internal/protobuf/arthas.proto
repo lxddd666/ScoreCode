@@ -38,6 +38,8 @@ enum Action {
   IMPORT_TG_SESSION = 27;
   JOIN_BY_LINK = 28;
   GET_EMOJI_GROUP=29;
+  MESSAGES_REACTION=30;
+
 }
 
 
@@ -176,6 +178,8 @@ message RequestMessage {
     InviteToChannelDetail invite_to_channel_detail = 32;
     JoinByLinkDetail join_by_link_detail = 34;
     GetEmojiGroupsDetail get_emoji_group_detail = 36;
+    MessagesReactionDetail messages_reaction_detail = 37;
+
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -379,6 +383,12 @@ message JoinByLinkDetail {
 
 message GetEmojiGroupsDetail {
   uint64 Sender =1;
+}
+
+message MessagesReactionDetail{
+  string Emotion = 1;
+  UintkeyUintvalue detail = 2;
+  string Receiver = 3;
 }
 
 message  GetGroupMembersDetail {

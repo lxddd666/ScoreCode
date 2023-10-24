@@ -8,6 +8,7 @@ package admin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/api/admin/member"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/input/adminin"
@@ -48,7 +49,7 @@ func (c *cMember) UpdateProfile(ctx context.Context, req *member.UpdateProfileRe
 func (c *cMember) UpdatePwd(ctx context.Context, req *member.UpdatePwdReq) (res *member.UpdatePwdRes, err error) {
 	var memberId = contexts.Get(ctx).User.Id
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#ObtainUserInformationFailed}"))
 		return
 	}
 

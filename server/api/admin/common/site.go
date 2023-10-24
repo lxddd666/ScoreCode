@@ -25,7 +25,7 @@ type RegisterReq struct {
 }
 
 type RegisterRes struct {
-	*adminin.LoginModel
+	*adminin.RegisterModel
 }
 
 // RegisterCodeReq 登录验证码

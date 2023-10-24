@@ -94,7 +94,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	var loginAccounts = accounts.Slice()
 
 	//===================================
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 
@@ -199,7 +199,7 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 	if err = s.WhatsCheckLogin(ctx, msg.Sender); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -242,13 +242,13 @@ func (s *sWhatsArts) SendVcardMsg(ctx context.Context, msg *whatsin.WhatVcardMsg
 
 // SendMsg 发送消息
 func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
-	if err = s.WhatsCheckLogin(ctx, inp.Sender); err != nil {
+	if err = s.WhatsCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
-	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, inp.Sender)
+	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, inp.Account)
 	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(inp.Receiver))
 	if err != nil {
 		return "", err
@@ -259,7 +259,7 @@ func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res 
 			Values: make([]uint64, 0),
 		}
 
-		syncContactReq.Key = inp.Sender
+		syncContactReq.Key = inp.Account
 		syncContactReq.Values = append(syncContactReq.Values, gconv.Uint64(inp.Receiver))
 
 		//2.同步通讯录
@@ -288,7 +288,7 @@ func (s *sWhatsArts) sendTextMessage(msgReq *artsin.MsgInp) *protobuf.RequestMes
 
 	tmp := &protobuf.SendMessageAction{}
 	sendData := make(map[uint64]*protobuf.UintkeyStringvalue)
-	sendData[msgReq.Sender] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(msgReq.Receiver), Values: msgReq.TextMsg}
+	sendData[msgReq.Account] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(msgReq.Receiver), Values: msgReq.TextMsg}
 	tmp.SendData = sendData
 
 	list = append(list, tmp)
@@ -330,7 +330,7 @@ func (s *sWhatsArts) SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (re
 			},
 		},
 	}
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 	resp, err := c.Connect(ctx, req)
@@ -342,7 +342,7 @@ func (s *sWhatsArts) SendFile(ctx context.Context, inp *whatsin.WhatsMsgInp) (re
 }
 
 func (s *sWhatsArts) AccountLogout(ctx context.Context, in *whatsin.WhatsLogoutInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -384,7 +384,7 @@ func logout(detail whatsin.LogoutDetail) *protobuf.RequestMessage {
 }
 
 func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSyncContactInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {
@@ -436,7 +436,7 @@ func (s *sWhatsArts) syncContact(syncContactReq whatsin.SyncContactReq) *protobu
 }
 
 func (s *sWhatsArts) AccountGetUserImage(ctx context.Context, req *whatsin.WhatsGetUserHeadImageInp) (res string, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer func(conn *grpc2.ClientConn) {
 		err = conn.Close()
 		if err != nil {

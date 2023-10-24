@@ -9,11 +9,11 @@ import (
 
 // RegisterInp 账号注册
 type RegisterInp struct {
-	Username   string `json:"username" v:"required#用户名不能为空" dc:"用户名"`
-	Password   string `json:"password" v:"required#密码不能为空" dc:"密码"`
-	Mobile     string `json:"mobile" v:"required-with:Email#手机号不能为空" dc:"手机号,邮箱为空时必填"`
-	Email      string `json:"email" v:"required-with:Mobile|email#手机号不能为空|邮箱格式不正确"  dc:"邮箱,手机号为空时必填"`
-	Code       string `json:"code" v:"required#验证码不能为空"  dc:"验证码"`
+	Username   string `json:"username" v:"required#UsernameNotEmpty" dc:"用户名"`
+	Password   string `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
+	Mobile     string `json:"mobile" v:"required-without:Email#EmailAndPhoneWithoutEmpty" dc:"手机号,邮箱为空时必填"`
+	Email      string `json:"email" v:"required-without:Mobile|email#EmailAndPhoneWithoutEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
+	Code       string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
 	InviteCode string `json:"inviteCode" dc:"邀请码"`
 }
 
@@ -23,8 +23,7 @@ func (in *RegisterInp) Filter(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-
-	if err = g.Validator().Data(password).Rules("password").Messages("密码长度在6~18之间").Run(ctx); err != nil {
+	if err = g.Validator().Data(password).Rules("password").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
 		return
 	}
 
@@ -32,10 +31,25 @@ func (in *RegisterInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+// RegisterModel 统一注册响应
+type RegisterModel struct {
+	Id         int64  `json:"id"              dc:"用户ID"`
+	Username   string `json:"username"        dc:"用户名"`
+	Pid        int64  `json:"pid"                dc:"上级ID"`
+	Level      int    `json:"level"              dc:"等级"`
+	Tree       string `json:"tree"               dc:"关系树"`
+	InviteCode string `json:"inviteCode"         dc:"邀请码"`
+	RealName   string `json:"realName"                                      dc:"真实姓名"`
+	Avatar     string `json:"avatar"                                        dc:"头像"`
+	Sex        int    `json:"sex"                                           dc:"性别"`
+	Email      string `json:"email"                                         dc:"邮箱"`
+	Mobile     string `json:"mobile"                                        dc:"手机号码"`
+}
+
 // RegisterCodeInp 账号注册验证码
 type RegisterCodeInp struct {
-	Mobile string `json:"mobile" v:"required-without:Email#手机号不能为空" dc:"手机号,邮箱为空时必填"`
-	Email  string `json:"email" v:"required-without:Mobile|email#手机号不能为空|邮箱格式不正确"  dc:"邮箱,手机号为空时必填"`
+	Mobile string `json:"mobile" v:"required-without:Email#PhoneNotEmpty" dc:"手机号,邮箱为空时必填"`
+	Email  string `json:"email" v:"required-without:Mobile|email#EmailNotEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
 }
 
 // LoginModel 统一登录响应
@@ -48,8 +62,8 @@ type LoginModel struct {
 
 // AccountLoginInp 账号登录
 type AccountLoginInp struct {
-	Username string `json:"username" v:"required#用户名不能为空" dc:"用户名"`
-	Password string `json:"password" v:"required#密码不能为空" dc:"密码"`
+	Username string `json:"username" v:"required#UsernameNotEmpty" dc:"用户名"`
+	Password string `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
 	Cid      string `json:"cid"  dc:"验证码ID"`
 	Code     string `json:"code" dc:"验证码"`
 	IsLock   bool   `json:"isLock"  dc:"是否为锁屏状态"`
@@ -57,14 +71,14 @@ type AccountLoginInp struct {
 
 // MobileLoginInp 手机号登录
 type MobileLoginInp struct {
-	Mobile string `json:"mobile" v:"required|phone-loose#手机号不能为空|手机号格式不正确" dc:"手机号"`
-	Code   string `json:"code" v:"required#验证码不能为空"  dc:"验证码"`
+	Mobile string `json:"mobile" v:"required|phone-loose#PhoneNotEmpty|PhoneFormat" dc:"手机号"`
+	Code   string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
 }
 
 // EmailLoginInp 邮箱登录
 type EmailLoginInp struct {
-	Email string `json:"email" v:"required|email#邮箱不能为空|邮箱格式不正确" dc:"邮箱"`
-	Code  string `json:"code" v:"required#验证码不能为空"  dc:"验证码"`
+	Email string `json:"email" v:"required|email#EmailNotEmpty|EmailFormat" dc:"邮箱"`
+	Code  string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
 }
 
 // MemberLoginPermissions 登录用户角色信息

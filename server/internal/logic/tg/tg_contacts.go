@@ -101,7 +101,7 @@ func (s *sTgContacts) Export(ctx context.Context, in *tgin.TgContactsListInp) (e
 
 // Edit 修改/新增联系人管理
 func (s *sTgContacts) Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error) {
-	// 验证'Phone'唯一
+	// 验证'Account'唯一
 	if err = hgorm.IsUnique(ctx, &dao.TgContacts, g.Map{dao.TgContacts.Columns().Phone: in.Phone}, "phone已存在", in.Id); err != nil {
 		return
 	}

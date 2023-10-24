@@ -3,9 +3,10 @@ package artsin
 import "context"
 
 type LoginModel struct {
-	Status int    `json:"status" dc:"状态"`
-	ReqId  string `json:"reqId" dc:"请求ID"`
-	Phone  uint64 `json:"phone" dc:"手机号"`
+	Status  int    `json:"status" dc:"状态"`
+	ReqId   string `json:"reqId" dc:"请求ID"`
+	Account uint64 `json:"account" dc:"IM账号"`
+	Phone   uint64 `json:"phone" dc:"手机号"`
 }
 
 type SendCodeInp struct {
@@ -19,8 +20,8 @@ func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
 }
 
 type MsgInp struct {
-	Sender   uint64    `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
-	Receiver string    `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
+	Account  uint64    `json:"account" v:"required#发送人不能为空" dc:"IM账号"`
+	Receiver uint64    `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
 	TextMsg  []string  `json:"textMsg" dc:"文本消息"`
 	Files    []FileMsg `json:"files" dc:"文件消息"`
 }
@@ -36,7 +37,7 @@ func (in *MsgInp) Filter(ctx context.Context) (err error) {
 }
 
 type VcardMsgInp struct {
-	Sender       uint64        `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
+	Account      uint64        `json:"account" v:"required#发送人不能为空" dc:"发送信息账号"`
 	Receiver     uint64        `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
 	VCardDetails []VCardDetail `json:"vcard" v:"required#名片信息不能为空" dc:"接收名片信息"`
 }
@@ -82,8 +83,8 @@ func (in *GetUserHeadImageInp) Filter(ctx context.Context) (err error) {
 }
 
 type ContactCardInp struct {
-	Sender       uint64        `json:"sender" dc:"发送人"`
-	Receiver     string        `json:"receiver" dc:"接收人"`
+	Account      uint64        `json:"account" dc:"发送人"`
+	Receiver     uint64        `json:"receiver" dc:"接收人"`
 	ContactCards []ContactCard `json:"contactCards" dc:"名片列表"`
 }
 
