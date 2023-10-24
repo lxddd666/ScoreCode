@@ -80,7 +80,7 @@ func (s *sAdminMember) AddBalance(ctx context.Context, in *adminin.MemberAddBala
 			AddonsName:  in.AddonsName,
 			CreditGroup: in.SelfCreditGroup,
 			Num:         in.SelfNum,
-			Remark:      g.I18n().Tf(ctx, "{#aa}", mb.Id, in.Remark),
+			Remark:      g.I18n().Tf(ctx, "{#OperateForUser}", mb.Id, in.Remark),
 		})
 		if err != nil {
 			return
@@ -124,7 +124,7 @@ func (s *sAdminMember) AddIntegral(ctx context.Context, in *adminin.MemberAddInt
 			AddonsName:  in.AddonsName,
 			CreditGroup: in.SelfCreditGroup,
 			Num:         in.SelfNum,
-			Remark:      g.I18n().Tf(ctx, "{#aa}", mb.Id, in.Remark),
+			Remark:      g.I18n().Tf(ctx, "{#OperateForUser}", mb.Id, in.Remark),
 		})
 		if err != nil {
 			return

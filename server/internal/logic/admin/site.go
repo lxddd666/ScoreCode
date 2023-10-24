@@ -194,7 +194,7 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 		return
 	}
 
-	if err = simple.CheckPassword(in.Password, mb.Salt, mb.PasswordHash); err != nil {
+	if err = simple.CheckPassword(ctx, in.Password, mb.Salt, mb.PasswordHash); err != nil {
 		return
 	}
 

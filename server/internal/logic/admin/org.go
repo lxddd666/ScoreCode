@@ -3,8 +3,12 @@ package admin
 import (
 	"context"
 	"fmt"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	crole "hotgo/internal/library/cache/role"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	tgin "hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
@@ -30,7 +34,33 @@ func init() {
 
 // Model 客户公司ORM模型
 func (s *sSysOrg) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
-	return handler.Model(dao.SysOrg.Ctx(ctx), option...)
+	return dao.SysOrg.Ctx(ctx).Handler(filterOrg)
+}
+
+func filterOrg(m *gdb.Model) *gdb.Model {
+	var (
+		role *entity.AdminRole
+		ctx  = m.GetCtx()
+		co   = contexts.Get(ctx)
+	)
+	if co == nil || co.User == nil {
+		return m
+	}
+	err := g.Model(dao.AdminRole.Table()).Cache(crole.GetRoleCache(co.User.RoleId)).Where("id", co.User.RoleId).Scan(&role)
+	if err != nil {
+		g.Log().Panicf(ctx, "failed to role information err:%+v", err)
+	}
+
+	if role == nil {
+		g.Log().Panic(ctx, "failed to role information roleModel == nil")
+	}
+
+	// 超管拥有全部权限
+	if role.Key == consts.SuperRoleKey {
+		return m
+	}
+	return m.Where(dao.SysOrg.Columns().Id, co.User.OrgId)
+
 }
 
 // List 获取客户公司列表

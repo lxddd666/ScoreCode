@@ -65,8 +65,8 @@ export const columns = [
     },
   },
   {
-    title: '所属部门',
-    key: 'deptName',
+    title: '所属公司',
+    key: 'orgName',
     width: 100,
     render(row) {
       return h(
@@ -79,7 +79,7 @@ export const columns = [
           bordered: false,
         },
         {
-          default: () => row.deptName,
+          default: () => row.orgName,
         }
       );
     },

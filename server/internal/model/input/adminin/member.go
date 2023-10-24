@@ -73,7 +73,7 @@ type MemberUpdateProfileInp struct {
 type MemberUpdatePwdInp struct {
 	Id          int64  `json:"id" dc:"用户ID"`
 	OldPassword string `json:"oldPassword" v:"required#OriginalPasswordNotEmpty"  dc:"原密码"`
-	NewPassword string `json:"newPassword" v:"required|length:6,20#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
+	NewPassword string `json:"newPassword" v:"required|length:6,18#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
 }
 
 // MemberResetPwdInp 重置密码
@@ -139,7 +139,7 @@ type MemberAddInp struct {
 func (in *MemberEditInp) Filter(ctx context.Context) (err error) {
 	if in.Password != "" {
 		if err := g.Validator().
-			Rules("length:6,16").
+			Rules("length:6,18").
 			Messages(g.I18n().T(ctx, "{#NewPasswordNotEmpty#NewPasswordLength}")).
 			Data(in.Password).Run(ctx); err != nil {
 			return err.Current()
@@ -191,7 +191,7 @@ type MemberListInp struct {
 type MemberListModel struct {
 	entity.AdminMember
 	RoleName string `json:"roleName"    dc:"所属角色"`
-	OrgId    int64  `json:"orgId"      dc:"公司ID"`
+	OrgName  string `json:"orgName"      dc:"所属公司"`
 }
 
 // MemberCash 用户提现配置

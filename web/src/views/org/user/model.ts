@@ -1,8 +1,7 @@
 import {cloneDeep} from 'lodash-es';
 import {ref} from 'vue';
-import {getDeptOption, getOrgOption} from '@/api/org/dept';
+import {getOrgOption} from '@/api/org/dept';
 import {getRoleOption} from '@/api/system/role';
-import {getPostOption} from '@/api/org/post';
 import {FormSchema, useForm} from '@/components/Form';
 import {statusOptions} from '@/enums/optionsiEnum';
 import {defRangeShortcuts} from '@/utils/dateUtil';
@@ -184,8 +183,6 @@ export const [register, {}] = useForm({
 export const options = ref<any>({
   role: [],
   roleTabs: [{id: -1, name: '全部'}],
-  dept: [],
-  post: [],
   org: [],
 });
 
@@ -217,24 +214,4 @@ function treeDataToCompressed(source) {
       : ''; // 子级递归
   }
   return options.value.roleTabs;
-}
-
-export async function loadDeptAndPost(orgId: number) {
-  const dept = await getDeptOption(orgId);
-  if (dept.list) {
-    options.value.dept = dept.list;
-  } else {
-    options.value.dept = [];
-  }
-
-  const post = await getPostOption(orgId);
-  if (post.list && post.list.length > 0) {
-    for (let i = 0; i < post.list.length; i++) {
-      post.list[i].label = post.list[i].name;
-      post.list[i].value = post.list[i].id;
-    }
-    options.value.post = post.list;
-  } else {
-    options.value.post = [];
-  }
 }

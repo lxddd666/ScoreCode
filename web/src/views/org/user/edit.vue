@@ -55,34 +55,6 @@
               </n-form-item>
             </n-gi>
           </n-grid>
-
-          <n-grid x-gap="24" :cols="2">
-            <n-gi>
-              <n-form-item label="绑定岗位" path="postIds">
-                <n-select
-                  v-model:value="params.postIds"
-                  multiple
-                  :options="options.post"
-                  :disabled="showOptionsSelect"
-                  :placeholder="placeholderSelect"
-                  @update:value="handleUpdatePostValue"
-                />
-              </n-form-item>
-            </n-gi>
-            <n-gi>
-              <n-form-item label="所属部门" path="deptId">
-                <n-tree-select
-                  key-field="id"
-                  :options="options.dept"
-                  v-model:value="params.deptId"
-                  :default-expand-all="true"
-                  :disabled="showOptionsSelect"
-                  :placeholder="placeholderSoelect"
-                  @update:value="handleUpdateDeptValue"
-                />
-              </n-form-item>
-            </n-gi>
-          </n-grid>
           <n-grid x-gap="24" :cols="2">
             <n-gi>
               <n-form-item label="密码" path="password">
@@ -160,8 +132,7 @@
     State,
     defaultState,
     addNewState,
-    addState,
-    loadDeptAndPost
+    addState
   } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';
@@ -238,10 +209,6 @@
       return;
     }
 
-    loadDeptAndPost(value.orgId).then(()=>{
-      loading.value = true;
-    });
-
     // 编辑
     GetMemberView({ id: value.id })
       .then((res) => {
@@ -257,7 +224,6 @@
     if (value) {
       showOptionsSelect.value = false;
       placeholderSelect.value = '请选择';
-      loadDeptAndPost(value);
     }
     params.value.orgId = Number(value);
   }

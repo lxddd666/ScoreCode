@@ -91,6 +91,7 @@ type SysOrgListModel struct {
 	Leader    string      `json:"leader"    dc:"负责人"`
 	Phone     string      `json:"phone"     dc:"联系电话"`
 	Email     string      `json:"email"     dc:"邮箱"`
+	PortNum   int         `json:"portNum"   dc:"端口数"`
 	Sort      int         `json:"sort"      dc:"排序"`
 	Status    int         `json:"status"    dc:"公司状态"`
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
@@ -104,6 +105,7 @@ type SysOrgExportModel struct {
 	Leader    string      `json:"leader"    dc:"负责人"`
 	Phone     string      `json:"phone"     dc:"联系电话"`
 	Email     string      `json:"email"     dc:"邮箱"`
+	PortNum   int         `json:"portNum"   dc:"端口数"`
 	Sort      int         `json:"sort"      dc:"排序"`
 	Status    int         `json:"status"    dc:"公司状态"`
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`

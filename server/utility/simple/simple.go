@@ -67,7 +67,7 @@ func DecryptText(text string) (string, error) {
 }
 
 // CheckPassword 检查密码
-func CheckPassword(input, salt, hash string) (err error) {
+func CheckPassword(ctx context.Context, input, salt, hash string) (err error) {
 	// 解密密码
 	password, err := DecryptText(input)
 	if err != nil {
@@ -75,7 +75,7 @@ func CheckPassword(input, salt, hash string) (err error) {
 	}
 
 	if hash != gmd5.MustEncryptString(password+salt) {
-		err = gerror.New("用户密码不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#UsernamePasswordError}"))
 		return
 	}
 	return

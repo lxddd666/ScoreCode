@@ -81,7 +81,7 @@ func FilterAuthWithField(filterField string) func(m *gdb.Model) *gdb.Model {
 		case consts.RoleDataSelfAndAllSub: // 自己和全部下级
 			m = m.WhereIn(filterField, GetSelfAndAllSub(ctx, co.User.Id))
 		default:
-			g.Log().Panic(ctx, "dataScope is not registered")
+			g.Log().Warning(ctx, "dataScope is not registered")
 		}
 		return m
 	}
