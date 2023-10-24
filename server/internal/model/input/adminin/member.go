@@ -20,20 +20,20 @@ import (
 
 // MemberUpdateCashInp 更新会员提现信息
 type MemberUpdateCashInp struct {
-	Name      string `json:"name" v:"required#支付宝姓名不能为空"  dc:"支付宝姓名"`
-	PayeeCode string `json:"payeeCode" v:"required#支付宝收款码不能为空"  dc:"支付宝收款码"`
-	Account   string `json:"account" v:"required#支付宝账号不能为空"  dc:"支付宝账号"`
-	Password  string `json:"password" v:"required#密码不能为空"  dc:"密码"`
+	Name      string `json:"name" v:"required#AlipayNameNotEmpty"  dc:"支付宝姓名"`
+	PayeeCode string `json:"payeeCode" v:"required#AlipayCollectionCodeNotEmpty"  dc:"支付宝收款码"`
+	Account   string `json:"account" v:"required#AlipayAccountNotEmpty"  dc:"支付宝账号"`
+	Password  string `json:"password" v:"required#PasswordNotEmpty"  dc:"密码"`
 }
 
 type MemberUpdateEmailInp struct {
-	Email string `json:"email"  v:"required#换绑邮箱不能为空"       dc:"换绑邮箱"`
+	Email string `json:"email"  v:"required#ChangeBindMailboxNotEmpty"       dc:"换绑邮箱"`
 	Code  string `json:"code" dc:"原邮箱验证码"`
 }
 
 // MemberUpdateMobileInp 换绑手机号
 type MemberUpdateMobileInp struct {
-	Mobile string `json:"mobile"  v:"required#换绑手机号不能为空"       dc:"换绑手机号"`
+	Mobile string `json:"mobile"  v:"required#ChangeBindMobilePhoneNotEmpty"       dc:"换绑手机号"`
 	Code   string `json:"code" dc:"原号码短信验证码"`
 }
 
@@ -63,8 +63,8 @@ type MemberProfileModel struct {
 
 // MemberUpdateProfileInp 更新用户资料
 type MemberUpdateProfileInp struct {
-	Avatar   string      `json:"avatar"   v:"required#头像不能为空"     dc:"头像"`
-	RealName string      `json:"realName"  v:"required#真实姓名不能为空"       dc:"真实姓名"`
+	Avatar   string      `json:"avatar"   v:"required#AvatarNotEmpty"     dc:"头像"`
+	RealName string      `json:"realName"  v:"required#RealNameNotEmpty"       dc:"真实姓名"`
 	Qq       string      `json:"qq"          dc:"QQ"`
 	Birthday *gtime.Time `json:"birthday"    dc:"生日"`
 	Sex      int         `json:"sex"         dc:"性别"`
@@ -114,10 +114,10 @@ type LoginMemberInfoModel struct {
 // MemberEditInp 修改用户
 type MemberEditInp struct {
 	Id           int64       `json:"id"                                            dc:"管理员ID"`
-	RoleId       int64       `json:"roleId"    v:"required#角色不能为空"            dc:"角色ID"`
-	PostIds      []int64     `json:"postIds"   v:"required#岗位不能为空"            dc:"岗位ID"`
-	DeptId       int64       `json:"deptId"    v:"required#部门不能为空"            dc:"部门ID"`
-	Username     string      `json:"username"   v:"required#账号不能为空"           dc:"账号"`
+	RoleId       int64       `json:"roleId"    v:"required#RoleNotEmpty"            dc:"角色ID"`
+	PostIds      []int64     `json:"postIds"   v:"required#PostNotEmpty"            dc:"岗位ID"`
+	DeptId       int64       `json:"deptId"    v:"required#DepartmentNotEmpty"            dc:"部门ID"`
+	Username     string      `json:"username"   v:"required#AccountNotEmpty"           dc:"账号"`
 	PasswordHash string      `json:"passwordHash"                                  dc:"密码hash"`
 	Password     string      `json:"password"                                      dc:"密码"`
 	RealName     string      `json:"realName"                                      dc:"真实姓名"`
@@ -149,7 +149,7 @@ func (in *MemberEditInp) Filter(ctx context.Context) (err error) {
 	if in.Password != "" {
 		if err := g.Validator().
 			Rules("length:6,16").
-			Messages("#新密码不能为空#新密码需在6~16之间").
+			Messages(g.I18n().T(ctx, "{#NewPasswordNotEmpty#NewPasswordLength}")).
 			Data(in.Password).Run(ctx); err != nil {
 			return err.Current()
 		}
@@ -220,17 +220,18 @@ type MemberStatusInp struct {
 
 func (in *MemberStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
+
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 	return
@@ -251,8 +252,8 @@ type MemberSelectModel struct {
 
 // MemberAddBalanceInp  增加余额
 type MemberAddBalanceInp struct {
-	Id               int64   `json:"id"          v:"required#用户ID不能为空"         dc:"管理员ID"`
-	OperateMode      int64   `json:"operateMode"      v:"in:1,2#输入的操作方式是无效的"     dc:"操作方式"`
+	Id               int64   `json:"id"          v:"required#UserIDNotEmpty"         dc:"管理员ID"`
+	OperateMode      int64   `json:"operateMode"      v:"in:1,2#InputOperationInvalid"     dc:"操作方式"`
 	Num              float64 `json:"num"                dc:"操作数量"`
 	AppId            string  `json:"appId"`
 	AddonsName       string  `json:"addonsName"`
@@ -265,7 +266,7 @@ type MemberAddBalanceInp struct {
 
 func (in *MemberAddBalanceInp) Filter(ctx context.Context) (err error) {
 	if in.Num <= 0 {
-		err = gerror.New("操作数量必须大于0")
+		err = gerror.New(g.I18n().T(ctx, "{#OperationsNumber}"))
 		return
 	}
 
@@ -294,7 +295,7 @@ type MemberAddBalanceModel struct{}
 
 // MemberAddIntegralInp  增加积分
 type MemberAddIntegralInp struct {
-	Id               int64   `json:"id"        v:"required#用户ID不能为空"           dc:"管理员ID"`
+	Id               int64   `json:"id"        v:"required#UserIDNotEmpty"           dc:"管理员ID"`
 	OperateMode      int64   `json:"operateMode"        dc:"操作方式"`
 	Num              float64 `json:"num"                dc:"操作数量"`
 	AppId            string  `json:"appId"`
@@ -308,7 +309,7 @@ type MemberAddIntegralInp struct {
 
 func (in *MemberAddIntegralInp) Filter(ctx context.Context) (err error) {
 	if in.Num <= 0 {
-		err = gerror.New("操作数量必须大于0")
+		err = gerror.New(g.I18n().T(ctx, "{#OperationsNumber}"))
 		return
 	}
 
