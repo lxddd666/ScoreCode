@@ -233,7 +233,7 @@ func (s *sAdminRole) Edit(ctx context.Context, in *adminin.RoleEditInp) (err err
 }
 
 func updateRoleChildrenTree(ctx context.Context, _id int64, _level int, _tree string) (err error) {
-	var list []*entity.AdminDept
+	var list []*entity.AdminRole
 	if err = dao.AdminRole.Ctx(ctx).Where("pid", _id).Scan(&list); err != nil {
 		return
 	}
@@ -303,10 +303,6 @@ func (s *sAdminRole) DataScopeEdit(ctx context.Context, in *adminin.DataScopeEdi
 
 	if models.Key == consts.SuperRoleKey {
 		return gerror.New("超管角色拥有全部权限，无需修改！")
-	}
-
-	if in.DataScope == consts.RoleDataDeptCustom && len(convert.UniqueSlice(in.CustomDept)) == 0 {
-		return gerror.New("自定义权限必须配置自定义部门！")
 	}
 
 	models.DataScope = in.DataScope

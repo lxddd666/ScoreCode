@@ -24,7 +24,6 @@ type Identity struct {
 	Id       int64       `json:"id"              description:"用户ID"`
 	OrgId    int64       `json:"orgId"           description:"组织ID"`
 	Pid      int64       `json:"pid"             description:"上级ID"`
-	DeptId   int64       `json:"deptId"          description:"部门ID"`
 	RoleId   int64       `json:"roleId"          description:"角色ID"`
 	RoleKey  string      `json:"roleKey"         description:"角色唯一标识符"`
 	Username string      `json:"username"        description:"用户名"`

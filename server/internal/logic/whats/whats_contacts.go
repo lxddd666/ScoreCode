@@ -265,7 +265,6 @@ func (s *sWhatsContacts) Upload(ctx context.Context, list []*whatsin.WhatsContac
 
 		for _, inp := range list {
 			inp.OrgId = gconv.Uint64(user.OrgId)
-			inp.DeptId = gconv.Uint64(user.DeptId)
 		}
 	}
 	_, err = s.Model(ctx).Data(list).Save()

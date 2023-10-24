@@ -15,7 +15,6 @@ type AdminMember struct {
 	g.Meta             `orm:"table:hg_admin_member, do:true"`
 	Id                 interface{} // 管理员ID
 	OrgId              interface{} // 组织ID
-	DeptId             interface{} // 部门ID
 	RoleId             interface{} // 角色ID
 	RealName           interface{} // 真实姓名
 	Username           interface{} // 账号
@@ -26,7 +25,6 @@ type AdminMember struct {
 	Balance            interface{} // 余额
 	Avatar             interface{} // 头像
 	Sex                interface{} // 性别
-	Qq                 interface{} // qq
 	Email              interface{} // 邮箱
 	Mobile             interface{} // 手机号码
 	Birthday           *gtime.Time // 生日

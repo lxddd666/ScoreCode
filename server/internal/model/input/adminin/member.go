@@ -55,9 +55,7 @@ type MemberProfileModel struct {
 	PostGroup string           `json:"postGroup" dc:"岗位名称"`
 	RoleGroup string           `json:"roleGroup" dc:"角色名称"`
 	User      *MemberViewModel `json:"member"    dc:"用户基本信息"`
-	SysDept   *DeptViewModel   `json:"sysDept"   dc:"部门信息"`
 	SysRoles  []*RoleListModel `json:"sysRoles"  dc:"角色列表"`
-	PostIds   int64            `json:"postIds"   dc:"当前岗位"`
 	RoleIds   int64            `json:"roleIds"   dc:"当前角色"`
 }
 
@@ -65,7 +63,6 @@ type MemberProfileModel struct {
 type MemberUpdateProfileInp struct {
 	Avatar   string      `json:"avatar"   v:"required#AvatarNotEmpty"     dc:"头像"`
 	RealName string      `json:"realName"  v:"required#RealNameNotEmpty"       dc:"真实姓名"`
-	Qq       string      `json:"qq"          dc:"QQ"`
 	Birthday *gtime.Time `json:"birthday"    dc:"生日"`
 	Sex      int         `json:"sex"         dc:"性别"`
 	Address  string      `json:"address"     dc:"联系地址"`
@@ -87,10 +84,8 @@ type MemberResetPwdInp struct {
 
 type LoginMemberInfoModel struct {
 	Id          int64       `json:"id"                 dc:"用户ID"`
-	DeptName    string      `json:"deptName"           dc:"所属部门"`
 	RoleName    string      `json:"roleName"           dc:"所属角色"`
 	Permissions []string    `json:"permissions"        dc:"角色信息"`
-	DeptId      int64       `json:"-"                  dc:"部门ID"`
 	RoleId      int64       `json:"-"                  dc:"角色ID"`
 	Username    string      `json:"username"           dc:"用户名"`
 	RealName    string      `json:"realName"           dc:"姓名"`
@@ -98,7 +93,6 @@ type LoginMemberInfoModel struct {
 	Balance     float64     `json:"balance"            dc:"余额"`
 	Integral    float64     `json:"integral"           dc:"积分"`
 	Sex         int         `json:"sex"                dc:"性别"`
-	Qq          string      `json:"qq"                 dc:"qq"`
 	Email       string      `json:"email"              dc:"邮箱"`
 	Mobile      string      `json:"mobile"             dc:"手机号码"`
 	Birthday    *gtime.Time `json:"birthday"           dc:"生日"`
@@ -115,15 +109,12 @@ type LoginMemberInfoModel struct {
 type MemberEditInp struct {
 	Id           int64       `json:"id"                                            dc:"管理员ID"`
 	RoleId       int64       `json:"roleId"    v:"required#RoleNotEmpty"            dc:"角色ID"`
-	PostIds      []int64     `json:"postIds"   v:"required#PostNotEmpty"            dc:"岗位ID"`
-	DeptId       int64       `json:"deptId"    v:"required#DepartmentNotEmpty"            dc:"部门ID"`
 	Username     string      `json:"username"   v:"required#AccountNotEmpty"           dc:"账号"`
 	PasswordHash string      `json:"passwordHash"                                  dc:"密码hash"`
 	Password     string      `json:"password"                                      dc:"密码"`
 	RealName     string      `json:"realName"                                      dc:"真实姓名"`
 	Avatar       string      `json:"avatar"                                        dc:"头像"`
 	Sex          int         `json:"sex"                                           dc:"性别"`
-	Qq           string      `json:"qq"                                            dc:"qq"`
 	Email        string      `json:"email"                                         dc:"邮箱"`
 	Birthday     *gtime.Time `json:"birthday"                                      dc:"生日"`
 	ProvinceId   int         `json:"provinceId"                                    dc:"省"`
@@ -179,9 +170,8 @@ type MemberViewInp struct {
 
 type MemberViewModel struct {
 	entity.AdminMember
-	DeptName string `json:"deptName"    dc:"所属部门"`
+	OrgName  string `json:"orgName"    dc:"所属公司"`
 	RoleName string `json:"roleName"    dc:"所属角色"`
-	PostIds  []int  `json:"postIds"    dc:"岗位"`
 }
 
 // MemberListInp 获取用户列表
@@ -189,7 +179,7 @@ type MemberListInp struct {
 	form.PageReq
 	form.StatusReq
 	RoleId    int     `json:"roleId"     dc:"角色ID"`
-	DeptId    int     `json:"deptId"     dc:"部门ID"`
+	OrgId     int     `json:"OrgId"     dc:"公司ID"`
 	Mobile    int     `json:"mobile"     dc:"手机号"`
 	Username  string  `json:"username"   dc:"用户名"`
 	RealName  string  `json:"realName"   dc:"真实姓名"`
@@ -200,10 +190,8 @@ type MemberListInp struct {
 
 type MemberListModel struct {
 	entity.AdminMember
-	DeptName string  `json:"deptName"    dc:"所属部门"`
-	RoleName string  `json:"roleName"    dc:"所属角色"`
-	PostIds  []int64 `json:"postIds"     dc:"岗位"`
-	DeptId   int64   `json:"deptId"      dc:"部门ID"`
+	RoleName string `json:"roleName"    dc:"所属角色"`
+	OrgId    int64  `json:"orgId"      dc:"公司ID"`
 }
 
 // MemberCash 用户提现配置

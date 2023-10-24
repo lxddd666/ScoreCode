@@ -13,7 +13,6 @@ import (
 type AdminMember struct {
 	Id                 int64       `json:"id"                 description:"管理员ID"`
 	OrgId              int64       `json:"orgId"              description:"组织ID"`
-	DeptId             int64       `json:"deptId"             description:"部门ID"`
 	RoleId             int64       `json:"roleId"             description:"角色ID"`
 	RealName           string      `json:"realName"           description:"真实姓名"`
 	Username           string      `json:"username"           description:"账号"`
@@ -24,7 +23,6 @@ type AdminMember struct {
 	Balance            float64     `json:"balance"            description:"余额"`
 	Avatar             string      `json:"avatar"             description:"头像"`
 	Sex                int         `json:"sex"                description:"性别"`
-	Qq                 string      `json:"qq"                 description:"qq"`
 	Email              string      `json:"email"              description:"邮箱"`
 	Mobile             string      `json:"mobile"             description:"手机号码"`
 	Birthday           *gtime.Time `json:"birthday"           description:"生日"`

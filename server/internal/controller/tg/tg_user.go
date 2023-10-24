@@ -3,8 +3,8 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/os/gfile"
 	tguser "hotgo/api/tg/tg_user"
-	"hotgo/internal/library/storager"
 	"hotgo/internal/service"
 )
 
@@ -75,21 +75,16 @@ func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionRe
 		err = gerror.New("没有找到上传的文件")
 		return
 	}
-
-	meta, err := storager.GetFileMeta(req.File)
-	if err != nil {
-		return
-	}
-	if meta.Kind != "zip" {
+	if gfile.ExtName(req.File.Filename) != "zip" {
 		err = gerror.New("上传文件类型不是zip")
 		return
 	}
-	if meta.Size == 0 {
+	if req.File.Size == 0 {
 		err = gerror.New("上传zip包内文件为空")
 		return
 	}
 
-	data, err := service.TgUser().ImportSession(ctx, meta)
+	data, err := service.TgUser().ImportSession(ctx, req.File)
 	res = (*tguser.ImportSessionRes)(&data)
 	return
 }

@@ -22,7 +22,6 @@ type AdminMemberDao struct {
 type AdminMemberColumns struct {
 	Id                 string // 管理员ID
 	OrgId              string // 组织ID
-	DeptId             string // 部门ID
 	RoleId             string // 角色ID
 	RealName           string // 真实姓名
 	Username           string // 账号
@@ -33,7 +32,6 @@ type AdminMemberColumns struct {
 	Balance            string // 余额
 	Avatar             string // 头像
 	Sex                string // 性别
-	Qq                 string // qq
 	Email              string // 邮箱
 	Mobile             string // 手机号码
 	Birthday           string // 生日
@@ -55,7 +53,6 @@ type AdminMemberColumns struct {
 var adminMemberColumns = AdminMemberColumns{
 	Id:                 "id",
 	OrgId:              "org_id",
-	DeptId:             "dept_id",
 	RoleId:             "role_id",
 	RealName:           "real_name",
 	Username:           "username",
@@ -66,7 +63,6 @@ var adminMemberColumns = AdminMemberColumns{
 	Balance:            "balance",
 	Avatar:             "avatar",
 	Sex:                "sex",
-	Qq:                 "qq",
 	Email:              "email",
 	Mobile:             "mobile",
 	Birthday:           "birthday",

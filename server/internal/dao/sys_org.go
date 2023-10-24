@@ -8,19 +8,19 @@ import (
 	"hotgo/internal/dao/internal"
 )
 
-// internalAdminPostDao is internal type for wrapping internal DAO implements.
-type internalAdminPostDao = *internal.AdminPostDao
+// internalSysOrgDao is internal type for wrapping internal DAO implements.
+type internalSysOrgDao = *internal.SysOrgDao
 
-// adminPostDao is the data access object for table hg_admin_post.
+// sysOrgDao is the data access object for table sys_org.
 // You can define custom methods on it to extend its functionality as you wish.
-type adminPostDao struct {
-	internalAdminPostDao
+type sysOrgDao struct {
+	internalSysOrgDao
 }
 
 var (
-	// AdminPost is globally common accessible object for table hg_admin_post operations.
-	AdminPost = adminPostDao{
-		internal.NewAdminPostDao(),
+	// SysOrg is globally public accessible object for table sys_org operations.
+	SysOrg = sysOrgDao{
+		internal.NewSysOrgDao(),
 	}
 )
 

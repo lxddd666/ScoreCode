@@ -7,7 +7,6 @@ package adminin
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
@@ -69,31 +68,29 @@ func (in *RoleEditInp) Filter(ctx context.Context) (err error) {
 
 // RoleUpdateFields 修改数据字段过滤
 type RoleUpdateFields struct {
-	Id         int64       `json:"id"         description:"角色ID"`
-	Name       string      `json:"name"       description:"角色名称"`
-	Key        string      `json:"key"        description:"角色权限字符串"`
-	DataScope  int         `json:"dataScope"  description:"数据范围"`
-	CustomDept *gjson.Json `json:"customDept" description:"自定义部门权限"`
-	Pid        int64       `json:"pid"        description:"上级角色ID"`
-	Level      int         `json:"level"      description:"关系树等级"`
-	Tree       string      `json:"tree"       description:"关系树"`
-	Remark     string      `json:"remark"     description:"备注"`
-	Sort       int         `json:"sort"       description:"排序"`
-	Status     int         `json:"status"     description:"角色状态"`
+	Id        int64  `json:"id"         description:"角色ID"`
+	Name      string `json:"name"       description:"角色名称"`
+	Key       string `json:"key"        description:"角色权限字符串"`
+	DataScope int    `json:"dataScope"  description:"数据范围"`
+	Pid       int64  `json:"pid"        description:"上级角色ID"`
+	Level     int    `json:"level"      description:"关系树等级"`
+	Tree      string `json:"tree"       description:"关系树"`
+	Remark    string `json:"remark"     description:"备注"`
+	Sort      int    `json:"sort"       description:"排序"`
+	Status    int    `json:"status"     description:"角色状态"`
 }
 
 // RoleInsertFields 新增数据字段过滤
 type RoleInsertFields struct {
-	Name       string      `json:"name"       description:"角色名称"`
-	Key        string      `json:"key"        description:"角色权限字符串"`
-	DataScope  int         `json:"dataScope"  description:"数据范围"`
-	CustomDept *gjson.Json `json:"customDept" description:"自定义部门权限"`
-	Pid        int64       `json:"pid"        description:"上级角色ID"`
-	Level      int         `json:"level"      description:"关系树等级"`
-	Tree       string      `json:"tree"       description:"关系树"`
-	Remark     string      `json:"remark"     description:"备注"`
-	Sort       int         `json:"sort"       description:"排序"`
-	Status     int         `json:"status"     description:"角色状态"`
+	Name      string `json:"name"       description:"角色名称"`
+	Key       string `json:"key"        description:"角色权限字符串"`
+	DataScope int    `json:"dataScope"  description:"数据范围"`
+	Pid       int64  `json:"pid"        description:"上级角色ID"`
+	Level     int    `json:"level"      description:"关系树等级"`
+	Tree      string `json:"tree"       description:"关系树"`
+	Remark    string `json:"remark"     description:"备注"`
+	Sort      int    `json:"sort"       description:"排序"`
+	Status    int    `json:"status"     description:"角色状态"`
 }
 
 // RoleListInp 获取列表
@@ -137,7 +134,6 @@ type RoleMemberListInp struct {
 
 	form.StatusReq
 	Role      int    `json:"role"        dc:"角色ID"`
-	DeptId    int    `json:"deptId"      dc:"部门ID"`
 	Mobile    int    `json:"mobile"      dc:"手机号"`
 	Username  string `json:"username"    dc:"用户名"`
 	RealName  string `json:"realName"    dc:"真实姓名"`

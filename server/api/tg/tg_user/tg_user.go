@@ -71,7 +71,7 @@ type UnBindMemberRes struct{}
 
 // ImportSessionReq 上传session
 type ImportSessionReq struct {
-	g.Meta `path:"/tgUser/importSession" method:"post" tags:"tg-账号管理" summary:"上传session"`
+	g.Meta `path:"/tgUser/importSession" method:"post" mime:"multipart/form-data" tags:"tg-账号管理" summary:"上传session"`
 	File   *ghttp.UploadFile `json:"file" type:"file" dc:"zip文件"`
 }
 

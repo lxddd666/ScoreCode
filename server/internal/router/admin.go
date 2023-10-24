@@ -48,12 +48,11 @@ func Admin(ctx context.Context, group *ghttp.RouterGroup) {
 			sys.SmsLog,       // 短信记录
 			sys.ServeLicense, // 服务许可证
 			admin.Member,     // 用户
+			admin.Org,        // 公司
 			admin.Monitor,    // 监控
 			admin.Role,       // 路由
-			admin.Dept,       // 部门
 			admin.Menu,       // 菜单
 			admin.Notice,     // 公告
-			admin.Post,       // 岗位
 			common.Wechat,    // 微信授权
 			admin.Order,      // 充值订单
 			admin.CreditsLog, // 资金变动

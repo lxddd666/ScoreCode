@@ -1,26 +1,26 @@
 package tg
 
 import (
-	"archive/zip"
-	"bytes"
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	_ "github.com/gogf/gf/contrib/drivers/sqlite/v2"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/encoding/gcompress"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
 	_ "github.com/mattn/go-sqlite3"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
-	"hotgo/internal/library/grpc"
+	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/storager"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -30,12 +30,12 @@ import (
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"io"
-	"log"
+	"hotgo/utility/simple"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
+	"sync"
+	"time"
 )
 
 type sTgUser struct{}
@@ -232,160 +232,89 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 }
 
 // ImportSession 导入session文件
-func (s *sTgUser) ImportSession(ctx context.Context, file *storager.FileMeta) (msg string, err error) {
-	// 将 []byte 数据转换为 io.Reader 对象
-
-	sessionDetails := make([]*tgin.TgImportSessionModel, 0)
-	fileSessionMap := make(map[string][]byte)
-
-	currentDir, err := os.Getwd()
-	outputFilePath := filepath.Join(currentDir, "import_session")
+func (s *sTgUser) ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error) {
+	sessionDetails, err := s.handlerReadSessionJsonFiles(ctx, file)
 	if err != nil {
-		err = gerror.Wrap(err, "获取当前路径失败"+err.Error())
-		return "", err
+		return
 	}
-
-	err = mkdirSessionFolder(outputFilePath)
-	//defer func() {
-	//	// 最后删除导入进来的session文件
-	//	err = os.RemoveAll(outputFilePath)
-	//	if err != nil {
-	//		err = gerror.Wrap(err, "删除session文件失败,"+err.Error())
-	//		fmt.Println(err.Error())
-	//	}
-	//}()
-
-	if err != nil {
-		return "", err
-	}
-	r := bytes.NewReader(file.Content)
-
-	// 创建一个 *zip.Reader 对象，用于解析 ZIP 文件
-
-	zr, err := zip.NewReader(r, int64(len(file.Content)))
-	if err != nil {
-		log.Fatal(err)
-	}
-	// 将json信息解析
-	var rc io.ReadCloser
-	for _, f := range zr.File {
-		fileName := filepath.Base(f.Name)
-		rc, err = f.Open()
-		if err != nil {
-			err = gerror.Wrap(err, "打开"+fileName+"文件,"+err.Error())
-			return "", err
-		}
-		jsonData, err := io.ReadAll(rc)
-		if err != nil {
-			rc.Close()
-			err = gerror.Wrap(err, "read "+fileName+"文件,"+err.Error())
-			return "", err
-		}
-		if strings.HasSuffix(fileName, ".json") {
-
-			sessionJ := &tgin.TgImportSessionModel{}
-			err = json.Unmarshal(jsonData, sessionJ)
-
-			if err != nil {
-				rc.Close()
-				err = gerror.Wrap(err, "解析Json文件失败,"+err.Error())
-				return "", err
-			}
-			sessionDetails = append(sessionDetails, sessionJ)
-		} else if strings.HasSuffix(fileName, ".session") {
-			name := strings.TrimSuffix(fileName, ".session")
-			fileSessionMap[name] = jsonData
-			// 创建对应的输出文件
-			path := filepath.Join(outputFilePath, fileName)
-
-			err := os.WriteFile(path, jsonData, 0644)
-			if err != nil {
-				rc.Close()
-				err = gerror.Wrap(err, "写入"+fileName+"文件失败:"+err.Error())
-				return "", err
-			}
-		}
-		rc.Close()
-	}
-
-	// 遍历details，去文件中的xxxx.session文件中找到对应的authKey
-	if len(sessionDetails) > 0 {
-		var db *sql.DB
-		for _, detail := range sessionDetails {
-			se := fileSessionMap[detail.Phone]
-			if se == nil {
-				continue
-			}
-			fileName := detail.Phone + ".session"
-			// SQLite文件路径
-			path := filepath.Join(outputFilePath, fileName)
-
-			// 打开SQLite数据库连接
-			db, err = sql.Open("sqlite3", path)
-			if err != nil {
-				err = gerror.Wrap(err, "获取sqlite文件驱动失败"+err.Error())
-				return "", err
-			}
-
-			// 测试数据库连接
-			err = db.Ping()
-			if err != nil {
-				err = gerror.Wrap(err, "sqlite数据库连接Ping不通"+err.Error())
-				db.Close()
-				return "", err
-			}
-			rows, err := db.Query("select * from sessions")
-			if err != nil {
-				err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
-				db.Close()
-				return "", err
-			}
-			if rows.Next() {
-				ts := &tgin.TgImportSessionAuthKeyMsg{}
-				_ = rows.Scan(&ts.DC, &ts.Addr, &ts.Port, &ts.AuthKey, &ts.TakeOutId)
-
-				detail.SessionAuthKey = ts
-			}
-			rows.Close()
-			db.Close()
-			// 调用完后删除文件
-			err = os.Remove(path)
-			if err != nil {
-				err = gerror.Wrap(err, "删除"+path+"文件失败:"+err.Error())
-				fmt.Println(err.Error())
-			}
-		}
-
-	}
-
 	msg, err = s.TgImportSessionToGrpc(ctx, sessionDetails)
 	return
 }
 
-func mkdirSessionFolder(path string) (err error) {
-	// 先删除文件夹
-	err = os.RemoveAll(path)
-	if err != nil {
-		err = gerror.Wrap(err, "删除session文件失败,"+err.Error())
+// 读取json文件
+func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.UploadFile) (sessionDetails []*tgin.TgImportSessionModel, err error) {
+	temp := gfile.Temp()
+	zipFileName, err := file.Save(temp)
 
+	dsPath := gfile.Join(temp, zipFileName)
+	defer func() { _ = os.Remove(dsPath) }()
+	err = gcompress.UnZipFile(dsPath, temp)
+	if err != nil {
 		return
 	}
+	unzipPath := gfile.Join(temp, gfile.Name(zipFileName))
+	fmt.Println(unzipPath)
+	defer func() { _ = gfile.Remove(unzipPath) }()
+	list := array.New[*tgin.TgImportSessionModel](true)
+	jsonPaths, _ := gfile.ScanDirFile(unzipPath, "*.json", true)
+	wait := sync.WaitGroup{}
 
-	err = os.Mkdir(path, 0755)
-	if err != nil {
-		err = gerror.Wrap(err, "创建session文件夹失败:"+err.Error())
-		return err
+	for _, thatPath := range jsonPaths {
+		wait.Add(1)
+		jsonPath := thatPath
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			defer wait.Done()
+			sessionJ := &tgin.TgImportSessionModel{}
+			err = gjson.New(gfile.GetBytes(jsonPath)).Scan(&sessionJ)
+			if err != nil {
+				return
+			}
+			// SQLite文件路径
+			path := filepath.Join(unzipPath, sessionJ.Phone+".session")
+			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path)
+			if err != nil {
+				return
+			}
+			time.Sleep(3 * time.Second)
+			list.PushLeft(sessionJ)
+		})
+
 	}
+	wait.Wait()
+	sessionDetails = list.Slice()
+	return
+}
 
+func (s *sTgUser) handlerReadAuthKey(path string) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
+	// 打开SQLite数据库连接
+	var db *sql.DB
+	db, err = sql.Open("sqlite3", path)
+	if err != nil {
+		err = gerror.Wrap(err, "获取sqlite文件驱动失败"+err.Error())
+		return
+	}
+	defer func() { _ = db.Close() }()
+	// 测试数据库连接
+	err = db.Ping()
+	if err != nil {
+		err = gerror.Wrap(err, "sqlite数据库连接Ping不通"+err.Error())
+		return
+	}
+	rows, err := db.Query("select dc_id,server_address,port,auth_key from sessions")
+	if err != nil {
+		err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
+		return
+	}
+	if rows.Next() {
+		authKey = &tgin.TgImportSessionAuthKeyMsg{}
+		err = rows.Scan(&authKey.DC, &authKey.Addr, &authKey.Port, &authKey.AuthKey)
+		return
+	}
 	return
 }
 
 // TgImportSessionToGrpc 导入session
 func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error) {
-
-	conn := grpc.GetManagerConn(ctx)
-	defer grpc.CloseConn(conn)
-	c := protobuf.NewArthasClient(conn)
 
 	sessionMap := make(map[uint64]*protobuf.ImportTgSessionMsg)
 	for _, s := range inp {
@@ -421,7 +350,7 @@ func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImpor
 		},
 	}
 
-	res, err := c.Connect(ctx, req)
+	res, err := service.Arts().Send(ctx, req)
 	g.Log().Info(ctx, res.GetActionResult().String())
 	if err != nil {
 		return "", gerror.Wrap(err, "请求服务端失败，请稍后重试!"+err.Error())

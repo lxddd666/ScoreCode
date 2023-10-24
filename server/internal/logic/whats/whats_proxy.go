@@ -66,7 +66,6 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
 		mod = mod.LeftJoin(dao.WhatsProxyDept.Table()+" pd", "p."+columns.Address+"=pd."+dao.WhatsProxyDept.Columns().ProxyAddress).
 			Where("pd."+dao.WhatsProxyDept.Columns().OrgId, user.OrgId)
-		mod = mod.Handler(handler.FilterAuthDeptWithField("pd." + dao.WhatsProxyDept.Columns().DeptId))
 		fields = append(fields, "pd.`comment`")
 	} else {
 		fields = append(fields, "p.`comment`")
@@ -188,7 +187,6 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 			// 新增关联表
 			if !flag {
 				pd := entity.WhatsProxyDept{
-					DeptId:       user.DeptId,
 					OrgId:        user.OrgId,
 					ProxyAddress: in.Address,
 					Comment:      in.Comment,
@@ -337,7 +335,6 @@ func (s *sWhatsProxy) Upload(ctx context.Context, in []*whatsin.WhatsProxyUpload
 		// 如果不是超管,则插入关联表
 		for _, inp := range in {
 			proxyDepts = append(proxyDepts, entity.WhatsProxyDept{
-				DeptId:       user.DeptId,
 				OrgId:        user.OrgId,
 				ProxyAddress: inp.Address,
 				Comment:      inp.Comment,
@@ -459,7 +456,6 @@ func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
 	mod = mod.LeftJoin(dao.WhatsProxyDept.Table()+" pd", "p."+dao.WhatsProxy.Columns().Address+"=pd."+dao.WhatsProxyDept.Columns().ProxyAddress).
 		Where("pd."+dao.WhatsProxyDept.Columns().OrgId, user.OrgId).
 		Where("p."+dao.WhatsProxy.Columns().Id, id)
-	mod = mod.Handler(handler.FilterAuthDeptWithField("pd." + dao.WhatsProxyDept.Columns().DeptId))
 	totalCount, err := mod.Clone().Count()
 	if err != nil {
 		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")

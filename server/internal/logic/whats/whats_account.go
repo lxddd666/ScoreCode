@@ -290,7 +290,6 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		for _, item := range list {
 			accountMembers = append(accountMembers, entity.WhatsAccountMember{
 				MemberId: user.Id,
-				DeptId:   user.DeptId,
 				OrgId:    user.OrgId,
 				Account:  item.Account,
 			})
@@ -626,7 +625,6 @@ func (s *sWhatsAccount) MemberBindAccount(ctx context.Context, in *whatsin.Membe
 			} else {
 				insertList = append(insertList, entity.WhatsAccountMember{
 					Account:  account,
-					DeptId:   user.DeptId,
 					OrgId:    user.OrgId,
 					MemberId: user.Id,
 				})
@@ -636,7 +634,6 @@ func (s *sWhatsAccount) MemberBindAccount(ctx context.Context, in *whatsin.Membe
 			_, err = g.Model(dao.WhatsAccountMember.Table()).WhereIn(dao.WhatsAccountMember.Columns().Account, updateList).Update(
 				g.Map{
 					dao.WhatsAccountMember.Columns().MemberId: user.Id,
-					dao.WhatsAccountMember.Columns().DeptId:   user.DeptId,
 				})
 			if err != nil {
 				return nil, err

@@ -306,7 +306,6 @@ func (s *sAdminMember) UpdateProfile(ctx context.Context, in *adminin.MemberUpda
 	update := g.Map{
 		cols.Avatar:   in.Avatar,
 		cols.RealName: in.RealName,
-		cols.Qq:       in.Qq,
 		cols.Birthday: in.Birthday,
 		cols.Sex:      in.Sex,
 		cols.CityId:   in.CityId,
@@ -432,9 +431,6 @@ func (s *sAdminMember) Delete(ctx context.Context, in *adminin.MemberDeleteInp) 
 			return
 		}
 
-		if _, err = dao.AdminMemberPost.Ctx(ctx).Where("member_id", memberId).Delete(); err != nil {
-			err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteUserPositionsFailureTryAgain}"))
-		}
 		return
 	})
 }
@@ -468,11 +464,6 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 
 	// 验证角色ID
 	if err = service.AdminRole().VerifyRoleId(ctx, in.RoleId); err != nil {
-		return
-	}
-
-	// 验证部门ID
-	if err = service.AdminDept().VerifyDeptId(ctx, in.DeptId); err != nil {
 		return
 	}
 
@@ -522,11 +513,6 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 				return
 			}
 
-			// 更新岗位
-			if err = service.AdminMemberPost().UpdatePostIds(ctx, in.Id, in.PostIds); err != nil {
-				err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateUserPositionFaliureTryAgain}"))
-			}
-
 			needLoadSuperAdmin = in.RoleId == s.superAdmin.RoleId
 			return
 		})
@@ -552,15 +538,10 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 	}
 
 	return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		id, err := dao.AdminMember.Ctx(ctx).Data(data).InsertAndGetId()
+		_, err = dao.AdminMember.Ctx(ctx).Data(data).InsertAndGetId()
 		if err != nil {
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddUserFailureTryAgain}"))
 			return
-		}
-
-		// 更新岗位
-		if err = service.AdminMemberPost().UpdatePostIds(ctx, id, in.PostIds); err != nil {
-			err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddUserPositionFailureTryAgain"))
 		}
 
 		needLoadSuperAdmin = in.RoleId == s.superAdmin.RoleId
@@ -597,8 +578,8 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
 		mod = mod.Where(cols.Status, in.Status)
 	}
 
-	if in.DeptId > 0 {
-		mod = mod.Where(cols.DeptId, in.DeptId)
+	if in.OrgId > 0 {
+		mod = mod.Where(cols.OrgId, in.OrgId)
 	}
 
 	if in.RoleId > 0 {
@@ -618,11 +599,10 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
 	if totalCount == 0 {
 		return
 	}
-	mod = mod.LeftJoin("(select had.id, had.name from hg_admin_dept had) had", "hg_admin_member.dept_id = had.id").
+	mod = mod.LeftJoin("(select had.id, had.name from sys_org had) had", "hg_admin_member.org_id = had.id").
 		LeftJoin("(select id, name from hg_admin_role) har", "har.id = hg_admin_member.role_id").
 		Fields(`hg_admin_member.id,
        org_id,
-       dept_id,
        role_id,
        real_name,
        username,
@@ -630,7 +610,6 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
        balance,
        avatar,
        sex,
-       qq,
        email,
        mobile,
        birthday,
@@ -646,7 +625,7 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
        status,
        created_at,
        updated_at,
-       had.name as deptName,
+       had.name as orgName,
        har.name as roleName`)
 	if err = mod.Page(in.Page, in.PerPage).OrderDesc(cols.Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserListFailed}"))
