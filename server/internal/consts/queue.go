@@ -21,5 +21,5 @@ const (
 	QueueTgLoginTopic       = `tgLogin`
 	QueueTgMsgTopic         = `tgMsg`
 	QueueTgReceiverMsgTopic = `tgReceiver`
-	QueueTgSynContact       = `tgSyncContact`
+	QueueTgSynContact       = `tgContactsSync`
 )
