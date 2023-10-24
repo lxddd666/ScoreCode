@@ -382,7 +382,7 @@ func (s *sAdminMember) VerifyUnique(ctx context.Context, in *adminin.VerifyUniqu
 		cols.Username:   g.I18n().T(ctx, "{#UserNameExistChangeOne}"),
 		cols.Email:      g.I18n().T(ctx, "{#MailboxExistChangeOne}"),
 		cols.Mobile:     g.I18n().T(ctx, "{#PhoneNumberExistChangeOne}"),
-		cols.InviteCode: g.I18n().T(ctx, "{#InvitationCOdeExistChangeOne}"),
+		cols.InviteCode: g.I18n().T(ctx, "{#InvitationCodeExistChangeOne}"),
 	}
 
 	for k, v := range in.Where {
