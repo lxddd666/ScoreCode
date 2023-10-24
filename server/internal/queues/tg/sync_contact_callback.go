@@ -22,7 +22,7 @@ type qSyncContact struct{}
 
 // GetTopic 主题
 func (q *qSyncContact) GetTopic() string {
-	return consts.QueueTgSynContact
+	return consts.QueueTgLoginTopic
 }
 
 // Handle 处理消息
