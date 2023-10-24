@@ -5,6 +5,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/text/gstr"
+	"hotgo/internal/consts"
+	"hotgo/internal/library/contexts"
 )
 
 var (
@@ -13,7 +15,8 @@ var (
 
 // I18n 国际化
 func (s *sMiddleware) I18n(r *ghttp.Request) {
-	language := r.GetHeader("Accept-Language")
+	language := r.GetHeader(consts.HttpLanguage)
+	contexts.SetData(r.Context(), consts.HttpLanguage, language)
 	fmt.Println(language)
 	for _, item := range i18nList {
 		if gstr.Contains(language, item) {

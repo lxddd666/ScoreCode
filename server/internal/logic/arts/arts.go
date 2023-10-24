@@ -150,7 +150,7 @@ func (s *sArts) SendVcard(ctx context.Context, inp []*artsin.ContactCardInp, imT
 
 // Send 发送请求
 func (s *sArts) Send(ctx context.Context, req *protobuf.RequestMessage) (res *protobuf.ResponseMessage, err error) {
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 	res, err = c.Connect(ctx, req)
