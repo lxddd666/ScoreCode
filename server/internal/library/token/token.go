@@ -36,10 +36,15 @@ type Token struct {
 }
 
 var (
-	config          *model.TokenConfig
-	errorLogin      = gerror.New(g.I18n().T(context.TODO(), "{#LoginIdentityInvalidTryAgain}"))
-	errorMultiLogin = gerror.New("账号存在异地登录，如非本人操作请及时修改登录密码！")
+	config *model.TokenConfig
 )
+
+func errorLogin(ctx context.Context) error {
+	return gerror.New(g.I18n().T(ctx, "{#LoginIdentityInvalidTryAgain}"))
+}
+func errorMultiLogin(ctx context.Context) error {
+	return gerror.New(g.I18n().T(ctx, "{#AccountLoginDifferentPlace}"))
+}
 
 func SetConfig(c *model.TokenConfig) {
 	config = c
@@ -97,14 +102,14 @@ func Logout(r *ghttp.Request) (err error) {
 	)
 
 	if header == "" {
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
 	claims, err := parseToken(ctx, header)
 	if err != nil {
 		g.Log().Debugf(ctx, "logout parseToken err:%+v", err)
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
@@ -138,14 +143,14 @@ func ParseLoginUser(r *ghttp.Request) (user *model.Identity, err error) {
 	)
 
 	if header == "" {
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
 	claims, err := parseToken(ctx, header)
 	if err != nil {
 		g.Log().Debugf(ctx, "parseToken err:%+v", err)
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
@@ -162,33 +167,33 @@ func ParseLoginUser(r *ghttp.Request) (user *model.Identity, err error) {
 	tk, err := cache.Instance().Get(ctx, tokenKey)
 	if err != nil {
 		g.Log().Debugf(ctx, "get tokenKey err:%+v", err)
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
 	if tk.IsEmpty() {
 		g.Log().Debug(ctx, "token isEmpty")
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
 	var token *Token
 	if err = tk.Scan(&token); err != nil {
 		g.Log().Debugf(ctx, "token scan err:%+v", err)
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
 	if token == nil {
 		g.Log().Debugf(ctx, "token = nil")
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
 	now := gtime.Now()
 	if token.ExpireAt < now.Unix() {
 		g.Log().Debugf(ctx, "token expired.")
-		err = errorLogin
+		err = errorLogin(ctx)
 		return
 	}
 
@@ -197,19 +202,19 @@ func ParseLoginUser(r *ghttp.Request) (user *model.Identity, err error) {
 		origin, err := cache.Instance().Get(ctx, bindKey)
 		if err != nil {
 			g.Log().Debugf(ctx, "bindKey get err:%+v", err)
-			err = errorLogin
+			err = errorLogin(ctx)
 			return nil, err
 		}
 
 		if origin == nil || origin.IsEmpty() {
 			g.Log().Debug(ctx, "bindKey isEmpty")
-			err = errorLogin
+			err = errorLogin(ctx)
 			return nil, err
 		}
 
 		if tokenKey != origin.String() {
 			g.Log().Debugf(ctx, "bindKey offsite login tokenKey:%v, origin:%v", tokenKey, origin.String())
-			err = errorMultiLogin
+			err = errorMultiLogin(ctx)
 			return nil, err
 		}
 	}
@@ -267,12 +272,12 @@ func parseToken(ctx context.Context, header string) (*Claims, error) {
 	}
 
 	if !token.Valid {
-		return nil, errorLogin
+		return nil, errorLogin(ctx)
 	}
 
 	claims, ok := token.Claims.(*Claims)
 	if !ok {
-		return nil, errorLogin
+		return nil, errorLogin(ctx)
 	}
 	return claims, nil
 }
