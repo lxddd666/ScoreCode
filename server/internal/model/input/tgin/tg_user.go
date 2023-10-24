@@ -163,7 +163,7 @@ type TgImportSessionAuthKeyMsg struct {
 	DC        int64  `json:"DC"          dc:"dc"`
 	Addr      string `json:"addr"        dc:"登录地址"`
 	Port      string `json:"port"        dc:"登录端口"`
-	TakeOutId string `json:"TakeOutId"   dc:"takeoutId"`
+	TakeOutId string `json:"takeout_id"   dc:"takeoutId"`
 	AuthKey   []byte `json:"authKey"     dc:"账号session"`
 	AuthKeyId []byte `json:"authKeyId"   dc:"账号session的ID"`
 }

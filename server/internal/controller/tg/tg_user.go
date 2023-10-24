@@ -90,7 +90,6 @@ func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionRe
 	}
 
 	data, err := service.TgUser().ImportSession(ctx, meta)
-	//res = (*tgarts.TgSyncContactRes)(&data)
 	res = (*tguser.ImportSessionRes)(&data)
 	return
 }
