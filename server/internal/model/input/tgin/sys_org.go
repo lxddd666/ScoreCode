@@ -85,17 +85,19 @@ func (in *SysOrgListInp) Filter(ctx context.Context) (err error) {
 }
 
 type SysOrgListModel struct {
-	Id        int64       `json:"id"        dc:"公司ID"`
-	Name      string      `json:"name"      dc:"公司名称"`
-	Code      string      `json:"code"      dc:"公司编码"`
-	Leader    string      `json:"leader"    dc:"负责人"`
-	Phone     string      `json:"phone"     dc:"联系电话"`
-	Email     string      `json:"email"     dc:"邮箱"`
-	PortNum   int         `json:"portNum"   dc:"端口数"`
-	Sort      int         `json:"sort"      dc:"排序"`
-	Status    int         `json:"status"    dc:"公司状态"`
-	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
-	UpdatedAt *gtime.Time `json:"updatedAt" dc:"更新时间"`
+	Id            int64       `json:"id"        dc:"公司ID"`
+	Name          string      `json:"name"      dc:"公司名称"`
+	Code          string      `json:"code"      dc:"公司编码"`
+	Leader        string      `json:"leader"    dc:"负责人"`
+	Phone         string      `json:"phone"     dc:"联系电话"`
+	Email         string      `json:"email"     dc:"邮箱"`
+	PortTotal     int64       `json:"portTotal"   dc:"总端口数"`
+	UsedPortNum   int64       `json:"usedPortNum"   dc:"已用端口数"`
+	MarginPortNum int64       `json:"marginPortNum"   dc:"剩余端口数"`
+	Sort          int         `json:"sort"      dc:"排序"`
+	Status        int         `json:"status"    dc:"公司状态"`
+	CreatedAt     *gtime.Time `json:"createdAt" dc:"创建时间"`
+	UpdatedAt     *gtime.Time `json:"updatedAt" dc:"更新时间"`
 }
 
 // SysOrgExportModel 导出客户公司

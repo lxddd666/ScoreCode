@@ -15,6 +15,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/token"
 	"hotgo/internal/model"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/adminin"
 	"hotgo/internal/model/input/sysin"
@@ -49,7 +50,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 	// 默认上级
 	data.Pid = 1
 
-	// 存在邀请人
+	// 存在邀请人，存在邀请人，公司使用邀请人的公司
 	if in.InviteCode != "" {
 		pmb, err := service.AdminMember().GetIdByCode(ctx, &adminin.GetIdByCodeInp{Code: in.InviteCode})
 		if err != nil {
@@ -60,8 +61,19 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 			err = gerror.New(g.I18n().T(ctx, "{#InviteUserCheck}"))
 			return nil, err
 		}
-
+		data.OrgId = pmb.OrgId
 		data.Pid = pmb.Id
+	} else {
+		// 否则新增公司
+		id, err := dao.SysOrg.Ctx(ctx).Data(do.SysOrg{
+			Name:   grand.S(5),
+			Code:   grand.S(5),
+			Status: 1,
+		}).InsertAndGetId()
+		if err != nil {
+			return nil, err
+		}
+		data.OrgId = id
 	}
 
 	if config.RegisterSwitch != 1 {
@@ -112,7 +124,6 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		RoleId:   config.RoleId,
 		Username: in.Username,
 		Password: in.Password,
-		RealName: "",
 		Avatar:   config.Avatar,
 		Sex:      3, // 保密
 		Mobile:   in.Mobile,

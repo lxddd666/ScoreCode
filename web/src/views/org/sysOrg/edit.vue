@@ -38,10 +38,6 @@
           <n-input placeholder="请输入邮箱" v-model:value="params.email" />
           </n-form-item>
 
-          <n-form-item label="排序" path="sort">
-            <n-input-number placeholder="请输入排序" v-model:value="params.sort" />
-          </n-form-item>
-
 
         </n-form>
         <template #action>

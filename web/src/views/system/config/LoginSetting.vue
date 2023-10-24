@@ -59,18 +59,7 @@
           />
         </n-form-item>
 
-        <n-form-item label="默认注册部门" path="loginDeptId">
-          <n-tree-select
-            key-field="id"
-            :options="options.dept"
-            v-model:value="formValue.loginDeptId"
-            :default-expand-all="true"
-          />
-        </n-form-item>
 
-        <n-form-item label="默认注册岗位" path="loginPostIds">
-          <n-select v-model:value="formValue.loginPostIds" multiple :options="options.post" />
-        </n-form-item>
 
         <n-divider title-placement="left">协议配置</n-divider>
         <n-form-item label="用户协议" path="loginProtocol">
@@ -131,10 +120,6 @@
   });
 
   async function loadOptions() {
-    const dept = await getDeptOption();
-    if (dept.list !== undefined) {
-      options.value.dept = dept.list;
-    }
 
     const role = await getRoleOption();
     if (role.list !== undefined) {
@@ -142,14 +127,6 @@
       treeDataToCompressed(role.list);
     }
 
-    const post = await getPostOption();
-    if (post.list !== undefined && post.list.length > 0) {
-      for (let i = 0; i < post.list.length; i++) {
-        post.list[i].label = post.list[i].name;
-        post.list[i].value = post.list[i].id;
-      }
-      options.value.post = post.list;
-    }
   }
 
   function treeDataToCompressed(source) {

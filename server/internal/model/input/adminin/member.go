@@ -43,7 +43,8 @@ type GetIdByCodeInp struct {
 }
 
 type GetIdByCodeModel struct {
-	Id int64
+	Id    int64
+	OrgId int64
 }
 
 // MemberProfileInp 获取指定用户资料
@@ -108,8 +109,9 @@ type LoginMemberInfoModel struct {
 // MemberEditInp 修改用户
 type MemberEditInp struct {
 	Id           int64       `json:"id"                                            dc:"管理员ID"`
-	RoleId       int64       `json:"roleId"    v:"required#RoleNotEmpty"            dc:"角色ID"`
-	Username     string      `json:"username"   v:"required#AccountNotEmpty"           dc:"账号"`
+	RoleId       int64       `json:"roleId"    v:"required#RoleNotEmpty"           dc:"角色ID"`
+	OrgId        int64       `json:"orgId"                                         dc:"公司ID"`
+	Username     string      `json:"username"   v:"required#AccountNotEmpty"       dc:"账号"`
 	PasswordHash string      `json:"passwordHash"                                  dc:"密码hash"`
 	Password     string      `json:"password"                                      dc:"密码"`
 	RealName     string      `json:"realName"                                      dc:"真实姓名"`

@@ -1,14 +1,13 @@
-import { h, ref } from 'vue';
-import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
-import { cloneDeep } from 'lodash-es';
-import { FormSchema } from '@/components/Form';
-import { Dicts } from '@/api/dict/dict';
+import {h, ref} from 'vue';
+import {NTag} from 'naive-ui';
+import {cloneDeep} from 'lodash-es';
+import {FormSchema} from '@/components/Form';
+import {Dicts} from '@/api/dict/dict';
 
-import { isArray, isNullObject } from '@/utils/is';
-import { getFileExt } from '@/utils/urlUtils';
-import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
-import { validate } from '@/utils/validateUtil';
-import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
+import {isNullObject} from '@/utils/is';
+import {defRangeShortcuts} from '@/utils/dateUtil';
+import {validate} from '@/utils/validateUtil';
+import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
 
 
 export interface State {
@@ -123,8 +122,16 @@ export const columns = [
     key: 'email',
   },
   {
-    title: '排序',
-    key: 'sort',
+    title: '总端口数',
+    key: 'portTotal',
+  },
+  {
+    title: '已用端口数',
+    key: 'usedPortNum',
+  },
+  {
+    title: '剩余端口数',
+    key: 'marginPortNum',
   },
   {
     title: '公司状态',
@@ -162,14 +169,14 @@ async function loadOptions() {
   options.value = await Dicts({
     types: [
       'sys_normal_disable',
-   ],
+    ],
   });
   for (const item of schemas.value) {
     switch (item.field) {
       case 'status':
         item.componentProps.options = options.value.sys_normal_disable;
         break;
-     }
+    }
   }
 }
 

@@ -166,14 +166,12 @@ type WechatConfig struct {
 
 // LoginConfig 登录配置
 type LoginConfig struct {
-	RegisterSwitch int     `json:"loginRegisterSwitch"`
-	CaptchaSwitch  int     `json:"loginCaptchaSwitch"`
-	Avatar         string  `json:"loginAvatar"`
-	RoleId         int64   `json:"loginRoleId"`
-	DeptId         int64   `json:"loginDeptId"`
-	PostIds        []int64 `json:"loginPostIds"`
-	Protocol       string  `json:"loginProtocol"`
-	Policy         string  `json:"loginPolicy"`
-	AutoOpenId     int     `json:"loginAutoOpenId"`
-	ForceInvite    int     `json:"loginForceInvite"`
+	RegisterSwitch int    `json:"loginRegisterSwitch"`
+	CaptchaSwitch  int    `json:"loginCaptchaSwitch"`
+	Avatar         string `json:"loginAvatar"`
+	RoleId         int64  `json:"loginRoleId"`
+	Protocol       string `json:"loginProtocol"`
+	Policy         string `json:"loginPolicy"`
+	AutoOpenId     int    `json:"loginAutoOpenId"`
+	ForceInvite    int    `json:"loginForceInvite"`
 }

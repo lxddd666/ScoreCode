@@ -34,10 +34,10 @@ func init() {
 
 // Model 客户公司ORM模型
 func (s *sSysOrg) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
-	return dao.SysOrg.Ctx(ctx).Handler(filterOrg)
+	return dao.SysOrg.Ctx(ctx).Handler(s.filterOrg)
 }
 
-func filterOrg(m *gdb.Model) *gdb.Model {
+func (s *sSysOrg) filterOrg(m *gdb.Model) *gdb.Model {
 	var (
 		role *entity.AdminRole
 		ctx  = m.GetCtx()
@@ -96,7 +96,13 @@ func (s *sSysOrg) List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgi
 		err = gerror.Wrap(err, "获取客户公司列表失败，请稍后重试！")
 		return
 	}
+	s.handlerPortNum(ctx, list)
 	return
+}
+
+// 处理端口数
+func (s *sSysOrg) handlerPortNum(ctx context.Context, list []*tgin.SysOrgListModel) {
+
 }
 
 // Export 导出客户公司
