@@ -383,7 +383,7 @@ func mkdirSessionFolder(path string) (err error) {
 // TgImportSessionToGrpc 导入session
 func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error) {
 
-	conn := grpc.GetManagerConn()
+	conn := grpc.GetManagerConn(ctx)
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 
