@@ -136,7 +136,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		data.Id = id
 		return
 	})
-	if err != nil {
+	if err == nil {
 		result = &adminin.RegisterModel{
 			Id:         data.Id,
 			Username:   data.Username,
