@@ -1,14 +1,12 @@
-import { h, ref } from 'vue';
-import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
-import { cloneDeep } from 'lodash-es';
-import { FormSchema } from '@/components/Form';
-import { Dicts } from '@/api/dict/dict';
+import {h, ref} from 'vue';
+import {NTag} from 'naive-ui';
+import {cloneDeep} from 'lodash-es';
+import {FormSchema} from '@/components/Form';
+import {Dicts} from '@/api/dict/dict';
 
-import { isArray, isNullObject } from '@/utils/is';
-import { getFileExt } from '@/utils/urlUtils';
-import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
-import { validate } from '@/utils/validateUtil';
-import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
+import {isNullObject} from '@/utils/is';
+import {defRangeShortcuts} from '@/utils/dateUtil';
+import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
 
 
 export interface State {
@@ -215,6 +213,33 @@ export const columns = [
     key: 'updatedAt',
   },
 ];
+
+export const uploadColumns = [
+  {
+    title: '代理地址',
+    key: 'address',
+  },
+  {
+    title: '代理类型',
+    key: 'type',
+  },
+  {
+    title: '最大连接数',
+    key: 'maxConnections',
+  },
+  {
+    title: '地区',
+    key: 'region',
+  },
+  {
+    title: '备注',
+    key: 'comment',
+  },
+
+
+
+];
+
 
 async function loadOptions() {
   options.value = await Dicts({

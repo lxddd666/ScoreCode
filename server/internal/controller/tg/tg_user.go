@@ -88,3 +88,15 @@ func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionRe
 	res = (*tguser.ImportSessionRes)(&data)
 	return
 }
+
+// BindProxy 绑定代理
+func (c *cTgUser) BindProxy(ctx context.Context, req *tguser.BindProxyReq) (res *tguser.BindProxyRes, err error) {
+	_, err = service.TgUser().BindProxy(ctx, &req.TgUserBindProxyInp)
+	return
+}
+
+// UnBindProxy 解除绑定代理
+func (c *cTgUser) UnBindProxy(ctx context.Context, req *tguser.UnBindProxyReq) (res *tguser.UnBindProxyRes, err error) {
+	_, err = service.TgUser().BindProxy(ctx, &req.TgUserBindProxyInp)
+	return
+}

@@ -61,6 +61,19 @@
           </n-button>
           <n-button
             type="primary"
+            @click="handleUpload"
+            class="min-left-space"
+            v-if="hasPermission(['/sysProxy/import'])"
+          >
+            <template #icon>
+              <n-icon>
+                <UploadOutlined />
+              </n-icon>
+            </template>
+            导入
+          </n-button>
+          <n-button
+            type="primary"
             @click="handleExport"
             class="min-left-space"
             v-if="hasPermission(['/sysProxy/export'])"
@@ -81,6 +94,8 @@
       :showModal="showModal"
       :formParams="formParams"
     />
+
+    <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
 </template>
 
@@ -92,10 +107,12 @@
   import { usePermission } from '@/hooks/web/usePermission';
   import { List, Export, Delete, Status } from '@/api/org/sysProxy';
   import { State, columns, schemas, options, newState } from './model';
-  import { PlusOutlined, ExportOutlined, DeleteOutlined } from '@vicons/antd';
+  import {PlusOutlined, ExportOutlined, DeleteOutlined, UploadOutlined} from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
+  import FileUpload from './upload.vue';
+  import {Attachment} from "@/components/FileChooser/src/model";
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -106,6 +123,7 @@
   const checkedIds = ref([]);
   const showModal = ref(false);
   const formParams = ref<State>();
+  const fileUploadRef = ref();
 
   const actionColumn = reactive({
     width: 300,
@@ -172,6 +190,10 @@
   function addTable() {
     showModal.value = true;
     formParams.value = newState(null);
+  }
+
+  function handleUpload() {
+    fileUploadRef.value.openModal();
   }
 
   function updateShowModal(value) {
@@ -244,6 +266,11 @@
         reloadTable();
       });
     });
+  }
+  function handleFinishCall(result: Attachment, success: boolean) {
+    if (success) {
+      reloadTable();
+    }
   }
 </script>
 

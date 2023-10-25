@@ -38,6 +38,14 @@ export function Status(params: any) {
   });
 }
 
+// 修改代理管理状态
+export function Upload(params: any) {
+  return http.request({
+    url: '/sysProxy/import',
+    method: 'POST',
+    params,
+  });
+}
 
 
 // 获取代理管理指定详情

@@ -167,3 +167,15 @@ type TgImportSessionAuthKeyMsg struct {
 	AuthKey   []byte `json:"authKey"     dc:"账号session"`
 	AuthKeyId []byte `json:"authKeyId"   dc:"账号session的ID"`
 }
+
+// TgUserBindProxyInp 绑定代理
+type TgUserBindProxyInp struct {
+	ProxyId int64   `json:"proxyId" v:"required#代理ID不能为空" dc:"代理ID"`
+	Ids     []int64 `json:"ids" v:"required#id不能为空" dc:"tg用户id"`
+}
+
+func (in *TgUserBindProxyInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type TgUserBindProxyModel struct{}

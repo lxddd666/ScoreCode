@@ -117,6 +117,19 @@ export const schemas = ref<FormSchema[]>([
     },
   },
   {
+    field: 'isOnline',
+    component: 'NSelect',
+    label: '是否在线',
+    defaultValue: null,
+    componentProps: {
+      placeholder: '请选择在线状态',
+      options: [],
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
     field: 'proxyAddress',
     component: 'NInput',
     label: '代理地址',
@@ -192,6 +205,24 @@ export const columns = [
   {
     title: '是否在线',
     key: 'isOnline',
+    render(row) {
+      if (isNullObject(row.isOnline)) {
+        return ``;
+      }
+      return h(
+        NTag,
+        {
+          style: {
+            marginRight: '6px',
+          },
+          type: getOptionTag(options.value.login_status, row.isOnline),
+          bordered: false,
+        },
+        {
+          default: () => getOptionLabel(options.value.login_status, row.isOnline),
+        }
+      );
+    },
   },
   {
     title: '代理地址',

@@ -77,3 +77,19 @@ type ImportSessionReq struct {
 
 // ImportSessionRes 上传session
 type ImportSessionRes string
+
+// BindProxyReq 绑定代理
+type BindProxyReq struct {
+	g.Meta `path:"/tgUser/bindProxy" method:"post" tags:"tg-账号管理" summary:"绑定代理"`
+	tgin.TgUserBindProxyInp
+}
+
+type BindProxyRes struct{}
+
+// UnBindProxyReq 解绑代理
+type UnBindProxyReq struct {
+	g.Meta `path:"/tgUser/unBindProxy" method:"post" tags:"tg-账号管理" summary:"解绑代理"`
+	tgin.TgUserBindProxyInp
+}
+
+type UnBindProxyRes struct{}

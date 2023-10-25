@@ -360,3 +360,69 @@ func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImpor
 	}
 	return
 }
+
+// UnBindProxy 解绑代理
+func (s *sTgUser) UnBindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error) {
+	var proxy entity.SysProxy
+	err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).Scan(&proxy)
+	if err != nil {
+		return
+	}
+	if g.IsEmpty(proxy) {
+		return nil, gerror.New("代理不存在")
+	}
+	//解除绑定
+	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: ""})
+		if err != nil {
+			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		}
+		//查询绑定该代理的账号数量
+		count, err := s.Model(ctx).Where(do.TgUser{ProxyAddress: proxy.Address}).Count()
+		if err != nil {
+			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		}
+		//修改代理绑定数量
+		_, err = service.OrgSysProxy().Model(ctx).WherePri(proxy.Id).Update(do.SysProxy{AssignedCount: count})
+		if err != nil {
+			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		}
+		return
+	})
+	return nil, err
+
+}
+
+// BindProxy 绑定代理
+func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error) {
+	var proxy entity.SysProxy
+	err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).Scan(&proxy)
+	if err != nil {
+		return nil, gerror.Wrap(err, "获取代理信息失败，请稍后重试！")
+	}
+	if g.IsEmpty(proxy) {
+		return nil, gerror.New("代理不存在")
+	}
+	if proxy.AssignedCount+gconv.Int64(len(in.Ids)) > proxy.MaxConnections {
+		return nil, gerror.New("绑定账号数量超出该代理最大连接数")
+	}
+	//绑定代理
+	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: proxy.Address})
+		if err != nil {
+			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		count, err := s.Model(ctx).Where(dao.TgUser.Columns().ProxyAddress, proxy.Address).Count()
+		if err != nil {
+			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		//更新代理账号的绑定数量
+		_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy.Address}).
+			Update(do.SysProxy{AssignedCount: count})
+		if err != nil {
+			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		return
+	})
+	return nil, err
+}

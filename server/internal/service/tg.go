@@ -18,48 +18,6 @@ import (
 )
 
 type (
-	ITgArts interface {
-		// SyncAccount 同步账号
-		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
-		// CodeLogin 登录
-		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
-		// SendCode 发送验证码
-		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
-		// SessionLogin 登录
-		SessionLogin(ctx context.Context, phones []int) (err error)
-		// TgCheckLogin 检查是否登录
-		TgCheckLogin(ctx context.Context, account uint64) (err error)
-		// TgCheckContact 检查是否是好友
-		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
-		// TgSendMsg 发送消息
-		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
-		// TgSyncContact 同步联系人
-		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
-		// TgGetDialogs 获取chats
-		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
-		// TgGetContacts 获取contacts
-		TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
-		// TgGetMsgHistory 获取聊天历史
-		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
-		// TgDownloadFile 下载聊天文件
-		TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error)
-		// TgAddGroupMembers 添加群成员
-		TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error)
-		// TgCreateGroup 创建群聊
-		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
-		// TgGetGroupMembers 获取群成员
-		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
-		// TgCreateChannel 创建频道
-		TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error)
-		// TgChannelAddMembers 添加频道成员
-		TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error)
-		// TgChannelJoinByLink 加入频道
-		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
-		// TgGetEmojiGroup 获取emoji分组
-		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
-		// TgSendReaction 发送消息动作
-		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
-	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -135,16 +93,84 @@ type (
 		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
 		// TgImportSessionToGrpc 导入session
 		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
+		// UnBindProxy 解绑代理
+		UnBindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+		// BindProxy 绑定代理
+		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+	}
+	ITgArts interface {
+		// SyncAccount 同步账号
+		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
+		// CodeLogin 登录
+		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
+		// SendCode 发送验证码
+		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
+		// SessionLogin 登录
+		SessionLogin(ctx context.Context, phones []int) (err error)
+		// TgCheckLogin 检查是否登录
+		TgCheckLogin(ctx context.Context, account uint64) (err error)
+		// TgCheckContact 检查是否是好友
+		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
+		// TgSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgSyncContact 同步联系人
+		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
+		// TgGetDialogs 获取chats
+		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetContacts 获取contacts
+		TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetMsgHistory 获取聊天历史
+		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+		// TgDownloadFile 下载聊天文件
+		TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error)
+		// TgAddGroupMembers 添加群成员
+		TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error)
+		// TgCreateGroup 创建群聊
+		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
+		// TgGetGroupMembers 获取群成员
+		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
+		// TgCreateChannel 创建频道
+		TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error)
+		// TgChannelAddMembers 添加频道成员
+		TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error)
+		// TgChannelJoinByLink 加入频道
+		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
+		// TgGetEmojiGroup 获取emoji分组
+		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
+		// TgSendReaction 发送消息动作
+		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 	}
 )
 
 var (
-	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
 	localTgUser     ITgUser
 	localTgArts     ITgArts
+	localTgContacts ITgContacts
 )
+
+func TgUser() ITgUser {
+	if localTgUser == nil {
+		panic("implement not found for interface ITgUser, forgot register?")
+	}
+	return localTgUser
+}
+
+func RegisterTgUser(i ITgUser) {
+	localTgUser = i
+}
+
+func TgArts() ITgArts {
+	if localTgArts == nil {
+		panic("implement not found for interface ITgArts, forgot register?")
+	}
+	return localTgArts
+}
+
+func RegisterTgArts(i ITgArts) {
+	localTgArts = i
+}
 
 func TgContacts() ITgContacts {
 	if localTgContacts == nil {
@@ -177,26 +203,4 @@ func TgProxy() ITgProxy {
 
 func RegisterTgProxy(i ITgProxy) {
 	localTgProxy = i
-}
-
-func TgUser() ITgUser {
-	if localTgUser == nil {
-		panic("implement not found for interface ITgUser, forgot register?")
-	}
-	return localTgUser
-}
-
-func RegisterTgUser(i ITgUser) {
-	localTgUser = i
-}
-
-func TgArts() ITgArts {
-	if localTgArts == nil {
-		panic("implement not found for interface ITgArts, forgot register?")
-	}
-	return localTgArts
-}
-
-func RegisterTgArts(i ITgArts) {
-	localTgArts = i
 }
