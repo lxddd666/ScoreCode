@@ -12,7 +12,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
-// SysOrgUpdateFields 修改客户公司字段过滤
+// SysOrgUpdateFields 修改公司信息字段过滤
 type SysOrgUpdateFields struct {
 	Name   string `json:"name"   dc:"公司名称"`
 	Code   string `json:"code"   dc:"公司编码"`
@@ -22,7 +22,7 @@ type SysOrgUpdateFields struct {
 	Sort   int    `json:"sort"   dc:"排序"`
 }
 
-// SysOrgInsertFields 新增客户公司字段过滤
+// SysOrgInsertFields 新增公司信息字段过滤
 type SysOrgInsertFields struct {
 	Name   string `json:"name"   dc:"公司名称"`
 	Code   string `json:"code"   dc:"公司编码"`
@@ -32,14 +32,14 @@ type SysOrgInsertFields struct {
 	Sort   int    `json:"sort"   dc:"排序"`
 }
 
-// SysOrgEditInp 修改/新增客户公司
+// SysOrgEditInp 修改/新增公司信息
 type SysOrgEditInp struct {
 	entity.SysOrg
 }
 
 func (in *SysOrgEditInp) Filter(ctx context.Context) (err error) {
 	// 验证邮箱
-	if err := g.Validator().Rules("email").Data(in.Email).Messages("邮箱不是邮箱地址").Run(ctx); err != nil {
+	if err := g.Validator().Rules("email").Data(in.Email).Messages(g.I18n().T(ctx, "{#EmailFormat}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -48,9 +48,9 @@ func (in *SysOrgEditInp) Filter(ctx context.Context) (err error) {
 
 type SysOrgEditModel struct{}
 
-// SysOrgDeleteInp 删除客户公司
+// SysOrgDeleteInp 删除公司信息
 type SysOrgDeleteInp struct {
-	Id interface{} `json:"id" v:"required#公司ID不能为空" dc:"公司ID"`
+	Id interface{} `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
 }
 
 func (in *SysOrgDeleteInp) Filter(ctx context.Context) (err error) {
@@ -59,9 +59,9 @@ func (in *SysOrgDeleteInp) Filter(ctx context.Context) (err error) {
 
 type SysOrgDeleteModel struct{}
 
-// SysOrgViewInp 获取指定客户公司信息
+// SysOrgViewInp 获取指定公司信息信息
 type SysOrgViewInp struct {
-	Id int64 `json:"id" v:"required#公司ID不能为空" dc:"公司ID"`
+	Id int64 `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
 }
 
 func (in *SysOrgViewInp) Filter(ctx context.Context) (err error) {
@@ -72,7 +72,7 @@ type SysOrgViewModel struct {
 	entity.SysOrg
 }
 
-// SysOrgListInp 获取客户公司列表
+// SysOrgListInp 获取公司信息列表
 type SysOrgListInp struct {
 	form.PageReq
 	Name      string        `json:"name"      dc:"公司名称"`
@@ -91,30 +91,30 @@ type SysOrgListModel struct {
 	Leader        string      `json:"leader"    dc:"负责人"`
 	Phone         string      `json:"phone"     dc:"联系电话"`
 	Email         string      `json:"email"     dc:"邮箱"`
-	PortTotal     int64       `json:"portTotal"   dc:"总端口数"`
-	UsedPortNum   int64       `json:"usedPortNum"   dc:"已用端口数"`
-	MarginPortNum int64       `json:"marginPortNum"   dc:"剩余端口数"`
+	Ports         int64       `json:"ports"   dc:"总端口数"`
+	AssignedPorts int64       `json:"assignedPorts" dc:"已分配端口数"`
 	Sort          int         `json:"sort"      dc:"排序"`
 	Status        int         `json:"status"    dc:"公司状态"`
 	CreatedAt     *gtime.Time `json:"createdAt" dc:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt" dc:"更新时间"`
 }
 
-// SysOrgExportModel 导出客户公司
+// SysOrgExportModel 导出公司信息
 type SysOrgExportModel struct {
-	Name      string      `json:"name"      dc:"公司名称"`
-	Code      string      `json:"code"      dc:"公司编码"`
-	Leader    string      `json:"leader"    dc:"负责人"`
-	Phone     string      `json:"phone"     dc:"联系电话"`
-	Email     string      `json:"email"     dc:"邮箱"`
-	PortNum   int         `json:"portNum"   dc:"端口数"`
-	Sort      int         `json:"sort"      dc:"排序"`
-	Status    int         `json:"status"    dc:"公司状态"`
-	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
-	UpdatedAt *gtime.Time `json:"updatedAt" dc:"更新时间"`
+	Name        string      `json:"name"      dc:"公司名称"`
+	Code        string      `json:"code"      dc:"公司编码"`
+	Leader      string      `json:"leader"    dc:"负责人"`
+	Phone       string      `json:"phone"     dc:"联系电话"`
+	Email       string      `json:"email"     dc:"邮箱"`
+	Ports       int64       `json:"portTotal"   dc:"总端口数"`
+	UsedPortNum int64       `json:"usedPortNum"   dc:"已用端口数"`
+	Sort        int         `json:"sort"      dc:"排序"`
+	Status      int         `json:"status"    dc:"公司状态"`
+	CreatedAt   *gtime.Time `json:"createdAt" dc:"创建时间"`
+	UpdatedAt   *gtime.Time `json:"updatedAt" dc:"更新时间"`
 }
 
-// SysOrgMaxSortInp 获取客户公司最大排序
+// SysOrgMaxSortInp 获取公司信息最大排序
 type SysOrgMaxSortInp struct{}
 
 func (in *SysOrgMaxSortInp) Filter(ctx context.Context) (err error) {
@@ -125,9 +125,9 @@ type SysOrgMaxSortModel struct {
 	Sort int `json:"sort"  description:"排序"`
 }
 
-// SysOrgStatusInp 更新客户公司状态
+// SysOrgStatusInp 更新公司信息状态
 type SysOrgStatusInp struct {
-	Id     int64 `json:"id" v:"required#公司ID不能为空" dc:"公司ID"`
+	Id     int64 `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 
@@ -150,3 +150,15 @@ func (in *SysOrgStatusInp) Filter(ctx context.Context) (err error) {
 }
 
 type SysOrgStatusModel struct{}
+
+// SysOrgPortInp 修改端口数
+type SysOrgPortInp struct {
+	Id    int64 `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
+	Ports int64 `json:"ports" dc:"端口数"`
+}
+
+func (in *SysOrgPortInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type SysOrgPortModel struct{}

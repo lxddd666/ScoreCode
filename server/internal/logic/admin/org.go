@@ -32,8 +32,8 @@ func init() {
 	service.RegisterSysOrg(NewSysOrg())
 }
 
-// Model 客户公司ORM模型
-func (s *sSysOrg) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
+// Model 公司信息ORM模型
+func (s *sSysOrg) Model(ctx context.Context, _ ...*handler.Option) *gdb.Model {
 	return dao.SysOrg.Ctx(ctx).Handler(s.filterOrg)
 }
 
@@ -63,7 +63,7 @@ func (s *sSysOrg) filterOrg(m *gdb.Model) *gdb.Model {
 
 }
 
-// List 获取客户公司列表
+// List 获取公司信息列表
 func (s *sSysOrg) List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgin.SysOrgListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
@@ -84,7 +84,7 @@ func (s *sSysOrg) List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgi
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取客户公司数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetOrgCountError}"))
 		return
 	}
 
@@ -93,7 +93,7 @@ func (s *sSysOrg) List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgi
 	}
 
 	if err = mod.Fields(tgin.SysOrgListModel{}).Page(in.Page, in.PerPage).OrderAsc(dao.SysOrg.Columns().Sort).OrderDesc(dao.SysOrg.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取客户公司列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetOrgListError}"))
 		return
 	}
 	s.handlerPortNum(ctx, list)
@@ -105,7 +105,7 @@ func (s *sSysOrg) handlerPortNum(ctx context.Context, list []*tgin.SysOrgListMod
 
 }
 
-// Export 导出客户公司
+// Export 导出公司信息
 func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error) {
 	list, totalCount, err := s.List(ctx, in)
 	if err != nil {
@@ -119,7 +119,7 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 	}
 
 	var (
-		fileName  = "导出客户公司-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName  = "导出公司信息-" + gctx.CtxId(ctx) + ".xlsx"
 		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.SysOrgExportModel
 	)
@@ -132,14 +132,14 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 	return
 }
 
-// Edit 修改/新增客户公司
+// Edit 修改/新增公司信息
 func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) {
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
 			Fields(tgin.SysOrgUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改客户公司失败，请稍后重试！")
+			err = gerror.Wrap(err, "修改公司信息失败，请稍后重试！")
 		}
 		return
 	}
@@ -148,24 +148,24 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) 
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.SysOrgInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增客户公司失败，请稍后重试！")
+		err = gerror.Wrap(err, "新增公司信息失败，请稍后重试！")
 	}
 	return
 }
 
-// Delete 删除客户公司
+// Delete 删除公司信息
 func (s *sSysOrg) Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除客户公司失败，请稍后重试！")
+		err = gerror.Wrap(err, "删除公司信息失败，请稍后重试！")
 		return
 	}
 	return
 }
 
-// MaxSort 获取客户公司最大排序
+// MaxSort 获取公司信息最大排序
 func (s *sSysOrg) MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *tgin.SysOrgMaxSortModel, err error) {
 	if err = dao.SysOrg.Ctx(ctx).Fields(dao.SysOrg.Columns().Sort).OrderDesc(dao.SysOrg.Columns().Sort).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取客户公司最大排序，请稍后重试！")
+		err = gerror.Wrap(err, "获取公司信息最大排序，请稍后重试！")
 		return
 	}
 
@@ -177,21 +177,32 @@ func (s *sSysOrg) MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *
 	return
 }
 
-// View 获取客户公司指定信息
+// View 获取公司信息指定信息
 func (s *sSysOrg) View(ctx context.Context, in *tgin.SysOrgViewInp) (res *tgin.SysOrgViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取客户公司信息，请稍后重试！")
+		err = gerror.Wrap(err, "获取公司信息信息，请稍后重试！")
 		return
 	}
 	return
 }
 
-// Status 更新客户公司状态
+// Status 更新公司信息状态
 func (s *sSysOrg) Status(ctx context.Context, in *tgin.SysOrgStatusInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.SysOrg.Columns().Status: in.Status,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "更新客户公司状态失败，请稍后重试！")
+		err = gerror.Wrap(err, "更新公司信息状态失败，请稍后重试！")
+		return
+	}
+	return
+}
+
+// Ports 修改端口数
+func (s *sSysOrg) Ports(ctx context.Context, in *tgin.SysOrgPortInp) (err error) {
+	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
+		dao.SysOrg.Columns().Ports: in.Ports,
+	}).Update(); err != nil {
+		err = gerror.Wrap(err, "修改端口数失败，请稍后重试！")
 		return
 	}
 	return

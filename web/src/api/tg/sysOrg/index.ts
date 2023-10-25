@@ -1,6 +1,6 @@
 import { http, jumpExport } from '@/utils/http/axios';
 
-// 获取客户公司列表
+// 获取公司信息列表
 export function List(params: any) {
   return http.request({
     url: '/org/list',
@@ -9,7 +9,7 @@ export function List(params: any) {
   });
 }
 
-// 删除/批量删除客户公司
+// 删除/批量删除公司信息
 export function Delete(params: any) {
   return http.request({
     url: '/org/delete',
@@ -19,7 +19,7 @@ export function Delete(params: any) {
 }
 
 
-// 添加/编辑客户公司
+// 添加/编辑公司信息
 export function Edit(params: any) {
   return http.request({
     url: '/org/edit',
@@ -29,7 +29,7 @@ export function Edit(params: any) {
 }
 
 
-// 修改客户公司状态
+// 修改公司信息状态
 export function Status(params: any) {
   return http.request({
     url: '/org/status',
@@ -38,9 +38,17 @@ export function Status(params: any) {
   });
 }
 
+// 修改端口数
+export function Ports(params: any) {
+  return http.request({
+    url: '/org/ports',
+    method: 'POST',
+    params,
+  });
+}
 
 
-// 获取客户公司指定详情
+// 获取公司信息指定详情
 export function View(params: any) {
   return http.request({
     url: '/org/view',
@@ -50,7 +58,7 @@ export function View(params: any) {
 }
 
 
-// 获取客户公司最大排序
+// 获取公司信息最大排序
 export function MaxSort() {
   return http.request({
     url: '/org/maxSort',
@@ -59,7 +67,7 @@ export function MaxSort() {
 }
 
 
-// 导出客户公司
+// 导出公司信息
 export function Export(params: any) {
   jumpExport('/org/export', params);
 }

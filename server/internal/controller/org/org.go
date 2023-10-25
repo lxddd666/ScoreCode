@@ -1,8 +1,8 @@
-package admin
+package org
 
 import (
 	"context"
-	sysorg "hotgo/api/admin/org"
+	sysorg "hotgo/api/org/org"
 	"hotgo/internal/service"
 )
 
@@ -12,7 +12,7 @@ var (
 
 type cOrg struct{}
 
-// List 查看客户公司列表
+// List 查看公司信息列表
 func (c *cOrg) List(ctx context.Context, req *sysorg.ListReq) (res *sysorg.ListRes, err error) {
 	list, totalCount, err := service.SysOrg().List(ctx, &req.SysOrgListInp)
 	if err != nil {
@@ -25,19 +25,19 @@ func (c *cOrg) List(ctx context.Context, req *sysorg.ListReq) (res *sysorg.ListR
 	return
 }
 
-// Export 导出客户公司列表
+// Export 导出公司信息列表
 func (c *cOrg) Export(ctx context.Context, req *sysorg.ExportReq) (res *sysorg.ExportRes, err error) {
 	err = service.SysOrg().Export(ctx, &req.SysOrgListInp)
 	return
 }
 
-// Edit 更新客户公司
+// Edit 更新公司信息
 func (c *cOrg) Edit(ctx context.Context, req *sysorg.EditReq) (res *sysorg.EditRes, err error) {
 	err = service.SysOrg().Edit(ctx, &req.SysOrgEditInp)
 	return
 }
 
-// MaxSort 获取客户公司最大排序
+// MaxSort 获取公司信息最大排序
 func (c *cOrg) MaxSort(ctx context.Context, req *sysorg.MaxSortReq) (res *sysorg.MaxSortRes, err error) {
 	data, err := service.SysOrg().MaxSort(ctx, &req.SysOrgMaxSortInp)
 	if err != nil {
@@ -49,7 +49,7 @@ func (c *cOrg) MaxSort(ctx context.Context, req *sysorg.MaxSortReq) (res *sysorg
 	return
 }
 
-// View 获取指定客户公司信息
+// View 获取指定公司信息信息
 func (c *cOrg) View(ctx context.Context, req *sysorg.ViewReq) (res *sysorg.ViewRes, err error) {
 	data, err := service.SysOrg().View(ctx, &req.SysOrgViewInp)
 	if err != nil {
@@ -61,14 +61,20 @@ func (c *cOrg) View(ctx context.Context, req *sysorg.ViewReq) (res *sysorg.ViewR
 	return
 }
 
-// Delete 删除客户公司
+// Delete 删除公司信息
 func (c *cOrg) Delete(ctx context.Context, req *sysorg.DeleteReq) (res *sysorg.DeleteRes, err error) {
 	err = service.SysOrg().Delete(ctx, &req.SysOrgDeleteInp)
 	return
 }
 
-// Status 更新客户公司状态
+// Status 更新公司信息状态
 func (c *cOrg) Status(ctx context.Context, req *sysorg.StatusReq) (res *sysorg.StatusRes, err error) {
 	err = service.SysOrg().Status(ctx, &req.SysOrgStatusInp)
+	return
+}
+
+// Ports 修改端口数
+func (c *cOrg) Ports(ctx context.Context, req *sysorg.PortReq) (res *sysorg.PortRes, err error) {
+	err = service.SysOrg().Ports(ctx, &req.SysOrgPortInp)
 	return
 }

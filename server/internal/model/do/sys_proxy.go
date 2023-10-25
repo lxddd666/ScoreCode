@@ -1,0 +1,28 @@
+// =================================================================================
+// Code generated and maintained by GoFrame CLI tool. DO NOT EDIT.
+// =================================================================================
+
+package do
+
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
+)
+
+// SysProxy is the golang structure of table sys_proxy for DAO operations like Where/Data.
+type SysProxy struct {
+	g.Meta         `orm:"table:sys_proxy, do:true"`
+	Id             interface{} //
+	Address        interface{} // 代理地址
+	Type           interface{} // 代理类型
+	MaxConnections interface{} // 最大连接数
+	ConnectedCount interface{} // 已连接数
+	AssignedCount  interface{} // 已分配账号数量
+	LongTermCount  interface{} // 长期未登录数量
+	Region         interface{} // 地区
+	Comment        interface{} // 备注
+	Status         interface{} // 状态(1正常, 2停用)
+	DeletedAt      *gtime.Time // 删除时间
+	CreatedAt      *gtime.Time // 创建时间
+	UpdatedAt      *gtime.Time // 更新时间
+}

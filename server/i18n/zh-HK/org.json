@@ -1,0 +1,5 @@
+{
+  "GetOrgCountError": "取得公司資訊資料行失敗，請稍後再試！",
+  "GetOrgListError": "取得公司資訊清單失敗，請稍後重試！",
+  "OrgIdNotEmpty": "公司ID不能為空"
+}

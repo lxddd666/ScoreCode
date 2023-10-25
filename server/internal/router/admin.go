@@ -13,6 +13,7 @@ import (
 	"hotgo/internal/controller/admin/common"
 	"hotgo/internal/controller/admin/pay"
 	"hotgo/internal/controller/admin/sys"
+	"hotgo/internal/controller/org"
 	"hotgo/internal/router/auto"
 	"hotgo/internal/service"
 	"hotgo/utility/simple"
@@ -47,8 +48,9 @@ func Admin(ctx context.Context, group *ghttp.RouterGroup) {
 			sys.ServeLog,     // 服务日志
 			sys.SmsLog,       // 短信记录
 			sys.ServeLicense, // 服务许可证
-			admin.Member,     // 用户
-			admin.Org,        // 公司
+			org.Member,       // 用户
+			org.Org,          // 公司
+			org.SysProxy,     // 代理
 			admin.Monitor,    // 监控
 			admin.Role,       // 路由
 			admin.Menu,       // 菜单

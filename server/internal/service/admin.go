@@ -207,22 +207,24 @@ type (
 		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
 	}
 	ISysOrg interface {
-		// Model 客户公司ORM模型
+		// Model 公司信息ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取客户公司列表
+		// List 获取公司信息列表
 		List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgin.SysOrgListModel, totalCount int, err error)
-		// Export 导出客户公司
+		// Export 导出公司信息
 		Export(ctx context.Context, in *tgin.SysOrgListInp) (err error)
-		// Edit 修改/新增客户公司
+		// Edit 修改/新增公司信息
 		Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error)
-		// Delete 删除客户公司
+		// Delete 删除公司信息
 		Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error)
-		// MaxSort 获取客户公司最大排序
+		// MaxSort 获取公司信息最大排序
 		MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *tgin.SysOrgMaxSortModel, err error)
-		// View 获取客户公司指定信息
+		// View 获取公司信息指定信息
 		View(ctx context.Context, in *tgin.SysOrgViewInp) (res *tgin.SysOrgViewModel, err error)
-		// Status 更新客户公司状态
+		// Status 更新公司信息状态
 		Status(ctx context.Context, in *tgin.SysOrgStatusInp) (err error)
+		// Ports 修改端口数
+		Ports(ctx context.Context, in *tgin.SysOrgPortInp) (err error)
 	}
 )
 

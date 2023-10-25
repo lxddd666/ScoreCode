@@ -20,32 +20,34 @@ type SysOrgDao struct {
 
 // SysOrgColumns defines and stores column names for table sys_org.
 type SysOrgColumns struct {
-	Id        string // 公司ID
-	Name      string // 公司名称
-	Code      string // 公司编码
-	Leader    string // 负责人
-	Phone     string // 联系电话
-	Email     string // 邮箱
-	PortNum   string // 端口数
-	Sort      string // 排序
-	Status    string // 组织状态
-	CreatedAt string // 创建时间
-	UpdatedAt string // 更新时间
+	Id            string // 公司ID
+	Name          string // 公司名称
+	Code          string // 公司编码
+	Leader        string // 负责人
+	Phone         string // 联系电话
+	Email         string // 邮箱
+	Ports         string // 总端口数
+	AssignedPorts string // 已分配端口数
+	Sort          string // 排序
+	Status        string // 组织状态
+	CreatedAt     string // 创建时间
+	UpdatedAt     string // 更新时间
 }
 
 // sysOrgColumns holds the columns for table sys_org.
 var sysOrgColumns = SysOrgColumns{
-	Id:        "id",
-	Name:      "name",
-	Code:      "code",
-	Leader:    "leader",
-	Phone:     "phone",
-	Email:     "email",
-	PortNum:   "port_num",
-	Sort:      "sort",
-	Status:    "status",
-	CreatedAt: "created_at",
-	UpdatedAt: "updated_at",
+	Id:            "id",
+	Name:          "name",
+	Code:          "code",
+	Leader:        "leader",
+	Phone:         "phone",
+	Email:         "email",
+	Ports:         "ports",
+	AssignedPorts: "assigned_ports",
+	Sort:          "sort",
+	Status:        "status",
+	CreatedAt:     "created_at",
+	UpdatedAt:     "updated_at",
 }
 
 // NewSysOrgDao creates and returns a new DAO object for table data access.

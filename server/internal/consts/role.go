@@ -51,25 +51,6 @@ var DataScopeSelect = []GroupScopeSelect{
 	},
 	{
 		Type:  "group",
-		Label: "按部门划分",
-		Key:   -1,
-		Children: []ScopeSelect{
-			{
-				Label: RoleDataNameMap[RoleDataNowDept],
-				Value: RoleDataNowDept,
-			},
-			{
-				Label: RoleDataNameMap[RoleDataDeptAndSub],
-				Value: RoleDataDeptAndSub,
-			},
-			{
-				Label: RoleDataNameMap[RoleDataDeptCustom],
-				Value: RoleDataDeptCustom,
-			},
-		},
-	},
-	{
-		Type:  "group",
 		Label: "按上下级关系划分",
 		Key:   -2,
 		Children: []ScopeSelect{

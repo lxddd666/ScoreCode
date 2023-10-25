@@ -1,0 +1,5 @@
+{
+  "GetOrgCountError": "Failed to obtain company information data rows, please try again later!",
+  "GetOrgListError": "Failed to obtain the company information list, please try again later!",
+  "OrgIdNotEmpty": "Company ID cannot be empty"
+}

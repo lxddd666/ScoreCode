@@ -6,34 +6,37 @@ import {Dicts} from '@/api/dict/dict';
 
 import {isNullObject} from '@/utils/is';
 import {defRangeShortcuts} from '@/utils/dateUtil';
-import {validate} from '@/utils/validateUtil';
 import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
 
 
 export interface State {
   id: number;
-  name: string;
-  code: string;
-  leader: string;
-  phone: string;
-  email: string;
-  ports: number;
-  sort: number;
+  address: string;
+  type: string;
+  maxConnections: number;
+  connectedCount: number;
+  assignedCount: number;
+  longTermCount: number;
+  region: string;
+  comment: string;
   status: number;
+  deletedAt: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export const defaultState = {
   id: 0,
-  name: '',
-  code: '',
-  leader: '',
-  phone: '',
-  email: '',
-  ports: 0 ,
-  sort: 1,
+  address: '',
+  type: '',
+  maxConnections: 0,
+  connectedCount: 0,
+  assignedCount: 0,
+  longTermCount: 0,
+  region: '',
+  comment: '',
   status: 1,
+  deletedAt: '',
   createdAt: '',
   updatedAt: '',
 };
@@ -46,25 +49,32 @@ export function newState(state: State | null): State {
 }
 
 export const options = ref<Options>({
+  proxy_type: [],
   sys_normal_disable: [],
 });
 
-export const rules = {
-  email: {
-    required: false,
-    trigger: ['blur', 'input'],
-    type: 'string',
-    validator: validate.email,
-  },
-};
+export const rules = {};
 
 export const schemas = ref<FormSchema[]>([
   {
-    field: 'name',
+    field: 'address',
     component: 'NInput',
-    label: '公司名称',
+    label: '代理地址',
     componentProps: {
-      placeholder: '请输入公司名称',
+      placeholder: '请输入代理地址',
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
+    field: 'type',
+    component: 'NSelect',
+    label: '代理类型',
+    defaultValue: null,
+    componentProps: {
+      placeholder: '请选择代理类型',
+      options: [],
       onUpdateValue: (e: any) => {
         console.log(e);
       },
@@ -73,10 +83,10 @@ export const schemas = ref<FormSchema[]>([
   {
     field: 'status',
     component: 'NSelect',
-    label: '公司状态',
+    label: '状态',
     defaultValue: null,
     componentProps: {
-      placeholder: '请选择公司状态',
+      placeholder: '请选择状态',
       options: [],
       onUpdateValue: (e: any) => {
         console.log(e);
@@ -99,40 +109,62 @@ export const schemas = ref<FormSchema[]>([
 ]);
 
 export const columns = [
-  {
-    title: '公司ID',
-    key: 'id',
-  },
-  {
-    title: '公司名称',
-    key: 'name',
-  },
-  {
-    title: '公司编码',
-    key: 'code',
-  },
-  {
-    title: '负责人',
-    key: 'leader',
-  },
-  {
-    title: '联系电话',
-    key: 'phone',
-  },
-  {
-    title: '邮箱',
-    key: 'email',
-  },
-  {
-    title: '总端口数',
-    key: 'ports',
-  },
   // {
-  //   title: '已分配端口数',
-  //   key: 'assignedPorts',
+  //   title: 'id',
+  //   key: 'id',
   // },
   {
-    title: '公司状态',
+    title: '代理地址',
+    key: 'address',
+  },
+  {
+    title: '代理类型',
+    key: 'type',
+    render(row) {
+      if (isNullObject(row.type)) {
+        return ``;
+      }
+      return h(
+        NTag,
+        {
+          style: {
+            marginRight: '6px',
+          },
+          type: getOptionTag(options.value.proxy_type, row.type),
+          bordered: false,
+        },
+        {
+          default: () => getOptionLabel(options.value.proxy_type, row.type),
+        }
+      );
+    },
+  },
+  {
+    title: '最大连接数',
+    key: 'maxConnections',
+  },
+  {
+    title: '已连接数',
+    key: 'connectedCount',
+  },
+  {
+    title: '已分配账号数量',
+    key: 'assignedCount',
+  },
+  {
+    title: '长期未登录数量',
+    key: 'longTermCount',
+  },
+  {
+    title: '地区',
+    key: 'region',
+  },
+  {
+    title: '备注',
+    key: 'comment',
+  },
+  {
+    title: '状态',
     key: 'status',
     render(row) {
       if (isNullObject(row.status)) {
@@ -166,11 +198,15 @@ export const columns = [
 async function loadOptions() {
   options.value = await Dicts({
     types: [
+      'proxy_type',
       'sys_normal_disable',
     ],
   });
   for (const item of schemas.value) {
     switch (item.field) {
+      case 'type':
+        item.componentProps.options = options.value.proxy_type;
+        break;
       case 'status':
         item.componentProps.options = options.value.sys_normal_disable;
         break;

@@ -3,13 +3,13 @@
 // @Copyright  Copyright (c) 2023 HotGo CLI
 // @Author  Ms <133814250@qq.com>
 // @License  https://github.com/bufanyun/hotgo/blob/master/LICENSE
-package admin
+package org
 
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"hotgo/api/admin/member"
+	"hotgo/api/org/member"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/input/adminin"
 	"hotgo/internal/service"

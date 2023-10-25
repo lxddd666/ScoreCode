@@ -168,6 +168,12 @@ router:
     prefix: "/home"
     # 不需要验证登录的路由地址
     exceptPath: [ ]
+  # websocket
+  tg:
+    # 前缀
+    prefix: "/tg"
+    # 不需要验证登录的路由地址
+    exceptLogin: [ ]
 
 
 #缓存

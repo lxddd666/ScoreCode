@@ -413,7 +413,6 @@
   onMounted(async () => {
     await loadDataList();
     await loadMenuList();
-    await loadDeptList();
     await loadDataScopeSelect();
     await loadDataTable({});
   });
@@ -438,12 +437,6 @@
     treeData.value = treeMenuList.list;
   }
 
-  async function loadDeptList() {
-    const tmp = await getDeptList({});
-    if (tmp.list) {
-      deptList.value = tmp.list;
-    }
-  }
 
   async function loadDataScopeSelect() {
     const option = await DataScopeSelect();

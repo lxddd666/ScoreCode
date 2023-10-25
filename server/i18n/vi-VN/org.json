@@ -1,0 +1,5 @@
+{
+  "GetOrgCountError": "Không lấy được hàng dữ liệu thông tin công ty, vui lòng thử lại sau!",
+  "GetOrgListError": "Không lấy được danh sách thông tin công ty, vui lòng thử lại sau!",
+  "OrgIdNotEmpty": "ID công ty không được để trống"
+}
