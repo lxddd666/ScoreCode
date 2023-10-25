@@ -60,3 +60,9 @@ func (c *cSysProxy) Status(ctx context.Context, req *sysproxy.StatusReq) (res *s
 	err = service.OrgSysProxy().Status(ctx, &req.SysProxyStatusInp)
 	return
 }
+
+// Import 导入代理
+func (c *cSysProxy) Import(ctx context.Context, req *sysproxy.ImportReq) (res *sysproxy.ImportRes, err error) {
+	err = service.OrgSysProxy().Import(ctx, req.List)
+	return
+}

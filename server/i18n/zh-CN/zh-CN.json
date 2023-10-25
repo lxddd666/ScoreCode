@@ -79,5 +79,14 @@
   "PhoneNumberExistChangeOne": "手机号已存在，请换一个",
   "InvitationCodeExistChangeOne": "邀请码已存在，请换一个",
   "LoginIdentityInvalidTryAgain": "登录身份已失效，请重新登录",
-  "AccountLoginDifferentPlace": "账号存在异地登录，如非本人操作请及时修改登录密码"
+  "AccountLoginDifferentPlace": "账号存在异地登录，如非本人操作请及时修改登录密码",
+  "GetCountError": "获取数据行失败，请稍后重试！",
+  "GetListError": "获取列表失败，请稍后重试！",
+  "EditInfoError": "修改失败，请稍后重试！",
+  "AddInfoError": "新增失败，请稍后重试！",
+  "DeleteInfoError": "新增失败，请稍后重试！",
+  "GetMaxSortError": "获取最大排序，请稍后重试！",
+  "GetInfoError": "获取数据失败，请稍后重试！",
+  "StatusNotEmpty": "状态不能为空",
+  "StatusError": "状态不正确"
 }

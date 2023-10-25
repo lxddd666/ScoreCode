@@ -177,7 +177,7 @@ func (s *sSysEmsLog) Send(ctx context.Context, in *sysin.SendEmsInp) (err error)
 
 	err = ems.Send(config, in.Email, subject, in.Content)
 	if err != nil {
-		return
+		//return
 	}
 
 	var data = new(entity.SysEmsLog)

@@ -80,5 +80,14 @@
   "PhoneNumberExistChangeOne":"The phone number exists, please change one",
   "InvitationCodeExistChangeOne":"The invitation code exists, please change one",
   "LoginIdentityInvalidTryAgain":"The login identity has been invalid, please log in again",
-  "AccountLoginDifferentPlace":"The account is available for login in different places. If you do not operate, please modify the login password in time"
+  "AccountLoginDifferentPlace":"The account is available for login in different places. If you do not operate, please modify the login password in time",
+  "GetCountError": "Obtaining the data line failed, please try it later!",
+  "GetListError": "Get the list failed, please try again later!",
+  "EditInfoError": "Modify failed, please try again later!",
+  "AddInfoError": "New failed, please try again later!",
+  "DeleteInfoError": "New failed, please try again later!",
+  "GetMaxSortError": "Get the maximum sort, please try it later!",
+  "GetInfoError": "The data failed, please try it later!",
+  "StatusNotEmpty": "The state cannot be empty",
+  "StatusError": "Incorrect state"
 }

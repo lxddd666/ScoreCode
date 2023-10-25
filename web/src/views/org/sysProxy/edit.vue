@@ -22,6 +22,10 @@
           <n-input placeholder="请输入代理地址" v-model:value="params.address" />
           </n-form-item>
 
+          <n-form-item label="代理类型" path="type">
+            <n-select v-model:value="params.type" :options="options.proxy_type" />
+          </n-form-item>
+
           <n-form-item label="最大连接数" path="maxConnections">
             <n-input-number placeholder="请输入最大连接数" v-model:value="params.maxConnections" />
           </n-form-item>
@@ -32,10 +36,6 @@
 
           <n-form-item label="备注" path="comment">
             <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
-          </n-form-item>
-
-          <n-form-item label="状态" path="status">
-            <n-select v-model:value="params.status" :options="options.sys_normal_disable" />
           </n-form-item>
 
 

@@ -20,6 +20,7 @@ type Option struct {
 // DefaultOption 默认预处理选项
 var DefaultOption = &Option{
 	FilterAuth: true,
+	FilterOrg:  true,
 }
 
 func Model(m *gdb.Model, opt ...*Option) *gdb.Model {

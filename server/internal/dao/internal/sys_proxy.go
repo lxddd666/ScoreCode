@@ -21,6 +21,7 @@ type SysProxyDao struct {
 // SysProxyColumns defines and stores column names for table sys_proxy.
 type SysProxyColumns struct {
 	Id             string //
+	OrgId          string // 组织ID
 	Address        string // 代理地址
 	Type           string // 代理类型
 	MaxConnections string // 最大连接数
@@ -38,6 +39,7 @@ type SysProxyColumns struct {
 // sysProxyColumns holds the columns for table sys_proxy.
 var sysProxyColumns = SysProxyColumns{
 	Id:             "id",
+	OrgId:          "org_id",
 	Address:        "address",
 	Type:           "type",
 	MaxConnections: "max_connections",

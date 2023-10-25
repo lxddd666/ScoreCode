@@ -101,17 +101,17 @@ type @{.varName}StatusInp struct {
 
 func (in *@{.varName}StatusInp) Filter(ctx context.Context) (err error) {
 	if in.@{.pk.GoName} <= 0 {
-		err = gerror.New("@{.pk.Dc}不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StatusNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StatusError}"))
 		return
 	}
 	return

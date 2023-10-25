@@ -1,5 +1,4 @@
 {
-  "GetOrgCountError": "Không lấy được hàng dữ liệu thông tin công ty, vui lòng thử lại sau!",
-  "GetOrgListError": "Không lấy được danh sách thông tin công ty, vui lòng thử lại sau!",
-  "OrgIdNotEmpty": "ID công ty không được để trống"
+  "ExportOrgTitle": "Xuất thông tin công ty",
+  "ExportOrgSheetName": "Chỉ mục các điều kiện %v, trang %v, xuất hiện hiện thời là %v đầu tiên, trang này %v"
 }

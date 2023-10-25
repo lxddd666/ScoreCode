@@ -78,5 +78,14 @@
   "PhoneNumberExistChangeOne": "手機號已存在，請換一個",
   "InvitationCodeExistChangeOne": "邀請碼已存在，請換一個",
   "LoginIdentityInvalidTryAgain": "登錄身份已失效，請重新登錄",
-  "AccountLoginDifferentPlace": "賬號存在異地登錄，如非本人操作請及時修改登錄密碼"
+  "AccountLoginDifferentPlace": "賬號存在異地登錄，如非本人操作請及時修改登錄密碼",
+  "GetCountError": "獲取數據行失敗，請稍後重試！",
+  "GetListError": "獲取列表失敗，請稍後重試！",
+  "EditInfoError": "修改失敗，請稍後重試！",
+  "AddInfoError": "新增失敗，請稍後重試！",
+  "DeleteInfoError": "新增失敗，請稍後重試！",
+  "GetMaxSortError": "獲取最大排序，請稍後重試！",
+  "GetInfoError": "獲取數據失敗，請稍後重試！",
+  "StatusNotEmpty": "狀態不能為空",
+  "StatusError": "狀態不正確"
 }

@@ -10,6 +10,15 @@
           {{ formValue.address }}
         </n-descriptions-item>
 
+        <n-descriptions-item label="代理类型">
+          <n-tag
+            :type="getOptionTag(options.proxy_type, formValue?.type)"
+            size="small"
+            class="min-left-space"
+            >{{ getOptionLabel(options.proxy_type, formValue?.type) }}</n-tag
+          >
+        </n-descriptions-item>
+
         <n-descriptions-item>
           <template #label>最大连接数</template>
           {{ formValue.maxConnections }}
@@ -22,15 +31,6 @@
         <n-descriptions-item>
           <template #label>备注</template>
           <span v-html="formValue.comment"></span></n-descriptions-item>
-
-        <n-descriptions-item label="状态">
-          <n-tag
-            :type="getOptionTag(options.sys_normal_disable, formValue?.status)"
-            size="small"
-            class="min-left-space"
-            >{{ getOptionLabel(options.sys_normal_disable, formValue?.status) }}</n-tag
-          >
-        </n-descriptions-item>
 
 
       </n-descriptions>
