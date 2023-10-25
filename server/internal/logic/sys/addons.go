@@ -8,6 +8,7 @@ package sys
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/text/gstr"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/addons"
@@ -125,7 +126,7 @@ func (s *sSysAddons) Build(ctx context.Context, in *sysin.AddonsBuildInp) (err e
 	}
 
 	if genConfig == nil || genConfig.Addon == nil {
-		err = gerror.New("没有找到有效的生成或插件配置，请检查配置文件是否正常")
+		err = gerror.New(g.I18n().T(ctx, "{#NoEffectivePlugConfiguration}"))
 		return
 	}
 	return addons.Build(ctx, in.Skeleton, genConfig.Addon)

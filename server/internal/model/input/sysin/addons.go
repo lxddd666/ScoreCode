@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/text/gregex"
 	"hotgo/internal/library/addons"
 	"hotgo/internal/model/input/form"
@@ -45,12 +46,12 @@ type AddonsBuildInp struct {
 
 func (in *AddonsBuildInp) Filter(ctx context.Context) (err error) {
 	if in.Name == "" {
-		err = gerror.New("插件名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#PlugNameNotEmpty"))
 		return
 	}
 
 	if !gregex.IsMatchString(`^[a-zA-Z]{1}\w{1,23}$`, in.Name) {
-		err = gerror.New("插件名称格式不正确，字母开头，只能包含字母、数字和下划线，长度在2~24之间")
+		err = gerror.New(g.I18n().T(ctx, "{#PlugNameFormatIncorrect}"))
 		return
 	}
 	return

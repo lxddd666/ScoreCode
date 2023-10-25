@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/entity"
@@ -17,14 +18,14 @@ import (
 
 // AttachmentDeleteInp 删除附件
 type AttachmentDeleteInp struct {
-	Id interface{} `json:"id" v:"required#附件ID不能为空" dc:"附件ID"`
+	Id interface{} `json:"id" v:"required#AttachmentIdNotEmpty" dc:"附件ID"`
 }
 
 type AttachmentDeleteModel struct{}
 
 // AttachmentViewInp 获取附件信息
 type AttachmentViewInp struct {
-	Id int64 `json:"id" v:"required#附件ID不能为空" dc:"附件ID"`
+	Id int64 `json:"id" v:"required#AttachmentIdNotEmpty" dc:"附件ID"`
 }
 
 type AttachmentViewModel struct {
@@ -33,12 +34,12 @@ type AttachmentViewModel struct {
 
 // AttachmentClearKindInp 清空上传类型
 type AttachmentClearKindInp struct {
-	Kind string `json:"kind" v:"required#上传类型不能为空" dc:"上传类型"`
+	Kind string `json:"kind" v:"required#UploadTypeNotEmpty" dc:"上传类型"`
 }
 
 func (in *AttachmentClearKindInp) Filter(ctx context.Context) (err error) {
 	if !validate.InSlice(storager.KindSlice, in.Kind) {
-		err = gerror.New("上传类型是无效的")
+		err = gerror.New(g.I18n().T(ctx, "{#UploadTypeInvalid}"))
 		return
 	}
 	return

@@ -9,6 +9,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
@@ -36,7 +37,7 @@ func (s *sSysAttachment) Model(ctx context.Context, option ...*handler.Option) *
 // Delete 删除附件
 func (s *sSysAttachment) Delete(ctx context.Context, in *sysin.AttachmentDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除附件失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteAttachmentFailed}"))
 	}
 	return
 }
@@ -44,7 +45,7 @@ func (s *sSysAttachment) Delete(ctx context.Context, in *sysin.AttachmentDeleteI
 // View 获取附件信息
 func (s *sSysAttachment) View(ctx context.Context, in *sysin.AttachmentViewInp) (res *sysin.AttachmentViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取附件信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAttachmentInformationFailed}"))
 	}
 	res.FileUrl = storager.LastUrl(ctx, res.FileUrl, res.Drive)
 	return
@@ -86,7 +87,7 @@ func (s *sSysAttachment) List(ctx context.Context, in *sysin.AttachmentListInp) 
 
 	totalCount, err = mod.Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取附件数据行失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAttachmentDataFailed}"))
 		return
 	}
 
@@ -95,7 +96,7 @@ func (s *sSysAttachment) List(ctx context.Context, in *sysin.AttachmentListInp) 
 	}
 
 	if err = mod.Page(in.Page, in.PerPage).OrderDesc(dao.SysAttachment.Columns().UpdatedAt).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取附件列表失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAttachmentListFailed"))
 		return
 	}
 
@@ -110,7 +111,7 @@ func (s *sSysAttachment) List(ctx context.Context, in *sysin.AttachmentListInp) 
 func (s *sSysAttachment) ClearKind(ctx context.Context, in *sysin.AttachmentClearKindInp) (err error) {
 	memberId := contexts.GetUserId(ctx)
 	if _, err = s.Model(ctx).Where(dao.SysAttachment.Columns().MemberId, memberId).Where(dao.SysAttachment.Columns().Kind, in.Kind).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除附件上传类型失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteAttachmentUploadTypeFailed}"))
 	}
 	return
 }

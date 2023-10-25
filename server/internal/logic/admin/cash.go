@@ -39,7 +39,7 @@ func init() {
 func (s *sAdminCash) View(ctx context.Context, in *adminin.CashViewInp) (res *adminin.CashViewModel, err error) {
 	// 这里做了强制限制非超管不允许访问，如果你想通过菜单权限控制，请注释掉以下验证
 	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
-		err = gerror.New("没有访问权限")
+		err = gerror.New(g.I18n().T(ctx, "{#NoAccessAuthority"))
 		return
 	}
 
@@ -49,7 +49,7 @@ func (s *sAdminCash) View(ctx context.Context, in *adminin.CashViewInp) (res *ad
 	}
 
 	if res == nil {
-		err = gerror.New("提现信息获取失败")
+		err = gerror.New(g.I18n().T(ctx, "{#WithdrawalInformationFailed"))
 		return
 	}
 
@@ -131,12 +131,12 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 	)
 
 	if in.Money <= 0 {
-		err = gerror.New("请输入提现金额")
+		err = gerror.New(g.I18n().T(ctx, "{#WithdrawalAmount}"))
 		return
 	}
 
 	if in.Money != float64(int(in.Money)) {
-		err = gerror.New("提现金额必须是正整数")
+		err = gerror.New(g.I18n().T(ctx, "{#WithdrawalAmountPositiveInteger"))
 		return
 	}
 
@@ -149,29 +149,29 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 	}
 
 	if count > 0 {
-		err = gerror.New("存在正在处理中的提现，请耐心等待处理后再试！")
+		err = gerror.New(g.I18n().T(ctx, "{#ExistingWithdrawal"))
 		return
 	}
 
 	if err = dao.AdminMember.Ctx(ctx).Where("id", in.MemberId).Scan(&member); err != nil {
-		err = gerror.Newf("获取用户信息失败:%+v", err.Error())
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#ObtainUserInformationFailed}"), err.Error())
 		return
 	}
 
 	if member == nil {
-		err = gerror.Newf("获取用户信息失败")
+		err = gerror.Newf(g.I18n().T(ctx, "{#GetUserInformationFailed"))
 		return
 	}
 
 	if member.Balance < in.Money {
-		err = gerror.Newf("余额不足")
+		err = gerror.Newf(g.I18n().T(ctx, "{#InsufficientBalance"))
 		return
 	}
 
 	// 提现信息
 	var cash adminin.MemberCash
 	if member.Cash.IsNil() {
-		err = gerror.Newf("请先设置提现账户！")
+		err = gerror.Newf(g.I18n().T(ctx, "{#SetWithdrawalAccount}"))
 		return
 	}
 
@@ -180,7 +180,7 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 	}
 
 	if cash.Name == "" || cash.Account == "" || cash.PayeeCode == "" {
-		err = gerror.New("请设置完整的提现账户信息！")
+		err = gerror.New(g.I18n().T(ctx, "{#SetWithdrawalAccountInformation}"))
 		return
 	}
 
@@ -194,12 +194,12 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 	}
 
 	if !config.Switch {
-		err = gerror.New("提现通道正在升级维护中，请稍后再试！")
+		err = gerror.New(g.I18n().T(ctx, "{#WithdrawalChannelUpdate}"))
 		return
 	}
 
 	if in.Money < config.MinMoney {
-		err = gerror.Newf("单次提现金额不能低于 %v 元", config.MinMoney)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#SingleWithdrawalAmount}"), config.MinMoney)
 		return
 	}
 
@@ -210,7 +210,7 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 
 	lastMoney := in.Money - fee
 	if lastMoney <= 1 {
-		err = gerror.Newf("提现金额过少，请增加提现金额！")
+		err = gerror.Newf(g.I18n().T(ctx, "{#WithdrawalAmountSmall}"))
 		return
 	}
 
@@ -238,14 +238,14 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 			CreditGroup: consts.CreditGroupApplyCash,
 			Num:         -in.Money,
 			MapId:       lastInsertId,
-			Remark:      "后台申请提现",
+			Remark:      g.I18n().T(ctx, "{#BackstageApplicationWithdrawal}"),
 		})
 
 		return
 	})
 
 	if err != nil {
-		err = gerror.Newf("申请提现失败, %+v", err)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#ApplicationWithdrawalFailed}"), err)
 		return
 	}
 	return
@@ -254,7 +254,7 @@ func (s *sAdminCash) Apply(ctx context.Context, in *adminin.CashApplyInp) (err e
 // Payment 提现打款处理
 func (s *sAdminCash) Payment(ctx context.Context, in *adminin.CashPaymentInp) (err error) {
 	if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
-		err = gerror.New("没有访问权限")
+		err = gerror.New(g.I18n().T(ctx, "{#NoAccessAuthority}"))
 		return
 	}
 
@@ -264,12 +264,12 @@ func (s *sAdminCash) Payment(ctx context.Context, in *adminin.CashPaymentInp) (e
 	}
 
 	if models == nil {
-		err = gerror.New("未找到提现信息")
+		err = gerror.New(g.I18n().T(ctx, "{#NoWithdrawalInformation}"))
 		return
 	}
 
 	if models.Status == consts.CashStatusOk {
-		err = gerror.New("该提现已处理成功，不能再次操作！")
+		err = gerror.New(g.I18n().T(ctx, "{#WithdrawalSuccess}"))
 		return
 	}
 

@@ -49,7 +49,7 @@ func (s *sSysBlacklist) Delete(ctx context.Context, in *sysin.BlacklistDeleteInp
 func (s *sSysBlacklist) Edit(ctx context.Context, in *sysin.BlacklistEditInp) (err error) {
 	defer s.VariableLoad(ctx, err)
 	if in.Ip == "" {
-		err = gerror.New("ip不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IpNotEmpty"))
 		return
 	}
 
@@ -155,7 +155,7 @@ func (s *sSysBlacklist) VerifyRequest(r *ghttp.Request) (err error) {
 	}
 
 	if _, ok := s.list[location.GetClientIp(r)]; ok {
-		err = gerror.NewCode(gcode.New(gcode.CodeServerBusy.Code(), "请求异常，已被封禁，如有疑问请联系管理员！", nil))
+		err = gerror.NewCode(gcode.New(gcode.CodeServerBusy.Code(), g.I18n().T(r.Context(), "{#RequestError}"), nil))
 		return
 	}
 	return

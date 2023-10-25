@@ -12,7 +12,7 @@ import (
 
 // CashViewInp 获取信息
 type CashViewInp struct {
-	Id int64 `json:"id" v:"required#提现ID不能为空" dc:"提现ID"`
+	Id int64 `json:"id" v:"required#WithdrawalIdNotEmpty" dc:"提现ID"`
 }
 
 type CashViewModel struct {
