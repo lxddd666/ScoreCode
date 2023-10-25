@@ -49,7 +49,7 @@ func (s *sSysBlacklist) Delete(ctx context.Context, in *sysin.BlacklistDeleteInp
 func (s *sSysBlacklist) Edit(ctx context.Context, in *sysin.BlacklistEditInp) (err error) {
 	defer s.VariableLoad(ctx, err)
 	if in.Ip == "" {
-		err = gerror.New(g.I18n().T(ctx, "{#IpNotEmpty"))
+		err = gerror.New(g.I18n().T(ctx, "{#IpNotEmpty}"))
 		return
 	}
 
