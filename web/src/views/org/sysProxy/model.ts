@@ -1,12 +1,14 @@
-import {h, ref} from 'vue';
-import {NTag} from 'naive-ui';
-import {cloneDeep} from 'lodash-es';
-import {FormSchema} from '@/components/Form';
-import {Dicts} from '@/api/dict/dict';
+import { h, ref } from 'vue';
+import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
+import { cloneDeep } from 'lodash-es';
+import { FormSchema } from '@/components/Form';
+import { Dicts } from '@/api/dict/dict';
 
-import {isNullObject} from '@/utils/is';
-import {defRangeShortcuts} from '@/utils/dateUtil';
-import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import { isArray, isNullObject } from '@/utils/is';
+import { getFileExt } from '@/utils/urlUtils';
+import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
+import { validate } from '@/utils/validateUtil';
+import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
 
 
 export interface State {
@@ -53,7 +55,26 @@ export const options = ref<Options>({
   sys_normal_disable: [],
 });
 
-export const rules = {};
+export const rules = {
+  address: {
+    required: true,
+    trigger: ['blur', 'input'],
+    type: 'string',
+    message: '请输入代理地址',
+  },
+  type: {
+    required: true,
+    trigger: ['blur', 'input'],
+    type: 'string',
+    message: '请输入代理类型',
+  },
+  maxConnections: {
+    required: true,
+    trigger: ['blur', 'input'],
+    type: 'number',
+    message: '请输入最大连接数',
+  },
+};
 
 export const schemas = ref<FormSchema[]>([
   {
@@ -109,10 +130,10 @@ export const schemas = ref<FormSchema[]>([
 ]);
 
 export const columns = [
-  // {
-  //   title: 'id',
-  //   key: 'id',
-  // },
+  {
+    title: 'id',
+    key: 'id',
+  },
   {
     title: '代理地址',
     key: 'address',
@@ -199,8 +220,8 @@ async function loadOptions() {
   options.value = await Dicts({
     types: [
       'proxy_type',
-      'sys_normal_disable',
-    ],
+    'sys_normal_disable',
+   ],
   });
   for (const item of schemas.value) {
     switch (item.field) {
@@ -210,7 +231,7 @@ async function loadOptions() {
       case 'status':
         item.componentProps.options = options.value.sys_normal_disable;
         break;
-    }
+     }
   }
 }
 

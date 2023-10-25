@@ -59,3 +59,11 @@ type StatusReq struct {
 }
 
 type StatusRes struct{}
+
+// ImportReq 导入代理
+type ImportReq struct {
+	g.Meta `path:"/sysProxy/import" method:"post" tags:"代理管理" summary:"导入代理"`
+	List   []*orgin.SysProxyEditInp `json:"list" dc:"导入数据集合"`
+}
+
+type ImportRes struct{}

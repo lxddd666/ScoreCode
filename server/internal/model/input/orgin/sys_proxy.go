@@ -8,33 +8,58 @@ import (
 	"hotgo/utility/validate"
 
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
 // SysProxyUpdateFields 修改代理管理字段过滤
 type SysProxyUpdateFields struct {
 	Address        string `json:"address"        dc:"代理地址"`
+	Type           string `json:"type"           dc:"代理类型"`
 	MaxConnections int64  `json:"maxConnections" dc:"最大连接数"`
 	Region         string `json:"region"         dc:"地区"`
 	Comment        string `json:"comment"        dc:"备注"`
-	Status         int    `json:"status"         dc:"状态"`
 }
 
 // SysProxyInsertFields 新增代理管理字段过滤
 type SysProxyInsertFields struct {
+	OrgId          uint64 `json:"orgId"          dc:"组织id"`
 	Address        string `json:"address"        dc:"代理地址"`
+	Type           string `json:"type"           dc:"代理类型"`
 	MaxConnections int64  `json:"maxConnections" dc:"最大连接数"`
 	Region         string `json:"region"         dc:"地区"`
 	Comment        string `json:"comment"        dc:"备注"`
-	Status         int    `json:"status"         dc:"状态"`
 }
 
 // SysProxyEditInp 修改/新增代理管理
 type SysProxyEditInp struct {
-	entity.SysProxy
+	Id             uint64 `json:"id"             description:"id"`
+	OrgId          int64  `json:"orgId"          description:"组织id"`
+	Address        string `json:"address"        description:"代理地址"`
+	Type           string `json:"type"           description:"代理类型"`
+	MaxConnections int64  `json:"maxConnections" description:"最大连接数"`
+	Region         string `json:"region"         description:"地区"`
+	Comment        string `json:"comment"        description:"备注"`
 }
 
 func (in *SysProxyEditInp) Filter(ctx context.Context) (err error) {
+	// 验证代理地址
+	if err := g.Validator().Rules("required").Data(in.Address).Messages("代理地址不能为空").Run(ctx); err != nil {
+		return err.Current()
+	}
+
+	// 验证代理类型
+	if err := g.Validator().Rules("required").Data(in.Type).Messages("代理类型不能为空").Run(ctx); err != nil {
+		return err.Current()
+	}
+	if err := g.Validator().Rules("in:http,https,socks5").Data(in.Type).Messages("代理类型值不正确").Run(ctx); err != nil {
+		return err.Current()
+	}
+
+	// 验证最大连接数
+	if err := g.Validator().Rules("required").Data(in.MaxConnections).Messages("最大连接数不能为空").Run(ctx); err != nil {
+		return err.Current()
+	}
 
 	return
 }
@@ -116,17 +141,17 @@ type SysProxyStatusInp struct {
 
 func (in *SysProxyStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("id不能为空")
+		err = gerror.New(g.I18n().T(ctx, "ID不能为空"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "状态不能为空"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "状态不正确"))
 		return
 	}
 	return

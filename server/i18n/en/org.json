@@ -1,5 +1,4 @@
 {
-  "GetOrgCountError": "Failed to obtain company information data rows, please try again later!",
-  "GetOrgListError": "Failed to obtain the company information list, please try again later!",
-  "OrgIdNotEmpty": "Company ID cannot be empty"
+  "ExportOrgTitle": "Export company information",
+  "ExportOrgSheetName": "Index conditions are%v rows,%v pages, the current export is page%v, this page is%v lines."
 }

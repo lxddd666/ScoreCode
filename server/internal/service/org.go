@@ -29,6 +29,8 @@ type (
 		View(ctx context.Context, in *orgin.SysProxyViewInp) (res *orgin.SysProxyViewModel, err error)
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *orgin.SysProxyStatusInp) (err error)
+		// Import 导入代理
+		Import(ctx context.Context, list []*orgin.SysProxyEditInp) (err error)
 	}
 )
 

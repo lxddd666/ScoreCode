@@ -50,7 +50,7 @@ type SysOrgEditModel struct{}
 
 // SysOrgDeleteInp 删除公司信息
 type SysOrgDeleteInp struct {
-	Id interface{} `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"公司ID"`
 }
 
 func (in *SysOrgDeleteInp) Filter(ctx context.Context) (err error) {
@@ -61,7 +61,7 @@ type SysOrgDeleteModel struct{}
 
 // SysOrgViewInp 获取指定公司信息信息
 type SysOrgViewInp struct {
-	Id int64 `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"公司ID"`
 }
 
 func (in *SysOrgViewInp) Filter(ctx context.Context) (err error) {
@@ -127,23 +127,23 @@ type SysOrgMaxSortModel struct {
 
 // SysOrgStatusInp 更新公司信息状态
 type SysOrgStatusInp struct {
-	Id     int64 `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"公司ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 
 func (in *SysOrgStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("公司ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StatusNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StatusError}"))
 		return
 	}
 	return
@@ -153,7 +153,7 @@ type SysOrgStatusModel struct{}
 
 // SysOrgPortInp 修改端口数
 type SysOrgPortInp struct {
-	Id    int64 `json:"id" v:"required#OrgIdNotEmpty" dc:"公司ID"`
+	Id    int64 `json:"id" v:"required#IdNotEmpty" dc:"公司ID"`
 	Ports int64 `json:"ports" dc:"端口数"`
 }
 

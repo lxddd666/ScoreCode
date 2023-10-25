@@ -11,6 +11,7 @@ import (
 // SysProxy is the golang structure for table sys_proxy.
 type SysProxy struct {
 	Id             uint64      `json:"id"             description:""`
+	OrgId          int64       `json:"orgId"          description:"组织ID"`
 	Address        string      `json:"address"        description:"代理地址"`
 	Type           string      `json:"type"           description:"代理类型"`
 	MaxConnections int64       `json:"maxConnections" description:"最大连接数"`

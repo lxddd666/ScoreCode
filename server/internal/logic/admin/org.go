@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"fmt"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	crole "hotgo/internal/library/cache/role"
@@ -10,7 +9,7 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
-	tgin "hotgo/internal/model/input/tgin"
+	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
@@ -84,7 +83,7 @@ func (s *sSysOrg) List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgi
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetOrgCountError}"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCountError}"))
 		return
 	}
 
@@ -93,7 +92,7 @@ func (s *sSysOrg) List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgi
 	}
 
 	if err = mod.Fields(tgin.SysOrgListModel{}).Page(in.Page, in.PerPage).OrderAsc(dao.SysOrg.Columns().Sort).OrderDesc(dao.SysOrg.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetOrgListError}"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
 	s.handlerPortNum(ctx, list)
@@ -119,8 +118,8 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 	}
 
 	var (
-		fileName  = "导出公司信息-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportTitle}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.SysOrgExportModel
 	)
 
@@ -139,7 +138,7 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) 
 		if _, err = s.Model(ctx).
 			Fields(tgin.SysOrgUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改公司信息失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		}
 		return
 	}
@@ -148,7 +147,7 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) 
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.SysOrgInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增公司信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 	}
 	return
 }
@@ -156,7 +155,7 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) 
 // Delete 删除公司信息
 func (s *sSysOrg) Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除公司信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteInfoError}"))
 		return
 	}
 	return
@@ -165,7 +164,7 @@ func (s *sSysOrg) Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err err
 // MaxSort 获取公司信息最大排序
 func (s *sSysOrg) MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *tgin.SysOrgMaxSortModel, err error) {
 	if err = dao.SysOrg.Ctx(ctx).Fields(dao.SysOrg.Columns().Sort).OrderDesc(dao.SysOrg.Columns().Sort).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取公司信息最大排序，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMaxSortError}"))
 		return
 	}
 
@@ -180,7 +179,7 @@ func (s *sSysOrg) MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *
 // View 获取公司信息指定信息
 func (s *sSysOrg) View(ctx context.Context, in *tgin.SysOrgViewInp) (res *tgin.SysOrgViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取公司信息信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
 		return
 	}
 	return
@@ -191,7 +190,7 @@ func (s *sSysOrg) Status(ctx context.Context, in *tgin.SysOrgStatusInp) (err err
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.SysOrg.Columns().Status: in.Status,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "更新公司信息状态失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		return
 	}
 	return
@@ -202,7 +201,7 @@ func (s *sSysOrg) Ports(ctx context.Context, in *tgin.SysOrgPortInp) (err error)
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.SysOrg.Columns().Ports: in.Ports,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "修改端口数失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		return
 	}
 	return

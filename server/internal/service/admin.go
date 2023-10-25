@@ -21,11 +21,59 @@ import (
 )
 
 type (
-	IAdminMonitor interface {
-		// StartMonitor 启动服务监控
-		StartMonitor(ctx context.Context)
-		// GetMeta 获取监控元数据
-		GetMeta(ctx context.Context) *model.MonitorData
+	IAdminMenu interface {
+		// Delete 删除
+		Delete(ctx context.Context, in *adminin.MenuDeleteInp) (err error)
+		// VerifyUnique 验证菜单唯一属性
+		VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueInp) (err error)
+		// Edit 修改/新增
+		Edit(ctx context.Context, in *adminin.MenuEditInp) (err error)
+		// List 获取菜单列表
+		List(ctx context.Context, in *adminin.MenuListInp) (res *adminin.MenuListModel, err error)
+		// View 获取菜单明细
+		View(ctx context.Context, in *adminin.MenuViewInp) (res *adminin.MenuViewModel, err error)
+		// GetMenuList 获取菜单列表
+		GetMenuList(ctx context.Context, memberId int64) (res *role.DynamicRes, err error)
+		// LoginPermissions 获取登录成功后的细粒度权限
+		LoginPermissions(ctx context.Context, memberId int64) (lists adminin.MemberLoginPermissions, err error)
+		// GetHasMenuIds 获取有权限的菜单ID
+		GetHasMenuIds(ctx context.Context) (menuIds []gdb.Value, err error)
+	}
+	IAdminSite interface {
+		// Register 账号注册
+		Register(ctx context.Context, in *adminin.RegisterInp) (result *adminin.RegisterModel, err error)
+		// RegisterCode 账号注册验证码
+		RegisterCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
+		// AccountLogin 账号登录
+		AccountLogin(ctx context.Context, in *adminin.AccountLoginInp) (res *adminin.LoginModel, err error)
+		// MobileLogin 手机号登录
+		MobileLogin(ctx context.Context, in *adminin.MobileLoginInp) (res *adminin.LoginModel, err error)
+		// EmailLogin 邮箱登录
+		EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) (res *adminin.LoginModel, err error)
+		// BindUserContext 绑定用户上下文
+		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
+	}
+	IAdminCash interface {
+		// View 获取指定提现信息
+		View(ctx context.Context, in *adminin.CashViewInp) (res *adminin.CashViewModel, err error)
+		// List 获取列表
+		List(ctx context.Context, in *adminin.CashListInp) (list []*adminin.CashListModel, totalCount int, err error)
+		// Apply 申请提现
+		Apply(ctx context.Context, in *adminin.CashApplyInp) (err error)
+		// Payment 提现打款处理
+		Payment(ctx context.Context, in *adminin.CashPaymentInp) (err error)
+	}
+	IAdminCreditsLog interface {
+		// Model 资产变动ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// SaveBalance 更新余额
+		SaveBalance(ctx context.Context, in *adminin.CreditsLogSaveBalanceInp) (res *adminin.CreditsLogSaveBalanceModel, err error)
+		// SaveIntegral 更新积分
+		SaveIntegral(ctx context.Context, in *adminin.CreditsLogSaveIntegralInp) (res *adminin.CreditsLogSaveIntegralModel, err error)
+		// List 获取资产变动列表
+		List(ctx context.Context, in *adminin.CreditsLogListInp) (list []*adminin.CreditsLogListModel, totalCount int, err error)
+		// Export 导出资产变动
+		Export(ctx context.Context, in *adminin.CreditsLogListInp) (err error)
 	}
 	IAdminNotice interface {
 		// Model Orm模型
@@ -77,6 +125,26 @@ type (
 		// Status 更新充值订单状态
 		Status(ctx context.Context, in *adminin.OrderStatusInp) (err error)
 	}
+	ISysOrg interface {
+		// Model 公司信息ORM模型
+		Model(ctx context.Context, _ ...*handler.Option) *gdb.Model
+		// List 获取公司信息列表
+		List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgin.SysOrgListModel, totalCount int, err error)
+		// Export 导出公司信息
+		Export(ctx context.Context, in *tgin.SysOrgListInp) (err error)
+		// Edit 修改/新增公司信息
+		Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error)
+		// Delete 删除公司信息
+		Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error)
+		// MaxSort 获取公司信息最大排序
+		MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *tgin.SysOrgMaxSortModel, err error)
+		// View 获取公司信息指定信息
+		View(ctx context.Context, in *tgin.SysOrgViewInp) (res *tgin.SysOrgViewModel, err error)
+		// Status 更新公司信息状态
+		Status(ctx context.Context, in *tgin.SysOrgStatusInp) (err error)
+		// Ports 修改端口数
+		Ports(ctx context.Context, in *tgin.SysOrgPortInp) (err error)
+	}
 	IAdminRole interface {
 		// Verify 验证权限
 		Verify(ctx context.Context, path, method string) bool
@@ -102,28 +170,6 @@ type (
 		VerifyRoleId(ctx context.Context, id int64) (err error)
 		// GetSubRoleIds 获取所有下级角色ID
 		GetSubRoleIds(ctx context.Context, roleId int64, isSuper bool) (ids []int64, err error)
-	}
-	IAdminCash interface {
-		// View 获取指定提现信息
-		View(ctx context.Context, in *adminin.CashViewInp) (res *adminin.CashViewModel, err error)
-		// List 获取列表
-		List(ctx context.Context, in *adminin.CashListInp) (list []*adminin.CashListModel, totalCount int, err error)
-		// Apply 申请提现
-		Apply(ctx context.Context, in *adminin.CashApplyInp) (err error)
-		// Payment 提现打款处理
-		Payment(ctx context.Context, in *adminin.CashPaymentInp) (err error)
-	}
-	IAdminCreditsLog interface {
-		// Model 资产变动ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// SaveBalance 更新余额
-		SaveBalance(ctx context.Context, in *adminin.CreditsLogSaveBalanceInp) (res *adminin.CreditsLogSaveBalanceModel, err error)
-		// SaveIntegral 更新积分
-		SaveIntegral(ctx context.Context, in *adminin.CreditsLogSaveIntegralInp) (res *adminin.CreditsLogSaveIntegralModel, err error)
-		// List 获取资产变动列表
-		List(ctx context.Context, in *adminin.CreditsLogListInp) (list []*adminin.CreditsLogListModel, totalCount int, err error)
-		// Export 导出资产变动
-		Export(ctx context.Context, in *adminin.CreditsLogListInp) (err error)
 	}
 	IAdminMember interface {
 		// AddBalance 增加余额
@@ -174,82 +220,69 @@ type (
 		// 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置
 		FilterAuthModel(ctx context.Context, memberId int64) *gdb.Model
 	}
-	IAdminMenu interface {
-		// Delete 删除
-		Delete(ctx context.Context, in *adminin.MenuDeleteInp) (err error)
-		// VerifyUnique 验证菜单唯一属性
-		VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueInp) (err error)
-		// Edit 修改/新增
-		Edit(ctx context.Context, in *adminin.MenuEditInp) (err error)
-		// List 获取菜单列表
-		List(ctx context.Context, in *adminin.MenuListInp) (res *adminin.MenuListModel, err error)
-		// View 获取菜单明细
-		View(ctx context.Context, in *adminin.MenuViewInp) (res *adminin.MenuViewModel, err error)
-		// GetMenuList 获取菜单列表
-		GetMenuList(ctx context.Context, memberId int64) (res *role.DynamicRes, err error)
-		// LoginPermissions 获取登录成功后的细粒度权限
-		LoginPermissions(ctx context.Context, memberId int64) (lists adminin.MemberLoginPermissions, err error)
-		// GetHasMenuIds 获取有权限的菜单ID
-		GetHasMenuIds(ctx context.Context) (menuIds []gdb.Value, err error)
-	}
-	IAdminSite interface {
-		// Register 账号注册
-		Register(ctx context.Context, in *adminin.RegisterInp) (result *adminin.RegisterModel, err error)
-		// RegisterCode 账号注册验证码
-		RegisterCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
-		// AccountLogin 账号登录
-		AccountLogin(ctx context.Context, in *adminin.AccountLoginInp) (res *adminin.LoginModel, err error)
-		// MobileLogin 手机号登录
-		MobileLogin(ctx context.Context, in *adminin.MobileLoginInp) (res *adminin.LoginModel, err error)
-		// EmailLogin 邮箱登录
-		EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) (res *adminin.LoginModel, err error)
-		// BindUserContext 绑定用户上下文
-		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
-	}
-	ISysOrg interface {
-		// Model 公司信息ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取公司信息列表
-		List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgin.SysOrgListModel, totalCount int, err error)
-		// Export 导出公司信息
-		Export(ctx context.Context, in *tgin.SysOrgListInp) (err error)
-		// Edit 修改/新增公司信息
-		Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error)
-		// Delete 删除公司信息
-		Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error)
-		// MaxSort 获取公司信息最大排序
-		MaxSort(ctx context.Context, in *tgin.SysOrgMaxSortInp) (res *tgin.SysOrgMaxSortModel, err error)
-		// View 获取公司信息指定信息
-		View(ctx context.Context, in *tgin.SysOrgViewInp) (res *tgin.SysOrgViewModel, err error)
-		// Status 更新公司信息状态
-		Status(ctx context.Context, in *tgin.SysOrgStatusInp) (err error)
-		// Ports 修改端口数
-		Ports(ctx context.Context, in *tgin.SysOrgPortInp) (err error)
+	IAdminMonitor interface {
+		// StartMonitor 启动服务监控
+		StartMonitor(ctx context.Context)
+		// GetMeta 获取监控元数据
+		GetMeta(ctx context.Context) *model.MonitorData
 	}
 )
 
 var (
-	localSysOrg          ISysOrg
+	localAdminSite       IAdminSite
+	localAdminCash       IAdminCash
 	localAdminCreditsLog IAdminCreditsLog
-	localAdminMember     IAdminMember
 	localAdminMenu       IAdminMenu
+	localAdminOrder      IAdminOrder
+	localSysOrg          ISysOrg
+	localAdminRole       IAdminRole
+	localAdminMember     IAdminMember
 	localAdminMonitor    IAdminMonitor
 	localAdminNotice     IAdminNotice
-	localAdminOrder      IAdminOrder
-	localAdminRole       IAdminRole
-	localAdminCash       IAdminCash
-	localAdminSite       IAdminSite
 )
 
-func AdminMenu() IAdminMenu {
-	if localAdminMenu == nil {
-		panic("implement not found for interface IAdminMenu, forgot register?")
+func AdminOrder() IAdminOrder {
+	if localAdminOrder == nil {
+		panic("implement not found for interface IAdminOrder, forgot register?")
 	}
-	return localAdminMenu
+	return localAdminOrder
 }
 
-func RegisterAdminMenu(i IAdminMenu) {
-	localAdminMenu = i
+func RegisterAdminOrder(i IAdminOrder) {
+	localAdminOrder = i
+}
+
+func SysOrg() ISysOrg {
+	if localSysOrg == nil {
+		panic("implement not found for interface ISysOrg, forgot register?")
+	}
+	return localSysOrg
+}
+
+func RegisterSysOrg(i ISysOrg) {
+	localSysOrg = i
+}
+
+func AdminRole() IAdminRole {
+	if localAdminRole == nil {
+		panic("implement not found for interface IAdminRole, forgot register?")
+	}
+	return localAdminRole
+}
+
+func RegisterAdminRole(i IAdminRole) {
+	localAdminRole = i
+}
+
+func AdminMember() IAdminMember {
+	if localAdminMember == nil {
+		panic("implement not found for interface IAdminMember, forgot register?")
+	}
+	return localAdminMember
+}
+
+func RegisterAdminMember(i IAdminMember) {
+	localAdminMember = i
 }
 
 func AdminMonitor() IAdminMonitor {
@@ -274,26 +307,15 @@ func RegisterAdminNotice(i IAdminNotice) {
 	localAdminNotice = i
 }
 
-func AdminOrder() IAdminOrder {
-	if localAdminOrder == nil {
-		panic("implement not found for interface IAdminOrder, forgot register?")
+func AdminSite() IAdminSite {
+	if localAdminSite == nil {
+		panic("implement not found for interface IAdminSite, forgot register?")
 	}
-	return localAdminOrder
+	return localAdminSite
 }
 
-func RegisterAdminOrder(i IAdminOrder) {
-	localAdminOrder = i
-}
-
-func AdminRole() IAdminRole {
-	if localAdminRole == nil {
-		panic("implement not found for interface IAdminRole, forgot register?")
-	}
-	return localAdminRole
-}
-
-func RegisterAdminRole(i IAdminRole) {
-	localAdminRole = i
+func RegisterAdminSite(i IAdminSite) {
+	localAdminSite = i
 }
 
 func AdminCash() IAdminCash {
@@ -318,35 +340,13 @@ func RegisterAdminCreditsLog(i IAdminCreditsLog) {
 	localAdminCreditsLog = i
 }
 
-func AdminMember() IAdminMember {
-	if localAdminMember == nil {
-		panic("implement not found for interface IAdminMember, forgot register?")
+func AdminMenu() IAdminMenu {
+	if localAdminMenu == nil {
+		panic("implement not found for interface IAdminMenu, forgot register?")
 	}
-	return localAdminMember
+	return localAdminMenu
 }
 
-func RegisterAdminMember(i IAdminMember) {
-	localAdminMember = i
-}
-
-func AdminSite() IAdminSite {
-	if localAdminSite == nil {
-		panic("implement not found for interface IAdminSite, forgot register?")
-	}
-	return localAdminSite
-}
-
-func RegisterAdminSite(i IAdminSite) {
-	localAdminSite = i
-}
-
-func SysOrg() ISysOrg {
-	if localSysOrg == nil {
-		panic("implement not found for interface ISysOrg, forgot register?")
-	}
-	return localSysOrg
-}
-
-func RegisterSysOrg(i ISysOrg) {
-	localSysOrg = i
+func RegisterAdminMenu(i IAdminMenu) {
+	localAdminMenu = i
 }

@@ -1,5 +1,4 @@
 {
-  "GetOrgCountError": "获取公司信息数据行失败，请稍后重试！",
-  "GetOrgListError": "获取公司信息列表失败，请稍后重试！",
-  "OrgIdNotEmpty": "公司ID不能为空"
+  "ExportOrgTitle": "导出公司信息",
+  "ExportOrgSheetName": "索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行"
 }

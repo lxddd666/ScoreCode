@@ -49,7 +49,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 
 	// 默认上级
 	data.Pid = 1
-
+	var orgId int64 = 0
 	// 存在邀请人，存在邀请人，公司使用邀请人的公司
 	if in.InviteCode != "" {
 		pmb, err := service.AdminMember().GetIdByCode(ctx, &adminin.GetIdByCodeInp{Code: in.InviteCode})
@@ -61,7 +61,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 			err = gerror.New(g.I18n().T(ctx, "{#InviteUserCheck}"))
 			return nil, err
 		}
-		data.OrgId = pmb.OrgId
+		orgId = pmb.OrgId
 		data.Pid = pmb.Id
 	} else {
 		// 否则新增公司
@@ -73,7 +73,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		if err != nil {
 			return nil, err
 		}
-		data.OrgId = id
+		orgId = id
 	}
 
 	if config.RegisterSwitch != 1 {
@@ -121,6 +121,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 
 	data.MemberEditInp = &adminin.MemberEditInp{
 		Id:       0,
+		OrgId:    orgId,
 		RoleId:   config.RoleId,
 		Username: in.Username,
 		Password: in.Password,

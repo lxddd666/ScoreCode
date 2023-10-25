@@ -78,5 +78,14 @@
   "PhoneNumberExistChangeOne": "Số điện thoại di động đã tồn tại, vui lòng thay đổi một",
   "InvitationCodeExistChangeOne": "Mã lời mời đã tồn tại, vui lòng thay đổi một",
   "LoginIdentityInvalidTryAgain": "Nhận dạng đăng nhập đã không hợp lệ, vui lòng đăng nhập lại",
-  "AccountLoginDifferentPlace": "Tài khoản có sẵn để đăng nhập ở những nơi khác nhau. Nếu bạn không hoạt động, vui lòng sửa đổi mật khẩu đăng nhập kịp thời"
+  "AccountLoginDifferentPlace": "Tài khoản có sẵn để đăng nhập ở những nơi khác nhau. Nếu bạn không hoạt động, vui lòng sửa đổi mật khẩu đăng nhập kịp thời",
+  "GetCountError": "Nhận dòng dữ liệu không thành công, vui lòng thử lại sau!",
+  "GetListError": "Lấy danh sách không thành công, vui lòng thử lại sau!",
+  "EditInfoError": "Sửa đổi không thành công, vui lòng thử lại sau!",
+  "AddInfoError": "Thêm thất bại, vui lòng thử lại sau!",
+  "DeleteInfoError": "Thêm thất bại, vui lòng thử lại sau!",
+  "GetMaxSortError": "Để sắp xếp tối đa, vui lòng thử lại sau!",
+  "GetInfoError": "Lấy dữ liệu không thành công, vui lòng thử lại sau!",
+  "StatusNotEmpty": "Nhà nước không thể trống",
+  "StatusError": "Trạng thái không chính xác"
 }

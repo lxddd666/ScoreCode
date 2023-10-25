@@ -13,6 +13,7 @@ import (
 type SysProxy struct {
 	g.Meta         `orm:"table:sys_proxy, do:true"`
 	Id             interface{} //
+	OrgId          interface{} // 组织ID
 	Address        interface{} // 代理地址
 	Type           interface{} // 代理类型
 	MaxConnections interface{} // 最大连接数

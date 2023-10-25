@@ -2,8 +2,8 @@ package org
 
 import (
 	"context"
-	"fmt"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/input/form"
@@ -60,7 +60,7 @@ func (s *sOrgSysProxy) List(ctx context.Context, in *orgin.SysProxyListInp) (lis
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取代理管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCountError}"))
 		return
 	}
 
@@ -69,7 +69,7 @@ func (s *sOrgSysProxy) List(ctx context.Context, in *orgin.SysProxyListInp) (lis
 	}
 
 	if err = mod.Fields(orgin.SysProxyListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.SysProxy.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取代理管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
 	return
@@ -90,7 +90,7 @@ func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (e
 
 	var (
 		fileName  = "导出代理管理-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []orgin.SysProxyExportModel
 	)
 
@@ -113,7 +113,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 		if _, err = s.Model(ctx).
 			Fields(orgin.SysProxyUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改代理管理失败，请稍后重试！")
+			err = gerror.Wrap(err, "{#EditInfoError}")
 		}
 		return
 	}
@@ -122,7 +122,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(orgin.SysProxyInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增代理管理失败，请稍后重试！")
+		err = gerror.Wrap(err, "{#AddInfoError}")
 	}
 	return
 }
@@ -130,7 +130,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 // Delete 删除代理管理
 func (s *sOrgSysProxy) Delete(ctx context.Context, in *orgin.SysProxyDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除代理管理失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteInfoError}"))
 		return
 	}
 	return
@@ -139,7 +139,7 @@ func (s *sOrgSysProxy) Delete(ctx context.Context, in *orgin.SysProxyDeleteInp) 
 // View 获取代理管理指定信息
 func (s *sOrgSysProxy) View(ctx context.Context, in *orgin.SysProxyViewInp) (res *orgin.SysProxyViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取代理管理信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		return
 	}
 	return
@@ -150,8 +150,22 @@ func (s *sOrgSysProxy) Status(ctx context.Context, in *orgin.SysProxyStatusInp) 
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.SysProxy.Columns().Status: in.Status,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "更新代理管理状态失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		return
+	}
+	return
+}
+
+// Import 导入代理
+func (s *sOrgSysProxy) Import(ctx context.Context, list []*orgin.SysProxyEditInp) (err error) {
+	user := contexts.GetUser(ctx)
+	for _, item := range list {
+		item.OrgId = user.OrgId
+	}
+	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+		Fields(orgin.SysProxyInsertFields{}).
+		Data(list).Save(); err != nil {
+		err = gerror.Wrap(err, "{#AddInfoError}")
 	}
 	return
 }
