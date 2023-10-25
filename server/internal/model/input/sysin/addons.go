@@ -46,7 +46,7 @@ type AddonsBuildInp struct {
 
 func (in *AddonsBuildInp) Filter(ctx context.Context) (err error) {
 	if in.Name == "" {
-		err = gerror.New(g.I18n().T(ctx, "{#PlugNameNotEmpty"))
+		err = gerror.New(g.I18n().T(ctx, "{#PlugNameNotEmpty}"))
 		return
 	}
 
