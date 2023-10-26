@@ -364,28 +364,28 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 func (s *sAdminSite) BindUserContext(ctx context.Context, claims *model.Identity) (err error) {
 	var mb *entity.AdminMember
 	if err = g.Model(dao.AdminMember.Table()).Ctx(ctx).Cache(cmember.GetCache(claims.Id)).WherePri(claims.Id).Scan(&mb); err != nil {
-		err = gerror.Wrap(err, "获取用户信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserInformationFailureTryAgain}"))
 		return
 	}
 
 	if mb == nil {
-		err = gerror.Wrap(err, "账号不存在或已被删除！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AccountNotExistOrDeleted}"))
 		return
 	}
 
 	if mb.Status != consts.StatusEnabled {
-		err = gerror.New("账号已被禁用，如有疑问请联系管理员")
+		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabledContactAdministrator}"))
 		return
 	}
 
 	var role *entity.AdminRole
 	if err = g.Model(dao.AdminRole.Table()).Ctx(ctx).Cache(crole.GetRoleCache(mb.RoleId)).Where("id", mb.RoleId).Scan(&role); err != nil || role == nil {
-		err = gerror.Wrap(err, "获取角色信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainRoleInformationFailed}"))
 		return
 	}
 
 	if role.Status != consts.StatusEnabled {
-		err = gerror.New("角色已被禁用，如有疑问请联系管理员")
+		err = gerror.New(g.I18n().T(ctx, "{#RoleDisabledContactAdministrator}"))
 		return
 	}
 

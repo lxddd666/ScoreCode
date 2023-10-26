@@ -7,7 +7,7 @@ package sms
 
 import (
 	"context"
-	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/model/input/sysin"
 )
@@ -17,7 +17,7 @@ type Drive interface {
 	SendCode(ctx context.Context, in *sysin.SendCodeInp) (err error)
 }
 
-func New(name ...string) Drive {
+func New(ctx context.Context, name ...string) Drive {
 	var (
 		instanceName = consts.SmsDriveAliYun
 		drive        Drive
@@ -33,7 +33,7 @@ func New(name ...string) Drive {
 	case consts.SmsDriveTencent:
 		drive = &TencentDrive{}
 	default:
-		panic(fmt.Sprintf("暂不支持短信驱动:%v", instanceName))
+		panic(g.I18n().Tf(ctx, "{#UnsupportSmsDriver}", instanceName))
 	}
 	return drive
 }

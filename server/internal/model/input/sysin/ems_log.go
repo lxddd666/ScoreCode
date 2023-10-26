@@ -56,8 +56,8 @@ type EmsLogStatusModel struct{}
 
 // SendEmsInp 发送邮件
 type SendEmsInp struct {
-	Event    string `json:"event"  example:"register"  v:"required#邮件事件不能为空"    description:"事件：login、register、resetPwd"`
-	Email    string `json:"email"   v:"required#邮箱地址不能为空"   description:"邮箱地址"`
+	Event    string `json:"event"  example:"register"  v:"required#EmailEventNotEmpty"    description:"事件：login、register、resetPwd"`
+	Email    string `json:"email"   v:"required#EmailAddressNotEmpty"   description:"邮箱地址"`
 	Code     string `json:"code"      description:"验证码或短信内容"`
 	Content  string `json:"content"      description:"邮件内容"`
 	Template string `json:"-"         description:"发信模板"`
@@ -66,7 +66,7 @@ type SendEmsInp struct {
 
 // VerifyEmsCodeInp 效验验证码
 type VerifyEmsCodeInp struct {
-	Event string `json:"event"   v:"required#邮件事件不能为空"    description:"事件"`
-	Email string `json:"email"   v:"required#邮箱地址不能为空"   description:"邮箱地址"`
+	Event string `json:"event"   v:"required#EmailEventNotEmpty"    description:"事件"`
+	Email string `json:"email"   v:"required#EmailAddressNotEmpty"   description:"邮箱地址"`
 	Code  string `json:"code"      description:"验证码"`
 }

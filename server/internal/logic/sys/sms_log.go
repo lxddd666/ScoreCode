@@ -42,7 +42,7 @@ func (s *sSysSmsLog) Delete(ctx context.Context, in *sysin.SmsLogDeleteInp) (err
 // Edit 修改/新增
 func (s *sSysSmsLog) Edit(ctx context.Context, in *sysin.SmsLogEditInp) (err error) {
 	if in.Ip == "" {
-		err = gerror.New("ip不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IpNotEmpty}"))
 		return
 	}
 
@@ -60,17 +60,17 @@ func (s *sSysSmsLog) Edit(ctx context.Context, in *sysin.SmsLogEditInp) (err err
 // Status 更新短信状态
 func (s *sSysSmsLog) Status(ctx context.Context, in *sysin.SmsLogStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 
@@ -133,12 +133,12 @@ func (s *sSysSmsLog) List(ctx context.Context, in *sysin.SmsLogListInp) (list []
 // SendCode 发送验证码
 func (s *sSysSmsLog) SendCode(ctx context.Context, in *sysin.SendCodeInp) (err error) {
 	if in.Event == "" {
-		err = gerror.New("事件不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#EventNotEmpty}"))
 		return
 	}
 
 	if in.Mobile == "" {
-		err = gerror.New("手机号不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#PhoneNotEmpty}"))
 		return
 	}
 
@@ -185,7 +185,7 @@ func (s *sSysSmsLog) SendCode(ctx context.Context, in *sysin.SendCodeInp) (err e
 // GetTemplate 获取指定短信模板
 func (s *sSysSmsLog) GetTemplate(ctx context.Context, template string, config *model.SmsConfig) (val string, err error) {
 	if template == "" {
-		err = gerror.New("模板不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#TemplateNotEmpty}"))
 		return
 	}
 	if config == nil {
@@ -198,7 +198,7 @@ func (s *sSysSmsLog) GetTemplate(ctx context.Context, template string, config *m
 	switch config.SmsDrive {
 	case consts.SmsDriveAliYun:
 		if len(config.AliYunTemplate) == 0 {
-			err = gerror.New("管理员还没有配置任何阿里云短信模板！")
+			err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotConfiguredAlibabaSms}"))
 			return
 		}
 
@@ -210,7 +210,7 @@ func (s *sSysSmsLog) GetTemplate(ctx context.Context, template string, config *m
 
 	case consts.SmsDriveTencent:
 		if len(config.TencentTemplate) == 0 {
-			err = gerror.New("管理员还没有配置任何腾讯云短信模板！")
+			err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotConfiguredTencentSms}"))
 			return
 		}
 
@@ -220,7 +220,7 @@ func (s *sSysSmsLog) GetTemplate(ctx context.Context, template string, config *m
 			}
 		}
 	default:
-		err = gerror.Newf("暂不支持短信驱动:%v", config.SmsDrive)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#UnsupportSmsDriver}"), config.SmsDrive)
 		return
 	}
 	return
@@ -239,7 +239,7 @@ func (s *sSysSmsLog) AllowSend(ctx context.Context, models *entity.SysSmsLog, co
 	}
 
 	if gtime.Now().Before(models.CreatedAt.Add(time.Second * time.Duration(config.SmsMinInterval))) {
-		err = gerror.New("发送频繁，请稍后再试！")
+		err = gerror.New(g.I18n().T(ctx, "{#SendFrequently}"))
 		return
 	}
 
@@ -250,7 +250,7 @@ func (s *sSysSmsLog) AllowSend(ctx context.Context, models *entity.SysSmsLog, co
 		}
 
 		if count >= config.SmsMaxIpLimit {
-			err = gerror.New("今天发送短信过多，请次日后再试！")
+			err = gerror.New(g.I18n().T(ctx, "{#SendManyMessages}"))
 			return err
 		}
 	}
@@ -269,12 +269,12 @@ func (s *sSysSmsLog) NowDayCount(ctx context.Context, event, mobile string) (cou
 // VerifyCode 效验验证码
 func (s *sSysSmsLog) VerifyCode(ctx context.Context, in *sysin.VerifyCodeInp) (err error) {
 	if in.Event == "" {
-		err = gerror.New("事件不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#EventNotEmpty}"))
 		return
 	}
 
 	if in.Mobile == "" {
-		err = gerror.New("手机号不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#PhoneNotEmpty}"))
 		return
 	}
 
@@ -291,30 +291,30 @@ func (s *sSysSmsLog) VerifyCode(ctx context.Context, in *sysin.VerifyCodeInp) (e
 	}
 
 	if models == nil {
-		err = gerror.New("验证码错误")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeError}"))
 		return
 	}
 
 	if models.Times >= 10 {
-		err = gerror.New("验证码错误次数过多，请重新发送！")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeErrorMany}"))
 		return
 	}
 
 	if in.Event != consts.SmsTemplateCode {
 		if models.Status == consts.SmsStatusUsed {
-			err = gerror.New("验证码已使用，请重新发送！")
+			err = gerror.New(g.I18n().T(ctx, "{#CodeUsed}"))
 			return
 		}
 	}
 
 	if gtime.Now().After(models.CreatedAt.Add(time.Second * time.Duration(config.SmsCodeExpire))) {
-		err = gerror.New("验证码已过期，请重新发送")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeExpired}"))
 		return
 	}
 
 	if models.Code != in.Code {
 		_, _ = dao.SysSmsLog.Ctx(ctx).WherePri(models.Id).Increment(cols.Times, 1)
-		err = gerror.New("验证码错误！")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeError}"))
 		return
 	}
 

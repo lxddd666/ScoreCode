@@ -50,7 +50,7 @@ func (c *cSms) SendBindEms(ctx context.Context, _ *common.SendBindEmsReq) (res *
 	)
 
 	if memberId <= 0 {
-		err = gerror.New("用户身份异常，请重新登录！")
+		err = gerror.New(g.I18n().T(ctx, "{#UserIdentityAbnormal}"))
 		return
 	}
 
@@ -59,12 +59,12 @@ func (c *cSms) SendBindEms(ctx context.Context, _ *common.SendBindEmsReq) (res *
 	}
 
 	if models == nil {
-		err = gerror.New("用户信息不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationNotExist}"))
 		return
 	}
 
 	if models.Email == "" {
-		err = gerror.New("未绑定邮箱无需发送")
+		err = gerror.New(g.I18n().T(ctx, "{#UnbindMailboxNoSend}"))
 		return
 	}
 

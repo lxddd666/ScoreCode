@@ -50,7 +50,7 @@ func (s *sSysEmsLog) Delete(ctx context.Context, in *sysin.EmsLogDeleteInp) (err
 // Edit 修改/新增
 func (s *sSysEmsLog) Edit(ctx context.Context, in *sysin.EmsLogEditInp) (err error) {
 	if in.Ip == "" {
-		err = gerror.New("ip不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IpNotEmpty}"))
 		return
 	}
 
@@ -68,17 +68,17 @@ func (s *sSysEmsLog) Edit(ctx context.Context, in *sysin.EmsLogEditInp) (err err
 // Status 更新部门状态
 func (s *sSysEmsLog) Status(ctx context.Context, in *sysin.EmsLogStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 
@@ -154,7 +154,7 @@ func (s *sSysEmsLog) Send(ctx context.Context, in *sysin.SendEmsInp) (err error)
 	// 富文本
 	case consts.EmsTemplateText:
 		if in.Content == "" {
-			err = gerror.New("富文本类型邮件内容不能为空")
+			err = gerror.New(g.I18n().T(ctx, "{#MailContentNotEmpty}"))
 			return
 		}
 		in.TplData["content"] = in.Content
@@ -288,7 +288,7 @@ func (s *sSysEmsLog) newView(ctx context.Context, in *sysin.SendEmsInp, config *
 // GetTemplate 获取指定邮件模板
 func (s *sSysEmsLog) GetTemplate(ctx context.Context, template string, config *model.EmailConfig) (val string, err error) {
 	if template == "" {
-		err = gerror.New("模板不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#TemplateNotEmpty}"))
 		return
 	}
 	if config == nil {
@@ -299,7 +299,7 @@ func (s *sSysEmsLog) GetTemplate(ctx context.Context, template string, config *m
 	}
 
 	if len(config.Template) == 0 {
-		err = gerror.New("管理员还没有配置任何模板！")
+		err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotConfiguredTemplate}"))
 		return
 	}
 
@@ -330,7 +330,7 @@ func (s *sSysEmsLog) AllowSend(ctx context.Context, models *entity.SysEmsLog, co
 	}
 
 	if gtime.Now().Before(models.CreatedAt.Add(time.Second * time.Duration(config.MinInterval))) {
-		err = gerror.New("发送频繁，请稍后再试！")
+		err = gerror.New(g.I18n().T(ctx, "{#SendFrequently}"))
 		return
 	}
 
@@ -341,7 +341,7 @@ func (s *sSysEmsLog) AllowSend(ctx context.Context, models *entity.SysEmsLog, co
 		}
 
 		if count >= config.MaxIpLimit {
-			err = gerror.New("今天发送短信过多，请次日后再试！")
+			err = gerror.New(g.I18n().T(ctx, "{#SendManyMessages}"))
 			return err
 		}
 	}
@@ -360,16 +360,16 @@ func (s *sSysEmsLog) NowDayCount(ctx context.Context, event, email string) (coun
 // VerifyCode 效验验证码
 func (s *sSysEmsLog) VerifyCode(ctx context.Context, in *sysin.VerifyEmsCodeInp) (err error) {
 	if in.Event == "" {
-		err = gerror.New("事件不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#EventNotEmpty}"))
 		return
 	}
 	if in.Email == "" {
-		err = gerror.New("邮箱不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#MailboxNotEmpty}"))
 		return
 	}
 
 	if in.Event == consts.EmsTemplateResetPwd || in.Event == consts.EmsTemplateText {
-		err = gerror.Newf("事件类型无需验证:%v", in.Event)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#EventTypeNotVerified}"), in.Event)
 		return
 	}
 
@@ -385,30 +385,30 @@ func (s *sSysEmsLog) VerifyCode(ctx context.Context, in *sysin.VerifyEmsCodeInp)
 	}
 
 	if models == nil {
-		err = gerror.New("验证码错误")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeError}"))
 		return
 	}
 
 	if models.Times >= 10 {
-		err = gerror.New("验证码错误次数过多，请重新发送！")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeErrorMany}"))
 		return
 	}
 
 	if in.Event != consts.EmsTemplateCode {
 		if models.Status == consts.EmsStatusUsed {
-			err = gerror.New("验证码已使用，请重新发送！")
+			err = gerror.New(g.I18n().T(ctx, "{#CodeUsed}"))
 			return
 		}
 	}
 
 	if gtime.Now().After(models.CreatedAt.Add(time.Second * time.Duration(config.CodeExpire))) {
-		err = gerror.New("验证码已过期，请重新发送")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeExpired}"))
 		return
 	}
 
 	if models.Code != in.Code {
 		_, _ = dao.SysEmsLog.Ctx(ctx).Where("id", models.Id).Increment("times", 1)
-		err = gerror.New("验证码错误！")
+		err = gerror.New(g.I18n().T(ctx, "{#CodeError}"))
 		return
 	}
 

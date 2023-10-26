@@ -2,8 +2,8 @@ package commonin
 
 // WechatAuthorizeInp 微信用户授权
 type WechatAuthorizeInp struct {
-	Type         string `json:"type"  v:"required#授权类型不能为空" dc:"授权类型"`
-	SyncRedirect string `json:"syncRedirect"  v:"required#同步跳转地址不能为空" dc:"同步跳转地址"`
+	Type         string `json:"type"  v:"required#AuthorizationTypeNotEmpty" dc:"授权类型"`
+	SyncRedirect string `json:"syncRedirect"  v:"required#SynchronousJumpingAddressNotEmpty" dc:"同步跳转地址"`
 }
 
 type WechatAuthorizeModel struct{}
