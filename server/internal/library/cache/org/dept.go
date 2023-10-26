@@ -1,4 +1,4 @@
-package dept
+package org
 
 import (
 	"fmt"
@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-func GetDeptCache(roleId int64) gdb.CacheOption {
+func GetOrgCache(roleId int64) gdb.CacheOption {
 	return gdb.CacheOption{
 		Duration: time.Hour * 24,
-		Name:     fmt.Sprintf(consts.CacheDeptKey, roleId),
+		Name:     fmt.Sprintf(consts.CacheOrgKey, roleId),
 		Force:    false,
 	}
 }
 
-func ClearDeptCache(roleId int64) gdb.CacheOption {
+func ClearOrgCache(roleId int64) gdb.CacheOption {
 	return gdb.CacheOption{
 		Duration: -1,
-		Name:     fmt.Sprintf(consts.CacheDeptKey, roleId),
+		Name:     fmt.Sprintf(consts.CacheOrgKey, roleId),
 		Force:    false,
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/crypto/gmd5"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -15,6 +16,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/tgin"
@@ -54,8 +56,32 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 
 // CodeLogin 登录
 func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
-	var user entity.TgUser
-	_ = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&user)
+	var (
+		user   = contexts.GetUser(ctx)
+		tgUser entity.TgUser
+		sysOrg entity.SysOrg
+	)
+	err = service.TgUser().Model(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
+	if err != nil {
+		return nil, gerror.Wrap(err, "获取telegram账号信息失败，请稍后重试")
+	}
+	if g.IsEmpty(tgUser) {
+		return nil, gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
+	}
+
+	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
+	if err != nil {
+		return nil, gerror.Wrap(err, "获取公司信息失败，请稍后重试")
+	}
+
+	// 处理端口数
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		// 处理端口
+		err = s.handlerPorts(ctx, sysOrg, []*entity.TgUser{&tgUser})
+		if err != nil {
+			return
+		}
+	}
 
 	//判断是否在登录中，已在登录中的号不执行登录操作
 	key := fmt.Sprintf("%s%d", consts.TgActionLoginAccounts, phone)
@@ -67,27 +93,11 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		err = gerror.New("正在登录，请勿频繁操作")
 		return
 	}
+	_ = g.Redis().SetEX(ctx, key, tgUser.Phone, 10)
 
-	if g.IsEmpty(user) {
-		_, err = s.SyncAccount(ctx, []uint64{phone})
-		if err != nil {
-			return
-		}
-		return
-	}
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
-	ld := &protobuf.LoginDetail{
-		ProxyUrl: user.ProxyAddress,
-		TgDevice: &protobuf.TgDeviceConfig{
-			DeviceModel:    "Desktop",
-			SystemVersion:  "Windows 10",
-			AppVersion:     "4.2.4 x64",
-			LangCode:       "en",
-			SystemLangCode: "en-US",
-			LangPack:       "tdesktop",
-		},
-	}
-	loginDetail[gconv.Uint64(user.Phone)] = ld
+	ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
+	loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_LOGIN,
@@ -99,16 +109,49 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
 	res = &artsin.LoginModel{
 		Status:  int(resp.ActionResult.Number()),
 		ReqId:   resp.LoginId,
 		Phone:   phone,
 		Account: gconv.Uint64(resp.Account),
 	}
-	userId := contexts.GetUserId(ctx)
+	userId := user.Id
 	usernameMap := gmap.NewStrAnyMap(true)
-	usernameMap.Set(user.Phone, userId)
+	usernameMap.Set(tgUser.Phone, userId)
 	_, _ = g.Redis().HSet(ctx, consts.TgLoginAccountKey, usernameMap.Map())
+	return
+}
+
+// 处理端口号
+func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list []*entity.TgUser) (err error) {
+	count := len(list)
+	// 判断端口数是否足够
+	if sysOrg.AssignedPorts+gconv.Int64(count) >= sysOrg.Ports {
+		return gerror.New("可用端口数不足")
+	}
+	// 更新已使用端口数
+	_, err = service.SysOrg().Model(ctx).
+		Data(do.SysOrg{AssignedPorts: gdb.Raw(fmt.Sprintf("%s+%d", dao.SysOrg.Columns().AssignedPorts, count))}).
+		Update()
+	// 记录占用端口的账号
+	loginPorts := make(map[string]interface{})
+	for _, user := range list {
+		loginPorts[user.Phone] = 1
+	}
+	_, err = g.Redis().HSet(ctx, consts.TgLoginPorts, loginPorts)
+	return
+}
+
+func (s *sTgArts) handlerProxy(ctx context.Context, sysOrg entity.SysOrg, tgUserList []*entity.TgUser) (err error) {
+
+	for _, tgUser := range tgUserList {
+		if tgUser.ProxyAddress == "" {
+
+		}
+	}
 	return
 }
 
@@ -136,8 +179,58 @@ func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err er
 }
 
 // SessionLogin 登录
-func (s *sTgArts) SessionLogin(ctx context.Context, phones []int) (err error) {
+func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
+	var (
+		user       = contexts.GetUser(ctx)
+		tgUserList []*entity.TgUser
+		sysOrg     entity.SysOrg
+	)
+	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
+	if err != nil {
+		return gerror.Wrap(err, "获取tg账号信息失败，请稍后重试")
+	}
+	if len(tgUserList) < 1 {
+		return gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
+	}
+	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
+	if err != nil {
+		return gerror.Wrap(err, "获取公司信息失败，请稍后重试")
+	}
 
+	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
+		// 处理端口
+		err = s.handlerPorts(ctx, sysOrg, tgUserList)
+		if err != nil {
+			return
+		}
+	}
+	// 处理代理
+
+	return
+}
+
+// Logout 登退
+func (s *sTgArts) Logout(ctx context.Context, phones []uint64) (err error) {
+	logoutDetail := make(map[uint64]*protobuf.LogoutDetail)
+	for _, account := range phones {
+		// 检查是否登录
+		if err = s.TgCheckLogin(ctx, account); err != nil {
+			return
+		}
+		ld := &protobuf.LogoutDetail{}
+		logoutDetail[account] = ld
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_LOGOUT,
+		Type:    consts.TgSvc,
+		Account: phones[0],
+		ActionDetail: &protobuf.RequestMessage_LogoutAction{
+			LogoutAction: &protobuf.LogoutAction{
+				LogoutDetail: logoutDetail,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
 	return
 }
 

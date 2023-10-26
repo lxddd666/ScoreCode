@@ -207,6 +207,8 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
 			item.IsOnline = consts.Offline
+			// 移除登录失败的端口记录
+			_, err = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
@@ -218,10 +220,37 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 			Where(cols.Phone, item.Phone).Update(item)
 		item.Session = nil
 		// 删除登录过程的redis
-		_, _ = g.Redis().SRem(ctx, consts.TgActionLoginAccounts, item.Phone)
+		key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, item.Phone)
+		_, _ = g.Redis().Del(ctx, key)
 		//websocket推送登录结果
 		websocket.SendToTag(gconv.String(item.TgId), &websocket.WResponse{
 			Event:     consts.TgLoginEvent,
+			Data:      item,
+			Code:      gcode.CodeOK.Code(),
+			ErrorMsg:  "",
+			Timestamp: gtime.Now().Unix(),
+		})
+	}
+	return
+}
+
+// LogoutCallback 登退回调
+func (s *sTgUser) LogoutCallback(ctx context.Context, res []entity.TgUser) (err error) {
+
+	cols := dao.TgUser.Columns()
+	for _, item := range res {
+		// 返还端口数
+		// 移除登录的端口记录
+		_, err = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+
+		//更新登录状态
+		_, _ = s.Model(ctx).
+			Fields(cols.TgId, cols.Username, cols.FirstName, cols.LastName, cols.IsOnline, cols.LastLoginTime, cols.AccountStatus).
+			OmitEmpty().
+			Where(cols.Phone, item.Phone).Update(item)
+		//websocket推送登录结果
+		websocket.SendToTag(gconv.String(item.TgId), &websocket.WResponse{
+			Event:     consts.TgLogoutEvent,
 			Data:      item,
 			Code:      gcode.CodeOK.Code(),
 			ErrorMsg:  "",

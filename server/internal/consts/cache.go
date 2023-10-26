@@ -11,4 +11,5 @@ const (
 	CacheTokenBind = "token_bind"      // 登录用户身份绑定
 	CacheMemberKey = "/auth/member/%d" //用户缓存key
 	CacheRoleKey   = "/auth/role/%d"   //角色缓存key
+	CacheOrgKey    = "/auth/org/%d"    //组织缓存key
 )
