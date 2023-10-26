@@ -52,6 +52,8 @@ type (
 		EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) (res *adminin.LoginModel, err error)
 		// BindUserContext 绑定用户上下文
 		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
+		// LoginCode 登录发送验证码
+		LoginCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
 	}
 	IAdminCash interface {
 		// View 获取指定提现信息

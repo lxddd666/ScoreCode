@@ -170,12 +170,26 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 func (s *sAdminSite) RegisterCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error) {
 	if in.Email != "" {
 		return service.SysEmsLog().Send(ctx, &sysin.SendEmsInp{
-			Event: consts.SmsTemplateRegister,
+			Event: consts.EmsTemplateRegister,
 			Email: in.Email,
 		})
 	} else {
 		return service.SysSmsLog().SendCode(ctx, &sysin.SendCodeInp{
 			Event:  consts.SmsTemplateRegister,
+			Mobile: in.Email,
+		})
+	}
+}
+
+func (s *sAdminSite) LoginCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error) {
+	if in.Email != "" {
+		return service.SysEmsLog().Send(ctx, &sysin.SendEmsInp{
+			Event: consts.EmsTemplateLogin,
+			Email: in.Email,
+		})
+	} else {
+		return service.SysSmsLog().SendCode(ctx, &sysin.SendCodeInp{
+			Event:  consts.SmsTemplateLogin,
 			Mobile: in.Email,
 		})
 	}
