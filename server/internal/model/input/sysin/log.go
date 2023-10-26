@@ -32,7 +32,7 @@ type LogListModel struct {
 
 // LogViewInp 获取信息
 type LogViewInp struct {
-	Id string `json:"id" v:"required#日志ID不能为空" description:"日志ID"`
+	Id string `json:"id" v:"required#LogIdNoEmpty" description:"日志ID"`
 }
 
 type LogViewModel struct {
@@ -42,7 +42,7 @@ type LogViewModel struct {
 
 // LogDeleteInp 删除
 type LogDeleteInp struct {
-	Id interface{} `json:"id" v:"required#日志ID不能为空" description:"日志ID"`
+	Id interface{} `json:"id" v:"required#LogIdNoEmpty" description:"日志ID"`
 }
 
 type LogDeleteModel struct{}

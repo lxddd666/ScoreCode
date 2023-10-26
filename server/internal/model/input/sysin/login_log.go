@@ -15,14 +15,14 @@ import (
 
 // LoginLogDeleteInp 删除登录日志
 type LoginLogDeleteInp struct {
-	Id interface{} `json:"id" v:"required#日志ID不能为空" dc:"日志ID"`
+	Id interface{} `json:"id" v:"required#LogIdNoEmpty" dc:"日志ID"`
 }
 
 type LoginLogDeleteModel struct{}
 
 // LoginLogViewInp 获取指定登录日志信息
 type LoginLogViewInp struct {
-	Id int64 `json:"id" v:"required#日志ID不能为空" dc:"日志ID"`
+	Id int64 `json:"id" v:"required#LogIdNoEmpty" dc:"日志ID"`
 }
 
 type LoginLogViewModel struct {

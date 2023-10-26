@@ -9,8 +9,8 @@ package admin
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
@@ -64,7 +64,7 @@ func (s *sAdminCreditsLog) SaveBalance(ctx context.Context, in *adminin.CreditsL
 	}
 
 	if mb == nil {
-		err = gerror.New("用户不存在！")
+		err = gerror.New(g.I18n().T(ctx, "{#UserNotExist}"))
 		return
 	}
 
@@ -76,7 +76,7 @@ func (s *sAdminCreditsLog) SaveBalance(ctx context.Context, in *adminin.CreditsL
 	} else {
 		num := in.Num * -1
 		if mb.Balance < num {
-			err = gerror.Newf("余额不足，当前余额为：%v，需要扣除的余额为：%v", mb.Balance, num)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#InsufficientBalanceCurrentOrDeducted}"), mb.Balance, num)
 			return
 		}
 		if _, err = daoMember.Decrement(dao.AdminMember.Columns().Balance, num); err != nil {
@@ -123,7 +123,7 @@ func (s *sAdminCreditsLog) SaveIntegral(ctx context.Context, in *adminin.Credits
 	}
 
 	if mb == nil {
-		err = gerror.New("用户不存在！")
+		err = gerror.New(g.I18n().T(ctx, "{#UserNotExist}"))
 		return
 	}
 
@@ -135,7 +135,7 @@ func (s *sAdminCreditsLog) SaveIntegral(ctx context.Context, in *adminin.Credits
 	} else {
 		num := in.Num * -1
 		if mb.Integral < num {
-			err = gerror.Newf("积分不足，当前积分为：%v，需要扣除的积分为：%v", mb.Integral, num)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#InsufficientPointsCurrentOrDeducted}"), mb.Integral, num)
 			return
 		}
 		if _, err = daoMember.Decrement(dao.AdminMember.Columns().Integral, num); err != nil {
@@ -236,8 +236,8 @@ func (s *sAdminCreditsLog) Export(ctx context.Context, in *adminin.CreditsLogLis
 	}
 
 	var (
-		fileName  = "导出资产变动-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportAssetChange}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []adminin.CreditsLogExportModel
 	)
 

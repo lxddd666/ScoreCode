@@ -15,7 +15,7 @@ import (
 // UserOfflineReq 下线用户
 type UserOfflineReq struct {
 	g.Meta `path:"/monitor/userOffline" method:"post" tags:"在线用户" summary:"下线用户"`
-	Id     string `json:"id" v:"required#SID不能为空" description:"SID"`
+	Id     string `json:"id" v:"required#SidNotEmpty" description:"SID"`
 }
 
 type UserOfflineRes struct{}
@@ -101,7 +101,7 @@ type RouteSelect struct {
 // NetOfflineReq 下线服务
 type NetOfflineReq struct {
 	g.Meta `path:"/monitor/netOffline" method:"post" tags:"在线服务" summary:"下线服务"`
-	Id     int64 `json:"id" v:"required#连接ID不能为空" description:"连接ID"`
+	Id     int64 `json:"id" v:"required#ConnectingIdNotEmpty" description:"连接ID"`
 }
 
 type NetOfflineRes struct{}

@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 )
@@ -20,12 +21,12 @@ type DictDataEditInp struct {
 
 func (in *DictDataEditInp) Filter(ctx context.Context) (err error) {
 	if in.Label == "" {
-		err = gerror.New("字典标签不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#DictTagsNotEmpty}"))
 		return
 	}
 
 	if in.Id > 0 && in.TypeID <= 0 {
-		err = gerror.New("字典类型不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#DictTypeNotEmpty}"))
 		return
 	}
 	return
@@ -62,7 +63,7 @@ type DictDataInsertFields struct {
 
 // DictDataDeleteInp 删除字典数据
 type DictDataDeleteInp struct {
-	Id interface{} `json:"id" v:"required#字典数据ID不能为空" dc:"字典数据ID"`
+	Id interface{} `json:"id" v:"required#DictDataIdNotEmpty" dc:"字典数据ID"`
 }
 
 type DictDataDeleteModel struct{}
@@ -72,7 +73,7 @@ type DictDataListInp struct {
 	form.PageReq
 
 	form.StatusReq
-	TypeID int64  `json:"typeId" v:"required#字典类型ID不能为空" dc:"字典类型ID"`
+	TypeID int64  `json:"typeId" v:"required#DictTypeIdNotEmpty" dc:"字典类型ID"`
 	Type   string `json:"type"`
 	Label  string `json:"label"`
 }
@@ -85,7 +86,7 @@ type DictDataListModel struct {
 
 // DataSelectInp 获取指定字典选项
 type DataSelectInp struct {
-	Type string `in:"path" v:"required#字典类型不能为空" dc:"字典类型"`
+	Type string `in:"path" v:"required#DictTypeNotEmpty" dc:"字典类型"`
 }
 
 type DataSelectModel []*SelectData

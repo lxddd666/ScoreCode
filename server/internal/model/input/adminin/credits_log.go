@@ -10,6 +10,7 @@ package adminin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/contexts"
@@ -33,7 +34,7 @@ type CreditsLogSaveBalanceInp struct {
 
 func (in *CreditsLogSaveBalanceInp) Filter(ctx context.Context) (err error) {
 	if in.Num == 0 {
-		err = gerror.New("更新余额不能为0")
+		err = gerror.New(g.I18n().T(ctx, "{#UpdateBalance}"))
 	}
 
 	if in.AppId == "" {
@@ -71,7 +72,7 @@ type CreditsLogSaveIntegralInp struct {
 
 func (in *CreditsLogSaveIntegralInp) Filter(ctx context.Context) (err error) {
 	if in.Num == 0 {
-		err = gerror.New("更新积分不能为0")
+		err = gerror.New(g.I18n().T(ctx, "{#UpdatePoints}"))
 	}
 
 	if in.AppId == "" {

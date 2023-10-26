@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -30,12 +31,12 @@ type CronGroupEditInp struct {
 
 func (in *CronGroupEditInp) Filter(ctx context.Context) (err error) {
 	if in.Name == "" {
-		err = gerror.New("名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#NameNotEmpty}"))
 		return
 	}
 
 	if in.Id > 0 && in.Id == in.Pid {
-		err = gerror.New("上级分组不能是自己")
+		err = gerror.New(g.I18n().T(ctx, "{#SuperiorGroupNotSelf}"))
 		return
 	}
 	return
@@ -98,17 +99,17 @@ type CronGroupStatusInp struct {
 
 func (in *CronGroupStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 	return

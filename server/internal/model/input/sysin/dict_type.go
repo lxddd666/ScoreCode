@@ -19,12 +19,12 @@ type DictTypeEditInp struct {
 
 func (in *DictTypeEditInp) Filter(ctx context.Context) (err error) {
 	if in.Name == "" {
-		err = gerror.New("名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#NameNotEmpty}"))
 		return
 	}
 
 	if in.Id > 0 && in.Id == in.Pid {
-		err = gerror.New("上级字典不能是自己")
+		err = gerror.New(g.I18n().T(ctx, "{#SuperiorDictNotSelf}"))
 		return
 	}
 	return
@@ -55,7 +55,7 @@ type DictTypeInsertFields struct {
 
 // DictTypeDeleteInp 删除字典类型
 type DictTypeDeleteInp struct {
-	Id interface{} `json:"id" v:"required#字典类型ID不能为空" dc:"字典类型ID"`
+	Id interface{} `json:"id" v:"required#DictTypeIdNotEmpty" dc:"字典类型ID"`
 }
 
 type DictTypeDeleteModel struct{}

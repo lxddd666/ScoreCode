@@ -50,17 +50,17 @@ func (s *sAdminNotice) Delete(ctx context.Context, in *adminin.NoticeDeleteInp) 
 func (s *sAdminNotice) Edit(ctx context.Context, in *adminin.NoticeEditInp) (err error) {
 	var member = contexts.Get(ctx).User
 	if member == nil {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 
 	if in.Title == "" {
-		err = gerror.New("标题不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#TitleNotEmpty}"))
 		return
 	}
 
 	if in.Type == consts.NoticeTypeLetter && len(in.Receiver) == 0 {
-		err = gerror.New("私信类型必须选择接收人")
+		err = gerror.New(g.I18n().T(ctx, "{#PrivateMessageTypeReceiver}"))
 		return
 	}
 
@@ -68,7 +68,7 @@ func (s *sAdminNotice) Edit(ctx context.Context, in *adminin.NoticeEditInp) (err
 	if in.Type == consts.NoticeTypeLetter {
 		count, _ := dao.AdminMember.Ctx(ctx).Handler(handler.FilterAuthWithField("id")).WhereIn("id", in.Receiver).Count()
 		if count != len(in.Receiver) {
-			err = gerror.New("接收人不合法")
+			err = gerror.New(g.I18n().T(ctx, "{#ReceiverIllegal}"))
 			return
 		}
 		in.SenderAvatar = member.Avatar
@@ -114,17 +114,17 @@ func (s *sAdminNotice) Edit(ctx context.Context, in *adminin.NoticeEditInp) (err
 // Status 更新部门状态
 func (s *sAdminNotice) Status(ctx context.Context, in *adminin.NoticeStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 
@@ -161,7 +161,7 @@ func (s *sAdminNotice) View(ctx context.Context, in *adminin.NoticeViewInp) (res
 func (s *sAdminNotice) List(ctx context.Context, in *adminin.NoticeListInp) (list []*adminin.NoticeListModel, totalCount int, err error) {
 	var memberId = contexts.GetUserId(ctx)
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 
@@ -226,7 +226,7 @@ func (s *sAdminNotice) List(ctx context.Context, in *adminin.NoticeListInp) (lis
 func (s *sAdminNotice) PullMessages(ctx context.Context, in *adminin.PullMessagesInp) (res *adminin.PullMessagesModel, err error) {
 	var memberId = contexts.GetUserId(ctx)
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 
@@ -270,7 +270,7 @@ func (s *sAdminNotice) PullMessages(ctx context.Context, in *adminin.PullMessage
 func (s *sAdminNotice) UnreadCount(ctx context.Context, in *adminin.NoticeUnreadCountInp) (res *adminin.NoticeUnreadCountModel, err error) {
 	if in.MemberId <= 0 {
 		if in.MemberId = contexts.GetUserId(ctx); in.MemberId <= 0 {
-			err = gerror.New("获取用户信息失败！")
+			err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 			return
 		}
 	}
@@ -328,7 +328,7 @@ func (s *sAdminNotice) messageIds(ctx context.Context, memberId int64) (ids []in
 			[]int{consts.NoticeTypeNotify, consts.NoticeTypeNotice}, consts.NoticeTypeLetter,
 		).Array()
 	if err != nil {
-		err = gerror.Wrap(err, "获取我的消息失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMyInformationFailed}"))
 		return
 	}
 
@@ -344,7 +344,7 @@ func (s *sAdminNotice) UpRead(ctx context.Context, in *adminin.NoticeUpReadInp) 
 	)
 
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 
@@ -354,7 +354,7 @@ func (s *sAdminNotice) UpRead(ctx context.Context, in *adminin.NoticeUpReadInp) 
 	}
 
 	if data == nil {
-		return gerror.New("公告不存在")
+		return gerror.New(g.I18n().T(ctx, "{#AnnouncementNoExist}"))
 	}
 	return s.updatedReadClicks(ctx, in.Id, memberId)
 }
@@ -363,7 +363,7 @@ func (s *sAdminNotice) UpRead(ctx context.Context, in *adminin.NoticeUpReadInp) 
 func (s *sAdminNotice) ReadAll(ctx context.Context, in *adminin.NoticeReadAllInp) (err error) {
 	var memberId = contexts.GetUserId(ctx)
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 
@@ -437,7 +437,7 @@ func (s *sAdminNotice) updatedReadClicks(ctx context.Context, noticeId, memberId
 func (s *sAdminNotice) MessageList(ctx context.Context, in *adminin.NoticeMessageListInp) (list []*adminin.NoticeMessageListModel, totalCount int, err error) {
 	var memberId = contexts.GetUserId(ctx)
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 

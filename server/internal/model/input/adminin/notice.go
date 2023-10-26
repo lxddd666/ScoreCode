@@ -70,12 +70,12 @@ type NoticeStatusModel struct{}
 
 // NoticeUpReadInp 更新已读
 type NoticeUpReadInp struct {
-	Id int64 `json:"id"     v:"required#公告ID不能为空"   dc:"公告ID"`
+	Id int64 `json:"id"     v:"required#AnnouncementIdNotEmpty"   dc:"公告ID"`
 }
 
 // NoticeReadAllInp 全部已读
 type NoticeReadAllInp struct {
-	Type int64 `json:"type" v:"required#公告类型不能为空" dc:"公告类型"`
+	Type int64 `json:"type" v:"required#AnnouncementTypeNotEmpty" dc:"公告类型"`
 }
 
 // PullMessagesInp 获取列表
@@ -122,7 +122,7 @@ type NoticeUnreadCountModel struct {
 // NoticeMessageListInp 我的消息列表
 type NoticeMessageListInp struct {
 	form.PageReq
-	Type int64 `json:"type" v:"required#公告类型不能为空" dc:"公告类型"`
+	Type int64 `json:"type" v:"required#AnnouncementTypeNotEmpty" dc:"公告类型"`
 }
 
 type NoticeMessageListModel struct {

@@ -51,7 +51,7 @@ func (s *sSysDictType) Delete(ctx context.Context, in *sysin.DictTypeDeleteInp) 
 	}
 
 	if models == nil {
-		err = gerror.New("数据不存在或已删除！")
+		err = gerror.New(g.I18n().T(ctx, "{#DataNotExistOrDelete}"))
 		return
 	}
 
@@ -61,7 +61,7 @@ func (s *sSysDictType) Delete(ctx context.Context, in *sysin.DictTypeDeleteInp) 
 		return err
 	}
 	if !exist.IsEmpty() {
-		err = gerror.New("请先删除该字典类型下得所有字典数据！")
+		err = gerror.New(g.I18n().T(ctx, "{#DeleteDictData}"))
 		return
 	}
 
@@ -72,7 +72,7 @@ func (s *sSysDictType) Delete(ctx context.Context, in *sysin.DictTypeDeleteInp) 
 	}
 
 	if !pidExist.IsEmpty() {
-		err = gerror.New("请先删除该字典类型下得所有子级类型！")
+		err = gerror.New(g.I18n().T(ctx, "{#DeleteDictDataSublevel}"))
 		return
 	}
 
@@ -82,7 +82,7 @@ func (s *sSysDictType) Delete(ctx context.Context, in *sysin.DictTypeDeleteInp) 
 
 // Edit 修改/新增
 func (s *sSysDictType) Edit(ctx context.Context, in *sysin.DictTypeEditInp) (err error) {
-	if err = hgorm.IsUnique(ctx, &dao.SysDictType, g.Map{dao.SysDictType.Columns().Name: in.Name}, "名称已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.SysDictType, g.Map{dao.SysDictType.Columns().Name: in.Name}, g.I18n().T(ctx, "{#NameExist}"), in.Id); err != nil {
 		return
 	}
 

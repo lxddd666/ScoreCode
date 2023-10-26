@@ -39,12 +39,12 @@ func (s *sSysCron) StartCron(ctx context.Context) {
 		Where("status", consts.StatusEnabled).
 		Order("sort asc,id desc").
 		Scan(&list); err != nil {
-		cron.Logger().Fatalf(ctx, "定时任务获取失败, err . %v", err)
+		cron.Logger().Fatalf(ctx, g.I18n().Tf(ctx, "{#GetTimingTaskFailed}"), err)
 		return
 	}
 
 	if err := cron.StartALL(list); err != nil {
-		cron.Logger().Fatalf(ctx, "定时任务启动失败, err . %v", err)
+		cron.Logger().Fatalf(ctx, g.I18n().Tf(ctx, "{#StartTimingTaskFailed}"), err)
 		return
 	}
 }
@@ -58,7 +58,7 @@ func (s *sSysCron) Delete(ctx context.Context, in *sysin.CronDeleteInp) (err err
 	}
 
 	if models == nil {
-		err = gerror.New("定时任务不存在或已被删除")
+		err = gerror.New(g.I18n().T(ctx, "{#TimingTaskNotExistOrDeleted}"))
 		return
 	}
 
@@ -74,7 +74,7 @@ func (s *sSysCron) Delete(ctx context.Context, in *sysin.CronDeleteInp) (err err
 // Edit 修改/新增
 func (s *sSysCron) Edit(ctx context.Context, in *sysin.CronEditInp) (err error) {
 	if in.Name == "" {
-		err = gerror.New("标题不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#TitleNotEmpty}"))
 		return
 	}
 
@@ -97,17 +97,17 @@ func (s *sSysCron) Edit(ctx context.Context, in *sysin.CronEditInp) (err error) 
 // Status 更新状态
 func (s *sSysCron) Status(ctx context.Context, in *sysin.CronStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 
@@ -117,7 +117,7 @@ func (s *sSysCron) Status(ctx context.Context, in *sysin.CronStatusInp) (err err
 	}
 
 	if models == nil {
-		err = gerror.New("定时任务不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#TimingTaskNotExist}"))
 		return
 	}
 
@@ -215,7 +215,7 @@ func (s *sSysCron) OnlineExec(ctx context.Context, in *sysin.OnlineExecInp) (err
 	}
 
 	if data == nil {
-		err = gerror.New("定时任务不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#TimingTaskNotExist}"))
 		return
 	}
 

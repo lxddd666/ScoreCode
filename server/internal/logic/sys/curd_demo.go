@@ -8,7 +8,6 @@ package sys
 
 import (
 	"context"
-	"fmt"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
@@ -74,7 +73,7 @@ func (s *sSysCurdDemo) List(ctx context.Context, in *sysin.CurdDemoListInp) (lis
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取生成演示数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetDemoDataFailed}"))
 		return
 	}
 
@@ -88,12 +87,12 @@ func (s *sSysCurdDemo) List(ctx context.Context, in *sysin.CurdDemoListInp) (lis
 	})
 
 	if err != nil {
-		err = gerror.Wrap(err, "获取生成演示关联字段失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetDemoAssociatedFailed}"))
 		return
 	}
 
 	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderAsc(dao.SysGenCurdDemo.Columns().Sort).OrderDesc(dao.SysGenCurdDemo.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取生成演示列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetDemoListFailed}"))
 		return
 	}
 	return
@@ -113,8 +112,8 @@ func (s *sSysCurdDemo) Export(ctx context.Context, in *sysin.CurdDemoListInp) (e
 	}
 
 	var (
-		fileName  = "导出生成演示-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportGeneratedDemo}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []sysin.CurdDemoExportModel
 	)
 
@@ -134,7 +133,7 @@ func (s *sSysCurdDemo) Edit(ctx context.Context, in *sysin.CurdDemoEditInp) (err
 		if _, err = s.Model(ctx).
 			Fields(sysin.CurdDemoUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改生成演示失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyDemoFailed}"))
 		}
 		return
 	}
@@ -144,7 +143,7 @@ func (s *sSysCurdDemo) Edit(ctx context.Context, in *sysin.CurdDemoEditInp) (err
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(sysin.CurdDemoInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增生成演示失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#NewAddDemoFailed}"))
 	}
 	return
 }
@@ -152,7 +151,7 @@ func (s *sSysCurdDemo) Edit(ctx context.Context, in *sysin.CurdDemoEditInp) (err
 // Delete 删除生成演示
 func (s *sSysCurdDemo) Delete(ctx context.Context, in *sysin.CurdDemoDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除生成演示失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteDemoFailed}"))
 		return
 	}
 	return
@@ -161,7 +160,7 @@ func (s *sSysCurdDemo) Delete(ctx context.Context, in *sysin.CurdDemoDeleteInp) 
 // MaxSort 获取生成演示最大排序
 func (s *sSysCurdDemo) MaxSort(ctx context.Context, in *sysin.CurdDemoMaxSortInp) (res *sysin.CurdDemoMaxSortModel, err error) {
 	if err = dao.SysGenCurdDemo.Ctx(ctx).Fields(dao.SysGenCurdDemo.Columns().Sort).OrderDesc(dao.SysGenCurdDemo.Columns().Sort).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取生成演示最大排序，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMaxSortingDemo}"))
 		return
 	}
 
@@ -176,7 +175,7 @@ func (s *sSysCurdDemo) MaxSort(ctx context.Context, in *sysin.CurdDemoMaxSortInp
 // View 获取生成演示指定信息
 func (s *sSysCurdDemo) View(ctx context.Context, in *sysin.CurdDemoViewInp) (res *sysin.CurdDemoViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取生成演示信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetDemoInformation}"))
 		return
 	}
 	return
@@ -188,7 +187,7 @@ func (s *sSysCurdDemo) Status(ctx context.Context, in *sysin.CurdDemoStatusInp) 
 		dao.SysGenCurdDemo.Columns().Status:    in.Status,
 		dao.SysGenCurdDemo.Columns().UpdatedBy: contexts.GetUserId(ctx),
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "更新生成演示状态失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateDemoStatusFailed}"))
 		return
 	}
 	return
@@ -203,7 +202,7 @@ func (s *sSysCurdDemo) Switch(ctx context.Context, in *sysin.CurdDemoSwitchInp) 
 	}
 
 	if !validate.InSlice(fields, in.Key) {
-		err = gerror.New("开关键名不在白名单")
+		err = gerror.New(g.I18n().T(ctx, "{#KeyNameNotWhitelist}"))
 		return
 	}
 
@@ -211,7 +210,7 @@ func (s *sSysCurdDemo) Switch(ctx context.Context, in *sysin.CurdDemoSwitchInp) 
 		in.Key:                                 in.Value,
 		dao.SysGenCurdDemo.Columns().UpdatedBy: contexts.GetUserId(ctx),
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "更新生成演示开关失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateDemoSwitchFailed}"))
 		return
 	}
 	return

@@ -207,13 +207,13 @@ func (s *sSysConfig) GetLoadServeLog(ctx context.Context) (conf *model.ServeLogC
 // GetConfigByGroup 获取指定分组的配置
 func (s *sSysConfig) GetConfigByGroup(ctx context.Context, in *sysin.GetConfigInp) (res *sysin.GetConfigModel, err error) {
 	if in.Group == "" {
-		err = gerror.New("分组不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#GroupNotEmpty}"))
 		return
 	}
 
 	var models []*entity.SysConfig
 	if err = dao.SysConfig.Ctx(ctx).Fields("key", "value", "type").Where("group", in.Group).Scan(&models); err != nil {
-		err = gerror.Wrapf(err, "获取配置分组[ %v ]失败，请稍后重试！", in.Group)
+		err = gerror.Wrapf(err, g.I18n().Tf(ctx, "{#ObtainConfigurationGroupFailed}"), in.Group)
 		return
 	}
 
@@ -236,7 +236,7 @@ func (s *sSysConfig) GetConfigByGroup(ctx context.Context, in *sysin.GetConfigIn
 // ConversionType 转换类型
 func (s *sSysConfig) ConversionType(ctx context.Context, models *entity.SysConfig) (value interface{}, err error) {
 	if models == nil {
-		err = gerror.New("数据不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#DataNotExist}"))
 		return
 	}
 	return consts.ConvType(models.Value, models.Type), nil
@@ -245,7 +245,7 @@ func (s *sSysConfig) ConversionType(ctx context.Context, models *entity.SysConfi
 // UpdateConfigByGroup 更新指定分组的配置
 func (s *sSysConfig) UpdateConfigByGroup(ctx context.Context, in *sysin.UpdateConfigInp) (err error) {
 	if in.Group == "" {
-		err = gerror.New("分组不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#GroupNotEmpty}"))
 		return
 	}
 	var (
@@ -262,7 +262,7 @@ func (s *sSysConfig) UpdateConfigByGroup(ctx context.Context, in *sysin.UpdateCo
 			row := s.getConfigByKey(k, models)
 			// 新增
 			if row == nil {
-				err = gerror.Newf("暂不支持从前台添加变量，请先在数据库表[%v]中配置变量：%v", dao.SysConfig.Table(), k)
+				err = gerror.Newf(g.I18n().Tf(ctx, "{#UnsupportAddVariableFromDesk}"), dao.SysConfig.Table(), k)
 				return
 			}
 

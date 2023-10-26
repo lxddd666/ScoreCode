@@ -101,17 +101,17 @@ func (s *sSysGenCodes) Edit(ctx context.Context, in *sysin.GenCodesEditInp) (res
 // Status 更新部门状态
 func (s *sSysGenCodes) Status(ctx context.Context, in *sysin.GenCodesStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 
@@ -229,14 +229,14 @@ func (s *sSysGenCodes) TableSelect(ctx context.Context, in *sysin.GenCodesTableS
 			newValue = gstr.SubStrFromEx(v.Value, config.Prefix)
 		}
 		if newValue == "" {
-			err = gerror.Newf("表名[%v]前缀必须和配置中的前缀设置[%v] 保持一致", v.Value, config.Prefix)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#TableNamePrefixSame}"), v.Value, config.Prefix)
 			return
 		}
 
 		// 如果是插件模块，则移除掉插件表前缀
 		bt, err := gregex.Replace(patternStr, []byte(repStr), []byte(newValue))
 		if err != nil {
-			err = gerror.Newf("表名[%v] gregex.Replace err:%v", v.Value, err.Error())
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#TableNameReplace}"), v.Value, err.Error())
 			return nil, err
 		}
 
@@ -264,7 +264,7 @@ func (s *sSysGenCodes) ColumnSelect(ctx context.Context, in *sysin.GenCodesColum
 	}
 
 	if len(res) == 0 {
-		err = gerror.Newf("table does not exist:%v", in.Table)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#TableNoExist}"), in.Table)
 		return
 	}
 

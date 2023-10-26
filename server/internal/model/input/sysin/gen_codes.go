@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/text/gregex"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
@@ -40,14 +41,14 @@ type GenCodesEditModel struct {
 
 // GenCodesDeleteInp 删除
 type GenCodesDeleteInp struct {
-	Id interface{} `json:"id" v:"required#生成代码ID不能为空" dc:"生成代码ID"`
+	Id interface{} `json:"id" v:"required#GeneratingCodeIdNotEmpty" dc:"生成代码ID"`
 }
 
 type GenCodesDeleteModel struct{}
 
 // GenCodesViewInp 获取信息
 type GenCodesViewInp struct {
-	Id int64 `json:"id" v:"required#生成代码ID不能为空" dc:"生成代码ID"`
+	Id int64 `json:"id" v:"required#GeneratingCodeIdNotEmpty" dc:"生成代码ID"`
 }
 
 type GenCodesViewModel struct {
@@ -206,26 +207,26 @@ func (in *GenCodesBuildInp) Filter(ctx context.Context) (err error) {
 
 func genFilter(ctx context.Context, in entity.SysGenCodes) (err error) {
 	if in.VarName == "" {
-		err = gerror.New("实体命名不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#PhysicalNameNotEmpty}"))
 		return
 	}
 
 	if !gregex.IsMatchString(`^[a-zA-Z]{1}\w{1,23}$`, in.VarName) {
-		err = gerror.New("实体命名格式不正确，字母开头，只能包含字母、数字和下划线，长度在2~24之间")
+		err = gerror.New(g.I18n().T(ctx, "{#PhysicalNamingFormat}"))
 		return
 	}
 
 	if in.GenType == consts.GenCodesTypeCurd || in.GenType == consts.GenCodesTypeTree {
 		if in.DbName == "" {
-			err = gerror.New("数据库不能为空")
+			err = gerror.New(g.I18n().T(ctx, "{#DatabaseNotEmpty}"))
 			return
 		}
 		if in.TableName == "" {
-			err = gerror.New("数据库表不能为空")
+			err = gerror.New(g.I18n().T(ctx, "{#DatabaseTableNotEmpty}"))
 			return
 		}
 		if in.TableComment == "" {
-			err = gerror.New("菜单名称不能为空")
+			err = gerror.New(g.I18n().T(ctx, "{#MenuNameNotEmpty}"))
 			return
 		}
 	}

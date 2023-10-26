@@ -8,6 +8,7 @@ package adminin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -20,15 +21,15 @@ type MenuEditInp struct {
 
 func (in *MenuEditInp) Filter(ctx context.Context) (err error) {
 	if in.Title == "" {
-		err = gerror.New("菜单名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#MenuNameNotEmpty}"))
 		return
 	}
 	if in.Type != 3 && in.Path == "" {
-		err = gerror.New("路由地址不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#RouteAddressNotEmpty}"))
 		return
 	}
 	if in.Name == "" {
-		err = gerror.New("路由名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#RouteNameNotEmpty}"))
 		return
 	}
 	return
@@ -38,7 +39,7 @@ type MenuEditModel struct{}
 
 // MenuDeleteInp 删除菜单
 type MenuDeleteInp struct {
-	Id interface{} `json:"id" v:"required#菜单ID不能为空" dc:"菜单ID"`
+	Id interface{} `json:"id" v:"required#MenuIdNotEmpty" dc:"菜单ID"`
 }
 
 func (in *MenuDeleteInp) Filter(ctx context.Context) (err error) {
@@ -59,7 +60,7 @@ func (in *MenuListInp) Filter(ctx context.Context) (err error) {
 
 // MenuViewInp 获取菜单明细
 type MenuViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *MenuViewInp) Filter(ctx context.Context) (err error) {

@@ -36,7 +36,7 @@ type cMonitor struct {
 func (c *cMonitor) UserOffline(ctx context.Context, req *monitor.UserOfflineReq) (res *monitor.UserOfflineRes, err error) {
 	client := c.wsManager.GetClient(req.Id)
 	if client == nil {
-		err = gerror.New("客户端已离线")
+		err = gerror.New(g.I18n().T(ctx, "{#ClientOffline}"))
 		return
 	}
 
@@ -247,7 +247,7 @@ func (c *cMonitor) NetOption(ctx context.Context, req *monitor.NetOptionReq) (re
 func (c *cMonitor) NetOffline(ctx context.Context, req *monitor.NetOfflineReq) (res *monitor.NetOfflineRes, err error) {
 	conn := service.TCPServer().Instance().GetClientById(req.Id)
 	if conn == nil {
-		err = gerror.New("客户端不在线")
+		err = gerror.New(g.I18n().T(ctx, "{#ClientNotOnline}"))
 		return
 	}
 	// 关闭连接

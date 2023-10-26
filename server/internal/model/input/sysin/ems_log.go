@@ -20,14 +20,14 @@ type EmsLogEditModel struct{}
 
 // EmsLogDeleteInp 删除
 type EmsLogDeleteInp struct {
-	Id interface{} `json:"id" v:"required#邮件记录ID不能为空" dc:"邮件记录ID"`
+	Id interface{} `json:"id" v:"required#MailRecordIdNotEmpty" dc:"邮件记录ID"`
 }
 
 type EmsLogDeleteModel struct{}
 
 // EmsLogViewInp 获取信息
 type EmsLogViewInp struct {
-	Id int64 `json:"id" v:"required#邮件记录ID不能为空" dc:"邮件记录ID"`
+	Id int64 `json:"id" v:"required#MailRecordIdNotEmpty" dc:"邮件记录ID"`
 }
 
 type EmsLogViewModel struct {

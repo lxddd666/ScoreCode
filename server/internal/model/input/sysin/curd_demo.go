@@ -55,27 +55,27 @@ type CurdDemoEditInp struct {
 
 func (in *CurdDemoEditInp) Filter(ctx context.Context) (err error) {
 	// 验证分类ID
-	if err := g.Validator().Rules("required").Data(in.CategoryId).Messages("分类ID不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.CategoryId).Messages(g.I18n().T(ctx, "{#ClassifiedIdNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证标题
-	if err := g.Validator().Rules("required").Data(in.Title).Messages("标题不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Title).Messages(g.I18n().T(ctx, "{#TitleNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证描述
-	if err := g.Validator().Rules("required").Data(in.Description).Messages("描述不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Description).Messages(g.I18n().T(ctx, "{#DescriptionNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证内容
-	if err := g.Validator().Rules("required").Data(in.Content).Messages("内容不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Content).Messages(g.I18n().T(ctx, "{#ContentNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证排序
-	if err := g.Validator().Rules("required").Data(in.Sort).Messages("排序不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Sort).Messages(g.I18n().T(ctx, "{#SortingNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -86,7 +86,7 @@ type CurdDemoEditModel struct{}
 
 // CurdDemoDeleteInp 删除生成演示
 type CurdDemoDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *CurdDemoDeleteInp) Filter(ctx context.Context) (err error) {
@@ -97,7 +97,7 @@ type CurdDemoDeleteModel struct{}
 
 // CurdDemoViewInp 获取指定生成演示信息
 type CurdDemoViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *CurdDemoViewInp) Filter(ctx context.Context) (err error) {
@@ -171,23 +171,23 @@ type CurdDemoMaxSortModel struct {
 
 // CurdDemoStatusInp 更新生成演示状态
 type CurdDemoStatusInp struct {
-	Id     int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 
 func (in *CurdDemoStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 	return
@@ -198,7 +198,7 @@ type CurdDemoStatusModel struct{}
 // CurdDemoSwitchInp 更新生成演示开关状态
 type CurdDemoSwitchInp struct {
 	form.SwitchReq
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *CurdDemoSwitchInp) Filter(ctx context.Context) (err error) {
