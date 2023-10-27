@@ -99,6 +99,7 @@ type TgUserListModel struct {
 	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
 	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
 	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
+	PublicProxy   int         `json:"-"             dc:"公共代理"`
 	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`

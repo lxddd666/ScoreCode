@@ -24,6 +24,7 @@ type TgUser struct {
 	AccountStatus interface{} // 账号状态
 	IsOnline      interface{} // 是否在线
 	ProxyAddress  interface{} // 代理地址
+	PublicProxy   interface{} // 公共代理
 	LastLoginTime *gtime.Time // 上次登录时间
 	Comment       interface{} // 备注
 	Session       []byte      // session

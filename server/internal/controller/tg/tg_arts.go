@@ -20,6 +20,12 @@ func (c *cTgArts) Login(ctx context.Context, req *tgarts.TgLoginReq) (res *tgart
 	return
 }
 
+// BatchLogin 批量登录账号
+func (c *cTgArts) BatchLogin(ctx context.Context, req *tgarts.TgBatchLoginReq) (res *tgarts.TgBatchLoginRes, err error) {
+	err = service.TgArts().SessionLogin(ctx, req.Ids)
+	return
+}
+
 // SendCode 验证码
 func (c *cTgArts) SendCode(ctx context.Context, req *tgarts.TgSendCodeReq) (res *tgarts.TgSendCodeRes, err error) {
 	err = service.TgArts().SendCode(ctx, req.SendCodeInp)

@@ -16,6 +16,14 @@ type TgLoginRes struct {
 	*artsin.LoginModel
 }
 
+// TgBatchLoginReq 批量登录
+type TgBatchLoginReq struct {
+	g.Meta `path:"/arts/batchLogin" method:"post" tags:"tg-api" summary:"登录"`
+	Ids    []int64 `json:"ids" v:"required#请选择登录账号" dc:"ids"`
+}
+
+type TgBatchLoginRes struct{}
+
 // TgSendCodeReq tg发送验证码
 type TgSendCodeReq struct {
 	g.Meta `path:"/arts/sendCode" method:"post" tags:"tg-api" summary:"输入验证码"`

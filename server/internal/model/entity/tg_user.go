@@ -22,6 +22,7 @@ type TgUser struct {
 	AccountStatus int         `json:"accountStatus" description:"账号状态"`
 	IsOnline      int         `json:"isOnline"      description:"是否在线"`
 	ProxyAddress  string      `json:"proxyAddress"  description:"代理地址"`
+	PublicProxy   int         `json:"publicProxy"   description:"公共代理"`
 	LastLoginTime *gtime.Time `json:"lastLoginTime" description:"上次登录时间"`
 	Comment       string      `json:"comment"       description:"备注"`
 	Session       []byte      `json:"session"       description:"session"`

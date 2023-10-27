@@ -55,7 +55,7 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 
 // List 获取TG账号列表
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
-	mod := s.Model(ctx, &handler.Option{FilterAuth: true, FilterOrg: true})
+	mod := s.Model(ctx)
 
 	// 查询账号号码
 	if in.Username != "" {
@@ -105,6 +105,11 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 	if err = mod.Fields(tgin.TgUserListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取TG账号列表失败，请稍后重试！")
 		return
+	}
+	for _, item := range list {
+		if item.PublicProxy == 1 {
+			item.ProxyAddress = ""
+		}
 	}
 	return
 }
@@ -168,16 +173,19 @@ func (s *sTgUser) Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err err
 
 // View 获取TG账号指定信息
 func (s *sTgUser) View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error) {
-	if err = s.Model(ctx, &handler.Option{FilterOrg: true}).WherePri(in.Id).Scan(&res); err != nil {
+	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, "获取TG账号信息失败，请稍后重试！")
 		return
+	}
+	if res.PublicProxy == 1 {
+		res.ProxyAddress = ""
 	}
 	return
 }
 
 // BindMember 绑定用户
 func (s *sTgUser) BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error) {
-	if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).
+	if _, err = s.Model(ctx).
 		WhereIn(dao.TgUser.Columns().Id, in.Ids).
 		Data(do.TgUser{MemberId: in.MemberId}).
 		Update(); err != nil {

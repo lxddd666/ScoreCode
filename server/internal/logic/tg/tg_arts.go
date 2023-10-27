@@ -13,8 +13,11 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
+	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/library/storager"
+	"hotgo/internal/model"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -22,7 +25,9 @@ import (
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
+	"hotgo/utility/simple"
 	"strconv"
+	"sync"
 )
 
 type sTgArts struct{}
@@ -73,55 +78,22 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	if err != nil {
 		return nil, gerror.Wrap(err, "获取公司信息失败，请稍后重试")
 	}
-
+	tgUserList := []*entity.TgUser{&tgUser}
 	// 处理端口数
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
 		// 处理端口
-		err = s.handlerPorts(ctx, sysOrg, []*entity.TgUser{&tgUser})
+		err = s.handlerPorts(ctx, sysOrg, tgUserList)
 		if err != nil {
 			return
 		}
 	}
 
-	//判断是否在登录中，已在登录中的号不执行登录操作
-	key := fmt.Sprintf("%s%d", consts.TgActionLoginAccounts, phone)
-	v, err := g.Redis().Get(ctx, key)
+	// 处理代理
+	tgUserList, err = s.handlerProxy(ctx, sysOrg, tgUserList)
 	if err != nil {
 		return
 	}
-	if !v.IsEmpty() {
-		err = gerror.New("正在登录，请勿频繁操作")
-		return
-	}
-	_ = g.Redis().SetEX(ctx, key, tgUser.Phone, 10)
-
-	loginDetail := make(map[uint64]*protobuf.LoginDetail)
-	ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
-	loginDetail[gconv.Uint64(tgUser.Phone)] = ld
-
-	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_LOGIN,
-		Type:   consts.TgSvc,
-		ActionDetail: &protobuf.RequestMessage_OrdinaryAction{
-			OrdinaryAction: &protobuf.OrdinaryAction{
-				LoginDetail: loginDetail,
-			},
-		},
-	}
-	resp, err := service.Arts().Send(ctx, req)
-	if err != nil {
-		return
-	}
-	res = &artsin.LoginModel{
-		Status:  int(resp.ActionResult.Number()),
-		ReqId:   resp.LoginId,
-		Phone:   phone,
-		Account: gconv.Uint64(resp.Account),
-	}
-	userId := user.Id
-	usernameMap := gmap.NewStrAnyMap(true)
-	usernameMap.Set(tgUser.Phone, userId)
-	_, _ = g.Redis().HSet(ctx, consts.TgLoginAccountKey, usernameMap.Map())
+	err = s.login(ctx, user, tgUserList)
 	return
 }
 
@@ -145,13 +117,48 @@ func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list [
 	return
 }
 
-func (s *sTgArts) handlerProxy(ctx context.Context, sysOrg entity.SysOrg, tgUserList []*entity.TgUser) (err error) {
+func (s *sTgArts) handlerProxy(ctx context.Context, sysOrg entity.SysOrg, tgUserList []*entity.TgUser) (loginTgUserList []*entity.TgUser, err error) {
 
-	for _, tgUser := range tgUserList {
-		if tgUser.ProxyAddress == "" {
+	// 查看是否正在登录，防止重复登录 ================
+	accounts := array.New[*entity.TgUser](true)
+	notAccounts := array.New[*entity.TgUser](true)
+	wg := sync.WaitGroup{}
+	for _, item := range tgUserList {
+		wg.Add(1)
+		tgUser := item
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			defer wg.Done()
+			//判断是否在登录中，已在登录中的号不执行登录操作
+			key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, tgUser.Phone)
+			v, _ := g.Redis().Get(ctx, key)
+			if v.Val() == nil {
 
-		}
+				// 查看账号是否有代理
+				if tgUser.ProxyAddress == "" {
+					notAccounts.Append(tgUser)
+				} else {
+					// 没在登录过程中
+					accounts.Append(tgUser)
+				}
+				_ = g.Redis().SetEX(ctx, key, tgUser.Phone, 10)
+			}
+		})
 	}
+	wg.Wait()
+	//随机代理
+	if notAccounts.Len() > 0 {
+		mutex := lock.Mutex(fmt.Sprintf("%s:%s", "lock", "tg_login"))
+		err = mutex.LockFunc(ctx, func() error {
+			err, notAccounts = s.handlerRandomProxy(ctx, notAccounts)
+			return err
+		})
+		accounts.Merge(notAccounts.Slice())
+	}
+
+	if accounts.IsEmpty() {
+		return nil, gerror.Newf("选择登录的账号[%s]已经在登录中....", tgUserList[0].Phone)
+	}
+	loginTgUserList = accounts.Slice()
 	return
 }
 
@@ -205,6 +212,50 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 		}
 	}
 	// 处理代理
+	tgUserList, err = s.handlerProxy(ctx, sysOrg, tgUserList)
+	if err != nil {
+		return
+	}
+	err = s.login(ctx, user, tgUserList)
+
+	return
+}
+
+func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []*entity.TgUser) (err error) {
+	loginDetail := make(map[uint64]*protobuf.LoginDetail)
+	usernameMap := gmap.NewStrAnyMap(true)
+	for _, tgUser := range tgUserList {
+		//判断是否在登录中，已在登录中的号不执行登录操作
+		key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, tgUser.Phone)
+		v, err := g.Redis().Get(ctx, key)
+		if err != nil {
+			return err
+		}
+		if !v.IsEmpty() {
+			err = gerror.New("正在登录，请勿频繁操作")
+			return err
+		}
+		_ = g.Redis().SetEX(ctx, key, tgUser.Phone, 10)
+		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
+		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
+		usernameMap.Set(tgUser.Phone, user.Id)
+	}
+
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_LOGIN,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_OrdinaryAction{
+			OrdinaryAction: &protobuf.OrdinaryAction{
+				LoginDetail: loginDetail,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+
+	_, _ = g.Redis().HSet(ctx, consts.TgLoginAccountKey, usernameMap.Map())
 
 	return
 }

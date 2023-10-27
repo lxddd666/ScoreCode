@@ -32,6 +32,7 @@ type TgUserColumns struct {
 	AccountStatus string // 账号状态
 	IsOnline      string // 是否在线
 	ProxyAddress  string // 代理地址
+	PublicProxy   string // 公共代理
 	LastLoginTime string // 上次登录时间
 	Comment       string // 备注
 	Session       string // session
@@ -54,6 +55,7 @@ var tgUserColumns = TgUserColumns{
 	AccountStatus: "account_status",
 	IsOnline:      "is_online",
 	ProxyAddress:  "proxy_address",
+	PublicProxy:   "public_proxy",
 	LastLoginTime: "last_login_time",
 	Comment:       "comment",
 	Session:       "session",

@@ -18,6 +18,36 @@ import (
 )
 
 type (
+	ITgUser interface {
+		// Model TG账号ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG账号列表
+		List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error)
+		// Export 导出TG账号
+		Export(ctx context.Context, in *tgin.TgUserListInp) (err error)
+		// Edit 修改/新增TG账号
+		Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error)
+		// Delete 删除TG账号
+		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
+		// View 获取TG账号指定信息
+		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
+		// BindMember 绑定用户
+		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
+		// UnBindMember 解除绑定用户
+		UnBindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
+		// LoginCallback 登录回调
+		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// LogoutCallback 登退回调
+		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// ImportSession 导入session文件
+		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
+		// TgImportSessionToGrpc 导入session
+		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
+		// UnBindProxy 解绑代理
+		UnBindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+		// BindProxy 绑定代理
+		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+	}
 	ITgArts interface {
 		// SyncAccount 同步账号
 		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
@@ -114,45 +144,37 @@ type (
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *tgin.TgProxyStatusInp) (err error)
 	}
-	ITgUser interface {
-		// Model TG账号ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取TG账号列表
-		List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error)
-		// Export 导出TG账号
-		Export(ctx context.Context, in *tgin.TgUserListInp) (err error)
-		// Edit 修改/新增TG账号
-		Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error)
-		// Delete 删除TG账号
-		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
-		// View 获取TG账号指定信息
-		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
-		// BindMember 绑定用户
-		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
-		// UnBindMember 解除绑定用户
-		UnBindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
-		// LoginCallback 登录回调
-		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
-		// LogoutCallback 登退回调
-		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
-		// ImportSession 导入session文件
-		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
-		// TgImportSessionToGrpc 导入session
-		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
-		// UnBindProxy 解绑代理
-		UnBindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
-		// BindProxy 绑定代理
-		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
-	}
 )
 
 var (
+	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
 	localTgUser     ITgUser
-	localTgArts     ITgArts
 )
+
+func TgMsg() ITgMsg {
+	if localTgMsg == nil {
+		panic("implement not found for interface ITgMsg, forgot register?")
+	}
+	return localTgMsg
+}
+
+func RegisterTgMsg(i ITgMsg) {
+	localTgMsg = i
+}
+
+func TgProxy() ITgProxy {
+	if localTgProxy == nil {
+		panic("implement not found for interface ITgProxy, forgot register?")
+	}
+	return localTgProxy
+}
+
+func RegisterTgProxy(i ITgProxy) {
+	localTgProxy = i
+}
 
 func TgUser() ITgUser {
 	if localTgUser == nil {
@@ -185,26 +207,4 @@ func TgContacts() ITgContacts {
 
 func RegisterTgContacts(i ITgContacts) {
 	localTgContacts = i
-}
-
-func TgMsg() ITgMsg {
-	if localTgMsg == nil {
-		panic("implement not found for interface ITgMsg, forgot register?")
-	}
-	return localTgMsg
-}
-
-func RegisterTgMsg(i ITgMsg) {
-	localTgMsg = i
-}
-
-func TgProxy() ITgProxy {
-	if localTgProxy == nil {
-		panic("implement not found for interface ITgProxy, forgot register?")
-	}
-	return localTgProxy
-}
-
-func RegisterTgProxy(i ITgProxy) {
-	localTgProxy = i
 }

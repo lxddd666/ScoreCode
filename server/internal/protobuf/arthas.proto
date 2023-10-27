@@ -6,6 +6,7 @@ option go_package = "./protobuf";
 enum Action {
   LOGIN = 0;
   LOGOUT = 1;
+  ERR_STOP = 31;
 
   //whatsapp
   SEND_MESSAGE = 2;
@@ -39,7 +40,9 @@ enum Action {
   JOIN_BY_LINK = 28;
   GET_EMOJI_GROUP=29;
   MESSAGES_REACTION=30;
-
+  LEAVE = 32;
+  GET_CHANNEL_MEMBER = 33;
+  GET_ONLINE_ACCOUNTS = 34;
 }
 
 
@@ -179,7 +182,9 @@ message RequestMessage {
     JoinByLinkDetail join_by_link_detail = 34;
     GetEmojiGroupsDetail get_emoji_group_detail = 36;
     MessagesReactionDetail messages_reaction_detail = 37;
-
+      LeaveDetail leave_detail = 38;
+      GetChannelMemberDetail get_channel_member_detail = 39;
+      GetOnlineAccountsDetail get_online_accounts_detail = 40;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -335,11 +340,26 @@ message CreateChannelDetail {
   string   ChannelUserName = 2;
   string   ChannelDescription = 3;
   UintkeyStringvalue detail = 4;
+  bool IsChannel =5;
+  bool IsSuperGroup =6;
 }
 
 message  AddGroupMemberDetail {
   string GroupName = 1;
   UintkeyStringvalue detail = 2;
+}
+
+message GetChannelMemberDetail {
+  uint64 Sender = 1;
+  string Channel = 2;
+  int64  Offset =3;
+  int64 Limit  = 4;
+  string  SearchType =5;
+  int64 TopMsgId =6;
+}
+
+message GetOnlineAccountsDetail {
+  repeated string phone = 1;
 }
 
 message  InviteToChannelDetail {
@@ -391,6 +411,11 @@ message MessagesReactionDetail{
   string Receiver = 3;
 }
 
+message LeaveDetail {
+  UintkeyStringvalue detail = 1;
+}
+
+
 message  GetGroupMembersDetail {
   uint64 Account = 1;
   int64 ChatId = 2;
@@ -417,7 +442,7 @@ enum ActionResult {
   PONG = 4;
   LOGIN_NEED_CODE = 5;
   LOGIN_VERIFY_CODE_FAIL = 6;
-
+  RUN_TIME_OUT = 7;
 }
 
 // 定义单个帐号的执行状态枚举
@@ -432,6 +457,7 @@ enum AccountStatus {
   NEED_SEND_CODE = 5; // 需要发送验证码
   LOGIN_CODE_FAIL = 6;// 验证码错误
   LOGOUT_FAIL = 7;// 登出失败
+  LOGIN_SESSION_CORRUPTED = 8;//登录session损坏
 }
 
 // 定义返回消息
@@ -448,6 +474,7 @@ message ResponseMessage {
   string   account = 8;
   string   comment = 9;
   bytes    data = 10;
+  AccountStatus respond_account_status = 11; // 账号的执行返回状态
 }
 message LoginCallbacks{
   repeated LoginCallback results = 1;
