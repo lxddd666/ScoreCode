@@ -9,7 +9,6 @@ package pay
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -56,17 +55,17 @@ func (s *sPayRefund) Refund(ctx context.Context, in *payin.PayRefundInp) (res *p
 	}
 
 	if models == nil {
-		err = gerror.Newf("业务订单号[%v]不存在支付记录，请检查", in.OrderSn)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#BusinessOrderNumberNoExistRecords}"), in.OrderSn)
 		return
 	}
 
 	if models.PayStatus != consts.PayStatusOk {
-		err = gerror.Newf("业务订单号[%v]未支付，无需退款", in.OrderSn)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#BusinessOrderNumberUnpaid}"), in.OrderSn)
 		return
 	}
 
 	if models.IsRefund != consts.RefundStatusNo {
-		err = gerror.Newf("业务订单号[%v]退款已被处理，请勿重复操作", in.OrderSn)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#BusinessOrderNumberRefund}"), in.OrderSn)
 		return
 	}
 
@@ -114,7 +113,7 @@ func (s *sPayRefund) Refund(ctx context.Context, in *payin.PayRefundInp) (res *p
 	}
 
 	if ret == 0 {
-		g.Log().Warningf(ctx, "Refund 没有被更新的数据行")
+		g.Log().Warningf(ctx, g.I18n().T(ctx, "{#RefundNoUpdateData}"))
 	}
 
 	data := &entity.PayRefund{
@@ -204,8 +203,8 @@ func (s *sPayRefund) Export(ctx context.Context, in *payin.PayRefundListInp) (er
 	}
 
 	var (
-		fileName  = "导出交易退款-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportTransactionRefund}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []payin.PayRefundExportModel
 	)
 

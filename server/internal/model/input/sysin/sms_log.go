@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/model/entity"
@@ -23,14 +24,14 @@ type SmsLogEditModel struct{}
 
 // SmsLogDeleteInp 删除
 type SmsLogDeleteInp struct {
-	Id interface{} `json:"id" v:"required#短信记录ID不能为空" dc:"短信记录ID"`
+	Id interface{} `json:"id" v:"required#SMSRecordIdNotEmpty" dc:"短信记录ID"`
 }
 
 type SmsLogDeleteModel struct{}
 
 // SmsLogViewInp 获取信息
 type SmsLogViewInp struct {
-	Id int64 `json:"id" v:"required#短信记录ID不能为空" dc:"短信记录ID"`
+	Id int64 `json:"id" v:"required#SMSRecordIdNotEmpty" dc:"短信记录ID"`
 }
 
 type SmsLogViewModel struct {
@@ -50,7 +51,7 @@ type SmsLogListInp struct {
 func (in *SmsLogListInp) Filter(ctx context.Context) (err error) {
 	if in.Event != "" {
 		if _, ok := consts.SmsTemplateEventMap[in.Event]; !ok {
-			err = gerror.Newf("无效的事件类型:%v", in.Event)
+			err = gerror.Newf(g.I18n().T(ctx, "{#InvalidEventType}"), in.Event)
 			return
 		}
 	}

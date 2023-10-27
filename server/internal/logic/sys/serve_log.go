@@ -7,8 +7,8 @@ package sys
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/dao"
@@ -99,8 +99,8 @@ func (s *sSysServeLog) Export(ctx context.Context, in *sysin.ServeLogListInp) (e
 	}
 
 	var (
-		fileName  = "导出服务日志-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportServiceLog}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []sysin.ServeLogExportModel
 	)
 

@@ -156,23 +156,23 @@ type ServeLicenseExportModel struct {
 
 // ServeLicenseStatusInp 更新服务许可证状态
 type ServeLicenseStatusInp struct {
-	Id     int64 `json:"id" v:"required#许可ID不能为空" dc:"许可ID"`
+	Id     int64 `json:"id" v:"required#LicenseIdNotEmpty" dc:"许可ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 
 func (in *ServeLicenseStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("许可ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#LicenseIdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 	return
@@ -181,7 +181,7 @@ func (in *ServeLicenseStatusInp) Filter(ctx context.Context) (err error) {
 type ServeLicenseStatusModel struct{}
 
 type ServeLicenseAssignRouterInp struct {
-	Id     int64       `json:"id" v:"required#许可ID不能为空" dc:"许可ID"`
+	Id     int64       `json:"id" v:"required#LicenseIdNotEmpty" dc:"许可ID"`
 	Routes *gjson.Json `json:"routes"       dc:"路由表，空使用默认分组路由"`
 }
 

@@ -3,7 +3,6 @@
 // @Copyright  Copyright (c) 2023 HotGo CLI
 // @Author  Ms <133814250@qq.com>
 // @License  https://github.com/bufanyun/hotgo/blob/master/LICENSE
-//
 package sysin
 
 import (
@@ -15,14 +14,14 @@ import (
 
 // ServeLogDeleteInp 删除服务日志
 type ServeLogDeleteInp struct {
-	Id interface{} `json:"id" v:"required#日志ID不能为空" dc:"日志ID"`
+	Id interface{} `json:"id" v:"required#LogIdNoEmpty" dc:"日志ID"`
 }
 
 type ServeLogDeleteModel struct{}
 
 // ServeLogViewInp 获取指定服务日志信息
 type ServeLogViewInp struct {
-	Id int64 `json:"id" v:"required#日志ID不能为空" dc:"日志ID"`
+	Id int64 `json:"id" v:"required#LogIdNoEmpty" dc:"日志ID"`
 }
 
 type ServeLogViewModel struct {

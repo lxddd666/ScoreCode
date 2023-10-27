@@ -31,7 +31,7 @@ func init() {
 func (s *sSysProvinces) Tree(ctx context.Context) (list []*sysin.ProvincesTree, err error) {
 	var models []*entity.SysProvinces
 	if err = dao.SysProvinces.Ctx(ctx).Order("pid asc,id asc,sort asc").Scan(&models); err != nil {
-		err = gerror.Wrap(err, "获取省市区关系树选项列表失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvincialRelationTreeFailed}"))
 		return
 	}
 
@@ -43,28 +43,28 @@ func (s *sSysProvinces) Tree(ctx context.Context) (list []*sysin.ProvincesTree, 
 func (s *sSysProvinces) Delete(ctx context.Context, in *sysin.ProvincesDeleteInp) (err error) {
 	var models *entity.SysProvinces
 	if err = dao.SysProvinces.Ctx(ctx).Where("id", in.Id).Scan(&models); err != nil {
-		err = gerror.Wrap(err, "获取省市区数据失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvincialDataFailed}"))
 		return
 	}
 
 	if models == nil {
-		err = gerror.New("数据不存在或已删除！")
+		err = gerror.New(g.I18n().T(ctx, "{#DataNotExistOrDelete}"))
 		return
 	}
 
 	has, err := dao.SysProvinces.Ctx(ctx).Where("pid", models.Id).One()
 	if err != nil {
-		err = gerror.Wrap(err, "删除省市区数据时获取上级数据失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUpperDataFailed}"))
 		return
 	}
 
 	if !has.IsEmpty() {
-		err = gerror.New("请先删除该地区下得所有子级！")
+		err = gerror.New(g.I18n().T(ctx, "{#DeleteAllSubLevels}"))
 		return
 	}
 
 	if _, err = dao.SysProvinces.Ctx(ctx).Where("id", in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除省市区数据失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteProvincialDataFailed}"))
 		return
 	}
 	return
@@ -86,14 +86,14 @@ func (s *sSysProvinces) Edit(ctx context.Context, in *sysin.ProvincesEditInp) (e
 	// 修改
 	if models != nil {
 		if _, err = dao.SysProvinces.Ctx(ctx).Fields(sysin.ProvincesUpdateFields{}).WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改省市区数据失败！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyProvincialDataFailed}"))
 		}
 		return
 	}
 
 	// 新增
 	if _, err = dao.SysProvinces.Ctx(ctx).Fields(sysin.ProvincesInsertFields{}).Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增省市区数据失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#NewAddProvinceDataFailed}"))
 	}
 	return
 }
@@ -101,7 +101,7 @@ func (s *sSysProvinces) Edit(ctx context.Context, in *sysin.ProvincesEditInp) (e
 // Status 更新省市区状态
 func (s *sSysProvinces) Status(ctx context.Context, in *sysin.ProvincesStatusInp) (err error) {
 	if _, err = dao.SysProvinces.Ctx(ctx).Where("id", in.Id).Data("status", in.Status).Update(); err != nil {
-		err = gerror.Wrap(err, "更新省市区状态失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateProvinceStatusFailed}"))
 	}
 	return
 }
@@ -109,7 +109,7 @@ func (s *sSysProvinces) Status(ctx context.Context, in *sysin.ProvincesStatusInp
 // MaxSort 最大排序
 func (s *sSysProvinces) MaxSort(ctx context.Context, in *sysin.ProvincesMaxSortInp) (res *sysin.ProvincesMaxSortModel, err error) {
 	if err = dao.SysProvinces.Ctx(ctx).Fields(dao.SysProvinces.Columns().Sort).OrderDesc(dao.SysProvinces.Columns().Sort).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取省市区最大排序失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceLargestSortingFailed}"))
 		return
 	}
 
@@ -123,7 +123,7 @@ func (s *sSysProvinces) MaxSort(ctx context.Context, in *sysin.ProvincesMaxSortI
 // View 获取省市区信息
 func (s *sSysProvinces) View(ctx context.Context, in *sysin.ProvincesViewInp) (res *sysin.ProvincesViewModel, err error) {
 	if err = dao.SysProvinces.Ctx(ctx).Where("id", in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取省市区信息失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceInformationFailed}"))
 	}
 	return
 }
@@ -142,7 +142,7 @@ func (s *sSysProvinces) List(ctx context.Context, in *sysin.ProvincesListInp) (l
 
 	totalCount, err = mod.Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取省市区数据行失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceDataBankFailed}"))
 		return
 	}
 
@@ -151,7 +151,7 @@ func (s *sSysProvinces) List(ctx context.Context, in *sysin.ProvincesListInp) (l
 	}
 
 	if err = mod.Page(in.Page, in.PerPage).Order("id desc").Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取省市区列表失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceListFailed}"))
 	}
 	return
 }
@@ -174,7 +174,7 @@ func (s *sSysProvinces) ChildrenList(ctx context.Context, in *sysin.ProvincesChi
 
 	totalCount, err = mod.Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取省市区下级数据行失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceSubordinateDataFailed}"))
 		return
 	}
 
@@ -183,7 +183,7 @@ func (s *sSysProvinces) ChildrenList(ctx context.Context, in *sysin.ProvincesChi
 	}
 
 	if err = mod.Page(in.Page, in.PerPage).Order("sort asc,id desc").Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取省市区下级列表失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceSubordinateListFailed}"))
 	}
 	return
 }
@@ -209,7 +209,7 @@ func (s *sSysProvinces) Select(ctx context.Context, in *sysin.ProvincesSelectInp
 	mod := dao.SysProvinces.Ctx(ctx).Fields("id as value, title as label, level").Where("pid", in.Value)
 
 	if err = mod.Order("sort asc,id asc").Scan(&res.List); err != nil {
-		err = gerror.Wrap(err, "获取省市区选项失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainProvinceOptionFailed}"))
 		return
 	}
 

@@ -8,6 +8,7 @@ package adminin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -35,7 +36,7 @@ type RoleDeleteInp struct {
 
 func (in *RoleDeleteInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
@@ -49,17 +50,17 @@ type RoleEditInp struct {
 
 func (in *RoleEditInp) Filter(ctx context.Context) (err error) {
 	if in.Name == "" {
-		err = gerror.New("名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#NameNotEmpty}"))
 		return
 	}
 
 	if in.Key == "" {
-		err = gerror.New("编码不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#CodingNotEmpty}"))
 		return
 	}
 
 	if in.Id > 0 && in.Id == in.Pid {
-		err = gerror.New("上级角色不能是自己")
+		err = gerror.New(g.I18n().T(ctx, "{#SuperiorRoleNotSelf}"))
 		return
 	}
 
@@ -111,7 +112,7 @@ type RoleListModel struct {
 
 // RoleViewInp 获取指定信息
 type RoleViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *RoleViewInp) Filter(ctx context.Context) (err error) {
@@ -163,7 +164,7 @@ type DataScopeEditInp struct {
 
 func (in *DataScopeEditInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		return gerror.New("角色ID不正确！")
+		return gerror.New(g.I18n().T(ctx, "{#RoleIdIncorrect}"))
 	}
 	return
 }

@@ -185,11 +185,11 @@ func (s *sAdminRole) UpdatePermissions(ctx context.Context, in *adminin.UpdatePe
 
 // Edit 编辑/新增角色
 func (s *sAdminRole) Edit(ctx context.Context, in *adminin.RoleEditInp) (err error) {
-	if err = hgorm.IsUnique(ctx, &dao.AdminRole, g.Map{dao.AdminRole.Columns().Name: in.Name}, "名称已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.AdminRole, g.Map{dao.AdminRole.Columns().Name: in.Name}, g.I18n().T(ctx, "{#NameExist}"), in.Id); err != nil {
 		return
 	}
 
-	if err = hgorm.IsUnique(ctx, &dao.AdminRole, g.Map{dao.AdminRole.Columns().Key: in.Key}, "编码已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.AdminRole, g.Map{dao.AdminRole.Columns().Key: in.Key}, g.I18n().T(ctx, "{#CodeExist}"), in.Id); err != nil {
 		return
 	}
 	user := contexts.GetUser(ctx)
@@ -200,7 +200,7 @@ func (s *sAdminRole) Edit(ctx context.Context, in *adminin.RoleEditInp) (err err
 			return err
 		}
 		if !validate.InSlice(ids, in.Pid) {
-			return gerror.New("上级角色无权限!")
+			return gerror.New(g.I18n().T(ctx, "{#SupperRoleNoPermission}"))
 		}
 	}
 
@@ -260,7 +260,7 @@ func (s *sAdminRole) Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err
 	}
 
 	if models == nil {
-		return gerror.New("数据不存在或已删除！")
+		return gerror.New(g.I18n().T(ctx, "{#DataNotExistOrDelete}"))
 	}
 
 	has, err := dao.AdminRole.Ctx(ctx).Where("pid", models.Id).One()
@@ -270,7 +270,7 @@ func (s *sAdminRole) Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err
 	}
 
 	if !has.IsEmpty() {
-		return gerror.New("请先删除该角色下得所有子级！")
+		return gerror.New(g.I18n().T(ctx, "{#DeleteRoleAllSubLevel}"))
 	}
 
 	if _, err = dao.AdminRole.Ctx(ctx).Where("id", in.Id).Delete(); err != nil {
@@ -298,11 +298,11 @@ func (s *sAdminRole) DataScopeEdit(ctx context.Context, in *adminin.DataScopeEdi
 	}
 
 	if models == nil {
-		return gerror.New("角色不存在")
+		return gerror.New(g.I18n().T(ctx, "{#RoleNotExist}"))
 	}
 
 	if models.Key == consts.SuperRoleKey {
-		return gerror.New("超管角色拥有全部权限，无需修改！")
+		return gerror.New(g.I18n().T(ctx, "{#SuperRoleAllPermission}"))
 	}
 
 	models.DataScope = in.DataScope
@@ -341,18 +341,18 @@ func (s *sAdminRole) treeList(pid int64, nodes []*entity.AdminRole) (list []*adm
 func (s *sAdminRole) VerifyRoleId(ctx context.Context, id int64) (err error) {
 	mb := contexts.GetUser(ctx)
 	if mb == nil {
-		err = gerror.New("用户信息获取失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationAcquisitionFailed}"))
 		return
 	}
 
 	ids, err := s.GetSubRoleIds(ctx, mb.RoleId, service.AdminMember().VerifySuperId(ctx, mb.Id))
 	if err != nil {
-		err = gerror.New("验证角色信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#VerifyRoleInformationFailed}"))
 		return
 	}
 
 	if !validate.InSlice(ids, id) {
-		err = gerror.New("角色ID是无效的")
+		err = gerror.New(g.I18n().T(ctx, "{#RoleIdInvalid}"))
 		return
 	}
 	return

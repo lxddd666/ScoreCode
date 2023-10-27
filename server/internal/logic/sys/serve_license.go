@@ -8,7 +8,6 @@ package sys
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -80,7 +79,7 @@ func (s *sSysServeLicense) List(ctx context.Context, in *sysin.ServeLicenseListI
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取服务许可证数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainLicenseDataLineFailed}"))
 		return
 	}
 
@@ -89,7 +88,7 @@ func (s *sSysServeLicense) List(ctx context.Context, in *sysin.ServeLicenseListI
 	}
 
 	if err = mod.Fields(sysin.ServeLicenseListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.SysServeLicense.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取服务许可证列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainLicenseListFailed}"))
 		return
 	}
 
@@ -114,8 +113,8 @@ func (s *sSysServeLicense) Export(ctx context.Context, in *sysin.ServeLicenseLis
 	}
 
 	var (
-		fileName  = "导出服务许可证-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportServicePermit}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []sysin.ServeLicenseExportModel
 	)
 
@@ -130,20 +129,20 @@ func (s *sSysServeLicense) Export(ctx context.Context, in *sysin.ServeLicenseLis
 // Edit 修改/新增服务许可证
 func (s *sSysServeLicense) Edit(ctx context.Context, in *sysin.ServeLicenseEditInp) (err error) {
 	// 验证'Appid'唯一
-	if err = hgorm.IsUnique(ctx, &dao.SysServeLicense, g.Map{dao.SysServeLicense.Columns().Appid: in.Appid}, "应用ID已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.SysServeLicense, g.Map{dao.SysServeLicense.Columns().Appid: in.Appid}, g.I18n().T(ctx, "{#ApplicationIdExist}"), in.Id); err != nil {
 		return
 	}
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).Fields(sysin.ServeLicenseUpdateFields{}).WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改服务许可证失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyServiceLicenseFailed}"))
 		}
 		return
 	}
 
 	// 新增
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).Fields(sysin.ServeLicenseInsertFields{}).Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增服务许可证失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddServiceLicenseFailed}"))
 	}
 	return
 }
@@ -151,7 +150,7 @@ func (s *sSysServeLicense) Edit(ctx context.Context, in *sysin.ServeLicenseEditI
 // Delete 删除服务许可证
 func (s *sSysServeLicense) Delete(ctx context.Context, in *sysin.ServeLicenseDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除服务许可证失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteServiceLicenseFailed}"))
 		return
 	}
 	return
@@ -160,7 +159,7 @@ func (s *sSysServeLicense) Delete(ctx context.Context, in *sysin.ServeLicenseDel
 // View 获取服务许可证指定信息
 func (s *sSysServeLicense) View(ctx context.Context, in *sysin.ServeLicenseViewInp) (res *sysin.ServeLicenseViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取服务许可证信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainServiceLicenseInformation}"))
 		return
 	}
 	return
@@ -173,7 +172,7 @@ func (s *sSysServeLicense) Status(ctx context.Context, in *sysin.ServeLicenseSta
 	}
 
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(update).Update(); err != nil {
-		err = gerror.Wrap(err, "更新服务许可证状态失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateServiceLicenseStatusFailed}"))
 		return
 	}
 	return
@@ -186,7 +185,7 @@ func (s *sSysServeLicense) AssignRouter(ctx context.Context, in *sysin.ServeLice
 	}
 
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(update).Update(); err != nil {
-		err = gerror.Wrap(err, "分配服务许可证路由失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DistributeServiceLicenseRoutFailed}"))
 		return
 	}
 	return

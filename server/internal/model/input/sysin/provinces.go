@@ -8,6 +8,7 @@ package sysin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -29,12 +30,12 @@ type ProvincesEditInp struct {
 
 func (in *ProvincesEditInp) Filter(ctx context.Context) (err error) {
 	if in.Title == "" {
-		err = gerror.New("标题不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#TitleNotEmpty}"))
 		return
 	}
 
 	if in.Id <= 0 {
-		err = gerror.New("地区Id必须大于0")
+		err = gerror.New(g.I18n().T(ctx, "{#RegionalID}"))
 		return
 	}
 
@@ -72,7 +73,7 @@ type ProvincesInsertFields struct {
 
 // ProvincesDeleteInp 删除字典类型
 type ProvincesDeleteInp struct {
-	Id interface{} `json:"id" v:"required#省市区ID不能为空" dc:"省市区ID"`
+	Id interface{} `json:"id" v:"required#ProvincialCityIdNotEmpty" dc:"省市区ID"`
 }
 
 type ProvincesDeleteModel struct{}
@@ -83,7 +84,7 @@ type ProvincesViewInp struct {
 }
 
 type ProvincesViewModel struct {
-	Id int64 `json:"id" v:"required#省市区ID不能为空" dc:"省市区ID"`
+	Id int64 `json:"id" v:"required#ProvincialCityIdNotEmpty" dc:"省市区ID"`
 }
 
 // ProvincesListInp 获取列表
@@ -106,17 +107,17 @@ type ProvincesStatusInp struct {
 
 func (in *ProvincesStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 	return
@@ -148,7 +149,7 @@ type ProvincesUniqueIdModel struct {
 }
 
 type ProvincesSelectInp struct {
-	DataType string `json:"dataType" v:"required#数据类型不能为空"  dc:"数据类型"`
+	DataType string `json:"dataType" v:"required#DataTypeNotEmpty"  dc:"数据类型"`
 	Value    int64  `json:"value" dc:"上级ID"`
 }
 

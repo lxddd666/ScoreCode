@@ -8,6 +8,7 @@ package adminin
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/model/entity"
@@ -18,7 +19,7 @@ import (
 
 // OrderAcceptRefundInp 受理申请退款
 type OrderAcceptRefundInp struct {
-	Id                 int64  `json:"id" v:"required#ID不能为空"  dc:"ID"`
+	Id                 int64  `json:"id" v:"required#IdNotEmpty"  dc:"ID"`
 	RejectRefundReason string `json:"rejectRefundReason"         dc:"拒绝退款原因"`
 	Status             int64  `json:"status"                     dc:"状态"`
 	Remark             string `json:"remark"                     dc:"退款备注"`
@@ -26,12 +27,12 @@ type OrderAcceptRefundInp struct {
 
 func (in *OrderAcceptRefundInp) Filter(ctx context.Context) (err error) {
 	if !validate.InSlice(consts.OrderStatusSlice, in.Status) {
-		err = gerror.Newf("订单状态不正确")
+		err = gerror.Newf(g.I18n().T(ctx, "{#OderStatusError}"))
 		return
 	}
 
 	if in.Status == consts.OrderStatusReturnReject && in.Remark == "" {
-		in.Remark = "退款申请被拒绝"
+		in.Remark = g.I18n().T(ctx, "{#RefundApplicationRejected}")
 	}
 	return
 }
@@ -41,8 +42,8 @@ type OrderAcceptRefundModel struct {
 
 // OrderApplyRefundInp 申请退款
 type OrderApplyRefundInp struct {
-	Id           int64  `json:"id" v:"required#ID不能为空"                     dc:"ID"`
-	RefundReason string `json:"refundReason"  v:"required#退款原因不能为空"      dc:"退款原因"`
+	Id           int64  `json:"id" v:"required#IdNotEmpty"                     dc:"ID"`
+	RefundReason string `json:"refundReason"  v:"required#RefundReasonNotEmpty"      dc:"退款原因"`
 }
 
 func (in *OrderApplyRefundInp) Filter(ctx context.Context) (err error) {
@@ -84,7 +85,7 @@ type OrderEditModel struct{}
 
 // OrderDeleteInp 删除充值订单
 type OrderDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *OrderDeleteInp) Filter(ctx context.Context) (err error) {
@@ -95,7 +96,7 @@ type OrderDeleteModel struct{}
 
 // OrderViewInp 获取指定充值订单信息
 type OrderViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *OrderViewInp) Filter(ctx context.Context) (err error) {
@@ -142,7 +143,7 @@ type OrderExportModel struct {
 
 // OrderStatusInp 更新充值订单状态
 type OrderStatusInp struct {
-	Id     int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 	Status int   `json:"status"                   dc:"状态"`
 }
 

@@ -7,7 +7,6 @@ package admin
 
 import (
 	"context"
-	"fmt"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -55,12 +54,12 @@ func (s *sAdminOrder) AcceptRefund(ctx context.Context, in *adminin.OrderAcceptR
 	}
 
 	if view == nil {
-		err = gerror.New("订单不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderNotExist}"))
 		return
 	}
 
 	if view.Status != consts.OrderStatusReturnRequest {
-		err = gerror.New("当前订单状态不是申请退款状态，无需受理")
+		err = gerror.New(g.I18n().T(ctx, "{#CurrentOderStatueNotRefund}"))
 		return
 	}
 
@@ -75,7 +74,7 @@ func (s *sAdminOrder) AcceptRefund(ctx context.Context, in *adminin.OrderAcceptR
 				CreditGroup: consts.CreditGroupBalanceRefund,
 				Num:         -view.Money,
 				MapId:       view.Id,
-				Remark:      fmt.Sprintf("余额退款:%v", in.Remark),
+				Remark:      g.I18n().Tf(ctx, "{#BetterRefund}", in.Remark),
 			})
 			if err != nil {
 				return err
@@ -111,17 +110,17 @@ func (s *sAdminOrder) ApplyRefund(ctx context.Context, in *adminin.OrderApplyRef
 	}
 
 	if view == nil {
-		err = gerror.New("订单不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderNotExist}"))
 		return
 	}
 
 	if view.Status == consts.OrderStatusReturnRequest {
-		err = gerror.New("当前订单退款正在申请处理，请勿重复提交！")
+		err = gerror.New(g.I18n().T(ctx, "{#CurrentOrderRefundProcessed}"))
 		return
 	}
 
 	if view.Status != consts.OrderStatusDone {
-		err = gerror.New("当前订单状态不支持申请退款，如有疑问请联系管理员！")
+		err = gerror.New(g.I18n().T(ctx, "{#CurrentOrderStatusNotRefund}"))
 		return
 	}
 
@@ -142,12 +141,12 @@ func (s *sAdminOrder) PayNotify(ctx context.Context, in *payin.NotifyCallFuncInp
 	}
 
 	if models == nil {
-		err = gerror.New("订单不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderNotExist}"))
 		return
 	}
 
 	if models.Status != consts.OrderStatusNotPay {
-		err = gerror.New("订单已被处理，无需重复操作")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderProcessed}"))
 		return
 	}
 
@@ -195,13 +194,14 @@ func (s *sAdminOrder) PayNotify(ctx context.Context, in *payin.NotifyCallFuncInp
 // Create 创建充值订单
 func (s *sAdminOrder) Create(ctx context.Context, in *adminin.OrderCreateInp) (res *adminin.OrderCreateModel, err error) {
 	var (
-		subject = "支付订单"
+		subject = g.I18n().T(ctx, "{#PayOrder}")
 		orderSn = payment.GenOrderSn()
 	)
 
 	switch in.OrderType {
 	case consts.OrderTypeBalance:
-		subject = fmt.Sprintf("余额充值:￥%v", in.Money)
+		subject = g.I18n().Tf(ctx, "{#BalanceRecharge}", in.Money)
+
 	case consts.OrderTypeProduct:
 		// 读取商品信息，读取商品最终支付价格
 		// ...
@@ -210,7 +210,7 @@ func (s *sAdminOrder) Create(ctx context.Context, in *adminin.OrderCreateInp) (r
 		// subject = fmt.Sprintf("购买商品:%v", "测试商品名称")
 
 	default:
-		err = gerror.New("不支持的订单类型")
+		err = gerror.New(g.I18n().T(ctx, "{#UnwillingOrderType}"))
 		return
 	}
 
@@ -317,8 +317,8 @@ func (s *sAdminOrder) Export(ctx context.Context, in *adminin.OrderListInp) (err
 	}
 
 	var (
-		fileName  = "导出充值订单-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportRechargeOrder}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []adminin.OrderExportModel
 	)
 
@@ -370,17 +370,17 @@ func (s *sAdminOrder) View(ctx context.Context, in *adminin.OrderViewInp) (res *
 // Status 更新充值订单状态
 func (s *sAdminOrder) Status(ctx context.Context, in *adminin.OrderStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 
