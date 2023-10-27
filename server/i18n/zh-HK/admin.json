@@ -190,5 +190,6 @@
   "ExportServiceLog": "導出服務日誌-",
   "InvalidEventType": "無效的事件類型:%v",
   "SMSRecordIdNotEmpty": "短信記錄ID不能為空",
-  "TimingTaskIdNotEmpty": "定時任務ID不能為空"
+  "TimingTaskIdNotEmpty": "定時任務ID不能為空",
+  "ConsiderSecurityIssues": "暫時考慮到安全問題，請到數據庫清空"
 }

@@ -190,5 +190,6 @@
   "ExportServiceLog": "Export service log-",
   "InvalidEventType": "Invalid event type:%v",
   "SMSRecordIdNotEmpty": "SMS record ID cannot be empty",
-  "TimingTaskIdNotEmpty": "Timing task ID cannot be empty"
+  "TimingTaskIdNotEmpty": "Timing task ID cannot be empty",
+  "ConsiderSecurityIssues": "Temporarily consider security issues, please go to the database to clear"
 }
