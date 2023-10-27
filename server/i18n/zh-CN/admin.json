@@ -189,5 +189,6 @@
    "DistributeServiceLicenseRoutFailed": "分配服务许可证路由失败，请稍后重试",
    "ExportServiceLog": "导出服务日志-",
    "InvalidEventType": "无效的事件类型:%v",
-   "SMSRecordIdNotEmpty": "短信记录ID不能为空"
+   "SMSRecordIdNotEmpty": "短信记录ID不能为空",
+   "TimingTaskIdNotEmpty": "定时任务ID不能为空"
 }

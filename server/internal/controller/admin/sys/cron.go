@@ -8,6 +8,7 @@ package sys
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/api/admin/cron"
 	"hotgo/api/servmsg"
 	"hotgo/internal/service"
@@ -72,7 +73,7 @@ func (c *cCron) Status(ctx context.Context, req *cron.StatusReq) (res *cron.Stat
 // OnlineExec 在线执行
 func (c *cCron) OnlineExec(ctx context.Context, req *cron.OnlineExecReq) (res *cron.OnlineExecRes, err error) {
 	if req.Id <= 0 {
-		return nil, gerror.New("定时任务ID不能为空")
+		return nil, gerror.New(g.I18n().T(ctx, "{#TimingTaskIdNotEmpty}"))
 	}
 
 	err = service.TCPServer().CronOnlineExec(ctx, &servmsg.CronOnlineExecReq{OnlineExecInp: &req.OnlineExecInp})

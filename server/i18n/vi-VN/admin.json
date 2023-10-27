@@ -189,5 +189,6 @@
   "DistributeServiceLicenseRoutFailed": "Định tuyến giấy phép dịch vụ phân phối không thành công, vui lòng thử lại sau",
   "ExportServiceLog": "Nhật ký dịch vụ xuất khẩu-",
   "InvalidEventType": "Loại sự kiện không hợp lệ:%v",
-  "SMSRecordIdNotEmpty": "ID bản ghi SMS không thể trống"
+  "SMSRecordIdNotEmpty": "ID bản ghi SMS không thể trống",
+  "TimingTaskIdNotEmpty": "ID nhiệm vụ thời gian không thể trống"
 }

@@ -189,5 +189,6 @@
   "DistributeServiceLicenseRoutFailed": "The distribution service license routing fails, please try again later",
   "ExportServiceLog": "Export service log-",
   "InvalidEventType": "Invalid event type:%v",
-  "SMSRecordIdNotEmpty": "SMS record ID cannot be empty"
+  "SMSRecordIdNotEmpty": "SMS record ID cannot be empty",
+  "TimingTaskIdNotEmpty": "Timing task ID cannot be empty"
 }
