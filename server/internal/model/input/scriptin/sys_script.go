@@ -34,12 +34,12 @@ type SysScriptEditInp struct {
 
 func (in *SysScriptEditInp) Filter(ctx context.Context) (err error) {
 	// 验证分组
-	if err := g.Validator().Rules("required").Data(in.GroupId).Messages("分组不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.GroupId).Messages(g.I18n().T(ctx, "{#GroupNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证话术内容
-	if err := g.Validator().Rules("required").Data(in.Content).Messages("话术内容不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Content).Messages(g.I18n().T(ctx, "{#TalkingContentNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -50,7 +50,7 @@ type SysScriptEditModel struct{}
 
 // SysScriptDeleteInp 删除话术管理
 type SysScriptDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *SysScriptDeleteInp) Filter(ctx context.Context) (err error) {
@@ -61,7 +61,7 @@ type SysScriptDeleteModel struct{}
 
 // SysScriptViewInp 获取指定话术管理信息
 type SysScriptViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *SysScriptViewInp) Filter(ctx context.Context) (err error) {

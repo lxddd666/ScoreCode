@@ -1,0 +1,23 @@
+{
+  "ScriptGroupTypeNotEmpty": "The packet type cannot be empty",
+  "ScriptGroupTypePacketIntIncorrect": "The packet type value is incorrect",
+  "GroupNameNotEmpty": "The name of the story cannot be empty",
+  "ObtainGroupDataLineFailed": "The data line of the discourse group failed, please try it later",
+  "ObtainGroupListFailed": "The list of discourse groups failed, please try it later",
+  "ExportScriptGroup": "Export the storytelling group-",
+  "GroupNameExist": "The group name already exists",
+  "ModifyGroupFailed": "Modify the discourse group failure, please try it later",
+  "AddGroupFailed": "Newly added discourse group failure, please try it later",
+  "DeleteGroupFailed": "Delete the discourse group failure, please try it later",
+  "ObtainGroupInformation": "Get the information group information, please try it later",
+  "TalkingContentNotEmpty": "The content of the story cannot be empty",
+  "ObtainWordsManagementFailed": "Obtaining the data management data failed, please try it later",
+  "ObtainWordsManagementListFailed": "The list of obtaining the management list failed, please try it later",
+  "ExportWordsManagement": "Export Talk Management-",
+  "ModifyWordsManagementFailed": "Modify the failure of the discourse management, please try it later",
+  "AddWordsManagementFailed": "New talk management failed, please try again later",
+  "SelectGroupNotExist": "The selected group does not exist",
+  "QuickInstructionExist": "The fast instruction exists",
+  "DeleteWordSManagementFailed": "Delete the discourse management failure, please try it later",
+  "ObtainWordsManagementInformation": "Get discourse management information, please try later"
+}

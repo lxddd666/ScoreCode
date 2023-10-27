@@ -1,0 +1,23 @@
+{
+  "ScriptGroupTypeNotEmpty": "Loại nhóm không thể trống",
+  "ScriptGroupTypePacketIncorrect": "Giá trị loại gói không chính xác",
+  "GroupNameNotEmpty": "Tên của nhóm tiêu đề không thể trống",
+  "ObtainGroupDataLineFailed": "Nhận dòng dữ liệu nhóm dữ liệu không thành công, vui lòng thử nó sau",
+  "ObtainGroupListFailed": "Có được danh sách các nhóm các bên không thành công, vui lòng thử sau",
+  "ExportScriptGroup": "Nhóm phát biểu-",
+  "GroupNameExist": "Tên nhóm đã tồn tại",
+  "ModifyGroupFailed": "Sửa đổi thất bại nhóm diễn ngôn, vui lòng thử sau",
+  "AddGroupFailed": "Nhóm mới được thêm một phần không thành công, vui lòng thử nó sau",
+  "DeleteGroupFailed": "Xóa thất bại nhóm diễn ngôn, vui lòng thử sau",
+  "ObtainGroupInformation": "Nhận thông tin nhóm thông tin, vui lòng thử lại sau",
+  "TalkingContentNotEmpty": "Nội dung của các từ không thể trống",
+  "ObtainWordsManagementFailed": "Có được dữ liệu quản lý dữ liệu không thành công, vui lòng thử lại sau",
+  "ObtainWordsManagementListFailed": "Có được danh sách quản lý diễn ngôn không thành công, vui lòng thử lại sau",
+  "ExportWordsManagement": "Quản lý từ xuất khẩu-",
+  "ModifyWordsManagementFailed": "Sửa đổi lỗi quản lý câu chuyện, vui lòng thử lại sau",
+  "AddWordsManagementFailed": "Mới thêm thất bại quản lý nói chuyện, vui lòng thử lại sau",
+  "SelectGroupNotExist": "Nhóm đã chọn không tồn tại",
+  "QuickInstructionExist": "Hướng dẫn nhanh đã tồn tại",
+  "DeleteWordsManagementFailed": "Xóa lỗi quản lý diễn ngôn, vui lòng thử lại sau",
+  "ObtainWordsManagementInformation": "Nhận thông tin quản lý thông tin, vui lòng thử lại sau"
+}
