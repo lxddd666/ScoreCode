@@ -35,7 +35,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"sync"
-	"time"
 )
 
 type sTgUser struct{}
@@ -270,21 +269,43 @@ func (s *sTgUser) LogoutCallback(ctx context.Context, res []entity.TgUser) (err 
 
 // ImportSession 导入session文件
 func (s *sTgUser) ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error) {
+
 	sessionDetails, err := s.handlerReadSessionJsonFiles(ctx, file)
 	if err != nil {
 		return
 	}
+	s.TgSaveSessionMsg(ctx, sessionDetails)
 	msg, err = s.TgImportSessionToGrpc(ctx, sessionDetails)
 	return
 }
 
+// TgSaveSessionMsg 保存session数据到数据库中
+func (s *sTgUser) TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error) {
+	if len(details) > 0 {
+		if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+			Fields(tgin.TgUserInsertFields{}).
+			Data(details).Insert(); err != nil {
+			err = gerror.Wrap(err, "导入tg管理失败，请稍后重试！")
+		}
+	}
+
+	return err
+}
+
 // 读取json文件
 func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.UploadFile) (sessionDetails []*tgin.TgImportSessionModel, err error) {
+	// 获取当前时间戳
+	//timestamp := time.Now().Unix()
+	//// 根据时间戳生成文件名
+	//fileTimeName := fmt.Sprintf("%d_.zip", timestamp)
+	//file.Filename = fileTimeName
+
 	temp := gfile.Temp()
 	zipFileName, err := file.Save(temp)
 
 	dsPath := gfile.Join(temp, zipFileName)
 	defer func() { _ = os.Remove(dsPath) }()
+
 	err = gcompress.UnZipFile(dsPath, temp)
 	if err != nil {
 		return
@@ -308,11 +329,10 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 			}
 			// SQLite文件路径
 			path := filepath.Join(unzipPath, sessionJ.Phone+".session")
-			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path)
+			err = s.handlerReadAuthKey(path, sessionJ)
 			if err != nil {
 				return
 			}
-			time.Sleep(3 * time.Second)
 			list.PushLeft(sessionJ)
 		})
 
@@ -322,7 +342,7 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 	return
 }
 
-func (s *sTgUser) handlerReadAuthKey(path string) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
+func (s *sTgUser) handlerReadAuthKey(path string, sessionJ *tgin.TgImportSessionModel) (err error) {
 	// 打开SQLite数据库连接
 	var db *sql.DB
 	db, err = sql.Open("sqlite3", path)
@@ -342,11 +362,27 @@ func (s *sTgUser) handlerReadAuthKey(path string) (authKey *tgin.TgImportSession
 		err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
 		return
 	}
+	defer func() { _ = rows.Close() }()
 	if rows.Next() {
-		authKey = &tgin.TgImportSessionAuthKeyMsg{}
+		authKey := &tgin.TgImportSessionAuthKeyMsg{}
 		err = rows.Scan(&authKey.DC, &authKey.Addr, &authKey.Port, &authKey.AuthKey)
+		if err == nil {
+			sessionJ.SessionAuthKey = authKey
+		} else {
+			return
+		}
+
+	}
+	rows2, err2 := db.Query("select id from entities where phone = " + sessionJ.Phone)
+	if err2 != nil {
+		err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
 		return
 	}
+	defer func() { _ = rows2.Close() }()
+	if rows2.Next() {
+		err = rows2.Scan(&sessionJ.Id)
+	}
+
 	return
 }
 

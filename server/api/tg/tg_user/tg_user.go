@@ -93,3 +93,11 @@ type UnBindProxyReq struct {
 }
 
 type UnBindProxyRes struct{}
+
+// IncreaseChannelFansCronReq 添加频道粉丝任务
+type IncreaseChannelFansCronReq struct {
+	g.Meta `path:"/tgUser/channel/increaseFansCron" method:"post" tags:"tg-账号管理" summary:"频道定时任务涨粉"`
+	*tgin.TgIncreaseFansCronInp
+}
+
+type IncreaseChannelFansCronRes struct{}

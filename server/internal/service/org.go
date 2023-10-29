@@ -32,11 +32,52 @@ type (
 		// Import 导入代理
 		Import(ctx context.Context, list []*orgin.SysProxyEditInp) (err error)
 	}
+	IOrgTgIncreaseFansCron interface {
+		// Model TG频道涨粉任务ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG频道涨粉任务列表
+		List(ctx context.Context, in *orgin.TgIncreaseFansCronListInp) (list []*orgin.TgIncreaseFansCronListModel, totalCount int, err error)
+		// Export 导出TG频道涨粉任务
+		Export(ctx context.Context, in *orgin.TgIncreaseFansCronListInp) (err error)
+		// Edit 修改/新增TG频道涨粉任务
+		Edit(ctx context.Context, in *orgin.TgIncreaseFansCronEditInp) (err error)
+		// Delete 删除TG频道涨粉任务
+		Delete(ctx context.Context, in *orgin.TgIncreaseFansCronDeleteInp) (err error)
+		// View 获取TG频道涨粉任务指定信息
+		View(ctx context.Context, in *orgin.TgIncreaseFansCronViewInp) (res *orgin.TgIncreaseFansCronViewModel, err error)
+	}
+	IOrgTgIncreaseFansCronAction interface {
+		// Model TG频道涨粉任务执行情况ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG频道涨粉任务执行情况列表
+		List(ctx context.Context, in *orgin.TgIncreaseFansCronActionListInp) (list []*orgin.TgIncreaseFansCronActionListModel, totalCount int, err error)
+		// Export 导出TG频道涨粉任务执行情况
+		Export(ctx context.Context, in *orgin.TgIncreaseFansCronActionListInp) (err error)
+		// Edit 修改/新增TG频道涨粉任务执行情况
+		Edit(ctx context.Context, in *orgin.TgIncreaseFansCronActionEditInp) (err error)
+		// Delete 删除TG频道涨粉任务执行情况
+		Delete(ctx context.Context, in *orgin.TgIncreaseFansCronActionDeleteInp) (err error)
+		// View 获取TG频道涨粉任务执行情况指定信息
+		View(ctx context.Context, in *orgin.TgIncreaseFansCronActionViewInp) (res *orgin.TgIncreaseFansCronActionViewModel, err error)
+	}
 )
 
 var (
-	localOrgSysProxy IOrgSysProxy
+	localOrgTgIncreaseFansCronAction IOrgTgIncreaseFansCronAction
+	localOrgSysProxy                 IOrgSysProxy
+	localOrgTgIncreaseFansCron       IOrgTgIncreaseFansCron
 )
+
+func OrgTgIncreaseFansCronAction() IOrgTgIncreaseFansCronAction {
+	if localOrgTgIncreaseFansCronAction == nil {
+		panic("implement not found for interface IOrgTgIncreaseFansCronAction, forgot register?")
+	}
+	return localOrgTgIncreaseFansCronAction
+}
+
+func RegisterOrgTgIncreaseFansCronAction(i IOrgTgIncreaseFansCronAction) {
+	localOrgTgIncreaseFansCronAction = i
+}
 
 func OrgSysProxy() IOrgSysProxy {
 	if localOrgSysProxy == nil {
@@ -47,4 +88,15 @@ func OrgSysProxy() IOrgSysProxy {
 
 func RegisterOrgSysProxy(i IOrgSysProxy) {
 	localOrgSysProxy = i
+}
+
+func OrgTgIncreaseFansCron() IOrgTgIncreaseFansCron {
+	if localOrgTgIncreaseFansCron == nil {
+		panic("implement not found for interface IOrgTgIncreaseFansCron, forgot register?")
+	}
+	return localOrgTgIncreaseFansCron
+}
+
+func RegisterOrgTgIncreaseFansCron(i IOrgTgIncreaseFansCron) {
+	localOrgTgIncreaseFansCron = i
 }

@@ -34,6 +34,7 @@ type TgUserInsertFields struct {
 	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
 	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
 	Comment       string      `json:"comment"       dc:"备注"`
+	TgId          uint64      `json:"tg_id"         dc:"tgId"`
 }
 
 // TgUserEditInp 修改/新增TG账号
@@ -104,6 +105,7 @@ type TgUserListModel struct {
 	Comment       string      `json:"comment"       dc:"备注"`
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     dc:"更新时间"`
+	TgId          int64       `json:"tgId"          dc:"tg id"`
 }
 
 // TgUserExportModel 导出TG账号
@@ -156,7 +158,8 @@ type TgImportSessionModel struct {
 	Proxy          interface{}                `json:"proxy"           dc:"代理"`
 	Ipv6           bool                       `json:"ipv6"            dc:"是否用ipv6"`
 	TwoFA          string                     `json:"twoFA"           dc:"身份验证机制"`
-	SessionAuthKey *TgImportSessionAuthKeyMsg `json:"SessionAuthKey"  dc:"身份验证机制"`
+	Id             int64                      `json:"tg_id"           dc:"tg id"`
+	SessionAuthKey *TgImportSessionAuthKeyMsg `json:"SessionAuthKey"  dc:"导入seesion的key"`
 }
 
 type TgImportSessionAuthKeyMsg struct {

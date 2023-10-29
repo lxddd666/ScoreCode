@@ -41,6 +41,8 @@ type (
 		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
 		// ImportSession 导入session文件
 		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
+		// TgSaveSessionMsg 保存session数据到数据库中
+		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
 		// TgImportSessionToGrpc 导入session
 		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
 		// UnBindProxy 解绑代理
@@ -91,6 +93,8 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
+		// TgIncreaseFansToChannel 频道涨粉
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -147,11 +151,11 @@ type (
 )
 
 var (
-	localTgArts     ITgArts
-	localTgContacts ITgContacts
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
 	localTgUser     ITgUser
+	localTgArts     ITgArts
+	localTgContacts ITgContacts
 )
 
 func TgMsg() ITgMsg {
