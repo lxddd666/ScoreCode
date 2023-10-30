@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/api/admin/common"
+	"hotgo/api/org/member"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/captcha"
 	"hotgo/internal/library/token"
@@ -167,5 +168,11 @@ func (c *cSite) RestPwd(ctx context.Context, req *common.RestPwdReq) (res *commo
 // RestPwdCode 重置密码发送验证码
 func (c *cSite) RestPwdCode(ctx context.Context, req *common.RestPwdCodeReq) (res *common.RestPwdCodeRes, err error) {
 	err = service.AdminSite().RestPwdCode(ctx, &req.RegisterCodeInp)
+	return
+}
+
+// UpdatePwd 修改登录密码
+func (c *cSite) UpdatePwd(ctx context.Context, req *common.UpdatePwdReq) (res *member.UpdatePwdRes, err error) {
+	err = service.AdminMember().UpdatePwd(ctx, &req.MemberUpdatePwdInp)
 	return
 }

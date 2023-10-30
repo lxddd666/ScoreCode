@@ -15,6 +15,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
+	"hotgo/utility/simple"
 	"hotgo/utility/validate"
 )
 
@@ -73,8 +74,35 @@ type MemberUpdateProfileInp struct {
 // MemberUpdatePwdInp 修改登录密码
 type MemberUpdatePwdInp struct {
 	Id          int64  `json:"id" dc:"用户ID"`
+	Username    string `json:"username" dc:"用户名，未鉴权时需传入"`
 	OldPassword string `json:"oldPassword" v:"required#OriginalPasswordNotEmpty"  dc:"原密码"`
 	NewPassword string `json:"newPassword" v:"required|length:6,18#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
+}
+
+func (in *MemberUpdatePwdInp) Filter(ctx context.Context) (err error) {
+	// 解密密码
+	oldPassword, err := simple.DecryptText(in.OldPassword)
+	if err != nil {
+		return err
+	}
+	if err = g.Validator().Data(oldPassword).Rules("password").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+		return
+	}
+
+	in.OldPassword = oldPassword
+
+	// 解密密码
+	newPassword, err := simple.DecryptText(in.NewPassword)
+	if err != nil {
+		return err
+	}
+	if err = g.Validator().Data(newPassword).Rules("password").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+		return
+	}
+
+	in.NewPassword = newPassword
+
+	return
 }
 
 // MemberResetPwdInp 重置密码

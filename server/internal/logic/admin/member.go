@@ -322,9 +322,17 @@ func (s *sAdminMember) UpdateProfile(ctx context.Context, in *adminin.MemberUpda
 // UpdatePwd 修改登录密码
 func (s *sAdminMember) UpdatePwd(ctx context.Context, in *adminin.MemberUpdatePwdInp) (err error) {
 	var mb entity.AdminMember
-	if err = dao.AdminMember.Ctx(ctx).WherePri(in.Id).Scan(&mb); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserInformationFailureTryAgain}"))
-		return
+	mod := dao.AdminMember.Ctx(ctx)
+	if in.Id != 0 {
+		if err = mod.WherePri(in.Id).Scan(&mb); err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserInformationFailureTryAgain}"))
+			return
+		}
+	} else if in.Username != "" {
+		if err = mod.Where(dao.AdminMember.Columns().Username, in.Username).Scan(&mb); err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserInformationFailureTryAgain}"))
+			return
+		}
 	}
 
 	if gmd5.MustEncryptString(in.OldPassword+mb.Salt) != mb.PasswordHash {

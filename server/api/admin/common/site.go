@@ -54,6 +54,12 @@ type RestPwdCodeReq struct {
 
 type RestPwdCodeRes struct{}
 
+// UpdatePwdReq 修改登录密码
+type UpdatePwdReq struct {
+	g.Meta `path:"/site/updatePwd" method:"post" tags:"后台基础" summary:"修改密码"`
+	adminin.MemberUpdatePwdInp
+}
+
 // LoginCodeReq 登录验证码
 type LoginCodeReq struct {
 	g.Meta `path:"/site/login/sendCode" method:"post" tags:"后台基础" summary:"发送登录验证码"`

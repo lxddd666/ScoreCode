@@ -116,3 +116,10 @@ func (in *RestPwdInp) Filter(ctx context.Context) (err error) {
 	in.Password = password
 	return
 }
+
+// UpdatePwdInp 修改密码
+type UpdatePwdInp struct {
+	Username    string `json:"username" v:"required#UsernameNotEmpty" dc:"用户名"`
+	OldPassword string `json:"oldPassword" v:"required#OriginalPasswordNotEmpty"  dc:"原密码"`
+	NewPassword string `json:"newPassword" v:"required|length:6,18#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
+}
