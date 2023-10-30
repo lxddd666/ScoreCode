@@ -344,7 +344,7 @@ func (s *sAdminMember) UpdatePwd(ctx context.Context, in *adminin.MemberUpdatePw
 		dao.AdminMember.Columns().PasswordHash: gmd5.MustEncryptString(in.NewPassword + mb.Salt),
 	}
 
-	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(in.Id)).WherePri(in.Id).Data(update).Update(); err != nil {
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(mb.Id)).WherePri(mb.Id).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateLoginPasswordFailedTryAgain"))
 		return
 	}
