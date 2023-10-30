@@ -128,6 +128,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		Avatar:   config.Avatar,
 		Sex:      3, // 保密
 		Mobile:   in.Mobile,
+		Email:    in.Email,
 		Status:   consts.StatusEnabled,
 	}
 	data.Salt = grand.S(6)
