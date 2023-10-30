@@ -194,7 +194,7 @@ func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (resul
 		if err != nil {
 			return
 		}
-		err = g.Model(dao.AdminMember.Ctx(ctx)).Where(dao.AdminMember.Columns().Mobile, in.Mobile).Scan(&member)
+		err = dao.AdminMember.Ctx(ctx).Where(dao.AdminMember.Columns().Mobile, in.Mobile).Scan(&member)
 		if err != nil {
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NotAccount}"))
 			return
@@ -208,7 +208,7 @@ func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (resul
 		if err != nil {
 			return
 		}
-		err = g.Model(dao.AdminMember.Ctx(ctx)).Where(dao.AdminMember.Columns().Email, in.Email).Scan(&member)
+		err = dao.AdminMember.Ctx(ctx).Where(dao.AdminMember.Columns().Email, in.Email).Scan(&member)
 		if err != nil {
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserInformationNotExist}"))
 			return
@@ -223,7 +223,7 @@ func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (resul
 		dao.AdminMember.Columns().PasswordHash: gmd5.MustEncryptString(in.Password + member.Salt),
 	}
 
-	if _, err = g.Model(dao.AdminMember.Ctx(ctx)).Cache(cmember.ClearCache(member.Id)).WherePri(member.Id).Data(update).Update(); err != nil {
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(member.Id)).WherePri(member.Id).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ResetUserPasswordFailed"))
 		return
 	}
