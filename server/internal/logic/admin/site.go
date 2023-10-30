@@ -187,7 +187,7 @@ func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (resul
 	// 验证验证码
 	if in.Email == "" {
 		err = service.SysSmsLog().VerifyCode(ctx, &sysin.VerifyCodeInp{
-			Event:  consts.SmsTemplateRegister,
+			Event:  consts.SmsTemplateResetPwd,
 			Mobile: in.Mobile,
 			Code:   in.Code,
 		})
@@ -201,7 +201,7 @@ func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (resul
 		}
 	} else {
 		err = service.SysEmsLog().VerifyCode(ctx, &sysin.VerifyEmsCodeInp{
-			Event: consts.EmsTemplateRegister,
+			Event: consts.EmsTemplateResetPwd,
 			Email: in.Email,
 			Code:  in.Code,
 		})
