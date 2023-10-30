@@ -345,7 +345,7 @@ func (s *sSysEmsLog) VerifyCode(ctx context.Context, in *sysin.VerifyEmsCodeInp)
 		return
 	}
 
-	if in.Event == consts.EmsTemplateResetPwd || in.Event == consts.EmsTemplateText {
+	if in.Event == consts.EmsTemplateText {
 		err = gerror.Newf(g.I18n().Tf(ctx, "{#EventTypeNotVerified}"), in.Event)
 		return
 	}
