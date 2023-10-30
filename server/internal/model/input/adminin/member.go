@@ -85,7 +85,7 @@ func (in *MemberUpdatePwdInp) Filter(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	if err = g.Validator().Data(oldPassword).Rules("password").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+	if err = g.Validator().Data(oldPassword).Rules("length:6,18").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
 		return
 	}
 
@@ -96,7 +96,7 @@ func (in *MemberUpdatePwdInp) Filter(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	if err = g.Validator().Data(newPassword).Rules("password").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+	if err = g.Validator().Data(newPassword).Rules("length:6,18").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
 		return
 	}
 

@@ -12,7 +12,7 @@
   "CodeNotEmpty": "mã xác minh phải được điền",
   "InviteCodeCheck": "Vui lòng điền vào mã lời mời",
   "PasswordLengthCheck": "Độ dài mật khẩu nằm trong khoảng từ 6 ~ 18",
-  "NewPasswordLengthCheck": "Độ dài mật khẩu nằm trong khoảng từ 6 ~ 20",
+  "NewPasswordLengthCheck": "Độ dài mật khẩu nằm trong khoảng từ 6 ~ 18",
   "OriginalNotCorrect": "Mật khẩu ban đầu không chính xác",
   "InviteUserCheck": "Thông tin người mời không tồn tại",
   "SuccessMsg": "Hoạt động thành công",

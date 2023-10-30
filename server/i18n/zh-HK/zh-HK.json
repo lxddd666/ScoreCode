@@ -12,7 +12,7 @@
   "CodeNotEmpty": "驗證碼不能為空",
   "InviteCodeCheck": "請填寫邀請碼",
   "PasswordLengthCheck": "密碼長度在6~18之間",
-  "NewPasswordLengthCheck": "密碼長度在6~20之間",
+  "NewPasswordLengthCheck": "密碼長度在6~18之間",
   "OriginalNotCorrect": "原密碼不正確",
   "InviteUserCheck": "邀請人信息不存在",
   "SuccessMsg": "操作成功",

@@ -12,7 +12,7 @@
   "CodeNotEmpty": "验证码不能为空",
   "InviteCodeCheck": "请填写邀请码",
   "PasswordLengthCheck": "密码长度在6~18之间",
-  "NewPasswordLengthCheck": "密码长度在6~20之间",
+  "NewPasswordLengthCheck": "密码长度在6~18之间",
   "OriginalNotCorrect": "原密码不正确",
   "InviteUserCheck": "邀请人信息不存在",
   "SuccessMsg": "操作成功",
