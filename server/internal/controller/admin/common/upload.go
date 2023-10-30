@@ -24,13 +24,13 @@ func (c *cUpload) UploadFile(ctx context.Context, _ *common.UploadFileReq) (res 
 	r := g.RequestFromCtx(ctx)
 	uploadType := r.Header.Get("uploadType")
 	if uploadType != "default" && !validate.InSlice(storager.KindSlice, uploadType) {
-		err = gerror.New("上传类型是无效的")
+		err = gerror.New(g.I18n().T(ctx, "{#UploadTypeInvalid}"))
 		return
 	}
 
 	file := r.GetUploadFile("file")
 	if file == nil {
-		err = gerror.New("没有找到上传的文件")
+		err = gerror.New(g.I18n().T(ctx, "{#NoFindUploadFiles}"))
 		return
 	}
 

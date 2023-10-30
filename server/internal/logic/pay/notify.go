@@ -30,12 +30,12 @@ func (s *sPay) Notify(ctx context.Context, in *payin.PayNotifyInp) (res *payin.P
 	}
 
 	if models == nil {
-		err = gerror.Newf("商户订单号[%v]不存在支付记录，请检查", data.OutTradeNo)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#MerchantOrderNumberNotExist}"), data.OutTradeNo)
 		return
 	}
 
 	if models.PayStatus != consts.PayStatusWait {
-		err = gerror.Newf("商户订单号[%v]已被处理，请勿重复操作", data.OutTradeNo)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#MerchantOrderNumberProcessed}"), data.OutTradeNo)
 		return
 	}
 
@@ -75,7 +75,7 @@ func (s *sPay) Notify(ctx context.Context, in *payin.PayNotifyInp) (res *payin.P
 	}
 
 	if ret == 0 {
-		g.Log().Warningf(ctx, "没有被更新的数据行")
+		g.Log().Warningf(ctx, g.I18n().T(ctx, "{#NoUpdateData}"))
 		return
 	}
 

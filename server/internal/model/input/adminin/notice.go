@@ -32,14 +32,14 @@ type NoticeEditModel struct{}
 
 // NoticeDeleteInp 删除字典类型
 type NoticeDeleteInp struct {
-	Id interface{} `json:"id" v:"required#公告ID不能为空" dc:"公告ID"`
+	Id interface{} `json:"id" v:"required#AnnouncementIdNotEmpty" dc:"公告ID"`
 }
 
 type NoticeDeleteModel struct{}
 
 // NoticeViewInp 获取信息
 type NoticeViewInp struct {
-	Id int64 `json:"id" v:"required#公告ID不能为空" dc:"公告ID"`
+	Id int64 `json:"id" v:"required#AnnouncementIdNotEmpty" dc:"公告ID"`
 }
 
 type NoticeViewModel struct {

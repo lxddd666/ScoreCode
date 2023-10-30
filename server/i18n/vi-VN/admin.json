@@ -191,5 +191,21 @@
   "InvalidEventType": "Loại sự kiện không hợp lệ:%v",
   "SMSRecordIdNotEmpty": "ID bản ghi SMS không thể trống",
   "TimingTaskIdNotEmpty": "ID nhiệm vụ thời gian không thể trống",
-  "ConsiderSecurityIssues": "Tạm thời xem xét các vấn đề bảo mật, vui lòng vào cơ sở dữ liệu để xóa"
+  "ConsiderSecurityIssues": "Tạm thời xem xét các vấn đề bảo mật, vui lòng vào cơ sở dữ liệu để xóa",
+  "NoFindUploadFiles": "Không có tệp được tải lên tệp",
+  "InvalidAuthorization": "Ủy quyền không hợp lệ",
+  "AuthorizationInvalidOrExpired": "Ủy quyền không hợp lệ hoặc hết hạn, vui lòng dùng thử",
+  "TypeSelectInvalid": "Lựa chọn loại không hợp lệ, vui lòng kiểm tra",
+  "GenerationNotEmpty": "Loại thế hệ không thể trống",
+  "PhysicalNameNoEmpty": "Tên vật lý không thể trống",
+  "SelectTemplateNotExist": "Mẫu lựa chọn không tồn tại:%v",
+  "PlugTemplateEffective": "Mẫu plug -in phải chọn một phích cắm hiệu quả -trong",
+  "MenuExist": "Mã menu đã tồn tại, vui lòng thay đổi một",
+  "UpperMenuInformationError": "Lỗi thông tin menu trên",
+  "ModifyMenuFailed": "Sửa đổi menu không thành công",
+  "AddMenuFailed": "Menu mới không thành công",
+  "GetMenuDetailFailed": "Nhận lỗi chi tiết của menu, người dùng không có quyền",
+  "LicenseNameNotEmpty": "Tên giấy phép không thể trống",
+  "AppIdNotEmpty": "ID ứng dụng không thể trống",
+  "AuthorizationEndTimeNotEmpty": "Thời gian cuối của ủy quyền không thể trống"
 }

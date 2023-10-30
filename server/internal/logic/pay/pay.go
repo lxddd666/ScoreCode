@@ -9,7 +9,6 @@ package pay
 
 import (
 	"context"
-	"fmt"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
@@ -88,8 +87,8 @@ func (s *sPay) Export(ctx context.Context, in payin.PayListInp) (err error) {
 	}
 
 	var (
-		fileName  = "导出支付日志-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportPayLog}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []payin.PayExportModel
 	)
 
@@ -129,17 +128,17 @@ func (s *sPay) View(ctx context.Context, in payin.PayViewInp) (res *payin.PayVie
 // Status 更新支付日志状态
 func (s *sPay) Status(ctx context.Context, in payin.PayStatusInp) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("ID不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 

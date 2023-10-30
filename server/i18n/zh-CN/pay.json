@@ -1,0 +1,11 @@
+{
+  "WechatPublicAccountSet": "微信公众号支付必须设置openid",
+  "WechatPublicAccountSynAdd": "微信公众号支付必须设置同步通知地址",
+  "BackgroundSetWeb": "请先到后台【系统设置】-【配置管理】中设置网站域名",
+  "WebFormatError": "网站域名格式有误，请检查",
+  "UnwillingPayMethod": "未被支持的支付方式：%v",
+  "MerchantOrderNumberNotExist": "商户订单号[%v]不存在支付记录，请检查",
+  "MerchantOrderNumberProcessed": "商户订单号[%v]已被处理，请勿重复操作",
+  "NoUpdateData": "没有被更新的数据行",
+  "ExportPayLog": "导出支付日志"
+}

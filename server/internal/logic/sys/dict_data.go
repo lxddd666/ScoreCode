@@ -55,7 +55,7 @@ func (s *sSysDictData) Edit(ctx context.Context, in *sysin.DictDataEditInp) (err
 	}
 
 	if in.Type == "" {
-		return gerror.Wrap(err, "类型选择无效，请检查")
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#TypeSelectInvalid}"))
 	}
 
 	_, err = dao.SysDictData.Ctx(ctx).Fields(sysin.DictDataInsertFields{}).Data(in).Insert()

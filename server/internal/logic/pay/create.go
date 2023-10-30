@@ -37,11 +37,11 @@ func (s *sPay) Create(ctx context.Context, in payin.PayCreateInp) (res *payin.Pa
 
 	if in.TradeType == consts.TradeTypeWxMP {
 		if in.Openid == "" {
-			err = gerror.New("微信公众号支付必须设置openid")
+			err = gerror.New(g.I18n().T(ctx, "{#WechatPublicAccountSet}"))
 			return
 		}
 		if in.ReturnUrl == "" {
-			err = gerror.New("微信公众号支付必须设置同步通知地址")
+			err = gerror.New(g.I18n().T(ctx, "{#WechatPublicAccountSynAdd}"))
 			return
 		}
 	}
@@ -110,12 +110,12 @@ func (s *sPay) GenNotifyURL(ctx context.Context, in payin.PayCreateInp) (notifyU
 	}
 
 	if basic.Domain == "" {
-		err = gerror.New("请先到后台【系统设置】-【配置管理】中设置网站域名！")
+		err = gerror.New(g.I18n().T(ctx, "{#BackgroundSetWeb}"))
 		return
 	}
 
 	if !validate.IsURL(basic.Domain) {
-		err = gerror.New("网站域名格式有误，请检查！")
+		err = gerror.New(g.I18n().T(ctx, "{#WebFormatError}"))
 		return
 	}
 
@@ -128,7 +128,7 @@ func (s *sPay) GenNotifyURL(ctx context.Context, in payin.PayCreateInp) (notifyU
 	case consts.PayTypeQQPay:
 		object = pay.NotifyQQPayReq{}
 	default:
-		err = gerror.Newf("未被支持的支付方式：%v", in.PayType)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#UnwillingPayMethod}"), in.PayType)
 		return
 	}
 
