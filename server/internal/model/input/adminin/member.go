@@ -76,7 +76,7 @@ type MemberUpdatePwdInp struct {
 	Id          int64  `json:"id" dc:"用户ID"`
 	Username    string `json:"username" dc:"用户名，未鉴权时需传入"`
 	OldPassword string `json:"oldPassword" v:"required#OriginalPasswordNotEmpty"  dc:"原密码"`
-	NewPassword string `json:"newPassword" v:"required|length:6,18#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
+	NewPassword string `json:"newPassword" v:"required#NewPasswordNotEmpty"  dc:"新密码"`
 }
 
 func (in *MemberUpdatePwdInp) Filter(ctx context.Context) (err error) {
