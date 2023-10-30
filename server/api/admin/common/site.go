@@ -34,7 +34,25 @@ type RegisterCodeReq struct {
 	adminin.RegisterCodeInp
 }
 
+// RestPwdReq 提交账号注册
+type RestPwdReq struct {
+	g.Meta `path:"/site/restPwd" method:"post" tags:"后台基础" summary:"重置密码"`
+	adminin.RestPwdInp
+}
+
+type RestPwdRes struct {
+	*adminin.RegisterModel
+}
+
 type RegisterCodeRes struct{}
+
+// RestPwdCodeReq 重置密码发送验证码
+type RestPwdCodeReq struct {
+	g.Meta `path:"/site/restPwd/sendCode" method:"post" tags:"后台基础" summary:"重置密码发送验证码"`
+	adminin.RegisterCodeInp
+}
+
+type RestPwdCodeRes struct{}
 
 // LoginCodeReq 登录验证码
 type LoginCodeReq struct {

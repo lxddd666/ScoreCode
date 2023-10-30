@@ -54,6 +54,10 @@ type (
 		BindUserContext(ctx context.Context, claims *model.Identity) (err error)
 		// LoginCode 登录发送验证码
 		LoginCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
+		// RestPwd 重置密码
+		RestPwd(ctx context.Context, in *adminin.RestPwdInp) (result *adminin.RegisterModel, err error)
+		// RestPwdCode 重置密码发送验证码
+		RestPwdCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error)
 	}
 	IAdminCash interface {
 		// View 获取指定提现信息

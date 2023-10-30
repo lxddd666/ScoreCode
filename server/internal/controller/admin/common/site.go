@@ -156,3 +156,16 @@ func (c *cSite) Logout(ctx context.Context, _ *common.LoginLogoutReq) (res *comm
 	err = token.Logout(ghttp.RequestFromCtx(ctx))
 	return
 }
+
+// RestPwd 重置密码
+func (c *cSite) RestPwd(ctx context.Context, req *common.RestPwdReq) (res *common.RestPwdRes, err error) {
+	res = new(common.RestPwdRes)
+	res.RegisterModel, err = service.AdminSite().RestPwd(ctx, &req.RestPwdInp)
+	return
+}
+
+// RestPwdCode 重置密码发送验证码
+func (c *cSite) RestPwdCode(ctx context.Context, req *common.RestPwdCodeReq) (res *common.RestPwdCodeRes, err error) {
+	err = service.AdminSite().RestPwdCode(ctx, &req.RegisterCodeInp)
+	return
+}

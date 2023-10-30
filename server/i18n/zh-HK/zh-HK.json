@@ -87,5 +87,7 @@
   "GetMaxSortError": "獲取最大排序，請稍後重試！",
   "GetInfoError": "獲取數據失敗，請稍後重試！",
   "StatusNotEmpty": "狀態不能為空",
-  "StatusError": "狀態不正確"
+  "StatusError": "狀態不正確",
+  "SendEmailError": "發送郵件失敗，請聯繫管理員"
+
 }

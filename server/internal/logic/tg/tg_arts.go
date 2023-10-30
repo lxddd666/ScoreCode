@@ -89,7 +89,7 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	}
 
 	// 处理代理
-	tgUserList, err = s.handlerProxy(ctx, sysOrg, tgUserList)
+	tgUserList, err = s.handlerProxy(ctx, tgUserList)
 	if err != nil {
 		return
 	}
@@ -117,7 +117,7 @@ func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list [
 	return
 }
 
-func (s *sTgArts) handlerProxy(ctx context.Context, sysOrg entity.SysOrg, tgUserList []*entity.TgUser) (loginTgUserList []*entity.TgUser, err error) {
+func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser) (loginTgUserList []*entity.TgUser, err error) {
 
 	// 查看是否正在登录，防止重复登录 ================
 	accounts := array.New[*entity.TgUser](true)
@@ -212,7 +212,7 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 		}
 	}
 	// 处理代理
-	tgUserList, err = s.handlerProxy(ctx, sysOrg, tgUserList)
+	tgUserList, err = s.handlerProxy(ctx, tgUserList)
 	if err != nil {
 		return
 	}

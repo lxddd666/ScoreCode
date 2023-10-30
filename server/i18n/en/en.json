@@ -89,5 +89,6 @@
   "GetMaxSortError": "Get the maximum sort, please try it later!",
   "GetInfoError": "The data failed, please try it later!",
   "StatusNotEmpty": "The state cannot be empty",
-  "StatusError": "Incorrect state"
+  "StatusError": "Incorrect state",
+  "SendEmailError": "Send the email failure, please contact the administrator."
 }
