@@ -137,6 +137,11 @@ func (in *TgUserBindMemberInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+// TgUserUnBindMemberInp 解绑用户
+type TgUserUnBindMemberInp struct {
+	Ids []int64 `json:"ids" v:"required#id不能为空" dc:"id"`
+}
+
 type TgUserBindMemberModel struct{}
 
 // TgImportSessionModel 导入session账号
@@ -184,3 +189,10 @@ func (in *TgUserBindProxyInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgUserBindProxyModel struct{}
+
+// TgUserUnBindProxyInp 解绑代理
+type TgUserUnBindProxyInp struct {
+	Ids []int64 `json:"ids" v:"required#id不能为空" dc:"tg用户id"`
+}
+
+type TgUserUnBindProxyModel struct{}

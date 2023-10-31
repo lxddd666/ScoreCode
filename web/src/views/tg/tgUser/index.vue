@@ -81,15 +81,34 @@
           >
             绑定员工
           </n-button>
+          <n-button
+            type="warning"
+            @click="handleUnBindMember"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/unBindMember'])"
+          >
+            解绑员工
+          </n-button>
 
           <n-button
-            type="primary"
+            type="success"
             @click="bindProxyClick"
             :disabled="batchSelectDisabled"
             class="min-left-space"
             v-if="hasPermission(['/tgUser/bindProxy'])"
           >
             绑定代理
+          </n-button>
+
+          <n-button
+            type="warning"
+            @click="handleUnBindProxy"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/unBindProxy'])"
+          >
+            解绑代理
           </n-button>
 
         </template>
@@ -122,7 +141,15 @@ import {useDialog, useMessage} from 'naive-ui';
 import {BasicTable, TableAction} from '@/components/Table';
 import {BasicForm, useForm} from '@/components/Form/index';
 import {usePermission} from '@/hooks/web/usePermission';
-import {Delete, Export, List, TgBindMember, TgBindProxy} from '@/api/tg/tgUser';
+import {
+  Delete,
+  Export,
+  List,
+  TgBindMember,
+  TgBindProxy,
+  TgUnBindMember,
+  TgUnBindProxy
+} from '@/api/tg/tgUser';
 import {columns, newState, schemas, State} from './model';
 import {DeleteOutlined, ExportOutlined, PlusOutlined} from '@vicons/antd';
 import {useRouter} from 'vue-router';
@@ -282,10 +309,46 @@ function handleBindMember(memberId: number) {
   });
 }
 
+function handleUnBindMember() {
+  dialog.warning({
+    title: '警告',
+    content: '你确定要解除绑定吗？',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      TgUnBindMember({ids: checkedIds.value}).then((_res) => {
+        message.success('解绑成功');
+        reloadTable();
+      });
+    },
+    onNegativeClick: () => {
+      // message.error('取消');
+    },
+  });
+}
+
 function handleBindProxy(id: number) {
   TgBindProxy({proxyId: id, ids: checkedIds.value}).then((_res) => {
     message.success('绑定成功');
     reloadTable();
+  });
+}
+
+function handleUnBindProxy() {
+  dialog.warning({
+    title: '警告',
+    content: '你确定要解除绑定吗？',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      TgUnBindProxy({ids: checkedIds.value}).then((_res) => {
+        message.success('解绑成功');
+        reloadTable();
+      });
+    },
+    onNegativeClick: () => {
+      // message.error('取消');
+    },
   });
 }
 

@@ -1,4 +1,4 @@
-import { tg, jumpExport } from '@/utils/http/axios';
+import {tg, jumpExport} from '@/utils/http/axios';
 
 // 获取TG账号列表
 export function List(params: any) {
@@ -29,8 +29,6 @@ export function Edit(params: any) {
 }
 
 
-
-
 // 获取TG账号指定详情
 export function View(params: any) {
   return tg.request({
@@ -49,6 +47,15 @@ export function TgBindMember(params: any) {
   });
 }
 
+// 解绑员工
+export function TgUnBindMember(params: any) {
+  return tg.request({
+    url: '/tgUser/unBindMember',
+    method: 'POST',
+    params,
+  });
+}
+
 // 绑定代理
 export function TgBindProxy(params: any) {
   return tg.request({
@@ -57,6 +64,16 @@ export function TgBindProxy(params: any) {
     params,
   });
 }
+
+// 解绑代理
+export function TgUnBindProxy(params: any) {
+  return tg.request({
+    url: '/tgUser/unBindProxy',
+    method: 'POST',
+    params,
+  });
+}
+
 
 
 // 导出TG账号
