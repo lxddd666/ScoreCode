@@ -468,7 +468,7 @@ func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
 }
 
 func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(ctx context.Context, in *whatsin.WhatsProxyEditInp) error {
-	resp, err := g.Client().Discovery(nil).Proxy(in.Address).Get(gctx.New(), "https://api.ip.sb/geoip")
+	resp, err := g.Client().Discovery(nil).Proxy(in.Address).Get(gctx.New(), consts.GeoIp)
 	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ProxyNotAvailable}"))
 		in.Status = 2

@@ -55,7 +55,7 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 
 // List 获取TG账号列表
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
-	mod := s.Model(ctx)
+	mod := s.Model(ctx).As("tu")
 
 	// 查询账号号码
 	if in.Username != "" {
@@ -102,7 +102,10 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		return
 	}
 
-	if err = mod.Fields(tgin.TgUserListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
+	if err = mod.
+		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tu.member_id").
+		Fields("tu.*", "ham.member_username").
+		Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取TG账号列表失败，请稍后重试！")
 		return
 	}
@@ -454,7 +457,7 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 			return gerror.Wrap(err, "绑定失败，请稍后重试！")
 		}
 		//更新代理账号的绑定数量
-		_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy.Address}).
+		_, err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).
 			Update(do.SysProxy{AssignedCount: count})
 		if err != nil {
 			return gerror.Wrap(err, "绑定失败，请稍后重试！")

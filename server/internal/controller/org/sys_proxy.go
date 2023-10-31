@@ -66,3 +66,9 @@ func (c *cSysProxy) Import(ctx context.Context, req *sysproxy.ImportReq) (res *s
 	err = service.OrgSysProxy().Import(ctx, req.List)
 	return
 }
+
+// Test 测试代理
+func (c *cSysProxy) Test(ctx context.Context, req *sysproxy.TestProxyReq) (res *sysproxy.TestProxyRes, err error) {
+	err = service.OrgSysProxy().Test(ctx, req.Ids)
+	return
+}

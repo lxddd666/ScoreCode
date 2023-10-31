@@ -40,6 +40,23 @@ export function View(params: any) {
   });
 }
 
+// 绑定员工
+export function TgBindMember(params: any) {
+  return tg.request({
+    url: '/tgUser/bindMember',
+    method: 'POST',
+    params,
+  });
+}
+
+// 绑定代理
+export function TgBindProxy(params: any) {
+  return tg.request({
+    url: '/tgUser/bindProxy',
+    method: 'POST',
+    params,
+  });
+}
 
 
 // 导出TG账号

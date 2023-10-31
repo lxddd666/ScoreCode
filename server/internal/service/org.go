@@ -31,6 +31,8 @@ type (
 		Status(ctx context.Context, in *orgin.SysProxyStatusInp) (err error)
 		// Import 导入代理
 		Import(ctx context.Context, list []*orgin.SysProxyEditInp) (err error)
+		// Test 测试代理
+		Test(ctx context.Context, ids []uint64) (err error)
 	}
 )
 

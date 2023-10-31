@@ -64,15 +64,14 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onMounted, ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useMessage } from 'naive-ui';
-  import { View } from '@/api/tg/tgUser';
-  import { newState, options } from './model';
-  import { getOptionLabel, getOptionTag } from '@/utils/hotgo';
-  import { getFileExt } from '@/utils/urlUtils';
+import {computed, onMounted, ref} from 'vue';
+import {useRouter} from 'vue-router';
+import {useMessage} from 'naive-ui';
+import {View} from '@/api/tg/tgUser';
+import {newState, options} from './model';
+import {getOptionLabel, getOptionTag} from '@/utils/hotgo';
 
-  const message = useMessage();
+const message = useMessage();
   const router = useRouter();
   const id = Number(router.currentRoute.value.params.id);
   const formValue = ref(newState(null));

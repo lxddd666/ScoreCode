@@ -39,6 +39,7 @@ type SysProxyEditInp struct {
 	Type           string `json:"type"           description:"代理类型"`
 	MaxConnections int64  `json:"maxConnections" description:"最大连接数"`
 	Region         string `json:"region"         description:"地区"`
+	Delay          int    `json:"delay"     description:"延迟"`
 	Comment        string `json:"comment"        description:"备注"`
 }
 
@@ -112,6 +113,7 @@ type SysProxyListModel struct {
 	AssignedCount  int64       `json:"assignedCount"  dc:"已分配账号数量"`
 	LongTermCount  int64       `json:"longTermCount"  dc:"长期未登录数量"`
 	Region         string      `json:"region"         dc:"地区"`
+	Delay          string      `json:"delay" dc:"延迟"`
 	Comment        string      `json:"comment"        dc:"备注"`
 	Status         int         `json:"status"         dc:"状态"`
 	CreatedAt      *gtime.Time `json:"createdAt"      dc:"创建时间"`
