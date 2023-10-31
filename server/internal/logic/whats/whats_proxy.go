@@ -2,7 +2,6 @@ package whats
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -88,7 +87,7 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取代理管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetProxyManagementDataFailed}"))
 		return
 	}
 
@@ -97,7 +96,7 @@ func (s *sWhatsProxy) List(ctx context.Context, in *whatsin.WhatsProxyListInp) (
 	}
 
 	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsProxy.Columns().UpdatedAt).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取代理管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetProxyManagementListFailed}"))
 		return
 	}
 	return
@@ -117,8 +116,8 @@ func (s *sWhatsProxy) Export(ctx context.Context, in *whatsin.WhatsProxyListInp)
 	}
 
 	var (
-		fileName  = "导出代理管理-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []whatsin.WhatsProxyExportModel
 	)
 
@@ -134,11 +133,11 @@ func (s *sWhatsProxy) Export(ctx context.Context, in *whatsin.WhatsProxyListInp)
 func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (err error) {
 	user := contexts.GetUser(ctx)
 	// 验证'Address'唯一
-	if err = hgorm.IsUnique(ctx, &dao.WhatsProxy, g.Map{dao.WhatsProxy.Columns().Address: in.Address}, "代理地址已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.WhatsProxy, g.Map{dao.WhatsProxy.Columns().Address: in.Address}, g.I18n().T(ctx, "{#ProxyAddressExist}"), in.Id); err != nil {
 		return
 	}
 	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
-	err = s.UrlPingIpsbAndGetRegion(in)
+	err = s.UrlPingIpsbAndGetRegion(ctx, in)
 	if err != nil {
 		return err
 	}
@@ -151,12 +150,12 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 			g.Model(dao.WhatsProxyDept.Table()).Fields(dao.WhatsProxyDept.Columns().OrgId).
 				Where(dao.WhatsProxyDept.Columns().ProxyAddress, in.Address).Scan(&pdModel)
 			if pdModel.OrgId != user.OrgId {
-				err = gerror.Wrap(err, "修改非公司员工，不能修改数据！")
+				err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyNoCompanyEmployee}"))
 				return err
 			}
 			// 判断用户是否拥有权限
 			if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-				err = gerror.Wrap(err, "该用户没权限修改该代理信息权限，请联系管理员！")
+				err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityModifyProxy}"))
 				return
 			}
 
@@ -164,7 +163,7 @@ func (s *sWhatsProxy) Edit(ctx context.Context, in *whatsin.WhatsProxyEditInp) (
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsProxyUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改代理管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyProxyManagementFailed}"))
 			return err
 		}
 		return
@@ -225,12 +224,12 @@ func (s *sWhatsProxy) Delete(ctx context.Context, in *whatsin.WhatsProxyDeleteIn
 		// 如果不是超管
 		// 删除只能是同公司的才可以
 		if pdModel.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "非公司员工，不能修改数据！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNoModifyData}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限删除该代理信息权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityDeleteProxyInformation}"))
 			return
 		}
 	} else {
@@ -269,21 +268,21 @@ func (s *sWhatsProxy) View(ctx context.Context, in *whatsin.WhatsProxyViewInp) (
 			LeftJoin(dao.WhatsProxy.Table()+" p", "pd."+dao.WhatsProxyDept.Columns().ProxyAddress+"=p."+dao.WhatsProxy.Columns().Address).
 			Where("p."+dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxyDept)
 		if err != nil {
-			err = gerror.Wrap(err, "查看代理管理详情失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#CheckProxyManagementDetailFailed}"))
 			return
 		}
 		if user.OrgId != whatsProxyDept.OrgId {
-			err = gerror.Wrap(err, "非本公司员工，不可查看代理详情")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNoViewProxyDetail}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限查看该代理信息权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityViewProxyInformationAuthority}"))
 			return
 		}
 	}
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取代理管理信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetProxyManagementInformation}"))
 		return
 	}
 	return
@@ -300,23 +299,23 @@ func (s *sWhatsProxy) Status(ctx context.Context, in *whatsin.WhatsProxyStatusIn
 			LeftJoin(dao.WhatsProxy.Table()+"p", "pd."+dao.WhatsProxyDept.Columns().ProxyAddress+"=p."+dao.WhatsProxy.Columns().Address).
 			Where("p."+dao.WhatsProxy.Columns().Id, in.Id).Scan(&whatsProxyDept)
 		if err != nil {
-			err = gerror.Wrap(err, "查看代理管理详情失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#CheckProxyManagementDetailFailed}"))
 			return
 		}
 		if user.OrgId != whatsProxyDept.OrgId {
-			err = gerror.Wrap(err, "非本公司员工，不可查看代理详情")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNoViewProxyDetail}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限修改该代理信息状态权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityModifyProxyInformationState}"))
 			return
 		}
 	}
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.WhatsProxy.Columns().Status: in.Status,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, "更新代理管理状态失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#UpdateProxyManagementStateFailed}"))
 		return
 	}
 	return
@@ -366,7 +365,7 @@ func (s *sWhatsProxy) Upload(ctx context.Context, in []*whatsin.WhatsProxyUpload
 		return
 	})
 	if err != nil {
-		return nil, gerror.Wrap(err, "上传代理失败，请稍后重试！")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#UploadProxyFailed}"))
 	}
 	return
 
@@ -380,7 +379,7 @@ func (s *sWhatsProxy) AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyA
 	)
 	flag := service.AdminMember().VerifySuperId(ctx, user.Id)
 	if !flag {
-		err = gerror.Wrap(err, "非管理员操作，不能添加代理！！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoAdministratorOperation}"))
 		return
 	}
 	if len(in.ProxyAddresses) > 0 {
@@ -391,7 +390,7 @@ func (s *sWhatsProxy) AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyA
 		}
 		_, err = g.Model(dao.WhatsProxyDept.Table()).Data(list).Save()
 		if err != nil {
-			err = gerror.Wrap(err, "公司关联代理添加失败，请联系管理员！！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#CompanyAssociateProxyFailed}"))
 			return
 		}
 	}
@@ -434,7 +433,7 @@ func (s *sWhatsProxy) ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgPr
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取代理管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetProxyManagementDataFailed}"))
 		return
 	}
 
@@ -443,7 +442,7 @@ func (s *sWhatsProxy) ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgPr
 	}
 
 	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsProxy.Columns().UpdatedAt).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取代理管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetProxyManagementListFailed}"))
 		return
 	}
 	return
@@ -458,7 +457,7 @@ func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
 		Where("p."+dao.WhatsProxy.Columns().Id, id)
 	totalCount, err := mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementDataFailed}"))
 		return false
 	}
 
@@ -468,10 +467,10 @@ func (s *sWhatsProxy) updateDateRoleById(ctx context.Context, id int64) bool {
 	return true
 }
 
-func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) error {
+func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(ctx context.Context, in *whatsin.WhatsProxyEditInp) error {
 	resp, err := g.Client().Discovery(nil).Proxy(in.Address).Get(gctx.New(), "https://api.ip.sb/geoip")
 	if err != nil {
-		err = gerror.Wrap(err, "代理不可用，代理请求失败")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ProxyNotAvailable}"))
 		in.Status = 2
 		return err
 	}
@@ -480,7 +479,7 @@ func (s *sWhatsProxy) UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) err
 	data := &entity.WhatsProxy{}
 	err = gjson.New(resp.ReadAllString()).Scan(data)
 	if err != nil {
-		err = gerror.Wrap(err, "代理区域解析错误")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ProxyAreaAnalysisError}"))
 		return err
 	}
 	in.Region = data.Region

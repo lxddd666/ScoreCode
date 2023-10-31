@@ -52,7 +52,7 @@ type WhatsMsgEditModel struct{}
 
 // WhatsMsgDeleteInp 删除消息记录
 type WhatsMsgDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *WhatsMsgDeleteInp) Filter(ctx context.Context) (err error) {
@@ -63,7 +63,7 @@ type WhatsMsgDeleteModel struct{}
 
 // WhatsMsgViewInp 获取指定消息记录信息
 type WhatsMsgViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *WhatsMsgViewInp) Filter(ctx context.Context) (err error) {
@@ -137,8 +137,8 @@ type WhatsMsgExportModel struct {
 
 // WhatsMsgMoveInp 修改/新增消息记录
 type WhatsMsgMoveInp struct {
-	Source int64 `json:"source" v:"required#原账号不能为空"       dc:"原账号"`
-	Target int64 `json:"target" v:"required#目标账号不能为空"       dc:"目标账号"`
+	Source int64 `json:"source" v:"required#SourceAccountNoEmpty"       dc:"原账号"`
+	Target int64 `json:"target" v:"required#TargetAccountNoEmpty"       dc:"目标账号"`
 }
 
 func (in *WhatsMsgMoveInp) Filter(ctx context.Context) (err error) {

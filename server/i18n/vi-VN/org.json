@@ -1,4 +1,12 @@
 {
   "ExportOrgTitle": "Xuất thông tin công ty",
-  "ExportOrgSheetName": "Chỉ mục các điều kiện %v, trang %v, xuất hiện hiện thời là %v đầu tiên, trang này %v"
+  "ExportOrgSheetName": "Chỉ mục các điều kiện %v, trang %v, xuất hiện hiện thời là %v đầu tiên, trang này %v",
+  "IncreaseBalance": "Tăng cân bằng:%v",
+  "DeductionBalance": "Cân bằng khấu trừ:%v",
+  "AddPoints": "Tăng điểm:%v",
+  "DeductionPoints": "Khấu trừ:%v",
+  "ProxyAddressNotEmpty": "Địa chỉ proxy không thể trống",
+  "ProxyTypeNotEmpty": "Loại proxy không thể trống",
+  "ProxyTypeIncorrect": "Giá trị loại proxy không chính xác",
+  "MaxConnectionNumber": "Số lượng kết nối tối đa không thể trống"
 }

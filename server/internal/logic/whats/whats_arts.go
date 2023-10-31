@@ -49,7 +49,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 		return err
 	}
 	if len(reqAccounts) < 1 {
-		return gerror.New("请选择未登录账号")
+		return gerror.New(g.I18n().T(ctx, "{#SelectNoLogAccount}"))
 	}
 
 	// 查看是否正在登录，防止重复登录 ================
@@ -89,7 +89,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	}
 
 	if accounts.IsEmpty() {
-		return gerror.Newf("选择登录的账号[%s]已经在登录中....", reqAccounts[0].Account)
+		return gerror.Newf(g.I18n().Tf(ctx, "{#SelectLoggingAccount}"), reqAccounts[0].Account)
 	}
 	var loginAccounts = accounts.Slice()
 
@@ -103,7 +103,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 	if err != nil {
 		return err
 	}
-	g.Log().Info(ctx, "同步结果：", syncRes.GetActionResult().String())
+	g.Log().Info(ctx, g.I18n().T(ctx, "{#SynResult}"), syncRes.GetActionResult().String())
 	req := s.login(ctx, loginAccounts)
 	loginRes, err := c.Connect(ctx, req)
 
@@ -116,7 +116,7 @@ func (s *sWhatsArts) Login(ctx context.Context, ids []int) (err error) {
 		usernameMap.Set(item.Account, userId)
 	}
 	_, _ = g.Redis().HSet(ctx, consts.WhatsLoginAccountKey, usernameMap.Map())
-	g.Log().Info(ctx, "登录结果：", loginRes.GetActionResult().String())
+	g.Log().Info(ctx, g.I18n().T(ctx, "{#LogResult}"), loginRes.GetActionResult().String())
 	return err
 }
 
@@ -181,7 +181,7 @@ func (s *sWhatsArts) WhatsCheckLogin(ctx context.Context, account uint64) (err e
 		return err
 	}
 	if userJid.IsEmpty() {
-		return gerror.New("未登录")
+		return gerror.New(g.I18n().T(ctx, "{#NoLog}"))
 	}
 	key := fmt.Sprintf("%s%d", consts.WhatsActionLoginAccounts, account)
 	v, err := g.Redis().Get(ctx, key)
@@ -189,7 +189,7 @@ func (s *sWhatsArts) WhatsCheckLogin(ctx context.Context, account uint64) (err e
 		return err
 	}
 	if v.IsEmpty() {
-		return gerror.New("未登录")
+		return gerror.New(g.I18n().T(ctx, "{#NoLog}"))
 	}
 	return
 }
@@ -403,7 +403,7 @@ func (s *sWhatsArts) AccountSyncContact(ctx context.Context, in *whatsin.WhatsSy
 		for _, contact := range contacts {
 			flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(contact))
 			if err != nil {
-				return "添加同步联系人报错", err
+				return g.I18n().T(ctx, "{#AddSynContactError}"), err
 			}
 			if flag != 1 {
 				// 还未添加
@@ -540,12 +540,12 @@ func (s *sWhatsArts) handlerRandomProxy(ctx context.Context, notAccounts *array.
 
 	proxy, err := g.Redis().RPop(ctx, consts.WhatsRandomProxyList)
 	if err != nil {
-		return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetRandomAgentFailed}")+err.Error()), nil
 	}
 	if proxy.IsEmpty() {
 		err = s.getRandomProxyToRedis(ctx)
 		if err != nil {
-			return gerror.Wrap(err, "获取随机代理失败:"+err.Error()), nil
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#GetRandomAgentFailed}")+err.Error()), nil
 		}
 		return s.handlerRandomProxy(ctx, notAccounts)
 	}
@@ -630,7 +630,7 @@ func (s *sWhatsArts) getRandomProxyToRedis(ctx context.Context) (err error) {
 		Scan(&list)
 
 	if len(list) == 0 {
-		return gerror.New("没有代理可用！请联系管理员")
+		return gerror.New(g.I18n().T(ctx, "{#NoProxyContactAdministrator}"))
 	}
 	// 将其放入到redis中
 	proxies := make([]interface{}, 0)

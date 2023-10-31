@@ -1,4 +1,12 @@
 {
   "ExportOrgTitle": "導出公司信息",
-  "ExportOrgSheetName": "索引條件共%v行,共%v頁,當前導出是第%v頁,本頁共%v行"
+  "ExportOrgSheetName": "索引條件共%v行,共%v頁,當前導出是第%v頁,本頁共%v行",
+  "IncreaseBalance": "增加餘額:%v",
+  "DeductionBalance": "扣除餘額:%v",
+  "AddPoints": "增加積分:%v",
+  "DeductionPoints": "扣除積分:%v",
+  "ProxyAddressNotEmpty": "代理地址不能為空",
+  "ProxyTypeNotEmpty": "代理類型不能為空",
+  "ProxyTypeIncorrect": "代理類型值不正確",
+  "MaxConnectionNumber": "最大連接數不能為空"
 }

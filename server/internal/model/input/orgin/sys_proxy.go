@@ -44,20 +44,20 @@ type SysProxyEditInp struct {
 
 func (in *SysProxyEditInp) Filter(ctx context.Context) (err error) {
 	// 验证代理地址
-	if err := g.Validator().Rules("required").Data(in.Address).Messages("代理地址不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Address).Messages(g.I18n().T(ctx, "{#ProxyAddressNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证代理类型
-	if err := g.Validator().Rules("required").Data(in.Type).Messages("代理类型不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Type).Messages(g.I18n().T(ctx, "{#ProxyTypeNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
-	if err := g.Validator().Rules("in:http,https,socks5").Data(in.Type).Messages("代理类型值不正确").Run(ctx); err != nil {
+	if err := g.Validator().Rules("in:http,https,socks5").Data(in.Type).Messages(g.I18n().T(ctx, "{#ProxyTypeIncorrect}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证最大连接数
-	if err := g.Validator().Rules("required").Data(in.MaxConnections).Messages("最大连接数不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.MaxConnections).Messages(g.I18n().T(ctx, "{#MaxConnectionNumber}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -68,7 +68,7 @@ type SysProxyEditModel struct{}
 
 // SysProxyDeleteInp 删除代理管理
 type SysProxyDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *SysProxyDeleteInp) Filter(ctx context.Context) (err error) {
@@ -79,7 +79,7 @@ type SysProxyDeleteModel struct{}
 
 // SysProxyViewInp 获取指定代理管理信息
 type SysProxyViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *SysProxyViewInp) Filter(ctx context.Context) (err error) {
@@ -135,23 +135,23 @@ type SysProxyExportModel struct {
 
 // SysProxyStatusInp 更新代理管理状态
 type SysProxyStatusInp struct {
-	Id     int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 	Status int   `json:"status" dc:"状态"`
 }
 
 func (in *SysProxyStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New(g.I18n().T(ctx, "ID不能为空"))
+		err = gerror.New(g.I18n().T(ctx, g.I18n().T(ctx, "{#IdNotEmpty}")))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New(g.I18n().T(ctx, "状态不能为空"))
+		err = gerror.New(g.I18n().T(ctx, g.I18n().T(ctx, "{#StateNotEmpty}")))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New(g.I18n().T(ctx, "状态不正确"))
+		err = gerror.New(g.I18n().T(ctx, g.I18n().T(ctx, "{#StateIncorrect}")))
 		return
 	}
 	return

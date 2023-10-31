@@ -114,7 +114,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取账号管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountManagementDataFailed}"))
 		return
 	}
 
@@ -122,7 +122,7 @@ func (s *sWhatsAccount) List(ctx context.Context, in *whatsin.WhatsAccountListIn
 		return
 	}
 	if err = mod.Fields(fields).Page(in.Page, in.PerPage).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取账号管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountManagementListFailed}"))
 		return
 	}
 	return
@@ -137,27 +137,27 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 		return
 	}
 	if gutil.IsEmpty(account) {
-		return gerror.New("账号不存在")
+		return gerror.New(g.I18n().T(ctx, "{#AccountNotExist}"))
 	}
 	// 修改
 	if service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsAccountUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyAccountFailed}"))
 		}
 	} else {
 		accountMenbrt := entity.WhatsAccountMember{}
 		g.Model(dao.WhatsAccountMember.Table()).Fields(dao.WhatsAccountMember.Columns().OrgId, dao.WhatsAccountMember.Columns().DeptId).
 			Where(dao.WhatsAccount.Columns().Account, in.Account).Scan(&accountMenbrt)
 		if accountMenbrt.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "非公司员工操作账号数据！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployee}"))
 			return
 		}
 
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限删除该账号信息权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityDeleteInformation}"))
 			return
 		}
 		if _, err = handler.Model(dao.WhatsAccountMember.Ctx(ctx)).
@@ -165,7 +165,7 @@ func (s *sWhatsAccount) Edit(ctx context.Context, in *whatsin.WhatsAccountEditIn
 			Where(dao.WhatsAccountMember.Columns().Account, account.Account).
 			Data(do.WhatsAccountMember{Comment: in.Comment,
 				ProxyAddress: in.ProxyAddress}).Update(); err != nil {
-			err = gerror.Wrap(err, "修改账号失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyAccountFailed}"))
 		}
 
 	}
@@ -183,16 +183,16 @@ func (s *sWhatsAccount) Delete(ctx context.Context, in *whatsin.WhatsAccountDele
 			LeftJoin(dao.WhatsAccount.Table()+" a", " am."+dao.WhatsAccountMember.Columns().Account+"=a."+dao.WhatsAccount.Columns().Account).
 			Where("a."+dao.WhatsAccount.Columns().Id, in.Id).Where("am."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId).Scan(&accountMember)
 		if err != nil {
-			err = gerror.Wrap(err, "删除账号失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteAccountFailed}"))
 			return
 		}
 		if accountMember.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "非该公司员工不可删除该公司账号")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNotDeleteAccount}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限删除该账号信息权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityDeleteInformation}"))
 			return
 		}
 	}
@@ -235,22 +235,22 @@ func (s *sWhatsAccount) View(ctx context.Context, in *whatsin.WhatsAccountViewIn
 			LeftJoin(dao.WhatsAccount.Table()+" a", " am."+dao.WhatsAccountMember.Columns().Account+"=a."+dao.WhatsAccount.Columns().Account).
 			Where("a."+dao.WhatsAccount.Columns().Id, in.Id).Where("am."+dao.WhatsAccountMember.Columns().OrgId, user.OrgId).Scan(&accountMember)
 		if err != nil {
-			err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountInformationFailed}"))
 			return
 		}
 		if accountMember.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNotViewAccount}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限查看该账号信息权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityViewInformation}"))
 			return
 		}
 	}
 
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountInformationFailed}"))
 		return
 	}
 
@@ -273,7 +273,7 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 		account := entity.WhatsAccount{}
 		bytes, err := whatsutil.AccountDetailToByte(inp, keyBytes, viBytes)
 		if err != nil {
-			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+			return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#UploadAccountFailed}"))
 		}
 		account.Encryption = bytes
 		account.Account = inp.Account
@@ -303,12 +303,12 @@ func (s *sWhatsAccount) Upload(ctx context.Context, in []*whatsin.WhatsAccountUp
 			return
 		})
 		if err != nil {
-			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+			return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#UploadAccountFailed}"))
 		}
 	} else {
 		_, err = s.Model(ctx).Fields(columns.Account, columns.IsOnline, columns.Encryption).Save(list)
 		if err != nil {
-			return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+			return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#UploadAccountFailed}"))
 		}
 	}
 	return
@@ -320,17 +320,17 @@ func (s *sWhatsAccount) UnBind(ctx context.Context, in *whatsin.WhatsAccountUnBi
 	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		_, err = tx.Model(dao.WhatsAccount.Table()).WherePri(in.Id).Update(do.WhatsAccount{ProxyAddress: ""})
 		if err != nil {
-			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		//查询绑定该代理的账号数量
 		count, err := tx.Model(dao.WhatsAccount.Table()).Where(do.WhatsAccount{ProxyAddress: in.ProxyAddress}).Count()
 		if err != nil {
-			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		//修改代理绑定数量
 		_, err = tx.Model(dao.WhatsProxy.Table()).Where(do.WhatsProxy{Address: in.ProxyAddress}).Update(do.WhatsProxy{ConnectedCount: count})
 		if err != nil {
-			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		return
 	})
@@ -345,21 +345,21 @@ func (s *sWhatsAccount) Bind(ctx context.Context, in *whatsin.WhatsAccountBindIn
 		//查找是否存在该代理账号
 		account, err := tx.Model(dao.WhatsProxy.Table()).Where(do.WhatsProxy{Address: in.ProxyAddress}).Count()
 		if err != nil || account == 0 {
-			return gerror.Wrap(err, "绑定失败，请检查代理账号是否存在！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#BindFailedCheckProxy}"))
 		}
 		_, err = tx.Model(dao.WhatsAccount.Table()).WherePri(in.Id).Update(do.WhatsAccount{ProxyAddress: in.ProxyAddress})
 		if err != nil || account == 0 {
-			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#BindFailed}"))
 		}
 		count, err := s.Model(ctx).Where(dao.WhatsAccount.Columns().ProxyAddress, in.ProxyAddress).Count()
 		if err != nil {
-			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#BindFailed}"))
 		}
 		//更新代理账号的绑定数量
 		_, err = tx.Model(dao.WhatsProxy.Table()).Where(do.WhatsProxy{Address: in.ProxyAddress}).
 			Update(do.WhatsProxy{ConnectedCount: count})
 		if err != nil {
-			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#BindFailed}"))
 		}
 		return
 	})
@@ -429,7 +429,7 @@ func (s *sWhatsAccount) LoginCallback(ctx context.Context, res []callback.LoginC
 			acColumns := dao.WhatsAccountContacts.Columns()
 			contactPhoneList, err := handler.Model(dao.WhatsAccountContacts.Ctx(ctx)).Fields(acColumns.Phone).Where(acColumns.Account, item.UserJid).Array()
 			if err != nil {
-				return gerror.Wrap(err, "登录获取已同步联系人失败，请联系管理员！")
+				return gerror.Wrap(err, g.I18n().T(ctx, "{#LoginObtainSynContact}"))
 			}
 			if len(contactPhoneList) > 0 {
 				// 存放到redis中以集合方式存储
@@ -504,7 +504,7 @@ func (s *sWhatsAccount) updateDateRoleById(ctx context.Context, id int64) bool {
 	mod = mod.Handler(handler.FilterAuthWithField("wam." + dao.WhatsAccountMember.Columns().MemberId))
 	totalCount, err := mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementDataFailed}"))
 		return false
 	}
 
@@ -524,7 +524,7 @@ func (s *sWhatsAccount) getDateRoleByAccount(ctx context.Context, account string
 	mod = mod.Handler(handler.FilterAuthWithField("wam." + dao.WhatsAccountMember.Columns().MemberId))
 	totalCount, err := mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementDataFailed}"))
 		return false
 	}
 
@@ -548,23 +548,23 @@ func (s *sWhatsAccount) GetContactList(ctx context.Context, in *whatsin.WhatsAcc
 			Where(dao.WhatsAccountMember.Columns().Account, in.Account).
 			Scan(&accountMember)
 		if err != nil {
-			err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountInformationFailed}"))
 			return
 		}
 		if accountMember.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNotViewAccount}"))
 			return
 		}
 		err = s.Model(ctx).Fields(dao.WhatsAccount.Columns().Id).
 			Where(dao.WhatsAccount.Columns().Account, in.Account).Scan(&accountInfo)
 		if err != nil {
-			err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountInformationFailed}"))
 			return
 		}
 
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(accountInfo.Id)) {
-			err = gerror.Wrap(err, "该用户没权限查看该账号信息权限，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityViewInformation}"))
 			return
 		}
 	}
@@ -575,7 +575,7 @@ func (s *sWhatsAccount) GetContactList(ctx context.Context, in *whatsin.WhatsAcc
 		Scan(&res)
 
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactInformationFailed}"))
 		return
 	}
 
@@ -600,15 +600,15 @@ func (s *sWhatsAccount) MemberBindAccount(ctx context.Context, in *whatsin.Membe
 					Where(dao.WhatsAccountMember.Columns().Account, account).
 					Scan(&accountMember)
 				if err != nil {
-					err = gerror.Wrap(err, "获取账号信息失败，请稍后重试！")
+					err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountInformationFailed}"))
 					return
 				}
 				if accountMember.OrgId != user.OrgId {
-					err = gerror.Wrap(err, "非公司员工，无法查看该公司账号信息！")
+					err = gerror.Wrap(err, g.I18n().T(ctx, "{#NoCompanyEmployeeNotViewAccount}"))
 					return
 				}
 				if !s.getDateRoleByAccount(ctx, account) {
-					err = gerror.Wrap(err, "该用户没权限绑定该账号信息权限，请联系管理员！")
+					err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityBindInformation}"))
 					return
 				}
 			}

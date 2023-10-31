@@ -7,7 +7,6 @@ package adminin
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -294,14 +293,14 @@ func (in *MemberAddBalanceInp) Filter(ctx context.Context) (err error) {
 		in.SelfCreditGroup = consts.CreditGroupOpIncr
 		in.OtherNum = in.Num
 		in.OtherCreditGroup = consts.CreditGroupIncr
-		in.Remark = fmt.Sprintf("增加余额:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#IncreaseBalance}", in.OtherNum)
 	} else {
 		// 扣款
 		in.SelfNum = in.Num
 		in.SelfCreditGroup = consts.CreditGroupOpDecr
 		in.OtherNum = -in.Num
 		in.OtherCreditGroup = consts.CreditGroupDecr
-		in.Remark = fmt.Sprintf("扣除余额:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#DeductionBalance}", in.OtherNum)
 	}
 
 	in.AppId = contexts.GetModule(ctx)
@@ -337,14 +336,14 @@ func (in *MemberAddIntegralInp) Filter(ctx context.Context) (err error) {
 		in.SelfCreditGroup = consts.CreditGroupOpIncr
 		in.OtherNum = in.Num
 		in.OtherCreditGroup = consts.CreditGroupIncr
-		in.Remark = fmt.Sprintf("增加积分:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#AddPoints}", in.OtherNum)
 	} else {
 		// 扣款
 		in.SelfNum = in.Num
 		in.SelfCreditGroup = consts.CreditGroupOpDecr
 		in.OtherNum = -in.Num
 		in.OtherCreditGroup = consts.CreditGroupDecr
-		in.Remark = fmt.Sprintf("扣除积分:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#DeductionPoints}", in.OtherNum)
 	}
 
 	in.AppId = contexts.GetModule(ctx)
