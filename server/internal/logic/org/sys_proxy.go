@@ -101,7 +101,7 @@ func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (e
 	}
 
 	var (
-		fileName  = "导出代理管理-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName  = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
 		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []orgin.SysProxyExportModel
 	)
@@ -117,7 +117,7 @@ func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (e
 // Edit 修改/新增代理管理
 func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err error) {
 	// 验证'Address'唯一
-	if err = hgorm.IsUnique(ctx, &dao.SysProxy, g.Map{dao.SysProxy.Columns().Address: in.Address}, "代理地址已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.SysProxy, g.Map{dao.SysProxy.Columns().Address: in.Address}, g.I18n().T(ctx, "{#ProxyAddressExist}"), in.Id); err != nil {
 		return
 	}
 	// 修改
@@ -125,7 +125,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 		if _, err = s.Model(ctx).
 			Fields(orgin.SysProxyUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "{#EditInfoError}")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		}
 		return
 	}
@@ -134,7 +134,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(orgin.SysProxyInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "{#AddInfoError}")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 	}
 	return
 }
@@ -189,7 +189,7 @@ func (s *sOrgSysProxy) Import(ctx context.Context, list []*orgin.SysProxyEditInp
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(orgin.SysProxyInsertFields{}).
 		Data(proxyList.Slice()).Save(); err != nil {
-		err = gerror.Wrap(err, "{#AddInfoError}")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 	}
 	return
 }
