@@ -179,6 +179,10 @@ export const columns = [
     key: 'region',
   },
   {
+    title: '延迟',
+    key: 'delay',
+  },
+  {
     title: '备注',
     key: 'comment',
   },
@@ -237,7 +241,6 @@ export const uploadColumns = [
   },
 
 
-
 ];
 
 
@@ -245,8 +248,8 @@ async function loadOptions() {
   options.value = await Dicts({
     types: [
       'proxy_type',
-    'sys_normal_disable',
-   ],
+      'sys_normal_disable',
+    ],
   });
   for (const item of schemas.value) {
     switch (item.field) {
@@ -256,7 +259,7 @@ async function loadOptions() {
       case 'status':
         item.componentProps.options = options.value.sys_normal_disable;
         break;
-     }
+    }
   }
 }
 

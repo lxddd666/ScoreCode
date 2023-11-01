@@ -64,7 +64,7 @@ type BindMemberRes struct{}
 // UnBindMemberReq 解绑用户
 type UnBindMemberReq struct {
 	g.Meta `path:"/tgUser/unBindMember" method:"post" tags:"tg-账号管理" summary:"解绑用户"`
-	tgin.TgUserBindMemberInp
+	tgin.TgUserUnBindMemberInp
 }
 
 type UnBindMemberRes struct{}
@@ -89,7 +89,7 @@ type BindProxyRes struct{}
 // UnBindProxyReq 解绑代理
 type UnBindProxyReq struct {
 	g.Meta `path:"/tgUser/unBindProxy" method:"post" tags:"tg-账号管理" summary:"解绑代理"`
-	tgin.TgUserBindProxyInp
+	tgin.TgUserUnBindProxyInp
 }
 
 type UnBindProxyRes struct{}

@@ -190,5 +190,22 @@
   "ExportServiceLog": "導出服務日誌-",
   "InvalidEventType": "無效的事件類型:%v",
   "SMSRecordIdNotEmpty": "短信記錄ID不能為空",
-  "TimingTaskIdNotEmpty": "定時任務ID不能為空"
+  "TimingTaskIdNotEmpty": "定時任務ID不能為空",
+  "ConsiderSecurityIssues": "暫時考慮到安全問題，請到數據庫清空",
+  "NoFindUploadFiles": "沒有找到上傳的文件",
+  "InvalidAuthorization": "無效的授權方式",
+  "AuthorizationInvalidOrExpired": "授權無效或已過期，請重試",
+  "TypeSelectInvalid": "類型選擇無效，請檢查",
+  "GenerationNotEmpty": "生成類型不能為空",
+  "PhysicalNameNoEmpty": "實體名稱不能為空",
+  "SelectTemplateNotExist": "選擇的模板不存在:%v",
+  "PlugTemplateEffective": "插件模板必須選擇一個有效的插件",
+  "MenuExist": "菜單編碼已存在，請換一個",
+  "UpperMenuInformationError": "上級菜單信息錯誤",
+  "ModifyMenuFailed": "修改菜單失敗",
+  "AddMenuFailed": "新增菜單失敗",
+  "GetMenuDetailFailed": "獲取菜單明細失敗，該用戶沒有該菜單權限",
+  "LicenseNameNotEmpty": "許可名稱不能為空",
+  "AppIdNotEmpty": "應用ID不能為空",
+  "AuthorizationEndTimeNotEmpty": "授權結束時間不能為空"
 }

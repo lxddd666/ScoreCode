@@ -157,19 +157,19 @@ export const schemas = ref<FormSchema[]>([
 
 export const columns = [
   {
-    title: 'id',
-    key: 'id',
+    title: "所属用户",
+    key: "memberUsername",
   },
   {
     title: '账号号码',
     key: 'username',
   },
   {
-    title: 'First Name',
+    title: '首名称',
     key: 'firstName',
   },
   {
-    title: 'Last Name',
+    title: '尾名称',
     key: 'lastName',
   },
   {

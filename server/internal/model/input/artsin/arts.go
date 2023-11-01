@@ -20,8 +20,8 @@ func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
 }
 
 type MsgInp struct {
-	Account  uint64    `json:"account" v:"required#发送人不能为空" dc:"IM账号"`
-	Receiver uint64    `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
+	Account  uint64    `json:"account" v:"required#SenderNotEmpty" dc:"IM账号"`
+	Receiver uint64    `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收信息账号"`
 	TextMsg  []string  `json:"textMsg" dc:"文本消息"`
 	Files    []FileMsg `json:"files" dc:"文件消息"`
 }
@@ -37,9 +37,9 @@ func (in *MsgInp) Filter(ctx context.Context) (err error) {
 }
 
 type VcardMsgInp struct {
-	Account      uint64        `json:"account" v:"required#发送人不能为空" dc:"发送信息账号"`
-	Receiver     uint64        `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
-	VCardDetails []VCardDetail `json:"vcard" v:"required#名片信息不能为空" dc:"接收名片信息"`
+	Account      uint64        `json:"account" v:"required#SenderNotEmpty" dc:"发送信息账号"`
+	Receiver     uint64        `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收信息账号"`
+	VCardDetails []VCardDetail `json:"vcard" v:"required#CardInformationNotEmpty" dc:"接收名片信息"`
 }
 
 type VCardDetail struct {
@@ -52,8 +52,8 @@ func (in *VcardMsgInp) Filter(ctx context.Context) (err error) {
 }
 
 type SyncContactInp struct {
-	Account  uint64   `json:"account" v:"required#账号号码不能为空" dc:"账号"`
-	Contacts []uint64 `json:"contacts" v:"required#联系不能为空"    dc:"同步联系人小号号码"`
+	Account  uint64   `json:"account" v:"required#AccountNumberNotEmpty" dc:"账号"`
+	Contacts []uint64 `json:"contacts" v:"required#ContactNotEmpty"    dc:"同步联系人小号号码"`
 }
 
 func (in *SyncContactInp) Filter(ctx context.Context) (err error) {

@@ -67,3 +67,11 @@ type ImportReq struct {
 }
 
 type ImportRes struct{}
+
+// TestProxyReq 测试代理
+type TestProxyReq struct {
+	g.Meta `path:"/sysProxy/test" method:"post" tags:"代理管理" summary:"测试代理"`
+	Ids    []uint64 `json:"ids" dc:"ids"`
+}
+
+type TestProxyRes struct{}

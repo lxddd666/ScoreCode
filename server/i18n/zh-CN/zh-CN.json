@@ -12,7 +12,7 @@
   "CodeNotEmpty": "验证码不能为空",
   "InviteCodeCheck": "请填写邀请码",
   "PasswordLengthCheck": "密码长度在6~18之间",
-  "NewPasswordLengthCheck": "密码长度在6~20之间",
+  "NewPasswordLengthCheck": "密码长度在6~18之间",
   "OriginalNotCorrect": "原密码不正确",
   "InviteUserCheck": "邀请人信息不存在",
   "SuccessMsg": "操作成功",
@@ -88,5 +88,6 @@
   "GetMaxSortError": "获取最大排序，请稍后重试！",
   "GetInfoError": "获取数据失败，请稍后重试！",
   "StatusNotEmpty": "状态不能为空",
-  "StatusError": "状态不正确"
+  "StatusError": "状态不正确",
+  "SendEmailError": "发送邮件失败，请联系管理员"
 }

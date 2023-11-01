@@ -1,0 +1,23 @@
+{
+  "ScriptGroupTypeNotEmpty": "分组类型不能为空",
+  "ScriptGroupTypePacketIncorrect": "分组类型值不正确",
+  "GroupNameNotEmpty": "话术组名不能为空",
+  "ObtainGroupDataLineFailed": "获取话术分组数据行失败，请稍后重试",
+  "ObtainGroupListFailed": "获取话术分组列表失败，请稍后重试",
+  "ExportScriptGroup": "导出话术分组-",
+  "GroupNameExist": "分组名已存在",
+  "ModifyGroupFailed": "修改话术分组失败，请稍后重试",
+  "AddGroupFailed": "新增话术分组失败，请稍后重试",
+  "DeleteGroupFailed": "删除话术分组失败，请稍后重试",
+  "ObtainGroupInformation": "获取话术分组信息，请稍后重试",
+  "TalkingContentNotEmpty": "话术内容不能为空",
+  "ObtainWordsManagementFailed": "获取话术管理数据行失败，请稍后重试",
+  "ObtainWordsManagementListFailed": "获取话术管理列表失败，请稍后重试",
+  "ExportWordsManagement": "导出话术管理-",
+  "ModifyWordsManagementFailed": "修改话术管理失败，请稍后重试",
+  "AddWordsManagementFailed": "新增话术管理失败，请稍后重试",
+  "SelectGroupNotExist": "所选分组不存在",
+  "QuickInstructionExist": "快捷指令已存在",
+  "DeleteWordsManagementFailed": "删除话术管理失败，请稍后重试",
+  "ObtainWordsManagementInformation": "获取话术管理信息，请稍后重试"
+}

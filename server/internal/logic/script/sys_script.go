@@ -2,7 +2,7 @@ package script
 
 import (
 	"context"
-	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -64,7 +64,7 @@ func (s *sSysScript) List(ctx context.Context, in *scriptin.SysScriptListInp) (l
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取话术管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainWordsManagementFailed}"))
 		return
 	}
 
@@ -73,7 +73,7 @@ func (s *sSysScript) List(ctx context.Context, in *scriptin.SysScriptListInp) (l
 	}
 
 	if err = mod.Fields(scriptin.SysScriptListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.SysScript.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取话术管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainWordsManagementListFailed}"))
 		return
 	}
 	return
@@ -93,8 +93,8 @@ func (s *sSysScript) Export(ctx context.Context, in *scriptin.SysScriptListInp) 
 	}
 
 	var (
-		fileName  = "导出话术管理-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportWordsManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []scriptin.SysScriptExportModel
 	)
 
@@ -117,7 +117,7 @@ func (s *sSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (e
 		if _, err = s.Model(ctx).
 			Fields(scriptin.SysScriptUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改话术管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyWordsManagementFailed}"))
 		}
 		return
 	}
@@ -131,7 +131,7 @@ func (s *sSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (e
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(scriptin.SysScriptInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增话术管理失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddWordsManagementFailed}"))
 	}
 	return
 }
@@ -146,7 +146,7 @@ func (s *sSysScript) checkInfo(ctx context.Context, in *scriptin.SysScriptEditIn
 		return err
 	}
 	if groupCount < 1 {
-		return gerror.New("所选分组不存在")
+		return gerror.New(g.I18n().T(ctx, "{#SelectGroupNotExist}"))
 	}
 
 	if in.Id > 0 {
@@ -162,7 +162,7 @@ func (s *sSysScript) checkInfo(ctx context.Context, in *scriptin.SysScriptEditIn
 		return err
 	}
 	if count > 0 {
-		return gerror.New("快捷指令已存在")
+		return gerror.New(g.I18n().T(ctx, "{#QuickInstructionExist}"))
 	}
 
 	return
@@ -171,7 +171,7 @@ func (s *sSysScript) checkInfo(ctx context.Context, in *scriptin.SysScriptEditIn
 // Delete 删除话术管理
 func (s *sSysScript) Delete(ctx context.Context, in *scriptin.SysScriptDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除话术管理失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteWordsManagementFailed}"))
 		return
 	}
 	return
@@ -180,7 +180,7 @@ func (s *sSysScript) Delete(ctx context.Context, in *scriptin.SysScriptDeleteInp
 // View 获取话术管理指定信息
 func (s *sSysScript) View(ctx context.Context, in *scriptin.SysScriptViewInp) (res *scriptin.SysScriptViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取话术管理信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainWordsManagementInformation}"))
 		return
 	}
 	return

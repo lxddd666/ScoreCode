@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"testing"
+	"time"
 )
 
 var (
@@ -19,11 +20,16 @@ func panicErr(err error) {
 }
 
 func TestIp(t *testing.T) {
-	resp, err := g.Client().Proxy("socks5://XiaoLiangZai:@LiangZai156@47.254.230.138:48888").Get(gctx.New(), "https://whois.pconline.com.cn/ipJson.jsp?json=true")
+	httpCli := g.Client().Discovery(nil).Timeout(10 * time.Second)
+	startTime := time.Now()
+	resp, err := httpCli.Proxy("socks5://fans007:fans888@64.176.225.97:39000").Get(gctx.New(), "https://api.ip.sb/geoip")
 	if err != nil {
 		panic(err)
 	}
+	delay := uint16(time.Since(startTime) / time.Millisecond)
+	fmt.Println(delay)
 	g.DumpJson(resp.ReadAllString())
+
 }
 
 func TestSession(t *testing.T) {

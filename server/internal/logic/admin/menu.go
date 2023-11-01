@@ -58,7 +58,7 @@ func (s *sAdminMenu) VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueI
 
 	cols := dao.AdminMenu.Columns()
 	msgMap := g.MapStrStr{
-		cols.Name: "菜单编码已存在，请换一个",
+		cols.Name: g.I18n().T(ctx, "{#MenuExist}"),
 	}
 
 	for k, v := range in.Where {
@@ -67,7 +67,7 @@ func (s *sAdminMenu) VerifyUnique(ctx context.Context, in *adminin.VerifyUniqueI
 		}
 		message, ok := msgMap[k]
 		if !ok {
-			err = gerror.Newf("字段 [ %v ] 未配置唯一属性验证", k)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#FieldUncontinuedUniqueAttributeVerification}"), k)
 			return
 		}
 		if err = hgorm.IsUnique(ctx, &dao.AdminMenu, g.Map{k: v}, message, in.Id); err != nil {
@@ -101,7 +101,7 @@ func (s *sAdminMenu) Edit(ctx context.Context, in *adminin.MenuEditInp) (err err
 			return err
 		}
 		if pd == nil {
-			return gerror.New("上级菜单信息错误")
+			return gerror.New(g.I18n().T(ctx, "{#UpperMenuInformationError}"))
 		}
 		in.Level = gconv.Int(pd.Level) + 1
 	}
@@ -114,7 +114,7 @@ func (s *sAdminMenu) Edit(ctx context.Context, in *adminin.MenuEditInp) (err err
 		}
 
 		if _, err = dao.AdminMenu.Ctx(ctx).Where("id", in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改菜单失败！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyMenuFailed}"))
 			return err
 		}
 		return casbin.Refresh(ctx)
@@ -124,7 +124,7 @@ func (s *sAdminMenu) Edit(ctx context.Context, in *adminin.MenuEditInp) (err err
 	in.CreatedAt = gtime.Now()
 
 	if _, err = dao.AdminMenu.Ctx(ctx).Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增菜单失败！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddMenuFailed}"))
 		return err
 	}
 	return casbin.Refresh(ctx)
@@ -170,7 +170,7 @@ func (s *sAdminMenu) View(ctx context.Context, in *adminin.MenuViewInp) (res *ad
 			}
 		}
 		if flag == flag {
-			err = gerror.Wrap(err, "获取菜单明细失败，该用户没有该菜单权限！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMenuDetailFailed}"))
 		}
 	}
 	if err = mod.Where("id", in.Id).Scan(&model); err != nil {

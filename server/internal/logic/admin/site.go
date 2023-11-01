@@ -128,6 +128,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		Avatar:   config.Avatar,
 		Sex:      3, // 保密
 		Mobile:   in.Mobile,
+		Email:    in.Email,
 		Status:   consts.StatusEnabled,
 	}
 	data.Salt = grand.S(6)
@@ -176,6 +177,84 @@ func (s *sAdminSite) RegisterCode(ctx context.Context, in *adminin.RegisterCodeI
 	} else {
 		return service.SysSmsLog().SendCode(ctx, &sysin.SendCodeInp{
 			Event:  consts.SmsTemplateRegister,
+			Mobile: in.Email,
+		})
+	}
+}
+
+// RestPwd 重置密码
+func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (result *adminin.RegisterModel, err error) {
+	var member *entity.AdminMember
+	// 验证验证码
+	if in.Email == "" {
+		err = service.SysSmsLog().VerifyCode(ctx, &sysin.VerifyCodeInp{
+			Event:  consts.SmsTemplateResetPwd,
+			Mobile: in.Mobile,
+			Code:   in.Code,
+		})
+		if err != nil {
+			return
+		}
+		err = dao.AdminMember.Ctx(ctx).Where(dao.AdminMember.Columns().Mobile, in.Mobile).Scan(&member)
+		if err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#NotAccount}"))
+			return
+		}
+	} else {
+		err = service.SysEmsLog().VerifyCode(ctx, &sysin.VerifyEmsCodeInp{
+			Event: consts.EmsTemplateResetPwd,
+			Email: in.Email,
+			Code:  in.Code,
+		})
+		if err != nil {
+			return
+		}
+		err = dao.AdminMember.Ctx(ctx).Where(dao.AdminMember.Columns().Email, in.Email).Scan(&member)
+		if err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserInformationNotExist}"))
+			return
+		}
+	}
+
+	if member == nil {
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationNotExist}"))
+		return
+	}
+	update := g.Map{
+		dao.AdminMember.Columns().PasswordHash: gmd5.MustEncryptString(in.Password + member.Salt),
+	}
+
+	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(member.Id)).WherePri(member.Id).Data(update).Update(); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ResetUserPasswordFailed"))
+		return
+	}
+
+	result = &adminin.RegisterModel{
+		Id:         member.Id,
+		Username:   member.Username,
+		Pid:        member.Pid,
+		Level:      member.Level,
+		Tree:       member.Tree,
+		InviteCode: member.InviteCode,
+		RealName:   member.RealName,
+		Avatar:     member.Avatar,
+		Sex:        member.Sex,
+		Email:      member.Email,
+		Mobile:     member.Mobile,
+	}
+	return
+}
+
+// RestPwdCode 重置密码发送邮件
+func (s *sAdminSite) RestPwdCode(ctx context.Context, in *adminin.RegisterCodeInp) (err error) {
+	if in.Email != "" {
+		return service.SysEmsLog().Send(ctx, &sysin.SendEmsInp{
+			Event: consts.EmsTemplateResetPwd,
+			Email: in.Email,
+		})
+	} else {
+		return service.SysSmsLog().SendCode(ctx, &sysin.SendCodeInp{
+			Event:  consts.SmsTemplateResetPwd,
 			Mobile: in.Email,
 		})
 	}

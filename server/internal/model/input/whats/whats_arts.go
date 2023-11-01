@@ -12,8 +12,8 @@ func (in *WhatsLoginInp) Filter(ctx context.Context) (err error) {
 }
 
 type WhatsMsgInp struct {
-	Sender      uint64   `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
-	Receiver    uint64   `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
+	Sender      uint64   `json:"sender" v:"required#SenderNotEmpty" dc:"发送信息账号"`
+	Receiver    uint64   `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收信息账号"`
 	TextMsg     []string `json:"textMsg" dc:"文本消息"`
 	ImageMsg    [][]byte `json:"pictureMsg" dc:"图片消息"`
 	DocumentMsg [][]byte `json:"documentMsg" dc:"文件消息"`
@@ -30,9 +30,9 @@ type SyncContactReq struct {
 }
 
 type WhatVcardMsgInp struct {
-	Sender       uint64        `json:"sender" v:"required#发送人不能为空" dc:"发送信息账号"`
-	Receiver     uint64        `json:"receiver" v:"required#接收人不能为空" dc:"接收信息账号"`
-	VCardDetails []VCardDetail `json:"vcard" v:"required#名片信息不能为空" dc:"接收名片信息"`
+	Sender       uint64        `json:"sender" v:"required#SenderNotEmpty" dc:"发送信息账号"`
+	Receiver     uint64        `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收信息账号"`
+	VCardDetails []VCardDetail `json:"vcard" v:"required#CardInformationNotEmpty" dc:"接收名片信息"`
 }
 
 type VCardDetail struct {
@@ -50,8 +50,8 @@ type GetUserHeadImageReq struct {
 }
 
 type WhatsSyncContactInp struct {
-	Account  uint64   `json:"account" v:"required#账号号码不能为空" dc:"账号"`
-	Contacts []uint64 `json:"contacts" v:"required#联系不能为空"    dc:"同步联系人小号号码"`
+	Account  uint64   `json:"account" v:"required#AccountNumberNotEmpty" dc:"账号"`
+	Contacts []uint64 `json:"contacts" v:"required#ContactNotEmpty"    dc:"同步联系人小号号码"`
 }
 
 func (in *WhatsSyncContactInp) Filter(ctx context.Context) (err error) {

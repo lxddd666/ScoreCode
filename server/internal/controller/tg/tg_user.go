@@ -65,7 +65,7 @@ func (c *cTgUser) BindMember(ctx context.Context, req *tguser.BindMemberReq) (re
 
 // UnBindMember 接触绑定用户
 func (c *cTgUser) UnBindMember(ctx context.Context, req *tguser.UnBindMemberReq) (res *tguser.UnBindMemberRes, err error) {
-	err = service.TgUser().UnBindMember(ctx, &req.TgUserBindMemberInp)
+	err = service.TgUser().UnBindMember(ctx, &req.TgUserUnBindMemberInp)
 	return
 }
 
@@ -97,6 +97,6 @@ func (c *cTgUser) BindProxy(ctx context.Context, req *tguser.BindProxyReq) (res 
 
 // UnBindProxy 解除绑定代理
 func (c *cTgUser) UnBindProxy(ctx context.Context, req *tguser.UnBindProxyReq) (res *tguser.UnBindProxyRes, err error) {
-	_, err = service.TgUser().BindProxy(ctx, &req.TgUserBindProxyInp)
+	_, err = service.TgUser().UnBindProxy(ctx, &req.TgUserUnBindProxyInp)
 	return
 }

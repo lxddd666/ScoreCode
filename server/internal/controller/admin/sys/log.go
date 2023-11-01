@@ -8,6 +8,7 @@ package sys
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/api/admin/log"
 	"hotgo/internal/service"
 )
@@ -19,7 +20,7 @@ type sLog struct{}
 
 // Clear 清空日志
 func (c *sLog) Clear(ctx context.Context, _ *log.ClearReq) (res *log.ClearRes, err error) {
-	err = gerror.New("暂时考虑到安全问题，请到数据库清空")
+	err = gerror.New(g.I18n().T(ctx, "{#ConsiderSecurityIssues}"))
 	return
 }
 

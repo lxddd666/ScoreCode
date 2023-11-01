@@ -125,7 +125,7 @@ type (
 		AddProxyToOrg(ctx context.Context, in *whatsin.WhatsProxyAddProxyOrgInp) (err error)
 		// ListOrgProxy 查看公司指定代理
 		ListOrgProxy(ctx context.Context, in *whatsproxy.ListOrgProxyReq) (list []*whatsin.WhatsProxyListProxyOrgModel, totalCount int, err error)
-		UrlPingIpsbAndGetRegion(in *whatsin.WhatsProxyEditInp) error
+		UrlPingIpsbAndGetRegion(ctx context.Context, in *whatsin.WhatsProxyEditInp) error
 	}
 )
 

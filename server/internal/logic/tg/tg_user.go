@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/gogf/gf/contrib/drivers/sqlite/v2"
+	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gcompress"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -54,7 +55,7 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 
 // List 获取TG账号列表
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
-	mod := s.Model(ctx)
+	mod := s.Model(ctx).As("tu")
 
 	// 查询账号号码
 	if in.Username != "" {
@@ -101,7 +102,10 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		return
 	}
 
-	if err = mod.Fields(tgin.TgUserListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
+	if err = mod.
+		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tu.member_id").
+		Fields("tu.*", "ham.member_username").
+		Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取TG账号列表失败，请稍后重试！")
 		return
 	}
@@ -195,7 +199,7 @@ func (s *sTgUser) BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) 
 }
 
 // UnBindMember 解除绑定用户
-func (s *sTgUser) UnBindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error) {
+func (s *sTgUser) UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error) {
 	if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).
 		WhereIn(dao.TgUser.Columns().Id, in.Ids).
 		Data(do.TgUser{MemberId: nil}).
@@ -435,14 +439,17 @@ func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImpor
 }
 
 // UnBindProxy 解绑代理
-func (s *sTgUser) UnBindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error) {
-	var proxy entity.SysProxy
-	err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).Scan(&proxy)
+func (s *sTgUser) UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error) {
+	var list []*entity.TgUser
+	err = s.Model(ctx).WherePri(in.Ids).Scan(&list)
 	if err != nil {
-		return
+		return nil, gerror.Wrap(err, "获取账号失败，请稍后重试！")
 	}
-	if g.IsEmpty(proxy) {
-		return nil, gerror.New("代理不存在")
+	proxySet := gset.NewStrSet()
+	for _, tgUser := range list {
+		if tgUser.ProxyAddress != "" {
+			proxySet.Add(tgUser.ProxyAddress)
+		}
 	}
 	//解除绑定
 	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
@@ -450,19 +457,24 @@ func (s *sTgUser) UnBindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) 
 		if err != nil {
 			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
 		}
-		//查询绑定该代理的账号数量
-		count, err := s.Model(ctx).Where(do.TgUser{ProxyAddress: proxy.Address}).Count()
-		if err != nil {
-			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+		if proxySet.Size() > 0 {
+			for _, proxy := range proxySet.Slice() {
+				//查询绑定该代理的账号数量
+				count, err := s.Model(ctx).Where(do.TgUser{ProxyAddress: proxy}).Count()
+				if err != nil {
+					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+				}
+				//修改代理绑定数量
+				_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy}).Update(do.SysProxy{AssignedCount: count})
+				if err != nil {
+					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+				}
+			}
 		}
-		//修改代理绑定数量
-		_, err = service.OrgSysProxy().Model(ctx).WherePri(proxy.Id).Update(do.SysProxy{AssignedCount: count})
-		if err != nil {
-			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
-		}
+
 		return
 	})
-	return nil, err
+	return
 
 }
 
@@ -476,6 +488,18 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 	if g.IsEmpty(proxy) {
 		return nil, gerror.New("代理不存在")
 	}
+	var list []*entity.TgUser
+	err = s.Model(ctx).WherePri(in.Ids).Scan(&list)
+	if err != nil {
+		return nil, gerror.Wrap(err, "获取账号失败，请稍后重试！")
+	}
+	proxySet := gset.NewStrSet()
+	for _, tgUser := range list {
+		if tgUser.ProxyAddress != "" {
+			proxySet.Add(tgUser.ProxyAddress)
+		}
+	}
+
 	if proxy.AssignedCount+gconv.Int64(len(in.Ids)) > proxy.MaxConnections {
 		return nil, gerror.New("绑定账号数量超出该代理最大连接数")
 	}
@@ -490,10 +514,25 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 			return gerror.Wrap(err, "绑定失败，请稍后重试！")
 		}
 		//更新代理账号的绑定数量
-		_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy.Address}).
+		_, err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).
 			Update(do.SysProxy{AssignedCount: count})
 		if err != nil {
 			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+		}
+		// 更新原绑定代理的数量
+		if proxySet.Size() > 0 {
+			for _, proxy := range proxySet.Slice() {
+				//查询绑定该代理的账号数量
+				count, err := s.Model(ctx).Where(do.TgUser{ProxyAddress: proxy}).Count()
+				if err != nil {
+					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+				}
+				//修改代理绑定数量
+				_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy}).Update(do.SysProxy{AssignedCount: count})
+				if err != nil {
+					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+				}
+			}
 		}
 		return
 	})

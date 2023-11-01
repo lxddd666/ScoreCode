@@ -1,4 +1,4 @@
-import { http, jumpExport } from '@/utils/http/axios';
+import {http, jumpExport} from '@/utils/http/axios';
 
 // 获取代理管理列表
 export function List(params: any) {
@@ -47,6 +47,15 @@ export function Upload(params: any) {
   });
 }
 
+// 测试代理
+export function Test(params: any) {
+  return http.request({
+    url: '/sysProxy/test',
+    method: 'POST',
+    params,
+  });
+}
+
 
 // 获取代理管理指定详情
 export function View(params: any) {
@@ -56,7 +65,6 @@ export function View(params: any) {
     params,
   });
 }
-
 
 
 // 导出代理管理

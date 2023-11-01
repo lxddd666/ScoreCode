@@ -53,22 +53,22 @@ type ServeLicenseEditInp struct {
 
 func (in *ServeLicenseEditInp) Filter(ctx context.Context) (err error) {
 	// 验证分组
-	if err := g.Validator().Rules("required").Data(in.Group).Messages("分组不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Group).Messages(g.I18n().T(ctx, "{#GroupNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证许可名称
-	if err := g.Validator().Rules("required").Data(in.Name).Messages("许可名称不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Name).Messages(g.I18n().T(ctx, "{#LicenseNameNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证应用ID
-	if err := g.Validator().Rules("required").Data(in.Appid).Messages("应用ID不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Appid).Messages(g.I18n().T(ctx, "{#AppIdNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证授权结束时间
-	if err := g.Validator().Rules("required").Data(in.EndAt).Messages("授权结束时间不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.EndAt).Messages(g.I18n().T(ctx, "{#AuthorizationEndTimeNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -79,7 +79,7 @@ type ServeLicenseEditModel struct{}
 
 // ServeLicenseDeleteInp 删除服务许可证
 type ServeLicenseDeleteInp struct {
-	Id interface{} `json:"id" v:"required#许可ID不能为空" dc:"许可ID"`
+	Id interface{} `json:"id" v:"required#LicenseIdNotEmpty" dc:"许可ID"`
 }
 
 func (in *ServeLicenseDeleteInp) Filter(ctx context.Context) (err error) {
@@ -90,7 +90,7 @@ type ServeLicenseDeleteModel struct{}
 
 // ServeLicenseViewInp 获取指定服务许可证信息
 type ServeLicenseViewInp struct {
-	Id int64 `json:"id" v:"required#许可ID不能为空" dc:"许可ID"`
+	Id int64 `json:"id" v:"required#LicenseIdNotEmpty" dc:"许可ID"`
 }
 
 func (in *ServeLicenseViewInp) Filter(ctx context.Context) (err error) {

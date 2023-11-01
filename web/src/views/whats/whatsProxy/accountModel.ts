@@ -1,12 +1,7 @@
-import {h, ref} from 'vue';
-import {NTag} from 'naive-ui';
-import {cloneDeep} from 'lodash-es';
+import {ref} from 'vue';
 import {FormSchema} from '@/components/Form';
 import {Dicts} from '@/api/dict/dict';
-
-import {isNullObject} from '@/utils/is';
-import {defRangeShortcuts} from '@/utils/dateUtil';
-import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import {Options} from '@/utils/hotgo';
 
 
 export const options = ref<Options>({

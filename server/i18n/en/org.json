@@ -1,4 +1,12 @@
 {
   "ExportOrgTitle": "Export company information",
-  "ExportOrgSheetName": "Index conditions are%v rows,%v pages, the current export is page%v, this page is%v lines."
+  "ExportOrgSheetName": "Index conditions are%v rows,%v pages, the current export is page%v, this page is%v lines.",
+  "IncreaseBalance": "Increase balance:%v",
+  "DeductionBalance": "Deduct the balance:%v",
+  "AddPoints": "Add points:%v",
+  "DeductionPoints": "Deduct Points:%v",
+  "ProxyAddressNotEmpty": "The proxy address cannot be empty",
+  "ProxyTypeNotEmpty": "The proxy type cannot be empty",
+  "ProxyTypeIncorrect": "The proxy type value is incorrect",
+  "MaxConnectionNumber": "The maximum number of connections cannot be empty"
 }

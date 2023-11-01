@@ -21,6 +21,7 @@ type SysProxy struct {
 	AssignedCount  interface{} // 已分配账号数量
 	LongTermCount  interface{} // 长期未登录数量
 	Region         interface{} // 地区
+	Delay          interface{} // 延迟
 	Comment        interface{} // 备注
 	Status         interface{} // 状态(1正常, 2停用)
 	DeletedAt      *gtime.Time // 删除时间

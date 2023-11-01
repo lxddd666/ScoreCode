@@ -7,7 +7,6 @@ package sys
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -24,7 +23,6 @@ import (
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
-	"hotgo/utility/charset"
 	"hotgo/utility/simple"
 	"hotgo/utility/useragent"
 	"hotgo/utility/validate"
@@ -177,6 +175,7 @@ func (s *sSysEmsLog) Send(ctx context.Context, in *sysin.SendEmsInp) (err error)
 
 	err = ems.Send(config, in.Email, subject, in.Content)
 	if err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SendEmailError}"))
 		return
 	}
 
@@ -237,8 +236,8 @@ func (s *sSysEmsLog) newView(ctx context.Context, in *sysin.SendEmsInp, config *
 	if basic == nil {
 		basic = new(model.BasicConfig)
 		basic.Name = simple.AppName()
-		basic.Domain = "https://hotgo.facms.cn"
-		basic.Logo = "http://bufanyun.cn-bj.ufileos.com/haoka/attachment/images/2023-02-04/cq9kf7s66jt7hkpvbh.png"
+		basic.Domain = "http://34.124.217.133:4940"
+		basic.Logo = "http://grata.gen-code.top/grata/attachment/2023-10-24/cwgjrlh49xswohz4cf.png"
 		basic.SystemOpen = true
 	}
 
@@ -254,34 +253,12 @@ func (s *sSysEmsLog) newView(ctx context.Context, in *sysin.SendEmsInp, config *
 		"name":      basic.Name,                                        // 网站名称
 		"logo":      basic.Logo,                                        // 网站logo
 		"domain":    basic.Domain,                                      // 网站域名
-		"github":    "https://github.com/bufanyun/hotgo",               // github
+		"github":    "https://github.com/zhengjiahao0420/grata",        // github
 		"os":        useragent.GetOs(request.Header.Get("User-Agent")), // 发送者操作系统
 		"ip":        gstr.HideStr(ip, 30, `*`),                         // 发送者IP
 		"cityLabel": cityLabel,                                         // IP归属地
 	})
 
-	// 重置密码
-	if in.Event == consts.EmsTemplateResetPwd {
-		var (
-			passwordResetLink string
-			resetToken        = charset.RandomCreateBytes(32)
-		)
-		if user != nil {
-			switch user.App {
-			// 后台用户
-			case consts.AppAdmin:
-				_, err = g.Model(dao.AdminMember.Table()).Ctx(ctx).Where("id", user.Id).Data(g.Map{"password_reset_token": resetToken}).Update()
-				if err != nil {
-					return
-				}
-				passwordResetLink = fmt.Sprintf("%s/admin/passwordReset?token=%s", basic.Domain, resetToken)
-			// 前台用户
-			case consts.AppApi:
-				// ...
-			}
-		}
-		view.Assign("passwordResetLink", passwordResetLink)
-	}
 	return
 }
 
@@ -368,7 +345,7 @@ func (s *sSysEmsLog) VerifyCode(ctx context.Context, in *sysin.VerifyEmsCodeInp)
 		return
 	}
 
-	if in.Event == consts.EmsTemplateResetPwd || in.Event == consts.EmsTemplateText {
+	if in.Event == consts.EmsTemplateText {
 		err = gerror.Newf(g.I18n().Tf(ctx, "{#EventTypeNotVerified}"), in.Event)
 		return
 	}

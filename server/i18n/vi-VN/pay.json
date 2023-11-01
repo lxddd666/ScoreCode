@@ -1,0 +1,11 @@
+{
+  "WechatPublicAccountSet": "Thanh toán tài khoản công cộng WeChat phải đặt OpenID",
+  "WechatPublicAccountSynAdd": "Thanh toán tài khoản công cộng WeChat phải đặt địa chỉ thông báo đồng bộ",
+  "BackgroundSetWeb": "Vui lòng truy cập nền trước [Cài đặt hệ thống]-[Quản lý cấu hình] Đặt tên miền trang web",
+  "WebFormatError": "Định dạng tên miền trang web là sai, vui lòng kiểm tra",
+  "UnwillingPayMethod": "Phương thức thanh toán không muốn:%V",
+  "MerchantOrderNumberNotExist": "Số đơn đặt hàng của người bán [%v] không có hồ sơ thanh toán, vui lòng kiểm tra",
+  "MerchantOrderNumberProcessed": "Số đơn đặt hàng của người bán [%v] đã được xử lý, vui lòng không lặp lại hoạt động",
+  "NoUpdateData": "Không cập nhật dòng dữ liệu",
+  "ExportPayLog": "Xuất nhật ký thanh toán"
+}

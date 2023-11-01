@@ -2,15 +2,24 @@ package org
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/net/gclient"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	orgin "hotgo/internal/model/input/orgin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"hotgo/utility/simple"
+	"net/http"
+	"sync"
+	"time"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -72,6 +81,9 @@ func (s *sOrgSysProxy) List(ctx context.Context, in *orgin.SysProxyListInp) (lis
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
+	for _, model := range list {
+		model.Delay = model.Delay + "ms"
+	}
 	return
 }
 
@@ -89,7 +101,7 @@ func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (e
 	}
 
 	var (
-		fileName  = "导出代理管理-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName  = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
 		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []orgin.SysProxyExportModel
 	)
@@ -105,7 +117,7 @@ func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (e
 // Edit 修改/新增代理管理
 func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err error) {
 	// 验证'Address'唯一
-	if err = hgorm.IsUnique(ctx, &dao.SysProxy, g.Map{dao.SysProxy.Columns().Address: in.Address}, "代理地址已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.SysProxy, g.Map{dao.SysProxy.Columns().Address: in.Address}, g.I18n().T(ctx, "{#ProxyAddressExist}"), in.Id); err != nil {
 		return
 	}
 	// 修改
@@ -113,7 +125,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 		if _, err = s.Model(ctx).
 			Fields(orgin.SysProxyUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "{#EditInfoError}")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		}
 		return
 	}
@@ -122,7 +134,7 @@ func (s *sOrgSysProxy) Edit(ctx context.Context, in *orgin.SysProxyEditInp) (err
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(orgin.SysProxyInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "{#AddInfoError}")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 	}
 	return
 }
@@ -159,13 +171,65 @@ func (s *sOrgSysProxy) Status(ctx context.Context, in *orgin.SysProxyStatusInp) 
 // Import 导入代理
 func (s *sOrgSysProxy) Import(ctx context.Context, list []*orgin.SysProxyEditInp) (err error) {
 	user := contexts.GetUser(ctx)
-	for _, item := range list {
-		item.OrgId = user.OrgId
+	httpClient := g.Client().Discovery(nil).Timeout(10 * time.Second)
+	proxyList := array.New[*orgin.SysProxyEditInp](true)
+	wg := sync.WaitGroup{}
+	for _, proxy := range list {
+		thatProxy := proxy
+		thatProxy.OrgId = user.OrgId
+		httpCli := httpClient.Clone()
+		wg.Add(1)
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			defer wg.Done()
+			thatProxy.Delay, thatProxy.Region = s.testProxy(ctx, thatProxy.Address, httpCli)
+			proxyList.Append(thatProxy)
+		})
 	}
+	wg.Wait()
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(orgin.SysProxyInsertFields{}).
-		Data(list).Save(); err != nil {
-		err = gerror.Wrap(err, "{#AddInfoError}")
+		Data(proxyList.Slice()).Save(); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
+	}
+	return
+}
+
+// Test 测试代理
+func (s *sOrgSysProxy) Test(ctx context.Context, ids []uint64) (err error) {
+	var list []*entity.SysProxy
+	if err = s.Model(ctx).WherePri(ids).Scan(&list); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
+		return
+	}
+	proxyList := array.New[*entity.SysProxy](true)
+	httpClient := g.Client().Discovery(nil).Timeout(10 * time.Second)
+	wg := sync.WaitGroup{}
+	for _, proxy := range list {
+		thatProxy := proxy
+		httpCli := httpClient.Clone()
+		wg.Add(1)
+		simple.SafeGo(ctx, func(ctx context.Context) {
+			defer wg.Done()
+			thatProxy.Delay, thatProxy.Region = s.testProxy(ctx, thatProxy.Address, httpCli)
+			proxyList.Append(thatProxy)
+		})
+	}
+	wg.Wait()
+	_, err = s.Model(ctx).Data(proxyList.Slice()).Save()
+	return
+}
+
+func (s *sOrgSysProxy) testProxy(ctx context.Context, addr string, httpCli *gclient.Client) (delay int, region string) {
+	delay = -1
+	startTime := time.Now()
+	resp, err := httpCli.Proxy(addr).Get(ctx, consts.GeoIp)
+	if err != nil {
+		return
+	}
+	if resp.StatusCode == http.StatusOK {
+		delay = int(time.Since(startTime) / time.Millisecond)
+		data := gjson.New(resp.ReadAllString())
+		region = data.Get("region").String()
 	}
 	return
 }

@@ -12,7 +12,7 @@
   "CodeNotEmpty": "mã xác minh phải được điền",
   "InviteCodeCheck": "Vui lòng điền vào mã lời mời",
   "PasswordLengthCheck": "Độ dài mật khẩu nằm trong khoảng từ 6 ~ 18",
-  "NewPasswordLengthCheck": "Độ dài mật khẩu nằm trong khoảng từ 6 ~ 20",
+  "NewPasswordLengthCheck": "Độ dài mật khẩu nằm trong khoảng từ 6 ~ 18",
   "OriginalNotCorrect": "Mật khẩu ban đầu không chính xác",
   "InviteUserCheck": "Thông tin người mời không tồn tại",
   "SuccessMsg": "Hoạt động thành công",
@@ -87,5 +87,6 @@
   "GetMaxSortError": "Để sắp xếp tối đa, vui lòng thử lại sau!",
   "GetInfoError": "Lấy dữ liệu không thành công, vui lòng thử lại sau!",
   "StatusNotEmpty": "Nhà nước không thể trống",
-  "StatusError": "Trạng thái không chính xác"
+  "StatusError": "Trạng thái không chính xác",
+  "SendEmailError": "Gửi email thất bại, vui lòng liên hệ với quản trị viên"
 }

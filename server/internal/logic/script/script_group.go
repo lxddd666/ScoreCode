@@ -2,7 +2,7 @@ package script
 
 import (
 	"context"
-	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -61,7 +61,7 @@ func (s *sScriptGroup) List(ctx context.Context, in *scriptin.ScriptGroupListInp
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取话术分组数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainGroupDataLineFailed}"))
 		return
 	}
 
@@ -70,7 +70,7 @@ func (s *sScriptGroup) List(ctx context.Context, in *scriptin.ScriptGroupListInp
 	}
 
 	if err = mod.Fields(scriptin.ScriptGroupListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.SysScriptGroup.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取话术分组列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainGroupListFailed}"))
 		return
 	}
 	return
@@ -90,8 +90,8 @@ func (s *sScriptGroup) Export(ctx context.Context, in *scriptin.ScriptGroupListI
 	}
 
 	var (
-		fileName  = "导出话术分组-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportScriptGroup}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []scriptin.ScriptGroupExportModel
 	)
 
@@ -135,7 +135,7 @@ func (s *sScriptGroup) checkInfo(ctx context.Context, in *scriptin.ScriptGroupEd
 		return err
 	}
 	if count > 0 {
-		return gerror.New("分组名已存在")
+		return gerror.New(g.I18n().T(ctx, "{#GroupNameExist}"))
 	}
 
 	return
@@ -145,7 +145,7 @@ func (s *sScriptGroup) modify(ctx context.Context, in *scriptin.ScriptGroupEditI
 	if _, err = s.Model(ctx).
 		Fields(scriptin.ScriptGroupUpdateFields{}).
 		WherePri(in.Id).Data(in).Update(); err != nil {
-		err = gerror.Wrap(err, "修改话术分组失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyGroupFailed}"))
 	}
 	return
 
@@ -160,7 +160,7 @@ func (s *sScriptGroup) add(ctx context.Context, in *scriptin.ScriptGroupEditInp)
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(scriptin.ScriptGroupInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增话术分组失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddGroupFailed}"))
 	}
 	return
 }
@@ -168,7 +168,7 @@ func (s *sScriptGroup) add(ctx context.Context, in *scriptin.ScriptGroupEditInp)
 // Delete 删除话术分组
 func (s *sScriptGroup) Delete(ctx context.Context, in *scriptin.ScriptGroupDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除话术分组失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteGroupFailed}"))
 		return
 	}
 	return
@@ -177,7 +177,7 @@ func (s *sScriptGroup) Delete(ctx context.Context, in *scriptin.ScriptGroupDelet
 // View 获取话术分组指定信息
 func (s *sScriptGroup) View(ctx context.Context, in *scriptin.ScriptGroupViewInp) (res *scriptin.ScriptGroupViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取话术分组信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainGroupInformationFailed}"))
 		return
 	}
 	return

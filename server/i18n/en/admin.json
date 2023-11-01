@@ -190,5 +190,22 @@
   "ExportServiceLog": "Export service log-",
   "InvalidEventType": "Invalid event type:%v",
   "SMSRecordIdNotEmpty": "SMS record ID cannot be empty",
-  "TimingTaskIdNotEmpty": "Timing task ID cannot be empty"
+  "TimingTaskIdNotEmpty": "Timing task ID cannot be empty",
+  "ConsiderSecurityIssues": "Temporarily consider security issues, please go to the database to clear",
+  "NoFindUploadFiles": "No file uploaded files",
+  "InvalidAuthorization": "Invalid authorization",
+  "AuthorizationInvalidOrExpired": "The authorization is invalid or expired, please try it out",
+  "TypeSelectInvalid": "Type selection is invalid, please check",
+  "GenerationNotEmpty": "The generation type cannot be empty",
+  "PhysicalNameNoEmpty": "The physical name cannot be empty",
+  "SelectTemplateNotExist": "The choice template does not exist:%v",
+  "PlugTemplateEffective": "The plug -in template must choose an effective plug -in",
+  "MenuExist": "The menu code already exists, please change one",
+  "UpperMenuInformationError": "Upper menu information error",
+  "ModifyMenuFailed": "Modify the menu failed",
+  "AddMenuFailed": "New menu failed",
+  "GetMenuDetailFailed": "Get the menu's detail failure, the user does not have the authority permissions",
+  "LicenseNameNotEmpty": "The license name cannot be empty",
+  "AppIdNotEmpty": "Application ID cannot be empty",
+  "AuthorizationEndTimeNotEmpty": "The end time of the authorization cannot be empty"
 }

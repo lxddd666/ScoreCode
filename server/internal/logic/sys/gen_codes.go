@@ -43,11 +43,11 @@ func (s *sSysGenCodes) Delete(ctx context.Context, in *sysin.GenCodesDeleteInp) 
 // Edit 修改/新增
 func (s *sSysGenCodes) Edit(ctx context.Context, in *sysin.GenCodesEditInp) (res *sysin.GenCodesEditModel, err error) {
 	if in.GenType == 0 {
-		err = gerror.New("生成类型不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#GenerationNotEmpty}"))
 		return
 	}
 	if in.VarName == "" {
-		err = gerror.New("实体名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#PhysicalNameNoEmpty}"))
 		return
 	}
 
@@ -59,12 +59,12 @@ func (s *sSysGenCodes) Edit(ctx context.Context, in *sysin.GenCodesEditInp) (res
 		}
 
 		if temp == nil {
-			err = gerror.Newf("选择的模板不存在:%v", cfg)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#SelectTemplateNotExist}"), cfg)
 			return
 		}
 
 		if temp.IsAddon && in.AddonName == "" {
-			err = gerror.New("插件模板必须选择一个有效的插件")
+			err = gerror.New(g.I18n().T(ctx, "{#PlugTemplateEffective}"))
 			return
 		}
 	}

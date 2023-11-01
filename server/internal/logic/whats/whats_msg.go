@@ -3,7 +3,6 @@ package whats
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/database/gdb"
@@ -81,7 +80,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取消息记录数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageRecordFailed}"))
 		return
 	}
 
@@ -90,7 +89,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 	}
 
 	if err = mod.Fields(whatsin.WhatsMsgListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.WhatsMsg.Columns().UpdatedAt).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageListFailed}"))
 		return
 	}
 	// 处理是否已读
@@ -99,7 +98,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 		reqIds.PushRight(model.ReqId)
 	}
 	if result, err := g.Redis().HKeys(ctx, consts.WhatsMsgReadReqKey); err != nil {
-		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageListFailed}"))
 		return list, totalCount, err
 	} else {
 		reqIds.SetArray(result)
@@ -127,8 +126,8 @@ func (s *sWhatsMsg) Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (er
 	}
 
 	var (
-		fileName  = "导出消息记录-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportMessageRecord}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []whatsin.WhatsMsgExportModel
 	)
 
@@ -148,7 +147,7 @@ func (s *sWhatsMsg) Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err 
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsMsgUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改消息记录失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyMessageRecordFailed}"))
 		}
 		return
 	}
@@ -157,7 +156,7 @@ func (s *sWhatsMsg) Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err 
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(whatsin.WhatsMsgInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增消息记录失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddMessageRecordFailed}"))
 	}
 	return
 }
@@ -165,7 +164,7 @@ func (s *sWhatsMsg) Edit(ctx context.Context, in *whatsin.WhatsMsgEditInp) (err 
 // Delete 删除消息记录
 func (s *sWhatsMsg) Delete(ctx context.Context, in *whatsin.WhatsMsgDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除消息记录失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteMessageRecordFailed}"))
 		return
 	}
 	return
@@ -174,7 +173,7 @@ func (s *sWhatsMsg) Delete(ctx context.Context, in *whatsin.WhatsMsgDeleteInp) (
 // View 获取消息记录指定信息
 func (s *sWhatsMsg) View(ctx context.Context, in *whatsin.WhatsMsgViewInp) (res *whatsin.WhatsMsgViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取消息记录信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageRecordInformation}"))
 		return
 	}
 	return
@@ -351,7 +350,7 @@ func (s *sWhatsMsg) Move(ctx context.Context, in *whatsin.WhatsMsgMoveInp) (err 
 		}
 
 		if len(accountMembers) < 1 {
-			return gerror.New("未找到该账号")
+			return gerror.New(g.I18n().T(ctx, "{#NoFindAccount}"))
 		}
 	}
 

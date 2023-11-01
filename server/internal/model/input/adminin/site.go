@@ -94,3 +94,25 @@ type MemberLoginStatModel struct {
 	LastLoginAt *gtime.Time `json:"lastLoginAt" dc:"最后登录时间"`
 	LastLoginIp string      `json:"lastLoginIp" dc:"最后登录IP"`
 }
+
+// RestPwdInp 重置密码
+type RestPwdInp struct {
+	Mobile   string `json:"mobile" v:"required-without:Email#EmailAndPhoneWithoutEmpty" dc:"手机号,邮箱为空时必填"`
+	Email    string `json:"email" v:"required-without:Mobile|email#EmailAndPhoneWithoutEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
+	Password string `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
+	Code     string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
+}
+
+func (in *RestPwdInp) Filter(ctx context.Context) (err error) {
+	// 解密密码
+	password, err := simple.DecryptText(in.Password)
+	if err != nil {
+		return err
+	}
+	if err = g.Validator().Data(password).Rules("password").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+		return
+	}
+
+	in.Password = password
+	return
+}

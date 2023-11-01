@@ -81,7 +81,7 @@ func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsList
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementDataFailed}"))
 		return
 	}
 
@@ -89,7 +89,7 @@ func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsList
 		return
 	}
 	if err = mod.Fields(fields).Page(in.Page, in.PerPage).OrderDesc("c." + dao.WhatsContacts.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementListFailed}"))
 		return
 	}
 
@@ -110,8 +110,8 @@ func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsLi
 	}
 
 	var (
-		fileName  = "导出联系人管理-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportContactManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []whatsin.WhatsContactsExportModel
 	)
 
@@ -132,19 +132,19 @@ func (s *sWhatsContacts) Edit(ctx context.Context, in *whatsin.WhatsContactsEdit
 		// 查看是否为公司内部人员操作本公司数据
 		if !service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx)) {
 			if in.OrgId != user.OrgId {
-				err = gerror.Wrap(err, "此操作为非本公司人员操作！")
+				err = gerror.Wrap(err, g.I18n().T(ctx, "{#OperationNoCompany}"))
 				return
 			}
 			// 判断用户是否拥有权限
 			if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-				err = gerror.Wrap(err, "该用户没权限修改该联系人信息，请联系管理员！")
+				err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityModifyContact}"))
 				return
 			}
 		}
 		if _, err = s.Model(ctx).
 			Fields(whatsin.WhatsContactsUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改联系人管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyContactManagementFailed}"))
 		}
 		return
 	}
@@ -154,7 +154,7 @@ func (s *sWhatsContacts) Edit(ctx context.Context, in *whatsin.WhatsContactsEdit
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(whatsin.WhatsContactsInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增联系人管理失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddContactManagementFailed}"))
 	} else {
 
 	}
@@ -168,17 +168,17 @@ func (s *sWhatsContacts) Delete(ctx context.Context, in *whatsin.WhatsContactsDe
 	contact := entity.WhatsContacts{}
 
 	if err := s.Model(ctx).WherePri(in.Id).Scan(&contact); err != nil {
-		err = gerror.Wrap(err, "删除联系人失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteContactFailed}"))
 	}
 	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
 	if !flag {
 		if contact.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "此操作为非本公司人员操作！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#OperationNoCompany}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, gconv.Int64(in.Id)) {
-			err = gerror.Wrap(err, "该用户没权限修改该联系人信息，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityModifyContact}"))
 			return
 		}
 	}
@@ -186,13 +186,13 @@ func (s *sWhatsContacts) Delete(ctx context.Context, in *whatsin.WhatsContactsDe
 	g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		_, err := tx.Model(dao.WhatsContacts.Table()).WherePri(in.Id).Delete()
 		if err != nil {
-			err = gerror.Wrap(err, "删除联系人管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteContactManagementFailed}"))
 			return err
 		}
 		// 删除联系人及其所有的关联数据
 		_, err = tx.Model(dao.WhatsAccountContacts.Table()).Where(dao.WhatsAccountContacts.Columns().Phone, contact.Phone).Delete()
 		if err != nil {
-			err = gerror.Wrap(err, "删除联系人管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteContactManagementFailed}"))
 			return err
 		}
 		return nil
@@ -207,22 +207,22 @@ func (s *sWhatsContacts) View(ctx context.Context, in *whatsin.WhatsContactsView
 	contact := entity.WhatsContacts{}
 
 	if err := s.Model(ctx).WherePri(in.Id).Scan(&contact); err != nil {
-		err = gerror.Wrap(err, "删除联系人失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteContactFailed}"))
 	}
 	flag := service.AdminMember().VerifySuperId(ctx, contexts.GetUserId(ctx))
 	if !flag {
 		if contact.OrgId != user.OrgId {
-			err = gerror.Wrap(err, "此操作为非本公司人员操作！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#OperationNoCompany}"))
 			return
 		}
 		// 判断用户是否拥有权限
 		if !s.updateDateRoleById(ctx, in.Id) {
-			err = gerror.Wrap(err, "该用户没权限修改该联系人信息，请联系管理员！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#UserNoAuthorityModifyContact}"))
 			return
 		}
 	}
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取联系人管理信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementInformation}"))
 		return
 	}
 	return
@@ -268,7 +268,7 @@ func (s *sWhatsContacts) Upload(ctx context.Context, list []*whatsin.WhatsContac
 		}
 	}
 	_, err = s.Model(ctx).Data(list).Save()
-	return nil, gerror.Wrap(err, "上传账号失败，请稍后重试！")
+	return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#UploadAccountFailed}"))
 }
 
 func (s *sWhatsContacts) updateDateRoleById(ctx context.Context, id int64) bool {
@@ -280,7 +280,7 @@ func (s *sWhatsContacts) updateDateRoleById(ctx context.Context, id int64) bool 
 	mod = mod.Handler(handler.FilterAuthWithField("am.member_id")).Where("c."+dao.WhatsContacts.Columns().Id, id)
 	totalCount, err := mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementDataFailed}"))
 		return false
 	}
 

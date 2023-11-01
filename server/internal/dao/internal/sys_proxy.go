@@ -29,6 +29,7 @@ type SysProxyColumns struct {
 	AssignedCount  string // 已分配账号数量
 	LongTermCount  string // 长期未登录数量
 	Region         string // 地区
+	Delay          string // 延迟
 	Comment        string // 备注
 	Status         string // 状态(1正常, 2停用)
 	DeletedAt      string // 删除时间
@@ -47,6 +48,7 @@ var sysProxyColumns = SysProxyColumns{
 	AssignedCount:  "assigned_count",
 	LongTermCount:  "long_term_count",
 	Region:         "region",
+	Delay:          "delay",
 	Comment:        "comment",
 	Status:         "status",
 	DeletedAt:      "deleted_at",

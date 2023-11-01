@@ -12,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/api/admin/common"
+	"hotgo/api/org/member"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/captcha"
 	"hotgo/internal/library/token"
@@ -154,5 +155,24 @@ func (c *cSite) EmailLogin(ctx context.Context, req *common.EmailLoginReq) (res 
 // Logout 注销登录
 func (c *cSite) Logout(ctx context.Context, _ *common.LoginLogoutReq) (res *common.LoginLogoutRes, err error) {
 	err = token.Logout(ghttp.RequestFromCtx(ctx))
+	return
+}
+
+// RestPwd 重置密码
+func (c *cSite) RestPwd(ctx context.Context, req *common.RestPwdReq) (res *common.RestPwdRes, err error) {
+	res = new(common.RestPwdRes)
+	res.RegisterModel, err = service.AdminSite().RestPwd(ctx, &req.RestPwdInp)
+	return
+}
+
+// RestPwdCode 重置密码发送验证码
+func (c *cSite) RestPwdCode(ctx context.Context, req *common.RestPwdCodeReq) (res *common.RestPwdCodeRes, err error) {
+	err = service.AdminSite().RestPwdCode(ctx, &req.RegisterCodeInp)
+	return
+}
+
+// UpdatePwd 修改登录密码
+func (c *cSite) UpdatePwd(ctx context.Context, req *common.UpdatePwdReq) (res *member.UpdatePwdRes, err error) {
+	err = service.AdminMember().UpdatePwd(ctx, &req.MemberUpdatePwdInp)
 	return
 }

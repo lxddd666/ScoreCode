@@ -1,0 +1,11 @@
+{
+  "WechatPublicAccountSet": "WeChat public account payment must set Openid",
+  "WechatPublicAccountSynAdd": "WeChat public account payment must set the synchronous notification address",
+  "BackgroundSetWeb": "Please go to the background first [System Settings]-[Configuration Management] Set the website domain name",
+  "WebFormatError": "The website domain name format is wrong, please check",
+  "UnwillingPayMethod": "Unwilling payment method:%V",
+  "MerchantOrderNumberNotExist": "Merchant order number [%v] does not have payment records, please check",
+  "MerchantOrderNumberProcessed": "Merchant order number [%V] has been processed, please do not repeat operation",
+  "NoUpdateData": "Not updated data line",
+  "ExportPayLog": "Export payment log"
+}

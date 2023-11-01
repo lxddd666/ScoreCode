@@ -19,6 +19,7 @@ type SysProxy struct {
 	AssignedCount  int64       `json:"assignedCount"  description:"已分配账号数量"`
 	LongTermCount  int64       `json:"longTermCount"  description:"长期未登录数量"`
 	Region         string      `json:"region"         description:"地区"`
+	Delay          int         `json:"delay"          description:"延迟"`
 	Comment        string      `json:"comment"        description:"备注"`
 	Status         int         `json:"status"         description:"状态(1正常, 2停用)"`
 	DeletedAt      *gtime.Time `json:"deletedAt"      description:"删除时间"`

@@ -190,5 +190,22 @@
    "ExportServiceLog": "导出服务日志-",
    "InvalidEventType": "无效的事件类型:%v",
    "SMSRecordIdNotEmpty": "短信记录ID不能为空",
-   "TimingTaskIdNotEmpty": "定时任务ID不能为空"
+   "TimingTaskIdNotEmpty": "定时任务ID不能为空",
+   "ConsiderSecurityIssues": "暂时考虑到安全问题，请到数据库清空",
+   "NoFindUploadFiles": "没有找到上传的文件",
+   "InvalidAuthorization": "无效的授权方式",
+   "AuthorizationInvalidOrExpired": "授权无效或已过期，请重试",
+   "TypeSelectInvalid": "类型选择无效，请检查",
+   "GenerationNotEmpty": "生成类型不能为空",
+   "PhysicalNameNoEmpty": "实体名称不能为空",
+   "SelectTemplateNotExist": "选择的模板不存在:%v",
+   "PlugTemplateEffective": "插件模板必须选择一个有效的插件",
+   "MenuExist": "菜单编码已存在，请换一个",
+   "UpperMenuInformationError": "上级菜单信息错误",
+   "ModifyMenuFailed": "修改菜单失败",
+   "AddMenuFailed": "新增菜单失败",
+   "GetMenuDetailFailed": "获取菜单明细失败，该用户没有该菜单权限",
+   "LicenseNameNotEmpty": "许可名称不能为空",
+   "AppIdNotEmpty": "应用ID不能为空",
+   "AuthorizationEndTimeNotEmpty": "授权结束时间不能为空"
 }

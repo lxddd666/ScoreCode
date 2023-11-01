@@ -70,7 +70,7 @@ func (s *sCommonWechat) Authorize(ctx context.Context, in *commonin.WechatAuthor
 	)
 
 	if memberId <= 0 {
-		err = gerror.New("获取用户信息失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserInformationFailed}"))
 		return
 	}
 
@@ -80,7 +80,7 @@ func (s *sCommonWechat) Authorize(ctx context.Context, in *commonin.WechatAuthor
 	case consts.WechatAuthorizeBindLogin: // 绑定微信登录
 		scope = consts.WechatScopeUserinfo
 	default:
-		err = gerror.New("无效的授权方式！")
+		err = gerror.New(g.I18n().T(ctx, "{#InvalidAuthorization}"))
 		return
 	}
 
@@ -103,7 +103,7 @@ func (s *sCommonWechat) Authorize(ctx context.Context, in *commonin.WechatAuthor
 func (s *sCommonWechat) AuthorizeCall(ctx context.Context, in *commonin.WechatAuthorizeCallInp) (res *commonin.WechatAuthorizeCallModel, err error) {
 	data, ok := s.temp[in.State]
 	if !ok || data == nil {
-		err = gerror.New("授权无效或已过期，请重试")
+		err = gerror.New(g.I18n().T(ctx, "{#AuthorizationInvalidOrExpired}"))
 		return
 	}
 
@@ -120,7 +120,7 @@ func (s *sCommonWechat) AuthorizeCall(ctx context.Context, in *commonin.WechatAu
 	case consts.WechatAuthorizeBindLogin: // 绑定微信登录
 		// ...
 	default:
-		err = gerror.New("无效的授权方式！")
+		err = gerror.New(g.I18n().T(ctx, "{#InvalidAuthorization}"))
 		return
 	}
 

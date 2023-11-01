@@ -7,7 +7,6 @@ package adminin
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
@@ -15,6 +14,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
+	"hotgo/utility/simple"
 	"hotgo/utility/validate"
 )
 
@@ -73,8 +73,35 @@ type MemberUpdateProfileInp struct {
 // MemberUpdatePwdInp 修改登录密码
 type MemberUpdatePwdInp struct {
 	Id          int64  `json:"id" dc:"用户ID"`
+	Username    string `json:"username" dc:"用户名，未鉴权时需传入"`
 	OldPassword string `json:"oldPassword" v:"required#OriginalPasswordNotEmpty"  dc:"原密码"`
-	NewPassword string `json:"newPassword" v:"required|length:6,18#NewPasswordNotEmpty#NewPasswordLengthCheck"  dc:"新密码"`
+	NewPassword string `json:"newPassword" v:"required#NewPasswordNotEmpty"  dc:"新密码"`
+}
+
+func (in *MemberUpdatePwdInp) Filter(ctx context.Context) (err error) {
+	// 解密密码
+	oldPassword, err := simple.DecryptText(in.OldPassword)
+	if err != nil {
+		return err
+	}
+	if err = g.Validator().Data(oldPassword).Rules("length:6,18").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+		return
+	}
+
+	in.OldPassword = oldPassword
+
+	// 解密密码
+	newPassword, err := simple.DecryptText(in.NewPassword)
+	if err != nil {
+		return err
+	}
+	if err = g.Validator().Data(newPassword).Rules("length:6,18").Messages(g.I18n().T(ctx, "{#PasswordLengthCheck}")).Run(ctx); err != nil {
+		return
+	}
+
+	in.NewPassword = newPassword
+
+	return
 }
 
 // MemberResetPwdInp 重置密码
@@ -266,14 +293,14 @@ func (in *MemberAddBalanceInp) Filter(ctx context.Context) (err error) {
 		in.SelfCreditGroup = consts.CreditGroupOpIncr
 		in.OtherNum = in.Num
 		in.OtherCreditGroup = consts.CreditGroupIncr
-		in.Remark = fmt.Sprintf("增加余额:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#IncreaseBalance}", in.OtherNum)
 	} else {
 		// 扣款
 		in.SelfNum = in.Num
 		in.SelfCreditGroup = consts.CreditGroupOpDecr
 		in.OtherNum = -in.Num
 		in.OtherCreditGroup = consts.CreditGroupDecr
-		in.Remark = fmt.Sprintf("扣除余额:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#DeductionBalance}", in.OtherNum)
 	}
 
 	in.AppId = contexts.GetModule(ctx)
@@ -309,14 +336,14 @@ func (in *MemberAddIntegralInp) Filter(ctx context.Context) (err error) {
 		in.SelfCreditGroup = consts.CreditGroupOpIncr
 		in.OtherNum = in.Num
 		in.OtherCreditGroup = consts.CreditGroupIncr
-		in.Remark = fmt.Sprintf("增加积分:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#AddPoints}", in.OtherNum)
 	} else {
 		// 扣款
 		in.SelfNum = in.Num
 		in.SelfCreditGroup = consts.CreditGroupOpDecr
 		in.OtherNum = -in.Num
 		in.OtherCreditGroup = consts.CreditGroupDecr
-		in.Remark = fmt.Sprintf("扣除积分:%v", in.OtherNum)
+		in.Remark = g.I18n().Tf(ctx, "{#DeductionPoints}", in.OtherNum)
 	}
 
 	in.AppId = contexts.GetModule(ctx)

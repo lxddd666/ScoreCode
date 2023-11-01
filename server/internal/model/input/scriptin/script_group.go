@@ -30,15 +30,15 @@ type ScriptGroupEditInp struct {
 
 func (in *ScriptGroupEditInp) Filter(ctx context.Context) (err error) {
 	// 验证分组类型
-	if err := g.Validator().Rules("required").Data(in.Type).Messages("分组类型不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Type).Messages(g.I18n().T(ctx, "{#ScriptGroupTypeNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
-	if err := g.Validator().Rules("in:1,2").Data(in.Type).Messages("分组类型值不正确").Run(ctx); err != nil {
+	if err := g.Validator().Rules("in:1,2").Data(in.Type).Messages(g.I18n().T(ctx, "{#ScriptGroupTypePacketIncorrect}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
 	// 验证话术组名
-	if err := g.Validator().Rules("required").Data(in.Name).Messages("话术组名不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Name).Messages(g.I18n().T(ctx, "{#GroupNameNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -49,7 +49,7 @@ type ScriptGroupEditModel struct{}
 
 // ScriptGroupDeleteInp 删除话术分组
 type ScriptGroupDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *ScriptGroupDeleteInp) Filter(ctx context.Context) (err error) {
@@ -60,7 +60,7 @@ type ScriptGroupDeleteModel struct{}
 
 // ScriptGroupViewInp 获取指定话术分组信息
 type ScriptGroupViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *ScriptGroupViewInp) Filter(ctx context.Context) (err error) {

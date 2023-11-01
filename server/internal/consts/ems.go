@@ -40,5 +40,6 @@ func IsCodeEmsTemplate(template string) bool {
 		template == EmsTemplateLogin ||
 		template == EmsTemplateRegister ||
 		template == EmsTemplateBind ||
-		template == EmsTemplateCash
+		template == EmsTemplateCash ||
+		template == EmsTemplateResetPwd
 }

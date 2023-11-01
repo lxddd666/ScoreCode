@@ -90,7 +90,7 @@ export interface State {
   updatedAt: string;
 }
 
-const schemas: FormSchema[] = [
+export const schemas: FormSchema[] = [
   {
     field: 'username',
     component: 'NInput',

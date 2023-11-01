@@ -51,7 +51,7 @@ type WhatsAccountEditModel struct{}
 
 // WhatsAccountDeleteInp 删除账号管理
 type WhatsAccountDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *WhatsAccountDeleteInp) Filter(ctx context.Context) (err error) {
@@ -62,7 +62,7 @@ type WhatsAccountDeleteModel struct{}
 
 // WhatsAccountViewInp 获取指定账号管理信息
 type WhatsAccountViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *WhatsAccountViewInp) Filter(ctx context.Context) (err error) {
@@ -119,8 +119,8 @@ type WhatsAccountUploadModel struct{}
 
 // WhatsAccountUnBindInp 解绑代理
 type WhatsAccountUnBindInp struct {
-	Id           []int  `json:"id" example:"[1,2]" v:"required#id不能为空" dc:"id,可以是数组"`
-	ProxyAddress string `json:"proxyAddress" v:"required#代理地址不能为空" dc:"代理地址"`
+	Id           []int  `json:"id" example:"[1,2]" v:"required#IdNotEmpty" dc:"id,可以是数组"`
+	ProxyAddress string `json:"proxyAddress" v:"required#ProxyAddressNotEmpty" dc:"代理地址"`
 }
 
 func (in *WhatsAccountUnBindInp) Filter(ctx context.Context) (err error) {
@@ -131,8 +131,8 @@ type WhatsAccountUnBindModel struct{}
 
 // WhatAccountBindInp 绑定账号
 type WhatsAccountBindInp struct {
-	Id           interface{} `json:"id" example:"[1,2]" v:"required#id不能为空" dc:"id,可以是数组"`
-	ProxyAddress string      `json:"proxyAddress" v:"required#代理地址不能为空" dc:"代理地址"`
+	Id           interface{} `json:"id" example:"[1,2]" v:"required#IdNotEmpty" dc:"id,可以是数组"`
+	ProxyAddress string      `json:"proxyAddress" v:"required#ProxyAddressNotEmpty" dc:"代理地址"`
 }
 
 func (in *WhatsAccountBindInp) Filter(ctx context.Context) (err error) {
@@ -144,7 +144,7 @@ type WhatsAccountBindModel struct{}
 // WhatsAccountGetContactInp 社交账号的联系人
 type WhatsAccountGetContactInp struct {
 	form.PageReq
-	Account string `json:"account" v:"required#账号不能为空" dc:"account"`
+	Account string `json:"account" v:"required#AccountNotEmpty" dc:"account"`
 }
 
 func (in *WhatsAccountGetContactInp) Filter(ctx context.Context) (err error) {
@@ -152,7 +152,7 @@ func (in *WhatsAccountGetContactInp) Filter(ctx context.Context) (err error) {
 }
 
 type MemberBindAccountInp struct {
-	Accounts []string `json:"accounts"  v:"required#社交小号不能为空" dc:"account"`
+	Accounts []string `json:"accounts"  v:"required#SocialTrumpetNotEmpty" dc:"account"`
 }
 
 func (in *MemberBindAccountInp) Filter(ctx context.Context) (err error) {
