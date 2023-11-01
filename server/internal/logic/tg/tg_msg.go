@@ -86,7 +86,7 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取消息记录数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageRecordFailed}"))
 		return
 	}
 
@@ -95,7 +95,7 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 	}
 
 	if err = mod.Fields(tgin.TgMsgListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgMsg.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageListFailed}"))
 		return
 	}
 
@@ -105,7 +105,7 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 		reqIds.PushRight(model.ReqId)
 	}
 	if result, err := g.Redis().HKeys(ctx, consts.TgMsgReadReqKey); err != nil {
-		err = gerror.Wrap(err, "获取消息记录列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageListFailed}"))
 		return list, totalCount, err
 	} else {
 		reqIds.SetArray(result)
@@ -133,8 +133,8 @@ func (s *sTgMsg) Export(ctx context.Context, in *tgin.TgMsgListInp) (err error) 
 	}
 
 	var (
-		fileName  = "导出消息记录-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportMessageRecord}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgMsgExportModel
 	)
 
@@ -153,7 +153,7 @@ func (s *sTgMsg) Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error) {
 		if _, err = s.Model(ctx).
 			Fields(tgin.TgMsgUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改消息记录失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyMessageRecordFailed}"))
 		}
 		return
 	}
@@ -162,7 +162,7 @@ func (s *sTgMsg) Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error) {
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgMsgInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增消息记录失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddMessageRecordFailed}"))
 	}
 	return
 }
@@ -170,7 +170,7 @@ func (s *sTgMsg) Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error) {
 // Delete 删除消息记录
 func (s *sTgMsg) Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除消息记录失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteMessageRecordFailed}"))
 		return
 	}
 	return
@@ -179,7 +179,7 @@ func (s *sTgMsg) Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error
 // View 获取消息记录指定信息
 func (s *sTgMsg) View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取消息记录信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageRecordInformation}"))
 		return
 	}
 	return

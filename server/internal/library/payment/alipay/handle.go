@@ -10,6 +10,7 @@ import (
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/alipay"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -47,7 +48,7 @@ func (h *aliPay) Refund(ctx context.Context, in payin.RefundInp) (res *payin.Ref
 	}
 
 	if refund.Response.FundChange != "Y" {
-		err = gerror.New("支付宝本次退款未发生资金变化！")
+		err = gerror.New(g.I18n().T(ctx, "{#AlipayRefundChange}"))
 		return
 	}
 	return

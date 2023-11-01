@@ -156,7 +156,7 @@ func (s *sArts) Send(ctx context.Context, req *protobuf.RequestMessage) (res *pr
 	res, err = c.Connect(ctx, req)
 	g.Log().Info(ctx, res.GetActionResult().String())
 	if err != nil {
-		return nil, gerror.Wrap(err, "请求服务端失败，请稍后重试!")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#RequestServerFailed}"))
 	}
 	if res.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
 		return nil, gerror.NewCode(gcode.New(int(res.ActionResult), res.Comment, nil), res.Comment)

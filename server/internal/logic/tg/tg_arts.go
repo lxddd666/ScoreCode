@@ -68,7 +68,7 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	)
 	err = service.TgUser().Model(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取telegram账号信息失败，请稍后重试")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
 	if g.IsEmpty(tgUser) {
 		return nil, gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
@@ -76,7 +76,7 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 
 	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取公司信息失败，请稍后重试")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 	tgUserList := []*entity.TgUser{&tgUser}
 	// 处理端口数
@@ -107,7 +107,7 @@ func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list [
 	count := len(list)
 	// 判断端口数是否足够
 	if sysOrg.AssignedPorts+gconv.Int64(count) >= sysOrg.Ports {
-		return gerror.New("可用端口数不足")
+		return gerror.New(g.I18n().T(ctx, "{#InsufficientNumber}"))
 	}
 	// 更新已使用端口数
 	_, err = service.SysOrg().Model(ctx).
@@ -161,7 +161,7 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 	}
 
 	if accounts.IsEmpty() {
-		return nil, gerror.Newf("选择登录的账号[%s]已经在登录中....", tgUserList[0].Phone)
+		return nil, gerror.Newf(g.I18n().Tf(ctx, "{#SelectLoggingAccount}"), tgUserList[0].Phone)
 	}
 	loginTgUserList = accounts.Slice()
 	return
@@ -210,14 +210,14 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	)
 	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
 	if err != nil {
-		return gerror.Wrap(err, "获取tg账号信息失败，请稍后重试")
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
 	if len(tgUserList) < 1 {
 		return gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
 	}
 	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
 	if err != nil {
-		return gerror.Wrap(err, "获取公司信息失败，请稍后重试")
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
@@ -284,7 +284,7 @@ func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 	)
 	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
 	if err != nil {
-		return gerror.Wrap(err, "获取tg账号信息失败，请稍后重试")
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
 	logoutDetail := make(map[uint64]*protobuf.LogoutDetail)
 	for _, account := range tgUserList {
@@ -315,7 +315,7 @@ func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) 
 		return err
 	}
 	if userId.IsEmpty() {
-		err = gerror.New("未登录")
+		err = gerror.New(g.I18n().T(ctx, "{#NoLog}"))
 	}
 	return
 }

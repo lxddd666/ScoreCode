@@ -8,6 +8,7 @@ package common
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -116,7 +117,7 @@ func (c *cSite) AccountLogin(ctx context.Context, req *common.AccountLoginReq) (
 	if !req.IsLock && login.CaptchaSwitch == 1 {
 		// 校验 验证码
 		if !captcha.Verify(ctx, req.Cid, req.Code) {
-			err = gerror.New("验证码错误")
+			err = gerror.New(g.I18n().T(ctx, "{#CodeError}"))
 			return
 		}
 	}

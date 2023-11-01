@@ -36,11 +36,11 @@ var (
 
 			// 错误状态码接管
 			s.BindStatusHandler(404, func(r *ghttp.Request) {
-				r.Response.Writeln("404 - 你似乎来到了没有知识存在的荒原…")
+				r.Response.Writeln(g.I18n().T(ctx, "{#Nothing}"))
 			})
 
 			s.BindStatusHandler(403, func(r *ghttp.Request) {
-				r.Response.Writeln("403 - 网站拒绝显示此网页")
+				r.Response.Writeln(g.I18n().T(ctx, "{#WebsiteRefuse}"))
 			})
 
 			// 初始化普罗米修斯

@@ -50,7 +50,7 @@ type TgUserEditModel struct{}
 
 // TgUserDeleteInp 删除TG账号
 type TgUserDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgUserDeleteInp) Filter(ctx context.Context) (err error) {
@@ -61,7 +61,7 @@ type TgUserDeleteModel struct{}
 
 // TgUserViewInp 获取指定TG账号信息
 type TgUserViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgUserViewInp) Filter(ctx context.Context) (err error) {
@@ -130,8 +130,8 @@ type TgUserExportModel struct {
 
 // TgUserBindMemberInp 绑定用户
 type TgUserBindMemberInp struct {
-	MemberId int64   `json:"memberId" v:"required#用户ID不能为空" dc:"用户ID"`
-	Ids      []int64 `json:"ids" v:"required#id不能为空" dc:"id"`
+	MemberId int64   `json:"memberId" v:"required#UserIDNotEmpty" dc:"用户ID"`
+	Ids      []int64 `json:"ids" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgUserBindMemberInp) Filter(ctx context.Context) (err error) {
@@ -140,7 +140,7 @@ func (in *TgUserBindMemberInp) Filter(ctx context.Context) (err error) {
 
 // TgUserUnBindMemberInp 解绑用户
 type TgUserUnBindMemberInp struct {
-	Ids []int64 `json:"ids" v:"required#id不能为空" dc:"id"`
+	Ids []int64 `json:"ids" v:"required#IdNotEmpty" dc:"id"`
 }
 
 type TgUserBindMemberModel struct{}
@@ -181,8 +181,8 @@ type TgImportSessionAuthKeyMsg struct {
 
 // TgUserBindProxyInp 绑定代理
 type TgUserBindProxyInp struct {
-	ProxyId int64   `json:"proxyId" v:"required#代理ID不能为空" dc:"代理ID"`
-	Ids     []int64 `json:"ids" v:"required#id不能为空" dc:"tg用户id"`
+	ProxyId int64   `json:"proxyId" v:"required#ProxyIdNotEmpty" dc:"代理ID"`
+	Ids     []int64 `json:"ids" v:"required#IdNotEmpty" dc:"tg用户id"`
 }
 
 func (in *TgUserBindProxyInp) Filter(ctx context.Context) (err error) {
@@ -193,7 +193,7 @@ type TgUserBindProxyModel struct{}
 
 // TgUserUnBindProxyInp 解绑代理
 type TgUserUnBindProxyInp struct {
-	Ids []int64 `json:"ids" v:"required#id不能为空" dc:"tg用户id"`
+	Ids []int64 `json:"ids" v:"required#IdNotEmpty" dc:"tg用户id"`
 }
 
 type TgUserUnBindProxyModel struct{}

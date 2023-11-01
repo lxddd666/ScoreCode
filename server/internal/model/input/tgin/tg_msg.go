@@ -53,7 +53,7 @@ type TgMsgEditModel struct{}
 
 // TgMsgDeleteInp 删除消息记录
 type TgMsgDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgMsgDeleteInp) Filter(ctx context.Context) (err error) {
@@ -64,7 +64,7 @@ type TgMsgDeleteModel struct{}
 
 // TgMsgViewInp 获取指定消息记录信息
 type TgMsgViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgMsgViewInp) Filter(ctx context.Context) (err error) {

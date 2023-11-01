@@ -2,6 +2,7 @@ package whats
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	whatsarts "hotgo/api/whats/whats_arts"
 	"hotgo/internal/service"
 )
@@ -15,7 +16,7 @@ type cWhatsArts struct{}
 // Login 登录账号
 func (c *cWhatsArts) Login(ctx context.Context, req *whatsarts.WhatsLoginReq) (res *whatsarts.WhatsLoginRes, err error) {
 	err = service.WhatsArts().Login(ctx, req.Ids)
-	data := `登录中，请查看登录状态`
+	data := g.I18n().T(ctx, "{#LoginCheckState}")
 	res = (*whatsarts.WhatsLoginRes)(&data)
 	return
 }

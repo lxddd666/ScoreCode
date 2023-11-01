@@ -3,6 +3,7 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	tguser "hotgo/api/tg/tg_user"
 	"hotgo/internal/service"
@@ -72,15 +73,15 @@ func (c *cTgUser) UnBindMember(ctx context.Context, req *tguser.UnBindMemberReq)
 // ImportSession 导入用户session
 func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionReq) (res *tguser.ImportSessionRes, err error) {
 	if req.File == nil {
-		err = gerror.New("没有找到上传的文件")
+		err = gerror.New(g.I18n().T(ctx, "{#NoFindUploadFiles}"))
 		return
 	}
 	if gfile.ExtName(req.File.Filename) != "zip" {
-		err = gerror.New("上传文件类型不是zip")
+		err = gerror.New(g.I18n().T(ctx, "{#UploadFileNotZip}"))
 		return
 	}
 	if req.File.Size == 0 {
-		err = gerror.New("上传zip包内文件为空")
+		err = gerror.New(g.I18n().T(ctx, "{#UploadFileEmpty}"))
 		return
 	}
 

@@ -1,0 +1,9 @@
+{
+  "All": "all",
+  "Picture": "picture",
+  "Document": "document",
+  "Audio": "audio",
+  "Video": "video",
+  "Archive": "archive",
+  "Other": "other"
+}

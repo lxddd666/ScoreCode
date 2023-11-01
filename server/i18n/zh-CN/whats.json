@@ -74,5 +74,6 @@
   "CompanyAssociateProxyFailed": "公司关联代理添加失败，请联系管理员",
   "ProxyNotAvailable": "代理不可用，代理请求失败",
   "ProxyAddressExist": "代理地址已存在",
-  "ProxyAreaAnalysisError": "代理区域解析错误"
+  "ProxyAreaAnalysisError": "代理区域解析错误",
+  "LoginCheckState": "登录中，请查看登录状态"
 }
