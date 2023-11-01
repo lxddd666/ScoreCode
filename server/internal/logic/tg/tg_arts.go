@@ -93,6 +93,11 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	if err != nil {
 		return
 	}
+	err = s.handlerSyncAccount(ctx, tgUserList)
+	if err != nil {
+		return
+	}
+
 	err = s.login(ctx, user, tgUserList)
 	return
 }
@@ -129,9 +134,9 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 		simple.SafeGo(ctx, func(ctx context.Context) {
 			defer wg.Done()
 			//判断是否在登录中，已在登录中的号不执行登录操作
-			key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, tgUser.Phone)
+			key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, tgUser.Phone)
 			v, _ := g.Redis().Get(ctx, key)
-			if v.Val() == nil {
+			if v.IsEmpty() {
 
 				// 查看账号是否有代理
 				if tgUser.ProxyAddress == "" {
@@ -159,6 +164,17 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 		return nil, gerror.Newf("选择登录的账号[%s]已经在登录中....", tgUserList[0].Phone)
 	}
 	loginTgUserList = accounts.Slice()
+	return
+}
+
+func (s *sTgArts) handlerSyncAccount(ctx context.Context, tgUserList []*entity.TgUser) (err error) {
+	phones := make([]uint64, 0)
+	for _, tgUser := range tgUserList {
+		if tgUser.LastLoginTime == nil {
+			phones = append(phones, gconv.Uint64(tgUser.Phone))
+		}
+	}
+	_, err = s.SyncAccount(ctx, phones)
 	return
 }
 
@@ -216,6 +232,11 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	if err != nil {
 		return
 	}
+
+	err = s.handlerSyncAccount(ctx, tgUserList)
+	if err != nil {
+		return
+	}
 	err = s.login(ctx, user, tgUserList)
 
 	return
@@ -225,17 +246,13 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	usernameMap := gmap.NewStrAnyMap(true)
 	for _, tgUser := range tgUserList {
-		//判断是否在登录中，已在登录中的号不执行登录操作
-		key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, tgUser.Phone)
-		v, err := g.Redis().Get(ctx, key)
+		loginUser, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, tgUser.Phone)
 		if err != nil {
 			return err
 		}
-		if !v.IsEmpty() {
-			err = gerror.New("正在登录，请勿频繁操作")
-			return err
+		if !loginUser.IsEmpty() {
+			continue
 		}
-		_ = g.Redis().SetEX(ctx, key, tgUser.Phone, 10)
 		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 		usernameMap.Set(tgUser.Phone, user.Id)
@@ -261,20 +278,26 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 }
 
 // Logout 登退
-func (s *sTgArts) Logout(ctx context.Context, phones []uint64) (err error) {
+func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
+	var (
+		tgUserList []*entity.TgUser
+	)
+	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
+	if err != nil {
+		return gerror.Wrap(err, "获取tg账号信息失败，请稍后重试")
+	}
 	logoutDetail := make(map[uint64]*protobuf.LogoutDetail)
-	for _, account := range phones {
+	for _, account := range tgUserList {
 		// 检查是否登录
-		if err = s.TgCheckLogin(ctx, account); err != nil {
+		if err = s.TgCheckLogin(ctx, gconv.Uint64(account.Phone)); err != nil {
 			return
 		}
 		ld := &protobuf.LogoutDetail{}
-		logoutDetail[account] = ld
+		logoutDetail[gconv.Uint64(account.Phone)] = ld
 	}
 	req := &protobuf.RequestMessage{
-		Action:  protobuf.Action_LOGOUT,
-		Type:    consts.TgSvc,
-		Account: phones[0],
+		Action: protobuf.Action_LOGOUT,
+		Type:   consts.TgSvc,
 		ActionDetail: &protobuf.RequestMessage_LogoutAction{
 			LogoutAction: &protobuf.LogoutAction{
 				LogoutDetail: logoutDetail,

@@ -56,7 +56,7 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 
 // List 获取TG账号列表
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
-	mod := s.Model(ctx).As("tu")
+	mod := s.Model(ctx)
 
 	// 查询账号号码
 	if in.Username != "" {
@@ -83,6 +83,11 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		mod = mod.Where(dao.TgUser.Columns().AccountStatus, in.AccountStatus)
 	}
 
+	// 查询是否在线
+	if in.IsOnline > 0 {
+		mod = mod.Where(dao.TgUser.Columns().IsOnline, in.IsOnline)
+	}
+
 	// 查询代理地址
 	if in.ProxyAddress != "" {
 		mod = mod.WhereLike(dao.TgUser.Columns().ProxyAddress, in.ProxyAddress)
@@ -104,8 +109,8 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 	}
 
 	if err = mod.
-		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tu.member_id").
-		Fields("tu.*", "ham.member_username").
+		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
+		Fields("tg_user.*", "ham.member_username").
 		Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, "获取TG账号列表失败，请稍后重试！")
 		return
@@ -220,7 +225,8 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
 			item.IsOnline = consts.Offline
 			// 移除登录失败的端口记录
-			_, err = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+			_, _ = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+			_, _ = g.Redis().HDel(ctx, consts.TgLoginAccountKey, item.Phone)
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
@@ -228,11 +234,10 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		//更新登录状态
 		_, _ = s.Model(ctx).
 			Fields(cols.TgId, cols.Username, cols.FirstName, cols.LastName, cols.IsOnline, cols.LastLoginTime, cols.AccountStatus).
-			OmitEmpty().
 			Where(cols.Phone, item.Phone).Update(item)
 		item.Session = nil
 		// 删除登录过程的redis
-		key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, item.Phone)
+		key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, item.Phone)
 		_, _ = g.Redis().Del(ctx, key)
 		//websocket推送登录结果
 		websocket.SendToTag(gconv.String(item.TgId), &websocket.WResponse{
@@ -469,7 +474,7 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 	}
 	//绑定代理
 	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: proxy.Address})
+		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: proxy.Address, PublicProxy: 2})
 		if err != nil {
 			return gerror.Wrap(err, "绑定失败，请稍后重试！")
 		}

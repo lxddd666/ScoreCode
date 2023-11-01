@@ -137,3 +137,13 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 	}
 
 }
+
+func TestTgUser(t *testing.T) {
+	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.local.yaml")
+	var list []*entity.TgUser
+	all, err := g.DB().GetAll(ctx, "select * from tg_user where phone in (select phone from tg_user group by phone having count(phone)>1) order by phone")
+	panicErr(err)
+	err = all.Structs(&list)
+	panicErr(err)
+
+}

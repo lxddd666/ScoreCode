@@ -111,6 +111,36 @@
             解绑代理
           </n-button>
 
+          <n-button
+            type="success"
+            @click="handleBatchLogin"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogin'])"
+          >
+            <template #icon>
+              <n-icon>
+                <LoginOutlined/>
+              </n-icon>
+            </template>
+            批量上线
+          </n-button>
+
+          <n-button
+            type="error"
+            @click="handleBatchLogout"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogout'])"
+          >
+            <template #icon>
+              <n-icon>
+                <LogoutOutlined/>
+              </n-icon>
+            </template>
+            批量下线
+          </n-button>
+
         </template>
       </BasicTable>
     </n-card>
@@ -144,14 +174,20 @@ import {usePermission} from '@/hooks/web/usePermission';
 import {
   Delete,
   Export,
-  List,
+  List, TgBathLogin, TgBathLogout,
   TgBindMember,
   TgBindProxy,
   TgUnBindMember,
   TgUnBindProxy
 } from '@/api/tg/tgUser';
 import {columns, newState, schemas, State} from './model';
-import {DeleteOutlined, ExportOutlined, PlusOutlined} from '@vicons/antd';
+import {
+  DeleteOutlined,
+  ExportOutlined,
+  LoginOutlined,
+  PlusOutlined,
+  LogoutOutlined
+} from '@vicons/antd';
 import {useRouter} from 'vue-router';
 import Edit from './edit.vue';
 import BindMember from "./bindMember.vue";
@@ -350,6 +386,32 @@ function handleUnBindProxy() {
       // message.error('取消');
     },
   });
+}
+
+function handleBatchLogin() {
+  TgBathLogin({ids: checkedIds.value}).then((_res) => {
+    message.success('登录中，请等待......');
+    reloadTable();
+  });
+}
+
+function handleBatchLogout() {
+  dialog.warning({
+    title: '警告',
+    content: '你确定要退出吗，退出后将无法接收最新消息？',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      TgBathLogout({ids: checkedIds.value}).then((_res) => {
+        message.success('下线成功');
+        reloadTable();
+      });
+    },
+    onNegativeClick: () => {
+      // message.error('取消');
+    },
+  });
+
 }
 
 </script>

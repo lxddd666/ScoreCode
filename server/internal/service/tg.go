@@ -28,7 +28,7 @@ type (
 		// SessionLogin 登录
 		SessionLogin(ctx context.Context, ids []int64) (err error)
 		// Logout 登退
-		Logout(ctx context.Context, phones []uint64) (err error)
+		Logout(ctx context.Context, ids []int64) (err error)
 		// TgCheckLogin 检查是否登录
 		TgCheckLogin(ctx context.Context, account uint64) (err error)
 		// TgCheckContact 检查是否是好友
