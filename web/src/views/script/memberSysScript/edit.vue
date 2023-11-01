@@ -19,7 +19,7 @@
           class="py-4"
         >
           <n-form-item label="分组" path="groupId">
-            <n-input-number placeholder="请输入分组" v-model:value="params.groupId" />
+            <n-select v-model:value="params.groupId" :options="options.group" />
           </n-form-item>
 
           <n-form-item label="话术分类" path="scriptClass">
@@ -31,7 +31,7 @@
           </n-form-item>
 
           <n-form-item label="话术内容" path="content">
-            <Editor style="height: 450px" id="content" v-model:value="params.content" />
+            <n-input style="height: 450px" id="content" v-model:value="params.content" />
           </n-form-item>
 
 

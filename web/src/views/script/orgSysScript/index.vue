@@ -173,7 +173,7 @@ const { hasPermission } = usePermission();
   }
 
   function handleView(record: Recordable) {
-    router.push({ name: 'sysScriptView', params: { id: record.id } });
+    router.push({ name: 'orgSysScriptView', params: { id: record.id } });
   }
 
   function handleEdit(record: Recordable) {

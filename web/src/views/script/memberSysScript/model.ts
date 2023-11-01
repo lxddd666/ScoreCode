@@ -7,15 +7,15 @@ import {Dicts} from '@/api/dict/dict';
 import {isNullObject} from '@/utils/is';
 import {defRangeShortcuts} from '@/utils/dateUtil';
 import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import {getGroupOption} from "@/api/script/orgScriptGroup";
 
 
 export interface State {
   id: number;
   orgId: number;
   memberId: number;
-  groupId: number;
-  type: number;
-  scriptClass: number;
+  groupId: number|any;
+  scriptClass: number|any;
   short: string;
   content: string;
   sendCount: number;
@@ -27,15 +27,15 @@ export const defaultState = {
   id: 0,
   orgId: 0,
   memberId: 0,
-  groupId: 0,
-  type: 1,
-  scriptClass: 0,
+  groupId: '',
+  scriptClass: '',
   short: '',
   content: '',
   sendCount: 0,
   createdAt: '',
   updatedAt: '',
 };
+
 
 export function newState(state: State | null): State {
   if (state !== null) {
@@ -123,8 +123,8 @@ export const columns = [
     key: 'short',
   },
   {
-    title: '发送次数',
-    key: 'sendCount',
+    title: '话术内容',
+    key: 'content',
   },
   {
     title: '创建时间',
@@ -153,6 +153,17 @@ async function loadOptions() {
         break;
      }
   }
+  const group = await getGroupOption();
+  if (group.list) {
+    options.value.group = group.list;
+    for (let i = 0; i < group.list.length; i++) {
+      group.list[i].label = group.list[i].name;
+      group.list[i].value = group.list[i].id;
+    }
+  } else {
+    options.value.org = [];
+  }
+
 }
 
 await loadOptions();

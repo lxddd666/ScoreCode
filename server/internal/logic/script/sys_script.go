@@ -112,6 +112,11 @@ func (s *sSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (e
 	if err = s.checkInfo(ctx, in); err != nil {
 		return
 	}
+	user := contexts.GetUser(ctx)
+	in.OrgId = user.OrgId
+	if in.Type == consts.ScriptTypeMember {
+		in.MemberId = user.Id
+	}
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
@@ -122,11 +127,6 @@ func (s *sSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (e
 		return
 	}
 
-	user := contexts.GetUser(ctx)
-	in.OrgId = user.OrgId
-	if in.Type == consts.ScriptTypeMember {
-		in.MemberId = user.Id
-	}
 	// 新增
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(scriptin.SysScriptInsertFields{}).
