@@ -35,6 +35,8 @@ type TgUserInsertFields struct {
 	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	TgId          uint64      `json:"tg_id"         dc:"tgId"`
+	OrgId         int64       `json:"org_id"        dc:"组织ID"`
+	MemberId      int64       `json:"member_id"    dc:"用户Id"`
 }
 
 // TgUserEditInp 修改/新增TG账号
@@ -108,7 +110,7 @@ type TgUserListModel struct {
 	LastLoginTime  *gtime.Time `json:"lastLoginTime"  dc:"上次登录时间"`
 	Comment        string      `json:"comment"        dc:"备注"`
 	CreatedAt      *gtime.Time `json:"createdAt"      dc:"创建时间"`
-	TgId          int64       `json:"tgId"          dc:"tg id"`
+	TgId           int64       `json:"tgId"          dc:"tg id"`
 	UpdatedAt      *gtime.Time `json:"updatedAt"      dc:"更新时间"`
 }
 
@@ -168,7 +170,9 @@ type TgImportSessionModel struct {
 	Ipv6           bool                       `json:"ipv6"            dc:"是否用ipv6"`
 	TwoFA          string                     `json:"twoFA"           dc:"身份验证机制"`
 	Id             int64                      `json:"tg_id"           dc:"tg id"`
-	SessionAuthKey *TgImportSessionAuthKeyMsg `json:"SessionAuthKey"  dc:"导入seesion的key"`
+	SessionAuthKey *TgImportSessionAuthKeyMsg `json:"SessionAuthKey"  dc:"导入session的key"`
+	OrgId          int64                      `json:"org_id"           description:"组织ID"`
+	MemberId       int64                      `json:"member_id"        description:"用户Id"`
 }
 
 type TgImportSessionAuthKeyMsg struct {
