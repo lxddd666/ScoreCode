@@ -29,7 +29,7 @@ func New() *sView {
 // GetBreadCrumb 前台系统-获取面包屑列表
 func (s *sView) GetBreadCrumb(ctx context.Context, in *model.ViewGetBreadCrumbInput) []model.ViewBreadCrumb {
 	breadcrumb := []model.ViewBreadCrumb{
-		{Name: "首页", Url: "/"},
+		{Name: g.I18n().T(ctx, "{#FrontPage}"), Url: "/"},
 	}
 	return breadcrumb
 }

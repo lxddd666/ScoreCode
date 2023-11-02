@@ -10,6 +10,7 @@ import (
 	"github.com/go-pay/gopay"
 	"github.com/go-pay/gopay/qq"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -31,7 +32,7 @@ type qqPay struct {
 
 // Refund 订单退款
 func (h *qqPay) Refund(ctx context.Context, in payin.RefundInp) (res *payin.RefundModel, err error) {
-	err = gerror.New("暂不支持QQ支付申请退款，如有疑问请联系管理员")
+	err = gerror.New(g.I18n().T(ctx, "{#NoSupportQQPayRefund}"))
 	return
 }
 
@@ -49,7 +50,7 @@ func (h *qqPay) Notify(ctx context.Context, in payin.NotifyInp) (res *payin.Noti
 	}
 
 	if !ok {
-		err = gerror.New("QQ支付验签不通过！")
+		err = gerror.New(g.I18n().T(ctx, "{#QQPaymentNoPass}"))
 		return
 	}
 
@@ -59,19 +60,19 @@ func (h *qqPay) Notify(ctx context.Context, in payin.NotifyInp) (res *payin.Noti
 	}
 
 	if notify == nil {
-		err = gerror.New("解析订单参数失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#AnalysisOrderFailed}"))
 		return
 	}
 
 	if notify.TradeState != "SUCCESS" {
-		err = gerror.New("非交易支付成功状态，无需处理！")
+		err = gerror.New(g.I18n().T(ctx, "{#NoTransactionPaySuccessState}"))
 		// 这里如果相对非交易支付成功状态进行处理，可自行调整此处逻辑
 		// ...
 		return
 	}
 
 	if notify.OutTradeNo == "" {
-		err = gerror.New("订单中没有找到商户单号！")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderNoFindNumber}"))
 		return
 	}
 
@@ -121,7 +122,7 @@ func (h *qqPay) CreateOrder(ctx context.Context, in payin.CreateOrderInp) (res *
 		res.OutTradeNo = in.Pay.OutTradeNo
 
 	default:
-		err = gerror.Newf("暂未支持的交易方式：%v", in.Pay.TradeType)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#UnpaymentMethod}"), in.Pay.TradeType)
 	}
 	return
 }

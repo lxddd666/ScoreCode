@@ -77,7 +77,7 @@ func (s *sSysAddonsConfig) GetConfigByGroup(ctx context.Context, in *sysin.GetAd
 // ConversionType 转换类型
 func (s *sSysAddonsConfig) ConversionType(ctx context.Context, models *entity.SysAddonsConfig) (value interface{}, err error) {
 	if models == nil {
-		err = gerror.New("数据不存在")
+		err = gerror.New(g.I18n().T(ctx, "{#DataNotExist}"))
 		return
 	}
 	return consts.ConvType(models.Value, models.Type), nil
@@ -86,12 +86,12 @@ func (s *sSysAddonsConfig) ConversionType(ctx context.Context, models *entity.Sy
 // UpdateConfigByGroup 更新指定分组的配置
 func (s *sSysAddonsConfig) UpdateConfigByGroup(ctx context.Context, in *sysin.UpdateAddonsConfigInp) (err error) {
 	if in.AddonName == "" {
-		err = gerror.New("插件名称不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#PlugNameNotEmpty}"))
 		return
 	}
 
 	if in.Group == "" {
-		err = gerror.New("分组不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#GroupNotEmpty}"))
 		return
 	}
 
@@ -112,7 +112,7 @@ func (s *sSysAddonsConfig) UpdateConfigByGroup(ctx context.Context, in *sysin.Up
 			row := s.getConfigByKey(k, models)
 			// 新增
 			if row == nil {
-				return gerror.Newf("暂不支持从前台添加变量，请先在数据库表[%v]中配置变量：%v", dao.SysAddonsConfig.Table(), k)
+				return gerror.Newf(g.I18n().Tf(ctx, "{#NoSupportAddFromFrontDesk}"), dao.SysAddonsConfig.Table(), k)
 			}
 
 			// 更新

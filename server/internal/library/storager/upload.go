@@ -7,7 +7,6 @@ package storager
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -31,7 +30,7 @@ type UploadDrive interface {
 }
 
 // New 初始化存储驱动
-func New(name ...string) UploadDrive {
+func New(ctx context.Context, name ...string) UploadDrive {
 	var (
 		driveType = consts.UploadDriveLocal
 		drive     UploadDrive
@@ -53,7 +52,7 @@ func New(name ...string) UploadDrive {
 	case consts.UploadDriveQiNiu:
 		drive = &QiNiuDrive{}
 	default:
-		panic(fmt.Sprintf("暂不支持的存储驱动:%v", driveType))
+		panic(g.I18n().Tf(ctx, "{#NoSupportDriver}", driveType))
 	}
 	return drive
 }
@@ -68,31 +67,31 @@ func DoUpload(ctx context.Context, typ string, meta *FileMeta) (result *entity.S
 	switch typ {
 	case KindImg:
 		if !IsImgType(meta.Ext) {
-			err = gerror.New("上传的文件不是图片")
+			err = gerror.New(g.I18n().T(ctx, "{#UploadFileNoPicture}"))
 			return
 		}
 		if config.ImageSize > 0 && meta.Size > config.ImageSize*1024*1024 {
-			err = gerror.Newf("图片大小不能超过%vMB", config.ImageSize)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#PictureSize}"), config.ImageSize)
 			return
 		}
 	case KindDoc:
 		if !IsDocType(meta.Ext) {
-			err = gerror.New("上传的文件不是文档")
+			err = gerror.New(g.I18n().T(ctx, "{#UploadFileNoDoc}"))
 			return
 		}
 	case KindAudio:
 		if !IsAudioType(meta.Ext) {
-			err = gerror.New("上传的文件不是音频")
+			err = gerror.New(g.I18n().T(ctx, "{#UploadFileNoAudio}"))
 			return
 		}
 	case KindVideo:
 		if !IsVideoType(meta.Ext) {
-			err = gerror.New("上传的文件不是视频")
+			err = gerror.New(g.I18n().T(ctx, "{#UploadFileNoVideo}"))
 			return
 		}
 	case KindZip:
 		if !IsZipType(meta.Ext) {
-			err = gerror.New("上传的文件不是压缩文件")
+			err = gerror.New(g.I18n().T(ctx, "{#UploadFIleNoZip}"))
 			return
 		}
 	case KindOther:
@@ -100,7 +99,7 @@ func DoUpload(ctx context.Context, typ string, meta *FileMeta) (result *entity.S
 	default:
 		// 默认为通用的文件上传
 		if config.FileSize > 0 && meta.Size > config.FileSize*1024*1024 {
-			err = gerror.Newf("文件大小不能超过%vMB", config.FileSize)
+			err = gerror.Newf(g.I18n().Tf(ctx, "{#FileSize}"), config.FileSize)
 			return
 		}
 	}
@@ -115,7 +114,7 @@ func DoUpload(ctx context.Context, typ string, meta *FileMeta) (result *entity.S
 	}
 
 	// 上传到驱动
-	fullPath, err := New(config.Drive).Upload(ctx, meta)
+	fullPath, err := New(ctx, config.Drive).Upload(ctx, meta)
 	if err != nil {
 		return
 	}
@@ -212,7 +211,7 @@ func write(ctx context.Context, meta *FileMeta, fullPath string) (models *entity
 // HasFile 检查附件是否存在
 func HasFile(ctx context.Context, md5 string) (res *entity.SysAttachment, err error) {
 	if err = GetModel(ctx).Where("md5", md5).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "检查文件hash时出现错误")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#CheckFileHash}"))
 		return
 	}
 

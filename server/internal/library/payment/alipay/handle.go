@@ -68,7 +68,7 @@ func (h *aliPay) Notify(ctx context.Context, in payin.NotifyInp) (res *payin.Not
 	}
 
 	if !ok {
-		err = gerror.New("支付宝验签不通过！")
+		err = gerror.New(g.I18n().T(ctx, "{#AlipayNotPass}"))
 		return
 	}
 
@@ -78,19 +78,19 @@ func (h *aliPay) Notify(ctx context.Context, in payin.NotifyInp) (res *payin.Not
 	}
 
 	if notify == nil {
-		err = gerror.New("解析订单参数失败！")
+		err = gerror.New(g.I18n().T(ctx, "{#AnalysisOrderFailed}"))
 		return
 	}
 
 	if notify.TradeStatus != "TRADE_SUCCESS" {
-		err = gerror.New("非交易支付成功状态，无需处理！")
+		err = gerror.New(g.I18n().T(ctx, "{#NoTransactionPaySuccessState}"))
 		// 这里如果相对非交易支付成功状态进行处理，可自行调整此处逻辑
 		// ...
 		return
 	}
 
 	if notify.OutTradeNo == "" {
-		err = gerror.New("订单中没有找到商户单号！")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderNoFindNumber}"))
 		return
 	}
 
@@ -118,7 +118,7 @@ func (h *aliPay) CreateOrder(ctx context.Context, in payin.CreateOrderInp) (res 
 	case consts.TradeTypeAliWap:
 		return h.wap(ctx, in)
 	default:
-		err = gerror.Newf("暂未支持的交易方式：%v", in.Pay.TradeType)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#UnpaymentMethod}"), in.Pay.TradeType)
 	}
 	return
 }

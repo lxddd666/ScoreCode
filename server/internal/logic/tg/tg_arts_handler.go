@@ -117,7 +117,7 @@ func (s *sTgArts) getRandomProxy(ctx context.Context) (result entity.SysProxy, e
 	}).Where("max_connections - connected_count > 0").Scan(&result)
 
 	if err != nil || g.IsEmpty(result) {
-		err = gerror.New("没有代理可用！请联系管理员")
+		err = gerror.New(g.I18n().T(ctx, "{#NoProxyContactAdministrator}"))
 		return
 	}
 	return

@@ -9,5 +9,14 @@
   "NoUpdateData": "没有被更新的数据行",
   "ExportPayLog": "导出支付日志",
   "ReceiptSuccess": "收单成功",
-  "AlipayRefundChange": "支付宝本次退款未发生资金变化"
+  "AlipayRefundChange": "支付宝本次退款未发生资金变化",
+  "AlipayNotPass": "支付宝验签不通过",
+  "AnalysisOrderFailed": "解析订单参数失败",
+  "NoTransactionPaySuccessState": "非交易支付成功状态，无需处理",
+  "OrderNoFindNumber": "订单中没有找到商户单号",
+  "UnpaymentMethod": "暂未支持的交易方式：%v",
+  "NoSupportQQPayRefund": "暂不支持QQ支付申请退款，如有疑问请联系管理员",
+  "QQPaymentNoPass": "QQ支付验签不通过",
+  "WxPayFailsRefund": "微信支付发起退款失败,原因：%v",
+  "WxPaymentInitiatedRefundFailed": "微信支付发起退款失败,状态码：%v",
 }

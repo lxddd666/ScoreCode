@@ -26,12 +26,12 @@ func (d *LocalDrive) Upload(ctx context.Context, file *FileMeta) (fullPath strin
 	)
 
 	if sp.IsEmpty() {
-		err = gerror.New("本地上传驱动必须配置静态路径!")
+		err = gerror.New(g.I18n().T(ctx, "{#LocalUploadStaticPath}"))
 		return
 	}
 
 	if config.LocalPath == "" {
-		err = gerror.New("本地上传驱动必须配置本地存储路径!")
+		err = gerror.New(g.I18n().T(ctx, "{#LocalUploadStoragePath}"))
 		return
 	}
 

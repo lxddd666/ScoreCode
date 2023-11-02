@@ -84,6 +84,22 @@ type (
 		// SyncContactCallback 同步联系人
 		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
 	}
+	ITgKeepTask interface {
+		// Model 养号任务ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取养号任务列表
+		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
+		// Export 导出养号任务
+		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
+		// Edit 修改/新增养号任务
+		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
+		// Delete 删除养号任务
+		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
+		// View 获取养号任务指定信息
+		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
+		// Status 更新养号任务状态
+		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
+	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -141,6 +157,8 @@ type (
 		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
 		// ImportSession 导入session文件
 		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
+		// TgSaveSessionMsg 保存session数据到数据库中
+		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
 		// TgImportSessionToGrpc 导入session
 		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
 		// UnBindProxy 解绑代理
@@ -148,14 +166,65 @@ type (
 		// BindProxy 绑定代理
 		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
 	}
+	ITgArts interface {
+		// SyncAccount 同步账号
+		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
+		// CodeLogin 登录
+		CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error)
+		// SendCode 发送验证码
+		SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error)
+		// SessionLogin 登录
+		SessionLogin(ctx context.Context, ids []int64) (err error)
+		// Logout 登退
+		Logout(ctx context.Context, ids []int64) (err error)
+		// TgCheckLogin 检查是否登录
+		TgCheckLogin(ctx context.Context, account uint64) (err error)
+		// TgCheckContact 检查是否是好友
+		TgCheckContact(ctx context.Context, account, contact uint64) (err error)
+		// TgSendMsg 发送消息
+		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgSyncContact 同步联系人
+		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
+		// TgGetDialogs 获取chats
+		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetContacts 获取contacts
+		TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
+		// TgGetMsgHistory 获取聊天历史
+		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error)
+		// TgDownloadFile 下载聊天文件
+		TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error)
+		// TgAddGroupMembers 添加群成员
+		TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error)
+		// TgCreateGroup 创建群聊
+		TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error)
+		// TgGetGroupMembers 获取群成员
+		TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error)
+		// TgCreateChannel 创建频道
+		TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error)
+		// TgChannelAddMembers 添加频道成员
+		TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error)
+		// TgChannelJoinByLink 加入频道
+		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
+		// TgGetEmojiGroup 获取emoji分组
+		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
+		// TgSendReaction 发送消息动作
+		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
+		// TgIncreaseFansToChannel2 添加频道粉丝数定时任务
+		TgIncreaseFansToChannel2(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		IncreaseFanAction(ctx context.Context, fan *tgin.TgUserListModel, cron entity.TgIncreaseFansCron, takeName string, channel string) (loginErr error, joinChannelErr error)
+		IncreaseFanActionRetry(ctx context.Context, list []*tgin.TgUserListModel, cron entity.TgIncreaseFansCron, taskName string, channel string) (error, bool)
+		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+	}
 )
 
 var (
+	localTgArts     ITgArts
+	localTgContacts ITgContacts
+	localTgKeepTask ITgKeepTask
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
 	localTgUser     ITgUser
-	localTgArts     ITgArts
-	localTgContacts ITgContacts
 )
 
 func TgArts() ITgArts {
@@ -178,6 +247,17 @@ func TgContacts() ITgContacts {
 
 func RegisterTgContacts(i ITgContacts) {
 	localTgContacts = i
+}
+
+func TgKeepTask() ITgKeepTask {
+	if localTgKeepTask == nil {
+		panic("implement not found for interface ITgKeepTask, forgot register?")
+	}
+	return localTgKeepTask
+}
+
+func RegisterTgKeepTask(i ITgKeepTask) {
+	localTgKeepTask = i
 }
 
 func TgMsg() ITgMsg {

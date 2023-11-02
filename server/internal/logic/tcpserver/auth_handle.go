@@ -33,7 +33,7 @@ func (s *sTCPServer) OnAuthSummary(ctx context.Context, req *servmsg.AuthSummary
 	}
 
 	if conn.Auth == nil {
-		res.SetError(gerror.New("登录信息获取失败，请重新登录"))
+		res.SetError(gerror.New(g.I18n().T(ctx, "{#LogInformationGetFailed}")))
 		_ = conn.Send(ctx, res)
 		return
 	}
@@ -45,25 +45,25 @@ func (s *sTCPServer) OnAuthSummary(ctx context.Context, req *servmsg.AuthSummary
 	}
 
 	if models == nil {
-		res.SetError(gerror.New("授权信息不存在"))
+		res.SetError(gerror.New(g.I18n().T(ctx, "{#AuthorizeInformationNoExist}")))
 		_ = conn.Send(ctx, res)
 		return
 	}
 
 	if models.Status != consts.StatusEnabled {
-		res.SetError(gerror.New("授权已禁用，请联系管理员"))
+		res.SetError(gerror.New(g.I18n().T(ctx, "{#AuthorizeDisabled}")))
 		_ = conn.Send(ctx, res)
 		return
 	}
 
 	if models.Group != conn.Auth.Group {
-		res.SetError(gerror.New("你登录的授权分组未得到授权，请联系管理员"))
+		res.SetError(gerror.New(g.I18n().T(ctx, "{#LogNoAuthorize}")))
 		_ = conn.Send(ctx, res)
 		return
 	}
 
 	if models.EndAt.Before(gtime.Now()) {
-		res.SetError(gerror.New("授权已过期，请联系管理员"))
+		res.SetError(gerror.New(g.I18n().T(ctx, "{#AuthorizeExpired}")))
 		_ = conn.Send(ctx, res)
 		return
 	}

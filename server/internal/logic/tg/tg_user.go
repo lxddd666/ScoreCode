@@ -301,7 +301,7 @@ func (s *sTgUser) TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImport
 		if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 			Fields(tgin.TgUserInsertFields{}).
 			Data(details).Insert(); err != nil {
-			err = gerror.Wrap(err, "导入tg管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#IntroductionTgManagementFailed}"))
 		}
 	}
 
@@ -325,7 +325,7 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 	createDir := gfile.Join(temp, gconv.String(timestamp))
 	err = gfile.Mkdir(createDir)
 	if err != nil {
-		err = gerror.New("创建文件夹失败:" + err.Error())
+		err = gerror.New(g.I18n().T(ctx, "{#CreateFolderFailed}") + err.Error())
 		return
 	}
 	defer func() { _ = gfile.Remove(createDir) }()
@@ -419,7 +419,7 @@ func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context, sessionJ 
 	}
 	rows2, err2 := db.Query("select id from entities where phone = " + sessionJ.Phone)
 	if err2 != nil {
-		err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteExecutionSqlFailed}")+err.Error())
 		return
 	}
 	defer func() { _ = rows2.Close() }()

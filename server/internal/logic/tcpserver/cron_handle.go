@@ -8,6 +8,7 @@ package tcpserver
 import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/api/servmsg"
 	"hotgo/internal/consts"
 )
@@ -16,7 +17,7 @@ import (
 func (s *sTCPServer) CronDelete(ctx context.Context, in *servmsg.CronDeleteReq) (err error) {
 	clients := s.serv.GetGroupClients(consts.LicenseGroupCron)
 	if len(clients) == 0 {
-		err = gerror.New("没有在线的定时任务服务")
+		err = gerror.New(g.I18n().T(ctx, "{#NoOnlineTimeTask}"))
 		return
 	}
 
@@ -37,7 +38,7 @@ func (s *sTCPServer) CronDelete(ctx context.Context, in *servmsg.CronDeleteReq) 
 func (s *sTCPServer) CronEdit(ctx context.Context, in *servmsg.CronEditReq) (err error) {
 	clients := s.serv.GetGroupClients(consts.LicenseGroupCron)
 	if len(clients) == 0 {
-		err = gerror.New("没有在线的定时任务服务")
+		err = gerror.New(g.I18n().T(ctx, "{#NoOnlineTimeTask}"))
 		return
 	}
 
@@ -58,7 +59,7 @@ func (s *sTCPServer) CronEdit(ctx context.Context, in *servmsg.CronEditReq) (err
 func (s *sTCPServer) CronStatus(ctx context.Context, in *servmsg.CronStatusReq) (err error) {
 	clients := s.serv.GetGroupClients(consts.LicenseGroupCron)
 	if len(clients) == 0 {
-		err = gerror.New("没有在线的定时任务服务")
+		err = gerror.New(g.I18n().T(ctx, "{#NoOnlineTimeTask}"))
 		return
 	}
 
@@ -79,7 +80,7 @@ func (s *sTCPServer) CronStatus(ctx context.Context, in *servmsg.CronStatusReq) 
 func (s *sTCPServer) CronOnlineExec(ctx context.Context, in *servmsg.CronOnlineExecReq) (err error) {
 	clients := s.serv.GetGroupClients(consts.LicenseGroupCron)
 	if len(clients) == 0 {
-		err = gerror.New("没有在线的定时任务服务")
+		err = gerror.New(g.I18n().T(ctx, "{#NoOnlineTimeTask}"))
 		return
 	}
 

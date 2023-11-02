@@ -1,0 +1,21 @@
+{
+  "FrontPage": "首頁",
+  "LogInformationGetFailed": "登錄信息獲取失敗，請重新登錄",
+  "AuthorizeInformationNoExist": "授權信息不存在",
+  "AuthorizeDisabled": "授權已禁用，請聯繫管理員",
+  "LogNoAuthorize": "你登錄的授權分組未得到授權，請聯繫管理員",
+  "AuthorizeExpired": "授權已過期，請聯繫管理員",
+  "NoOnlineTimeTask": "沒有在線的定時任務服務",
+  "ConnectNoAuthority": "連接未認證，請確認已登錄成功",
+  "ExampleHelloReq": "Hello %v, 你的APPID：%v，當前Grata版本：%v，你成功請求了`servmsg.ExampleHelloReq`接口",
+  "ExampleRPCHelloReq": "Hello %v, 當前Grata版本：%v，你成功請求了`servmsg.ExampleRPCHelloReq`接口",
+  "SignatureError": "簽名錯誤，請檢查",
+  "NoAuthority": "IP(\" + ip + \")未授權，請聯繫管理員",
+  "AuthorizeRouteAnalysisFailed": "授權路由解析失敗，請聯繫管理員",
+  "AuthorizeLogExceedLimit": "授權登錄端超出上限，請勿多地登錄",
+  "AppNameExistLoginUser": "應用名稱[%v]已存在登錄用戶，當前連接已被拒絕",
+  "LogAbnormal": "登錄異常，請重新登錄",
+  "NoLoginAuthentication": "未進行登錄認證，請先登錄",
+  "AuthorizationExpires": "授權已過期",
+  "NoAuthorizedRoute": "沒有授權路由訪問權限：%v"
+}

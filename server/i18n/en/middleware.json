@@ -1,0 +1,7 @@
+{
+  "NoAccessPermit": "You have no access permissions",
+  "TestMode": "Test mode",
+  "DemoSystemProhibitOpera": "Demonstration system prohibits operation",
+  "ConfigureWhiteList": "Please configure to generate a whiter list",
+  "IpNoConfigurationWhitelist": "Current IP [%S] does not configure a whiter list"
+}

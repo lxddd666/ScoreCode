@@ -1,0 +1,21 @@
+{
+  "FrontPage": "Trang chủ",
+  "LogInformationGetFailed": "Thông tin đăng nhập không thành công, vui lòng đăng nhập lại",
+  "AuthorizeInformationNoExist": "Thông tin được ủy quyền không tồn tại",
+  "AuthorizeDisabled": "ủy quyền đã bị vô hiệu hóa, vui lòng liên hệ với quản trị viên",
+  "LogNoAuthorize": "Nhóm được ủy quyền mà bạn đăng nhập không được ủy quyền, vui lòng liên hệ với quản trị viên",
+  "AuthorizeExpired": "ủy quyền đã hết hạn, vui lòng liên hệ với quản trị viên",
+  "NoOnlineTimeTask": "Không có dịch vụ nhiệm vụ thời gian trực tuyến",
+  "ConnectNoAuthority": "Kết nối không liên tục, vui lòng xác nhận rằng nó đã được đăng nhập thành công",
+  "ExampleHelloReq": "Xin chào%V, appid của bạn:%v, phiên bản grata hiện tại:%v, bạn đã yêu cầu thành công `servmsg.examplehelloreq` giao diện",
+  "ExampleRPCHelloReq": "Xin chào %V, Phiên bản Grata hiện tại: %V, bạn đã yêu cầu thành công `servmsg.examplerpchelloreq` giao diện",
+  "SignatureError": "Lỗi chữ ký, vui lòng kiểm tra",
+  "NoAuthority": "IP (\" + ip +\") không được ủy quyền, vui lòng liên hệ với quản trị viên",
+  "AuthorizeRouteAnalysisFailed": "Phân tích tuyến đường được ủy quyền không thành công, vui lòng liên hệ với quản trị viên",
+  "AuthorizeLogExceedLimit": "Kết thúc đăng nhập được ủy quyền vượt quá giới hạn trên, vui lòng đăng nhập",
+  "AppNameExistLoginUser": "Tên ứng dụng [%v] đã có sẵn người dùng đăng nhập và kết nối hiện tại đã bị từ chối",
+  "LogAbnormal": "Đăng nhập bất thường, vui lòng đăng nhập lại",
+  "NoLoginAuthentication": "Để không xác thực đăng nhập, vui lòng đăng nhập trước",
+  "AuthorizationExpires": "Ủy quyền hết hạn",
+  "NoAuthorizedRoute": "Không có quyền truy cập tuyến được ủy quyền đúng:%V"
+}

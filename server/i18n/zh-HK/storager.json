@@ -1,0 +1,18 @@
+{
+  "ListenFailed": "消費隊列：%s 監聽失敗, err:%+v",
+  "NoSupportDriver": "暫不支持的存儲驅動:%v",
+  "UploadFileNoPicture": "上傳的文件不是圖片",
+  "UploadFileNoDoc": "上傳的文件不是文檔",
+  "UploadFileNoAudio":"上傳的文件不是音頻",
+  "UploadFileNoVideo": "上傳的文件不是視頻",
+  "UploadFIleNoZip": "上傳的文件不是壓縮文件",
+  "PictureSize": "圖片大小不能超過%vMB",
+  "FileSize": "文件大小不能超過%vMB",
+  "CheckFileHash": "檢查文件hash時出現錯誤",
+  "CosStorageDriver": "COS存儲驅動必須配置存儲路徑",
+  "LocalUploadStaticPath": "本地上傳驅動必須配置靜態路徑",
+  "LocalUploadStoragePath": "本地上傳驅動必須配置本地存儲路徑",
+  "OssStorageDriver": "OSS存儲驅動必須配置存儲路徑",
+  "QiNiuCloud": "七牛雲存儲驅動必須配置存儲路徑",
+  "UCloud": "UCloud存儲驅動必須配置存儲路徑"
+}

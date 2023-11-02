@@ -8,5 +8,11 @@
   "ProxyAddressNotEmpty": "Địa chỉ proxy không thể trống",
   "ProxyTypeNotEmpty": "Loại proxy không thể trống",
   "ProxyTypeIncorrect": "Giá trị loại proxy không chính xác",
-  "MaxConnectionNumber": "Số lượng kết nối tối đa không thể trống"
+  "MaxConnectionNumber": "Số lượng kết nối tối đa không thể trống",
+  "ExportTgChannel": "Xuất truyền hình TG tăng nhiệm vụ-",
+  "ModifyTgChannelTask": "Sửa đổi tác vụ tăng kênh TG không thành công, vui lòng thử sau",
+  "AddTgChannelTask": "Kênh TG mới làm tăng nhiệm vụ màu hồng không thành công, vui lòng thử nó sau",
+  "ExportTgChannelTask": "Xuất kênh TG tăng nhiệm vụ-",
+  "ModifyTgChannelRisingTaskFailed": "Sửa đổi việc thực hiện tác vụ tăng kênh TG, vui lòng thử nó sau",
+  "AddTgChannelRisingTaskFailed": "Lỗi tác vụ tăng kênh TG mới không thành công, vui lòng thử sau"
 }

@@ -69,7 +69,7 @@ func parseResponse(r *ghttp.Request) (code int, message string, resp interface{}
 	ctx := r.Context()
 	err := r.GetError()
 	if err == nil {
-		return gcode.CodeOK.Code(), g.I18n().T(ctx, "{#SuccessMsg}"), r.GetHandlerResponse()
+		return gcode.CodeOK.Code(), g.I18n().T(r.Context(), "{#SuccessMsg}"), r.GetHandlerResponse()
 	}
 
 	// 是否输出错误堆栈到页面

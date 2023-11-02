@@ -9,6 +9,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/library/network/tcp"
 	"hotgo/utility/validate"
@@ -45,13 +46,13 @@ func (s *sTCPServer) DefaultInterceptor(ctx context.Context, msg *tcp.Message) (
 	}
 
 	if conn.Auth == nil {
-		err = gerror.NewCode(gcode.CodeNotAuthorized, "未进行登录认证，请先登录")
+		err = gerror.NewCode(gcode.CodeNotAuthorized, g.I18n().T(ctx, "{#NoLoginAuthentication}"))
 		return
 	}
 
 	// 检查授权有效期
 	if conn.Auth.EndAt.Before(gtime.Now()) {
-		err = gerror.NewCode(gcode.CodeNotAuthorized, "授权已过期")
+		err = gerror.NewCode(gcode.CodeNotAuthorized, g.I18n().T(ctx, "{#AuthorizationExpires}"))
 		return
 	}
 
@@ -62,7 +63,7 @@ func (s *sTCPServer) DefaultInterceptor(ctx context.Context, msg *tcp.Message) (
 
 	// 验证路由权限
 	if len(conn.Auth.Routes) > 0 && !validate.InSlice(conn.Auth.Routes, msg.Router) {
-		err = gerror.NewCodef(gcode.CodeNotAuthorized, "没有授权路由访问权限：%v", msg.Router)
+		err = gerror.NewCodef(gcode.CodeNotAuthorized, g.I18n().Tf(ctx, "{#NoAuthorizedRoute}"), msg.Router)
 		return
 	}
 	return

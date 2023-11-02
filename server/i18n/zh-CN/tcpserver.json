@@ -1,0 +1,23 @@
+{
+  "FrontPage": "首页",
+  "LogInformationGetFailed": "登录信息获取失败，请重新登录",
+  "AuthorizeInformationNoExist": "授权信息不存在",
+  "AuthorizeDisabled": "授权已禁用，请联系管理员",
+  "LogNoAuthorize": "你登录的授权分组未得到授权，请联系管理员",
+  "AuthorizeExpired": "授权已过期，请联系管理员",
+  "NoOnlineTimeTask": "没有在线的定时任务服务",
+  "ConnectNoAuthority": "连接未认证，请确认已登录成功",
+  "ExampleHelloReq": "Hello %v, 你的APPID：%v，当前Grata版本：%v，你成功请求了`servmsg.ExampleHelloReq`接口",
+  "ExampleRPCHelloReq": "Hello %v, 当前Grata版本：%v，你成功请求了`servmsg.ExampleRPCHelloReq`接口",
+  "SignatureError": "签名错误，请检查",
+  "NoAuthority": "IP(\" + ip + \")未授权，请联系管理员",
+  "AuthorizeRouteAnalysisFailed": "授权路由解析失败，请联系管理员",
+  "AuthorizeLogExceedLimit": "授权登录端超出上限，请勿多地登录",
+  "AppNameExistLoginUser": "应用名称[%v]已存在登录用户，当前连接已被拒绝",
+  "LogAbnormal": "登录异常，请重新登录",
+  "NoLoginAuthentication": "未进行登录认证，请先登录",
+  "AuthorizationExpires": "授权已过期",
+  "NoAuthorizedRoute": "没有授权路由访问权限：%v"
+
+
+}

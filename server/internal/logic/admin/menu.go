@@ -110,7 +110,7 @@ func (s *sAdminMenu) Edit(ctx context.Context, in *adminin.MenuEditInp) (err err
 	in.UpdatedAt = gtime.Now()
 	if in.Id > 0 {
 		if in.Pid == in.Id {
-			return gerror.New("上级菜单不能是当前菜单")
+			return gerror.New(g.I18n().T(ctx, "{#SuperiorMenuNoCurrentMenu}"))
 		}
 
 		if _, err = dao.AdminMenu.Ctx(ctx).Where("id", in.Id).Data(in).Update(); err != nil {

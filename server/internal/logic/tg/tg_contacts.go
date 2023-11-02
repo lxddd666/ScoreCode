@@ -57,7 +57,7 @@ func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (lis
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取联系人管理数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementDataFailed}"))
 		return
 	}
 
@@ -66,7 +66,7 @@ func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (lis
 	}
 
 	if err = mod.Fields(tgin.TgContactsListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgContacts.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementListFailed}"))
 		return
 	}
 	return
@@ -86,8 +86,8 @@ func (s *sTgContacts) Export(ctx context.Context, in *tgin.TgContactsListInp) (e
 	}
 
 	var (
-		fileName  = "导出联系人管理-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportContactManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgContactsExportModel
 	)
 
@@ -102,7 +102,7 @@ func (s *sTgContacts) Export(ctx context.Context, in *tgin.TgContactsListInp) (e
 // Edit 修改/新增联系人管理
 func (s *sTgContacts) Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error) {
 	// 验证'Account'唯一
-	if err = hgorm.IsUnique(ctx, &dao.TgContacts, g.Map{dao.TgContacts.Columns().Phone: in.Phone}, "phone已存在", in.Id); err != nil {
+	if err = hgorm.IsUnique(ctx, &dao.TgContacts, g.Map{dao.TgContacts.Columns().Phone: in.Phone}, g.I18n().T(ctx, "{#PhoneExist}"), in.Id); err != nil {
 		return
 	}
 	// 修改
@@ -110,7 +110,7 @@ func (s *sTgContacts) Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err
 		if _, err = s.Model(ctx).
 			Fields(tgin.TgContactsUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改联系人管理失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyContactManagementFailed}"))
 		}
 		return
 	}
@@ -119,7 +119,7 @@ func (s *sTgContacts) Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgContactsInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增联系人管理失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddContactManagementFailed}"))
 	}
 	return
 }
@@ -127,7 +127,7 @@ func (s *sTgContacts) Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err
 // Delete 删除联系人管理
 func (s *sTgContacts) Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除联系人管理失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteContactManagementFailed}"))
 		return
 	}
 	return
@@ -136,7 +136,7 @@ func (s *sTgContacts) Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) 
 // View 获取联系人管理指定信息
 func (s *sTgContacts) View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取联系人管理信息，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementInformation}"))
 		return
 	}
 	return
@@ -149,7 +149,7 @@ func (s *sTgContacts) ByTgUser(ctx context.Context, tgUserId int64) (list []*tgi
 		Fields(dao.TgUserContacts.Columns().TgContactsId).
 		Where(dao.TgUserContacts.Columns().TgUserId, tgUserId).Scan(&contactIds)
 	if err != nil {
-		err = gerror.Wrap(err, "获取该账号联系人失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountContactFailed}"))
 		return
 	}
 	if len(contactIds) == 0 {
@@ -159,7 +159,7 @@ func (s *sTgContacts) ByTgUser(ctx context.Context, tgUserId int64) (list []*tgi
 	if err = s.Model(ctx).Fields(tgin.TgContactsListModel{}).
 		WhereIn(dao.TgContacts.Columns().Id, contactIds).
 		OrderDesc(dao.TgContacts.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取联系人管理列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementListFailed}"))
 		return
 	}
 	return

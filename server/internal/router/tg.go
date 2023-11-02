@@ -18,6 +18,7 @@ func Tg(ctx context.Context, group *ghttp.RouterGroup) {
 			tg.TgMsg,      // 消息记录
 			tg.TgProxy,    //代理管理
 			tg.TgContacts, //联系人管理
+			tg.TgKeepTask, // 养号任务
 		)
 
 	})

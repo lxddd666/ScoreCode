@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
@@ -21,7 +22,7 @@ type QiNiuDrive struct {
 // Upload 上传到七牛云对象存储
 func (d *QiNiuDrive) Upload(ctx context.Context, file *FileMeta) (fullPath string, err error) {
 	if config.QiNiuPath == "" {
-		err = gerror.New("七牛云存储驱动必须配置存储路径!")
+		err = gerror.New(g.I18n().T(ctx, "{#QiNiuCloud}"))
 		return
 	}
 

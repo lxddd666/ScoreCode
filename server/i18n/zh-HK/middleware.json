@@ -1,0 +1,7 @@
+{
+  "NoAccessPermit": "你沒有訪問權限",
+  "TestMode": "測試模式",
+  "DemoSystemProhibitOpera": "演示系統禁止操作",
+  "ConfigureWhiteList": "請配置生成白名單",
+  "IpNoConfigurationWhitelist": "當前IP[%s]沒有配置生成白名單"
+}

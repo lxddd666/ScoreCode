@@ -1,0 +1,18 @@
+{
+  "ListenFailed": "Consumer queue：%s Listening failure, err:%+v",
+  "NoSupportDriver": "Storage driver that is not supported for the time being:%v",
+  "UploadFileNoPicture": "The uploaded file is not a picture",
+  "UploadFileNoDoc": "The file uploaded is not a document",
+  "UploadFileNoAudio":"The uploaded file is not audio",
+  "UploadFileNoVideo": "The uploaded file is not a video",
+  "UploadFIleNoZip": "The uploaded file is not a compressed file",
+  "PictureSize": "The picture size cannot exceed%vMB",
+  "FileSize": "File size cannot exceed%vMB",
+  "CheckFileHash": "There is an error when checking the file hash",
+  "CosStorageDriver": "The COS storage driver must configure the storage path",
+  "LocalUploadStaticPath": "Local upload drivers must be equipped with static paths",
+  "LocalUploadStoragePath": "Local upload drivers must configure the local storage path",
+  "OssStorageDriver": "The OSS storage driver must configure the storage path",
+  "QiNiuCloud": "Qi Niu Cloud Storage Driver must configure the storage path",
+  "UCloud": "UCloud storage driver must configure the storage path"
+}

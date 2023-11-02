@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -14,7 +13,7 @@ import (
 func (s *sMiddleware) Develop(r *ghttp.Request) {
 	ips := g.Cfg().MustGet(r.Context(), "hggen.allowedIPs").Strings()
 	if len(ips) == 0 {
-		response.JsonExit(r, gcode.CodeNotSupported.Code(), "请配置生成白名单！")
+		response.JsonExit(r, gcode.CodeNotSupported.Code(), g.I18n().T(r.Context(), "{#ConfigureWhiteList}"))
 		return
 	}
 
@@ -29,7 +28,7 @@ func (s *sMiddleware) Develop(r *ghttp.Request) {
 		}
 
 		if !ok {
-			response.JsonExit(r, gcode.CodeNotSupported.Code(), fmt.Sprintf("当前IP[%s]没有配置生成白名单！", clientIp))
+			response.JsonExit(r, gcode.CodeNotSupported.Code(), g.I18n().Tf(r.Context(), "{#IpNoConfigurationWhitelist}", clientIp))
 			return
 		}
 	}
