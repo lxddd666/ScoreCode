@@ -43,6 +43,7 @@ enum Action {
   LEAVE = 32;
   GET_CHANNEL_MEMBER = 33;
   GET_ONLINE_ACCOUNTS = 34;
+  UPDATE_USER_INFO = 35;
 }
 
 
@@ -182,9 +183,10 @@ message RequestMessage {
     JoinByLinkDetail join_by_link_detail = 34;
     GetEmojiGroupsDetail get_emoji_group_detail = 36;
     MessagesReactionDetail messages_reaction_detail = 37;
-      LeaveDetail leave_detail = 38;
-      GetChannelMemberDetail get_channel_member_detail = 39;
-      GetOnlineAccountsDetail get_online_accounts_detail = 40;
+    LeaveDetail leave_detail = 38;
+    GetChannelMemberDetail get_channel_member_detail = 39;
+    GetOnlineAccountsDetail get_online_accounts_detail = 40;
+    UpdateUserInfoDetail update_user_info_detail = 41;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -356,6 +358,20 @@ message GetChannelMemberDetail {
   int64 Limit  = 4;
   string  SearchType =5;
   int64 TopMsgId =6;
+}
+
+message UpdateUserInfoDetail {
+  uint64 account = 1;
+  map<uint64, UpdateUserInfoMsg> send_data = 2;
+
+}
+
+message UpdateUserInfoMsg {
+  string userName = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string bio = 4;
+  FileDetailValue photo = 5;
 }
 
 message GetOnlineAccountsDetail {

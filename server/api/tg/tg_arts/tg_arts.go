@@ -200,3 +200,11 @@ type IncreaseChannelFansCronReq struct {
 }
 
 type IncreaseChannelFansCronRes struct{}
+
+// UpdateUserInfoReq 添加频道粉丝任务
+type UpdateUserInfoReq struct {
+	g.Meta `path:"/arts/user/updateUserInfo" method:"post" tags:"tg-api" summary:"修改用户信息"`
+	*tgin.TgUpdateUserInfoInp
+}
+
+type UpdateUserInfoRes struct{}

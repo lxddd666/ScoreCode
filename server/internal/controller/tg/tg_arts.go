@@ -158,8 +158,14 @@ func (c *cTgArts) SendReaction(ctx context.Context, req *tgarts.TgSendReactionRe
 	return
 }
 
-// IncreaseChannelFansCron 解除绑定代理
+// IncreaseChannelFansCron 定时添加粉丝
 func (c *cTgArts) IncreaseChannelFansCron(ctx context.Context, req *tgarts.IncreaseChannelFansCronReq) (res *tgarts.IncreaseChannelFansCronRes, err error) {
 	err, _ = service.TgArts().TgIncreaseFansToChannel(ctx, req.TgIncreaseFansCronInp)
+	return
+}
+
+// UpdateUserInfo 修改用户信息
+func (c *cTgArts) UpdateUserInfo(ctx context.Context, req *tgarts.UpdateUserInfoReq) (res *tgarts.IncreaseChannelFansCronRes, err error) {
+	err = service.TgArts().TgUpdateUserInfo(ctx, req.TgUpdateUserInfoInp)
 	return
 }

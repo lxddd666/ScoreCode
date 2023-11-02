@@ -63,6 +63,8 @@ type (
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 		// TgIncreaseFansToChannel 频道涨粉
 		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		// TgUpdateUserInfo 修改用户信息
+		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
