@@ -1,0 +1,21 @@
+{
+  "FrontPage": "Front page",
+  "LogInformationGetFailed": "Login information failure, please log in again",
+  "AuthorizeInformationNoExist": "Authorized information does not exist",
+  "AuthorizeDisabled": "The authorization has been disabled, please contact the administrator",
+  "LogNoAuthorize": "The license packet you logged in is not authorized, please contact the administrator",
+  "AuthorizeExpired": "The authorization has expired, please contact the administrator",
+  "NoOnlineTimeTask": "No online timing task service",
+  "ConnectNoAuthority": "The connection is not authenticated, please confirm that the login is successful",
+  "ExampleHelloReq": "Hello%v, your appid:%v, current Grata version:%V, you successfully requested `Servmsg.exampleHelloreq` interface",
+  "ExampleRPCHelloReq": "Hello %v, current Grata version: %V, you successfully requested `servmsg.examplerpchelloreq` interface",
+  "SignatureError": "Signature error, please check",
+  "NoAuthority": "IP (\" + IP +\") is not authorized, please contact the administrator",
+  "AuthorizeRouteAnalysisFailed": "Authorized route analysis failed, please contact the administrator",
+  "AuthorizeLogExceedLimit": "The authorized login end exceeds the upper limit, please do not log in",
+  "AppNameExistLoginUser": "Application name [%V] has already available login users, and the current connection has been rejected",
+  "LogAbnormal": "Log in abnormal, please log in again",
+  "NoLoginAuthentication": "For not login authentication, please log in first",
+  "AuthorizationExpires": "Authorization expires",
+  "NoAuthorizedRoute": "No authorized route access right:%V"
+}
