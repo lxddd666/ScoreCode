@@ -19,6 +19,6 @@ func (s *sMiddleware) UnaryClientTimeout(timeout time.Duration) grpc.UnaryClient
 // UnaryClientTestLimit 测试模式
 func (s *sMiddleware) UnaryClientTestLimit(ctx context.Context, method string, req, reply any,
 	cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
-	g.Log().Debug(ctx, "测试模式")
+	g.Log().Debug(ctx, g.I18n().T(ctx, "{#TestMode}"))
 	return nil
 }

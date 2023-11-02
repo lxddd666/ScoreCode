@@ -82,7 +82,7 @@ func (s *sOrgTgIncreaseFansCron) Export(ctx context.Context, in *orgin.TgIncreas
 	}
 
 	var (
-		fileName  = "导出TG频道涨粉任务-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName  = g.I18n().T(ctx, "{#ExportTgChannel}") + gctx.CtxId(ctx) + ".xlsx"
 		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []orgin.TgIncreaseFansCronExportModel
 	)
@@ -102,7 +102,7 @@ func (s *sOrgTgIncreaseFansCron) Edit(ctx context.Context, in *orgin.TgIncreaseF
 		if _, err = s.Model(ctx).
 			Fields(orgin.TgIncreaseFansCronUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改TG频道涨粉任务失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyTgChannelTask}"))
 		}
 		return
 	}
@@ -111,7 +111,8 @@ func (s *sOrgTgIncreaseFansCron) Edit(ctx context.Context, in *orgin.TgIncreaseF
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(orgin.TgIncreaseFansCronInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增TG频道涨粉任务失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddTgChannelTask}"))
+
 	}
 	return
 }

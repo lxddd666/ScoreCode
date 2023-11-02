@@ -1,0 +1,7 @@
+{
+  "NoAccessPermit": "Bạn không có quyền truy cập",
+  "TestMode": "Chế độ kiểm tra",
+  "DemoSystemProhibitOpera": "Hệ thống trình diễn cấm hoạt động",
+  "ConfigureWhiteList": "Vui lòng định cấu hình để tạo danh sách trắng hơn",
+  "IpNoConfigurationWhitelist": "IP hiện tại [%s] không định cấu hình danh sách trắng hơn"
+}

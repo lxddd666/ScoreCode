@@ -7,6 +7,7 @@ package queue
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/utility/simple"
 	"sync"
 )
@@ -79,6 +80,6 @@ func consumerListen(ctx context.Context, job Consumer) {
 		// 记录消费队列日志
 		ConsumerLog(ctx, topic, mqMsg, err)
 	}); listenErr != nil {
-		Logger().Fatalf(ctx, "消费队列：%s 监听失败, err:%+v", topic, listenErr)
+		Logger().Fatalf(ctx, g.I18n().Tf(ctx, "{#ListenFailed}"), topic, listenErr)
 	}
 }

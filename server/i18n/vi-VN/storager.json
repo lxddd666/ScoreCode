@@ -1,0 +1,18 @@
+{
+  "ListenFailed": "Hàng đợi tiêu thụ:%s Monitor Fails, ERR:%+V",
+  "NoSupportDriver": "Trình điều khiển lưu trữ không được hỗ trợ trong thời gian hiện tại:%V",
+  "UploadFileNoPicture": "Tệp được tải lên không phải là hình ảnh",
+  "UploadFileNoDoc": "Tệp được tải lên không phải là tài liệu",
+  "UploadFileNoAudio":"Tệp được tải lên không phải là âm thanh",
+  "UploadFileNoVideo": "Tệp được tải lên không phải là video",
+  "UploadFIleNoZip": "Tệp được tải lên không phải là tệp nén",
+  "PictureSize": "Kích thước của hình ảnh không thể vượt quá% vMB",
+  "FileSize": "Kích thước tệp không thể vượt quá %vMB",
+  "CheckFileHash": "Đã xảy ra lỗi khi kiểm tra tệp băm",
+  "CosStorageDriver": "Trình điều khiển lưu trữ COS phải được trang bị đường dẫn lưu trữ",
+  "LocalUploadStaticPath": "Trình điều khiển tải lên cục bộ phải được trang bị các đường dẫn tĩnh",
+  "LocalUploadStoragePath": "Trình điều khiển tải lên cục bộ phải được trang bị đường dẫn lưu trữ cục bộ",
+  "OssStorageDriver": "Trình điều khiển lưu trữ OSS phải định cấu hình đường dẫn lưu trữ",
+  "QiNiuCloud": "Trình điều khiển lưu trữ đám mây Qi Niu phải được trang bị đường dẫn lưu trữ",
+  "UCloud": "Trình điều khiển lưu trữ Ucloud phải được trang bị đường dẫn lưu trữ"
+}

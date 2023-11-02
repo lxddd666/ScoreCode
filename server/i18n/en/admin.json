@@ -207,5 +207,6 @@
   "GetMenuDetailFailed": "Get the menu's detail failure, the user does not have the authority permissions",
   "LicenseNameNotEmpty": "The license name cannot be empty",
   "AppIdNotEmpty": "Application ID cannot be empty",
-  "AuthorizationEndTimeNotEmpty": "The end time of the authorization cannot be empty"
+  "AuthorizationEndTimeNotEmpty": "The end time of the authorization cannot be empty",
+  "SuperiorMenuNoCurrentMenu": "The upper menu cannot be the current menu"
 }

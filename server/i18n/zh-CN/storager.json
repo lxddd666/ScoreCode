@@ -1,0 +1,18 @@
+{
+  "ListenFailed": "消费队列：%s 监听失败, err:%+v",
+  "NoSupportDriver": "暂不支持的存储驱动:%v",
+  "UploadFileNoPicture": "上传的文件不是图片",
+  "UploadFileNoDoc": "上传的文件不是文档",
+  "UploadFileNoAudio":"上传的文件不是音频",
+  "UploadFileNoVideo": "上传的文件不是视频",
+  "UploadFIleNoZip": "上传的文件不是压缩文件",
+  "PictureSize": "图片大小不能超过%vMB",
+  "FileSize": "文件大小不能超过%vMB",
+  "CheckFileHash": "检查文件hash时出现错误",
+  "CosStorageDriver": "COS存储驱动必须配置存储路径",
+  "LocalUploadStaticPath": "本地上传驱动必须配置静态路径",
+  "LocalUploadStoragePath": "本地上传驱动必须配置本地存储路径",
+  "OssStorageDriver": "OSS存储驱动必须配置存储路径",
+  "QiNiuCloud": "七牛云存储驱动必须配置存储路径",
+  "UCloud": "UCloud存储驱动必须配置存储路径"
+}

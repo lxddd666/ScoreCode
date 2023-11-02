@@ -207,5 +207,6 @@
   "GetMenuDetailFailed": "Nhận lỗi chi tiết của menu, người dùng không có quyền",
   "LicenseNameNotEmpty": "Tên giấy phép không thể trống",
   "AppIdNotEmpty": "ID ứng dụng không thể trống",
-  "AuthorizationEndTimeNotEmpty": "Thời gian cuối của ủy quyền không thể trống"
+  "AuthorizationEndTimeNotEmpty": "Thời gian cuối của ủy quyền không thể trống",
+  "SuperiorMenuNoCurrentMenu": "Menu trên không thể là menu hiện tại"
 }

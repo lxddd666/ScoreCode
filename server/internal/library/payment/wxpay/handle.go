@@ -12,6 +12,7 @@ import (
 	"github.com/go-pay/gopay/pkg/xpem"
 	"github.com/go-pay/gopay/wechat/v3"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
@@ -54,12 +55,12 @@ func (h *wxPay) Refund(ctx context.Context, in payin.RefundInp) (res *payin.Refu
 	}
 
 	if refund.Error != "" {
-		err = gerror.Newf("微信支付发起退款失败,原因：%v", refund.Response.Status)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#WxPayFailsRefund}"), refund.Response.Status)
 		return
 	}
 
 	if refund.Response.Status != "SUCCESS" && refund.Response.Status != "PROCESSING" {
-		err = gerror.Newf("微信支付发起退款失败,状态码：%v", refund.Response.Status)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#WxPaymentInitiatedRefundFailed}"), refund.Response.Status)
 		return
 	}
 	return
@@ -94,14 +95,14 @@ func (h *wxPay) Notify(ctx context.Context, in payin.NotifyInp) (res *payin.Noti
 	}
 
 	if notify.TradeState != "SUCCESS" {
-		err = gerror.New("非交易支付成功状态，无需处理！")
+		err = gerror.New(g.I18n().T(ctx, "{#NoTransactionPaySuccessState}"))
 		// 这里如果相对非交易支付成功状态进行处理，可自行调整此处逻辑
 		// ...
 		return
 	}
 
 	if notify.OutTradeNo == "" {
-		err = gerror.New("订单中没有找到商户单号！")
+		err = gerror.New(g.I18n().T(ctx, "{#OrderNoFindNumber}"))
 		return
 	}
 
@@ -123,7 +124,7 @@ func (h *wxPay) CreateOrder(ctx context.Context, in payin.CreateOrderInp) (res *
 	case consts.TradeTypeWxH5:
 		return h.h5(ctx, in)
 	default:
-		err = gerror.Newf("暂未支持的交易方式：%v", in.Pay.TradeType)
+		err = gerror.Newf(g.I18n().Tf(ctx, "{#UnpaymentMethod}"), in.Pay.TradeType)
 	}
 	return
 }

@@ -207,5 +207,6 @@
    "GetMenuDetailFailed": "获取菜单明细失败，该用户没有该菜单权限",
    "LicenseNameNotEmpty": "许可名称不能为空",
    "AppIdNotEmpty": "应用ID不能为空",
-   "AuthorizationEndTimeNotEmpty": "授权结束时间不能为空"
+   "AuthorizationEndTimeNotEmpty": "授权结束时间不能为空",
+   "SuperiorMenuNoCurrentMenu": "上级菜单不能是当前菜单"
 }

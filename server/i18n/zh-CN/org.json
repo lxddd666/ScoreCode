@@ -8,5 +8,11 @@
   "ProxyAddressNotEmpty": "代理地址不能为空",
   "ProxyTypeNotEmpty": "代理类型不能为空",
   "ProxyTypeIncorrect": "代理类型值不正确",
-  "MaxConnectionNumber": "最大连接数不能为空"
+  "MaxConnectionNumber": "最大连接数不能为空",
+  "ExportTgChannel": "导出TG频道涨粉任务-",
+  "ModifyTgChannelTask": "修改TG频道涨粉任务失败，请稍后重试",
+  "AddTgChannelTask": "新增TG频道涨粉任务失败，请稍后重试",
+  "ExportTgChannelTask": "导出TG频道涨粉任务执行情况-",
+  "ModifyTgChannelRisingTaskFailed": "修改TG频道涨粉任务执行情况失败，请稍后重试",
+  "AddTgChannelRisingTaskFailed": "新增TG频道涨粉任务执行情况失败，请稍后重试"
 }

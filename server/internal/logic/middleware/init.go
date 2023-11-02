@@ -106,7 +106,7 @@ func (s *sMiddleware) DemoLimit(r *ghttp.Request) {
 			r.Middleware.Next()
 			return
 		}
-		response.JsonExit(r, gcode.CodeNotSupported.Code(), "演示系统禁止操作！")
+		response.JsonExit(r, gcode.CodeNotSupported.Code(), g.I18n().T(r.Context(), "{#DemoSystemProhibitOpera}"))
 		return
 	}
 

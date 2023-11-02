@@ -207,5 +207,6 @@
   "GetMenuDetailFailed": "獲取菜單明細失敗，該用戶沒有該菜單權限",
   "LicenseNameNotEmpty": "許可名稱不能為空",
   "AppIdNotEmpty": "應用ID不能為空",
-  "AuthorizationEndTimeNotEmpty": "授權結束時間不能為空"
+  "AuthorizationEndTimeNotEmpty": "授權結束時間不能為空",
+  "SuperiorMenuNoCurrentMenu": "上級菜單不能是當前菜單"
 }

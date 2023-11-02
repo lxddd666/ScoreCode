@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"net/http"
@@ -22,7 +23,7 @@ type CosDrive struct {
 // Upload 上传到腾讯云cos对象存储
 func (d *CosDrive) Upload(ctx context.Context, file *FileMeta) (fullPath string, err error) {
 	if config.CosPath == "" {
-		err = gerror.New("COS存储驱动必须配置存储路径!")
+		err = gerror.New(g.I18n().T(ctx, "{#CosStorageDriver}"))
 		return
 	}
 

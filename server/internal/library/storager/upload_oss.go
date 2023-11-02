@@ -10,6 +10,7 @@ import (
 	"context"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 )
 
@@ -20,7 +21,7 @@ type OssDrive struct {
 // Upload 上传到阿里云oss
 func (d *OssDrive) Upload(ctx context.Context, file *FileMeta) (fullPath string, err error) {
 	if config.OssPath == "" {
-		err = gerror.New("OSS存储驱动必须配置存储路径!")
+		err = gerror.New(g.I18n().T(ctx, "{#OssStorageDriver}"))
 		return
 	}
 

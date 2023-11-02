@@ -8,5 +8,11 @@
   "ProxyAddressNotEmpty": "The proxy address cannot be empty",
   "ProxyTypeNotEmpty": "The proxy type cannot be empty",
   "ProxyTypeIncorrect": "The proxy type value is incorrect",
-  "MaxConnectionNumber": "The maximum number of connections cannot be empty"
+  "MaxConnectionNumber": "The maximum number of connections cannot be empty",
+  "ExportTgChannel": "Export the TG Channel Raise Mission-",
+  "ModifyTgChannelTask": "Modify the TG channel rising task failed, please try it later",
+  "AddTgChannelTask": "The new TG channel increases the pink mission failed, please try it later",
+  "ExportTgChannelTask": "Export the TG Channel Raise Mission Execution-",
+  "ModifyTgChannelRisingTaskFailed": "Modify the execution of the TG channel rising task, please try it later",
+  "AddTgChannelRisingTaskFailed": "New TG channel rising task failure failed, please try it later"
 }

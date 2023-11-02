@@ -9,5 +9,14 @@
   "NoUpdateData": "Not updated data line",
   "ExportPayLog": "Export payment log",
   "ReceiptSuccess": "Successful receipt", 
-  "AliPayRefundChange": "Alipay has not changed funds for this refund"
+  "AliPayRefundChange": "Alipay has not changed funds for this refund",
+  "AlipayNotPass": "Alipay does not pass the signature",
+  "AnalysisOrderFailed": "The analysis of the order parameters failed",
+  "NoTransactionPaySuccessState": "Non -transaction payment is successful, no need to deal with",
+  "OrderNoFindNumber": "No merchant number is found in the order",
+  "UnpaymentMethod": "Unprecedented transaction method:%V",
+  "NoSupportQQPayRefund": "Do not support QQ payment application refund for the time being, please contact the administrator if you have any questions",
+  "QQPaymentNoPass": "QQ payment does not pass",
+  "WxPayFailsRefund": "WeChat payment initiated a refund failure, reason:%v",
+  "WxPaymentInitiatedRefundFailed": "WeChat payment initiated a refund failure, status code:%v"
 }
