@@ -74,6 +74,23 @@ export function TgUnBindProxy(params: any) {
   });
 }
 
+// 批量登录
+export function TgBathLogin(params: any) {
+  return tg.request({
+    url: '/arts/batchLogin',
+    method: 'POST',
+    params,
+  });
+}
+
+// 批量下线
+export function TgBathLogout(params: any) {
+  return tg.request({
+    url: '/arts/batchLogout',
+    method: 'POST',
+    params,
+  });
+}
 
 
 // 导出TG账号

@@ -26,6 +26,12 @@ func (c *cTgArts) BatchLogin(ctx context.Context, req *tgarts.TgBatchLoginReq) (
 	return
 }
 
+// BatchLogout 批量下线
+func (c *cTgArts) BatchLogout(ctx context.Context, req *tgarts.TgBatchLogoutReq) (res *tgarts.TgBatchLogoutRes, err error) {
+	err = service.TgArts().Logout(ctx, req.Ids)
+	return
+}
+
 // SendCode 验证码
 func (c *cTgArts) SendCode(ctx context.Context, req *tgarts.TgSendCodeReq) (res *tgarts.TgSendCodeRes, err error) {
 	err = service.TgArts().SendCode(ctx, req.SendCodeInp)

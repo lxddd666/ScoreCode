@@ -7,5 +7,7 @@
   "MerchantOrderNumberNotExist": "商戶訂單號[%v]不存在支付記錄，請檢查",
   "MerchantOrderNumberProcessed": "商戶訂單號[%v]已被處理，請勿重複操作",
   "NoUpdateData": "沒有被更新的數據行",
-  "ExportPayLog": "導出支付日誌"
+  "ExportPayLog": "導出支付日誌",
+  "ReceiptSuccess": "收單成功",
+  "AlipayRefundChange": "支付寶本次退款未發生資金變化"
 }

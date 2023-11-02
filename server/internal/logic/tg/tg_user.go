@@ -58,7 +58,7 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 
 // List 获取TG账号列表
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
-	mod := s.Model(ctx).As("tu")
+	mod := s.Model(ctx)
 
 	// 查询账号号码
 	if in.Username != "" {
@@ -85,6 +85,11 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		mod = mod.Where(dao.TgUser.Columns().AccountStatus, in.AccountStatus)
 	}
 
+	// 查询是否在线
+	if in.IsOnline > 0 {
+		mod = mod.Where(dao.TgUser.Columns().IsOnline, in.IsOnline)
+	}
+
 	// 查询代理地址
 	if in.ProxyAddress != "" {
 		mod = mod.WhereLike(dao.TgUser.Columns().ProxyAddress, in.ProxyAddress)
@@ -97,7 +102,7 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, "获取TG账号数据行失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgDataLineFailed}"))
 		return
 	}
 
@@ -106,10 +111,10 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 	}
 
 	if err = mod.
-		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tu.member_id").
-		Fields("tu.*", "ham.member_username").
+		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
+		Fields("tg_user.*", "ham.member_username").
 		Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, "获取TG账号列表失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
 		return
 	}
 	for _, item := range list {
@@ -134,8 +139,8 @@ func (s *sTgUser) Export(ctx context.Context, in *tgin.TgUserListInp) (err error
 	}
 
 	var (
-		fileName  = "导出TG账号-" + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = fmt.Sprintf("索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		fileName  = g.I18n().T(ctx, "{#ExportTgAccount}") + gctx.CtxId(ctx) + ".xlsx"
+		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgUserExportModel
 	)
 
@@ -154,7 +159,7 @@ func (s *sTgUser) Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error) 
 		if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).
 			Fields(tgin.TgUserUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改TG账号失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyTgAccountFailed}"))
 		}
 		return
 	}
@@ -163,7 +168,7 @@ func (s *sTgUser) Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error) 
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgUserInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增TG账号失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddTgAccountFailed}"))
 	}
 	return
 }
@@ -171,7 +176,7 @@ func (s *sTgUser) Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error) 
 // Delete 删除TG账号
 func (s *sTgUser) Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error) {
 	if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, "删除TG账号失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteTgAccountFailed}"))
 		return
 	}
 	return
@@ -180,7 +185,7 @@ func (s *sTgUser) Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err err
 // View 获取TG账号指定信息
 func (s *sTgUser) View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, "获取TG账号信息失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 		return
 	}
 	if res.PublicProxy == 1 {
@@ -195,7 +200,7 @@ func (s *sTgUser) BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) 
 		WhereIn(dao.TgUser.Columns().Id, in.Ids).
 		Data(do.TgUser{MemberId: in.MemberId}).
 		Update(); err != nil {
-		err = gerror.Wrap(err, "绑定用户失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#BindUserFailed}"))
 		return
 	}
 	return
@@ -207,7 +212,7 @@ func (s *sTgUser) UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberI
 		WhereIn(dao.TgUser.Columns().Id, in.Ids).
 		Data(do.TgUser{MemberId: nil}).
 		Update(); err != nil {
-		err = gerror.Wrap(err, "绑定用户失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#BindUserFailed}"))
 		return
 	}
 	return
@@ -222,7 +227,8 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
 			item.IsOnline = consts.Offline
 			// 移除登录失败的端口记录
-			_, err = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+			_, _ = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+			_, _ = g.Redis().HDel(ctx, consts.TgLoginAccountKey, item.Phone)
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
@@ -230,11 +236,10 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		//更新登录状态
 		_, _ = s.Model(ctx).
 			Fields(cols.TgId, cols.Username, cols.FirstName, cols.LastName, cols.IsOnline, cols.LastLoginTime, cols.AccountStatus).
-			OmitEmpty().
 			Where(cols.Phone, item.Phone).Update(item)
 		item.Session = nil
 		// 删除登录过程的redis
-		key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, item.Phone)
+		key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, item.Phone)
 		_, _ = g.Redis().Del(ctx, key)
 		//websocket推送登录结果
 		websocket.SendToTag(gconv.String(item.TgId), &websocket.WResponse{
@@ -371,7 +376,7 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 			//path := gfile.Join(jDirPath, sessionN+".session")
 			// 中文文件特殊字符用gfile.Join拼接解析错误
 			path := jDirPath + "\\" + sessionN + ".session"
-			err = s.handlerReadAuthKey(path, sessionJ)
+			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path, ctx)
 			if err != nil {
 				return
 			}
@@ -385,36 +390,31 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 	return
 }
 
-func (s *sTgUser) handlerReadAuthKey(path string, sessionJ *tgin.TgImportSessionModel) (err error) {
+func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
 	// 打开SQLite数据库连接
 	var db *sql.DB
 	db, err = sql.Open("sqlite3", path)
 	if err != nil {
-		err = gerror.Wrap(err, "获取sqlite文件驱动失败"+err.Error())
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetSqliteFailed}")+err.Error())
 		return
 	}
 	defer func() { _ = db.Close() }()
 	// 测试数据库连接
 	err = db.Ping()
 	if err != nil {
-		err = gerror.Wrap(err, "sqlite数据库连接Ping不通"+err.Error())
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteNoPing}")+err.Error())
 		return
 	}
 	rows, err := db.Query("select dc_id,server_address,port,auth_key from sessions")
 	if err != nil {
-		err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteExecutionSqlFailed}")+err.Error())
 		return
 	}
 	defer func() { _ = rows.Close() }()
 	if rows.Next() {
-		authKey := &tgin.TgImportSessionAuthKeyMsg{}
+		authKey = &tgin.TgImportSessionAuthKeyMsg{}
 		err = rows.Scan(&authKey.DC, &authKey.Addr, &authKey.Port, &authKey.AuthKey)
-		if err == nil {
-			sessionJ.SessionAuthKey = authKey
-		} else {
-			return
-		}
-
+		return
 	}
 	rows2, err2 := db.Query("select id from entities where phone = " + sessionJ.Phone)
 	if err2 != nil {
@@ -471,7 +471,7 @@ func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImpor
 		res, err := service.Arts().Send(ctx, req)
 		g.Log().Info(ctx, res.GetActionResult().String())
 		if err != nil {
-			return "", gerror.Wrap(err, "请求服务端失败，请稍后重试!"+err.Error())
+			return "", gerror.Wrap(err, g.I18n().T(ctx, "{#RequestServerFailed}")+err.Error())
 		}
 		if res.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
 			return "", gerror.New(res.Comment)
@@ -486,7 +486,7 @@ func (s *sTgUser) UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp
 	var list []*entity.TgUser
 	err = s.Model(ctx).WherePri(in.Ids).Scan(&list)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取账号失败，请稍后重试！")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountFailed}"))
 	}
 	proxySet := gset.NewStrSet()
 	for _, tgUser := range list {
@@ -498,19 +498,19 @@ func (s *sTgUser) UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp
 	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: ""})
 		if err != nil {
-			return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		if proxySet.Size() > 0 {
 			for _, proxy := range proxySet.Slice() {
 				//查询绑定该代理的账号数量
 				count, err := s.Model(ctx).Where(do.TgUser{ProxyAddress: proxy}).Count()
 				if err != nil {
-					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+					return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 				}
 				//修改代理绑定数量
 				_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy}).Update(do.SysProxy{AssignedCount: count})
 				if err != nil {
-					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+					return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 				}
 			}
 		}
@@ -526,15 +526,15 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 	var proxy entity.SysProxy
 	err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).Scan(&proxy)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取代理信息失败，请稍后重试！")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetProxyInformation}"))
 	}
 	if g.IsEmpty(proxy) {
-		return nil, gerror.New("代理不存在")
+		return nil, gerror.New(g.I18n().T(ctx, "{#ProxyNoExist}"))
 	}
 	var list []*entity.TgUser
 	err = s.Model(ctx).WherePri(in.Ids).Scan(&list)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取账号失败，请稍后重试！")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetAccountFailed}"))
 	}
 	proxySet := gset.NewStrSet()
 	for _, tgUser := range list {
@@ -544,23 +544,23 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 	}
 
 	if proxy.AssignedCount+gconv.Int64(len(in.Ids)) > proxy.MaxConnections {
-		return nil, gerror.New("绑定账号数量超出该代理最大连接数")
+		return nil, gerror.New(g.I18n().T(ctx, "{#BindAccountMaxNumber}"))
 	}
 	//绑定代理
 	err = s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: proxy.Address})
+		_, err = s.Model(ctx).WherePri(in.Ids).Update(do.TgUser{ProxyAddress: proxy.Address, PublicProxy: 2})
 		if err != nil {
-			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		count, err := s.Model(ctx).Where(dao.TgUser.Columns().ProxyAddress, proxy.Address).Count()
 		if err != nil {
-			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		//更新代理账号的绑定数量
 		_, err = service.OrgSysProxy().Model(ctx).WherePri(in.ProxyId).
 			Update(do.SysProxy{AssignedCount: count})
 		if err != nil {
-			return gerror.Wrap(err, "绑定失败，请稍后重试！")
+			return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 		}
 		// 更新原绑定代理的数量
 		if proxySet.Size() > 0 {
@@ -568,12 +568,12 @@ func (s *sTgUser) BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (r
 				//查询绑定该代理的账号数量
 				count, err := s.Model(ctx).Where(do.TgUser{ProxyAddress: proxy}).Count()
 				if err != nil {
-					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+					return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 				}
 				//修改代理绑定数量
 				_, err = service.OrgSysProxy().Model(ctx).Where(do.SysProxy{Address: proxy}).Update(do.SysProxy{AssignedCount: count})
 				if err != nil {
-					return gerror.Wrap(err, "解除绑定失败，请稍后重试！")
+					return gerror.Wrap(err, g.I18n().T(ctx, "{#UnbindFailed}"))
 				}
 			}
 		}

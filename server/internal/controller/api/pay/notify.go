@@ -37,7 +37,7 @@ func (c *cNotify) WxPay(ctx context.Context, _ *pay.NotifyWxPayReq) (res *pay.No
 		return
 	}
 
-	response.CustomJson(g.RequestFromCtx(ctx), `{"code": "SUCCESS","message": "收单成功"}`)
+	response.CustomJson(g.RequestFromCtx(ctx), `{"code": "SUCCESS","message": g.I18n().T(ctx,"{#ReceiptSuccess}")}`)
 	return
 }
 

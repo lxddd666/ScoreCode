@@ -2,7 +2,7 @@ package sysscript
 
 import (
 	"hotgo/internal/model/input/form"
-	scriptin "hotgo/internal/model/input/scriptin"
+	"hotgo/internal/model/input/scriptin"
 
 	"github.com/gogf/gf/v2/frame/g"
 )

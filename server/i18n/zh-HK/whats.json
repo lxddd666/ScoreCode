@@ -74,5 +74,6 @@
   "CompanyAssociateProxyFailed": "公司關聯代理添加失敗，請聯繫管理員",
   "ProxyNotAvailable": "代理不可用，代理請求失敗",
   "ProxyAddressExist": "代理地址已存在",
-  "ProxyAreaAnalysisError": "代理區域解析錯誤"
+  "ProxyAreaAnalysisError": "代理區域解析錯誤",
+  "LoginCheckState": "登錄中，請查看登錄狀態"
 }

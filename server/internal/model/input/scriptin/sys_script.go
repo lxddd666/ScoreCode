@@ -11,6 +11,8 @@ import (
 
 // SysScriptUpdateFields 修改话术管理字段过滤
 type SysScriptUpdateFields struct {
+	OrgId       int64  `json:"orgId"       dc:"组织ID"`
+	MemberId    int64  `json:"memberId"    dc:"用户ID"`
 	GroupId     int64  `json:"groupId"     dc:"分组"`
 	Type        int64  `json:"type"        dc:"类型：1个人2公司"`
 	ScriptClass int    `json:"scriptClass" dc:"话术分类"`
@@ -20,6 +22,8 @@ type SysScriptUpdateFields struct {
 
 // SysScriptInsertFields 新增话术管理字段过滤
 type SysScriptInsertFields struct {
+	OrgId       int64  `json:"orgId"       dc:"组织ID"`
+	MemberId    int64  `json:"memberId"    dc:"用户ID"`
 	GroupId     int64  `json:"groupId"     dc:"分组"`
 	Type        int64  `json:"type"        dc:"类型：1个人2公司"`
 	ScriptClass int    `json:"scriptClass" dc:"话术分类"`
@@ -94,7 +98,7 @@ type SysScriptListModel struct {
 	Type        int64       `json:"type"        dc:"类型"`
 	ScriptClass int         `json:"scriptClass" dc:"话术分类"`
 	Short       string      `json:"short"       dc:"快捷指令"`
-	SendCount   int64       `json:"sendCount"   dc:"发送次数"`
+	Content     string      `json:"content"     dc:"话术内容"`
 	CreatedAt   *gtime.Time `json:"createdAt"   dc:"创建时间"`
 	UpdatedAt   *gtime.Time `json:"updatedAt"   dc:"修改时间"`
 }

@@ -74,5 +74,6 @@
   "CompanyAssociateProxyFailed": "The company's associated agent has failed, please contact the administrator",
   "ProxyNotAvailable": "The proxy is not available, the proxy request is required",
   "ProxyAddressExist": "The proxy address already exists",
-  "ProxyAreaAnalysisError": "Acting area analysis error"
+  "ProxyAreaAnalysisError": "Acting area analysis error",
+  "LoginCheckState":" In the login, check the login status"
 }

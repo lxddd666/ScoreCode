@@ -2,6 +2,7 @@ package tgin
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -49,7 +50,7 @@ type TgProxyEditModel struct{}
 
 // TgProxyDeleteInp 删除代理管理
 type TgProxyDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgProxyDeleteInp) Filter(ctx context.Context) (err error) {
@@ -60,7 +61,7 @@ type TgProxyDeleteModel struct{}
 
 // TgProxyViewInp 获取指定代理管理信息
 type TgProxyViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgProxyViewInp) Filter(ctx context.Context) (err error) {
@@ -113,23 +114,23 @@ type TgProxyExportModel struct {
 
 // TgProxyStatusInp 更新代理管理状态
 type TgProxyStatusInp struct {
-	Id     int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 	Status int   `json:"status" dc:"状态"`
 }
 
 func (in *TgProxyStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New("id不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New("状态不能为空")
+		err = gerror.New(g.I18n().T(ctx, "{#StateNotEmpty}"))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New("状态不正确")
+		err = gerror.New(g.I18n().T(ctx, "{#StateIncorrect}"))
 		return
 	}
 	return

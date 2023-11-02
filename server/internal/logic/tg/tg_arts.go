@@ -72,7 +72,7 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	)
 	err = service.TgUser().Model(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取telegram账号信息失败，请稍后重试")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
 	if g.IsEmpty(tgUser) {
 		return nil, gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
@@ -80,7 +80,7 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 
 	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
 	if err != nil {
-		return nil, gerror.Wrap(err, "获取公司信息失败，请稍后重试")
+		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 	tgUserList := []*entity.TgUser{&tgUser}
 	// 处理端口数
@@ -97,6 +97,11 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 	if err != nil {
 		return
 	}
+	err = s.handlerSyncAccount(ctx, tgUserList)
+	if err != nil {
+		return
+	}
+
 	err = s.login(ctx, user, tgUserList)
 	return
 }
@@ -106,7 +111,7 @@ func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list [
 	count := len(list)
 	// 判断端口数是否足够
 	if sysOrg.AssignedPorts+gconv.Int64(count) >= sysOrg.Ports {
-		return gerror.New("可用端口数不足")
+		return gerror.New(g.I18n().T(ctx, "{#InsufficientNumber}"))
 	}
 	// 更新已使用端口数
 	_, err = service.SysOrg().Model(ctx).
@@ -133,9 +138,9 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 		simple.SafeGo(ctx, func(ctx context.Context) {
 			defer wg.Done()
 			//判断是否在登录中，已在登录中的号不执行登录操作
-			key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, tgUser.Phone)
+			key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, tgUser.Phone)
 			v, _ := g.Redis().Get(ctx, key)
-			if v.Val() == nil {
+			if v.IsEmpty() {
 
 				// 查看账号是否有代理
 				if tgUser.ProxyAddress == "" {
@@ -160,33 +165,22 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 	}
 
 	if accounts.IsEmpty() {
-		return nil, gerror.Newf("选择登录的账号[%s]已经在登录中....", tgUserList[0].Phone)
+		return nil, gerror.Newf(g.I18n().Tf(ctx, "{#SelectLoggingAccount}"), tgUserList[0].Phone)
 	}
 	loginTgUserList = accounts.Slice()
 	return
 }
 
-//func LoginMsgToPrometheus(ctx context.Context, res *protobuf.ResponseMessage) {
-//	contexts.GetUser(ctx)
-//	// 记录代理使用次数
-//	if res.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
-//		// 登录成功记录
-//		prometheus.LoginSuccessCounter.WithLabelValues(user.Phone).Inc()
-//		// 登录成功proxy记录
-//		prometheus.LoginProxySuccessCount.WithLabelValues(user.ProxyAddress).Inc()
-//	} else if res.ActionResult == protobuf.ActionResult_ALL_FAIL {
-//		prometheus.LoginFailureCounter.WithLabelValues(gconv.String(user.Phone)).Inc()
-//		switch res.RespondAccountStatus {
-//		case protobuf.AccountStatus_NOT_EXIST:
-//			// 1、用户账号输错错误
-//		case protobuf.AccountStatus_SEAL:
-//			// 2、账号被封
-//			prometheus.AccountBannedCount.WithLabelValues(gconv.String(user.Phone)).Inc()
-//			// 账号被封的代理地址
-//			prometheus.LoginProxyBannedCount.WithLabelValues(gconv.String(user.ProxyAddress)).Inc()
-//		}
-//	}
-//}
+func (s *sTgArts) handlerSyncAccount(ctx context.Context, tgUserList []*entity.TgUser) (err error) {
+	phones := make([]uint64, 0)
+	for _, tgUser := range tgUserList {
+		if tgUser.LastLoginTime == nil {
+			phones = append(phones, gconv.Uint64(tgUser.Phone))
+		}
+	}
+	_, err = s.SyncAccount(ctx, phones)
+	return
+}
 
 // SendCode 发送验证码
 func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err error) {
@@ -220,14 +214,14 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	)
 	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
 	if err != nil {
-		return gerror.Wrap(err, "获取tg账号信息失败，请稍后重试")
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
 	if len(tgUserList) < 1 {
 		return gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
 	}
 	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
 	if err != nil {
-		return gerror.Wrap(err, "获取公司信息失败，请稍后重试")
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 
 	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
@@ -242,6 +236,11 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	if err != nil {
 		return
 	}
+
+	err = s.handlerSyncAccount(ctx, tgUserList)
+	if err != nil {
+		return
+	}
 	err = s.login(ctx, user, tgUserList)
 
 	return
@@ -251,17 +250,13 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	usernameMap := gmap.NewStrAnyMap(true)
 	for _, tgUser := range tgUserList {
-		//判断是否在登录中，已在登录中的号不执行登录操作
-		key := fmt.Sprintf("%s%s", consts.TgActionLoginAccounts, tgUser.Phone)
-		v, err := g.Redis().Get(ctx, key)
+		loginUser, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, tgUser.Phone)
 		if err != nil {
 			return err
 		}
-		if !v.IsEmpty() {
-			err = gerror.New("正在登录，请勿频繁操作")
-			return err
+		if !loginUser.IsEmpty() {
+			continue
 		}
-		_ = g.Redis().SetEX(ctx, key, tgUser.Phone, 10)
 		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 		usernameMap.Set(tgUser.Phone, user.Id)
@@ -287,20 +282,26 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 }
 
 // Logout 登退
-func (s *sTgArts) Logout(ctx context.Context, phones []uint64) (err error) {
+func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
+	var (
+		tgUserList []*entity.TgUser
+	)
+	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
+	if err != nil {
+		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
+	}
 	logoutDetail := make(map[uint64]*protobuf.LogoutDetail)
-	for _, account := range phones {
+	for _, account := range tgUserList {
 		// 检查是否登录
-		if err = s.TgCheckLogin(ctx, account); err != nil {
+		if err = s.TgCheckLogin(ctx, gconv.Uint64(account.Phone)); err != nil {
 			return
 		}
 		ld := &protobuf.LogoutDetail{}
-		logoutDetail[account] = ld
+		logoutDetail[gconv.Uint64(account.Phone)] = ld
 	}
 	req := &protobuf.RequestMessage{
-		Action:  protobuf.Action_LOGOUT,
-		Type:    consts.TgSvc,
-		Account: phones[0],
+		Action: protobuf.Action_LOGOUT,
+		Type:   consts.TgSvc,
 		ActionDetail: &protobuf.RequestMessage_LogoutAction{
 			LogoutAction: &protobuf.LogoutAction{
 				LogoutDetail: logoutDetail,
@@ -318,7 +319,7 @@ func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) 
 		return err
 	}
 	if userId.IsEmpty() {
-		err = gerror.New(consts.TG_NOT_LOGGED_IN) // 未登录
+		err = gerror.New(g.I18n().T(ctx, "{#NoLog}"))
 	}
 	return
 }

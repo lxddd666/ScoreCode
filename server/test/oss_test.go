@@ -1,4 +1,4 @@
-package storager
+package test
 
 import (
 	"bytes"
@@ -13,7 +13,6 @@ func TestOss(t *testing.T) {
 	if err != nil {
 		return
 	}
-
 	bucket, err := client.Bucket("tgcloud")
 	if err != nil {
 		return

@@ -142,6 +142,11 @@ func (s *sScriptGroup) checkInfo(ctx context.Context, in *scriptin.ScriptGroupEd
 }
 
 func (s *sScriptGroup) modify(ctx context.Context, in *scriptin.ScriptGroupEditInp) (err error) {
+	user := contexts.GetUser(ctx)
+	in.OrgId = user.OrgId
+	if in.Type == consts.ScriptTypeMember {
+		in.MemberId = user.Id
+	}
 	if _, err = s.Model(ctx).
 		Fields(scriptin.ScriptGroupUpdateFields{}).
 		WherePri(in.Id).Data(in).Update(); err != nil {

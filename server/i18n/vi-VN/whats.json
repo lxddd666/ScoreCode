@@ -74,5 +74,6 @@
   "CompanyAssociateProxyFailed": "Đại lý liên kết của công ty đã thất bại, vui lòng liên hệ với quản trị viên",
   "ProxyNotAvailable": "Proxy không khả dụng, yêu cầu proxy không thành công",
   "ProxyAddressExist": "Địa chỉ proxy đã tồn tại",
-  "ProxyAreaAnalysisError": "Lỗi phân tích khu vực diễn xuất"
+  "ProxyAreaAnalysisError": "Lỗi phân tích khu vực diễn xuất",
+  "LoginCheckState": "Trong đăng nhập, hãy kiểm tra trạng thái đăng nhập"
 }

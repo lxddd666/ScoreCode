@@ -9,7 +9,7 @@ import (
 // TgLoginReq tg登录
 type TgLoginReq struct {
 	g.Meta `path:"/arts/login" method:"post" tags:"tg-api" summary:"登录"`
-	Phone  uint64 `json:"phone" v:"required#请选择登录手机号" dc:"登录手机号"`
+	Phone  uint64 `json:"phone" v:"required#SelectLoginMobile" dc:"登录手机号"`
 }
 
 type TgLoginRes struct {
@@ -18,11 +18,19 @@ type TgLoginRes struct {
 
 // TgBatchLoginReq 批量登录
 type TgBatchLoginReq struct {
-	g.Meta `path:"/arts/batchLogin" method:"post" tags:"tg-api" summary:"登录"`
-	Ids    []int64 `json:"ids" v:"required#请选择登录账号" dc:"ids"`
+	g.Meta `path:"/arts/batchLogin" method:"post" tags:"tg-api" summary:"批量登录"`
+	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"ids"`
 }
 
 type TgBatchLoginRes struct{}
+
+// TgBatchLogoutReq 批量登录
+type TgBatchLogoutReq struct {
+	g.Meta `path:"/arts/batchLogout" method:"post" tags:"tg-api" summary:"批量下线"`
+	Ids    []int64 `json:"ids" v:"required#请选择登录账号" dc:"ids"`
+}
+
+type TgBatchLogoutRes struct{}
 
 // TgSendCodeReq tg发送验证码
 type TgSendCodeReq struct {

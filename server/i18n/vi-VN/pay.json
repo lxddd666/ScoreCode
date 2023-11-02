@@ -7,5 +7,7 @@
   "MerchantOrderNumberNotExist": "Số đơn đặt hàng của người bán [%v] không có hồ sơ thanh toán, vui lòng kiểm tra",
   "MerchantOrderNumberProcessed": "Số đơn đặt hàng của người bán [%v] đã được xử lý, vui lòng không lặp lại hoạt động",
   "NoUpdateData": "Không cập nhật dòng dữ liệu",
-  "ExportPayLog": "Xuất nhật ký thanh toán"
+  "ExportPayLog": "Xuất nhật ký thanh toán",
+  "ReceiptSuccess": "Biên nhận thành công",
+  "AlipayRefundChange": "Alipay đã không thay đổi tiền cho khoản hoàn trả này"
 }

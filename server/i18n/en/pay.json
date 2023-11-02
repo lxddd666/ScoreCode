@@ -7,5 +7,7 @@
   "MerchantOrderNumberNotExist": "Merchant order number [%v] does not have payment records, please check",
   "MerchantOrderNumberProcessed": "Merchant order number [%V] has been processed, please do not repeat operation",
   "NoUpdateData": "Not updated data line",
-  "ExportPayLog": "Export payment log"
+  "ExportPayLog": "Export payment log",
+  "ReceiptSuccess": "Successful receipt", 
+  "AliPayRefundChange": "Alipay has not changed funds for this refund"
 }

@@ -7,6 +7,7 @@ package sys
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/api/admin/attachment"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/input/sysin"
@@ -61,25 +62,25 @@ func (c *cAttachment) ChooserOption(ctx context.Context, req *attachment.Chooser
 
 	var kinds = []attachment.KindSelect{
 		{
-			Label: "全部", Key: "", Value: "",
+			Label: g.I18n().T(ctx, "{#All}"), Key: "", Value: "",
 		},
 		{
-			Label: "图片", Key: storager.KindImg, Value: storager.KindImg, Icon: "PictureOutlined", Tag: "success",
+			Label: g.I18n().T(ctx, "{#Picture}"), Key: storager.KindImg, Value: storager.KindImg, Icon: "PictureOutlined", Tag: "success",
 		},
 		{
-			Label: "文档", Key: storager.KindDoc, Value: storager.KindDoc, Icon: "FileWordOutlined", Tag: "primary",
+			Label: g.I18n().T(ctx, "{#Document}"), Key: storager.KindDoc, Value: storager.KindDoc, Icon: "FileWordOutlined", Tag: "primary",
 		},
 		{
-			Label: "音频", Key: storager.KindAudio, Value: storager.KindAudio, Icon: "CustomerServiceOutlined", Tag: "info",
+			Label: g.I18n().T(ctx, "{#Audio}"), Key: storager.KindAudio, Value: storager.KindAudio, Icon: "CustomerServiceOutlined", Tag: "info",
 		},
 		{
-			Label: "视频", Key: storager.KindVideo, Value: storager.KindVideo, Icon: "PlaySquareOutlined", Tag: "warning",
+			Label: g.I18n().T(ctx, "{#Video}"), Key: storager.KindVideo, Value: storager.KindVideo, Icon: "PlaySquareOutlined", Tag: "warning",
 		},
 		{
-			Label: "压缩包", Key: storager.KindZip, Value: storager.KindZip, Icon: "FileZipOutlined", Tag: "error",
+			Label: g.I18n().T(ctx, "{#Archive}"), Key: storager.KindZip, Value: storager.KindZip, Icon: "FileZipOutlined", Tag: "error",
 		},
 		{
-			Label: "其他", Key: storager.KindOther, Value: storager.KindOther, Icon: "PlusOutlined", Tag: "default",
+			Label: g.I18n().T(ctx, "{#Other}"), Key: storager.KindOther, Value: storager.KindOther, Icon: "PlusOutlined", Tag: "default",
 		},
 	}
 	res.Kind = append(res.Kind, kinds...)

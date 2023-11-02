@@ -9,6 +9,14 @@ export function List(params: any) {
   });
 }
 
+export function getGroupOption(params?: any) {
+  return http.request({
+    url: '/1/scriptGroup/list',
+    method: 'GET',
+    params,
+  });
+}
+
 // 删除/批量删除话术分组
 export function Delete(params: any) {
   return http.request({
