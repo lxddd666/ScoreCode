@@ -59,3 +59,10 @@ type StatusReq struct {
 }
 
 type StatusRes struct{}
+
+type OnceReq struct {
+	g.Meta `path:"/tgKeepTask/once" method:"post" tags:"养号任务" summary:"执行一次"`
+	Id     int64 `json:"id" dc:"id"`
+}
+
+type OnceRes struct{}

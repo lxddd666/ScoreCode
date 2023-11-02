@@ -230,10 +230,10 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 			item.IsOnline = consts.Offline
 			// 移除登录失败的端口记录
 			_, _ = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
-			_, _ = g.Redis().HDel(ctx, consts.TgLoginAccountKey, item.Phone)
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
+			_, _ = g.Redis().HSetNX(ctx, consts.TgLoginAccountKey, item.Phone, 1)
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).

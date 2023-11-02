@@ -60,3 +60,9 @@ func (c *cTgKeepTask) Status(ctx context.Context, req *tgkeeptask.StatusReq) (re
 	err = service.TgKeepTask().Status(ctx, &req.TgKeepTaskStatusInp)
 	return
 }
+
+// Once 执行一次
+func (c *cTgKeepTask) Once(ctx context.Context, req *tgkeeptask.OnceReq) (res *tgkeeptask.OnceRes, err error) {
+	err = service.TgKeepTask().Once(ctx, req.Id)
+	return
+}

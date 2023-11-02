@@ -90,7 +90,7 @@ import {useDialog, useMessage} from 'naive-ui';
 import {BasicTable, TableAction} from '@/components/Table';
 import {BasicForm, useForm} from '@/components/Form/index';
 import {usePermission} from '@/hooks/web/usePermission';
-import {Delete, Export, List, Status} from '@/api/tg/tgKeepTask';
+import {Delete, Export, List, Once, Status} from '@/api/tg/tgKeepTask';
 import {columns, newState, options, schemas, State} from './model';
 import {DeleteOutlined, ExportOutlined, PlusOutlined} from '@vicons/antd';
 import {useRouter} from 'vue-router';
@@ -139,9 +139,9 @@ const actionColumn = reactive({
           auth: ['/tgKeepTask/status'],
         },
         {
-          label: '删除',
-          onClick: handleDelete.bind(null, record),
-          auth: ['/tgKeepTask/delete'],
+          label: '执行一次',
+          onClick: handleOnce.bind(null, record),
+          auth: ['/tgKeepTask/once'],
         },
       ],
       dropDownActions: [
@@ -150,10 +150,17 @@ const actionColumn = reactive({
           key: 'view',
           auth: ['/tgKeepTask/view'],
         },
+        {
+          label: '删除',
+          key: 'delete',
+          auth: ['/tgKeepTask/delete'],
+        },
       ],
       select: (key) => {
         if (key === 'view') {
           return handleView(record);
+        } else if (key === 'delete') {
+          return handleDelete(record)
         }
       },
     });
@@ -195,6 +202,24 @@ function handleView(record: Recordable) {
 function handleEdit(record: Recordable) {
   showModal.value = true;
   formParams.value = newState(record as State);
+}
+
+function handleOnce(record: Recordable) {
+  dialog.warning({
+    title: '警告',
+    content: '提交成功后将立即执行一次，你确定要执行吗？？',
+    positiveText: '确定',
+    negativeText: '取消',
+    onPositiveClick: () => {
+      Once({id: record.id}).then((_res) => {
+        message.success('执行成功');
+        reloadTable();
+      });
+    },
+    onNegativeClick: () => {
+      // message.error('取消');
+    },
+  });
 }
 
 function handleDelete(record: Recordable) {
@@ -240,7 +265,7 @@ function handleExport() {
 
 function handleStatus(record: Recordable, status: number) {
   Status({id: record.id, status: status}).then((_res) => {
-    message.success('设为' + getOptionLabel(options.value.sys_normal_disable, status) + '成功');
+    message.success('设为' + getOptionLabel(options.value.sys_job_status, status) + '成功');
     setTimeout(() => {
       reloadTable();
     });

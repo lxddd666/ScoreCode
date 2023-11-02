@@ -11,11 +11,13 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	tgin "hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"hotgo/utility/simple"
 )
 
 type sTgKeepTask struct{}
@@ -149,6 +151,28 @@ func (s *sTgKeepTask) Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) 
 	}).Update(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#EditInfoError}")))
 		return
+	}
+	return
+}
+
+// Once 执行一次
+func (s *sTgKeepTask) Once(ctx context.Context, id int64) (err error) {
+	var task *entity.TgKeepTask
+	if err = s.Model(ctx).WherePri(id).Scan(&task); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
+	}
+
+	for _, action := range task.Actions.Array() {
+		thisAction := action
+		thisTask := task
+		simple.SafeGo(gctx.New(), func(ctx context.Context) {
+			f := actions.tasks[gconv.Int(thisAction)]
+			err = f(ctx, thisTask)
+			if err != nil {
+				return
+			}
+		})
+
 	}
 	return
 }

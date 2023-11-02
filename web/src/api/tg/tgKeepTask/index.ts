@@ -63,6 +63,15 @@ export function Status(params: any) {
   });
 }
 
+// 执行一次
+export function Once(params: any) {
+  return tg.request({
+    url: '/tgKeepTask/once',
+    method: 'POST',
+    params,
+  });
+}
+
 // 导出养号任务
 export function Export(params: any) {
   jumpExport('/tgKeepTask/export', params);

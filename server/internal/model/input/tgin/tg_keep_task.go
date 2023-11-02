@@ -60,7 +60,7 @@ type TgKeepTaskEditModel struct{}
 
 // TgKeepTaskDeleteInp 删除养号任务
 type TgKeepTaskDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *TgKeepTaskDeleteInp) Filter(ctx context.Context) (err error) {
@@ -71,7 +71,7 @@ type TgKeepTaskDeleteModel struct{}
 
 // TgKeepTaskViewInp 获取指定养号任务信息
 type TgKeepTaskViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *TgKeepTaskViewInp) Filter(ctx context.Context) (err error) {
@@ -119,7 +119,7 @@ type TgKeepTaskExportModel struct {
 
 // TgKeepTaskStatusInp 更新养号任务状态
 type TgKeepTaskStatusInp struct {
-	Id     int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 

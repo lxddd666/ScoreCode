@@ -83,7 +83,7 @@
   "GetListError": "Lấy danh sách không thành công, vui lòng thử lại sau!",
   "EditInfoError": "Sửa đổi không thành công, vui lòng thử lại sau!",
   "AddInfoError": "Thêm thất bại, vui lòng thử lại sau!",
-  "DeleteInfoError": "Thêm thất bại, vui lòng thử lại sau!",
+  "DeleteInfoError": "Không xóa, vui lòng thử lại sau!",
   "GetMaxSortError": "Để sắp xếp tối đa, vui lòng thử lại sau!",
   "GetInfoError": "Lấy dữ liệu không thành công, vui lòng thử lại sau!",
   "StatusNotEmpty": "Nhà nước không thể trống",

@@ -3,7 +3,6 @@ package tg
 import (
 	"context"
 	"fmt"
-	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
@@ -168,16 +167,6 @@ func (s *sTgContacts) ByTgUser(ctx context.Context, tgUserId int64) (list []*tgi
 // SyncContactCallback 同步联系人
 func (s *sTgContacts) SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error) {
 	for phone, list := range in {
-		userId, err1 := g.Redis().HGet(ctx, consts.TgLoginAccountKey, gconv.String(phone))
-		if err1 != nil {
-			err = err1
-			return
-		}
-		var user entity.AdminMember
-		err = dao.AdminMember.Ctx(ctx).WherePri(userId.Int64()).Scan(&user)
-		if err != nil {
-			return
-		}
 		var tgUser entity.TgUser
 		err = dao.TgUser.Ctx(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
 		if err != nil {
@@ -185,7 +174,7 @@ func (s *sTgContacts) SyncContactCallback(ctx context.Context, in map[uint64][]*
 		}
 		var phones = make([]string, 0)
 		for _, model := range list {
-			model.OrgId = user.OrgId
+			model.OrgId = tgUser.OrgId
 			phones = append(phones, model.Phone)
 		}
 		err = dao.TgContacts.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {

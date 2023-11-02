@@ -84,7 +84,7 @@
   "GetListError": "获取列表失败，请稍后重试！",
   "EditInfoError": "修改失败，请稍后重试！",
   "AddInfoError": "新增失败，请稍后重试！",
-  "DeleteInfoError": "新增失败，请稍后重试！",
+  "DeleteInfoError": "删除失败，请稍后重试！",
   "GetMaxSortError": "获取最大排序，请稍后重试！",
   "GetInfoError": "获取数据失败，请稍后重试！",
   "StatusNotEmpty": "状态不能为空",

@@ -85,7 +85,7 @@
   "GetListError": "Get the list failed, please try again later!",
   "EditInfoError": "Modify failed, please try again later!",
   "AddInfoError": "New failed, please try again later!",
-  "DeleteInfoError": "New failed, please try again later!",
+  "DeleteInfoError": "Delete failed, please try again later!",
   "GetMaxSortError": "Get the maximum sort, please try it later!",
   "GetInfoError": "The data failed, please try it later!",
   "StatusNotEmpty": "The state cannot be empty",

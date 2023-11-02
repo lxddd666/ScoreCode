@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/bxcodec/faker/v3"
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -68,7 +67,6 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 // CodeLogin 登录
 func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
 	var (
-		user   = contexts.GetUser(ctx)
 		tgUser entity.TgUser
 		sysOrg entity.SysOrg
 	)
@@ -80,18 +78,16 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		return nil, gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
 	}
 
-	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
+	err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
 	if err != nil {
 		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 	tgUserList := []*entity.TgUser{&tgUser}
 	// 处理端口数
-	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		// 处理端口
-		err = s.handlerPorts(ctx, sysOrg, tgUserList)
-		if err != nil {
-			return
-		}
+	// 处理端口
+	err = s.handlerPorts(ctx, sysOrg, tgUserList)
+	if err != nil {
+		return
 	}
 
 	// 处理代理
@@ -104,7 +100,7 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		return
 	}
 
-	err = s.login(ctx, user, tgUserList)
+	err = s.login(ctx, tgUserList)
 	return
 }
 
@@ -117,12 +113,13 @@ func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list [
 	}
 	// 更新已使用端口数
 	_, err = service.SysOrg().Model(ctx).
+		WherePri(sysOrg.Id).
 		Data(do.SysOrg{AssignedPorts: gdb.Raw(fmt.Sprintf("%s+%d", dao.SysOrg.Columns().AssignedPorts, count))}).
 		Update()
 	// 记录占用端口的账号
 	loginPorts := make(map[string]interface{})
 	for _, user := range list {
-		loginPorts[user.Phone] = 1
+		loginPorts[user.Phone] = sysOrg.Id
 	}
 	_, err = g.Redis().HSet(ctx, consts.TgLoginPorts, loginPorts)
 	return
@@ -179,7 +176,10 @@ func (s *sTgArts) handlerSyncAccount(ctx context.Context, tgUserList []*entity.T
 			phones = append(phones, gconv.Uint64(tgUser.Phone))
 		}
 	}
-	_, err = s.SyncAccount(ctx, phones)
+	if len(phones) > 0 {
+		_, err = s.SyncAccount(ctx, phones)
+	}
+
 	return
 }
 
@@ -209,7 +209,6 @@ func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err er
 // SessionLogin 登录
 func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	var (
-		user       = contexts.GetUser(ctx)
 		tgUserList []*entity.TgUser
 		sysOrg     entity.SysOrg
 	)
@@ -220,17 +219,14 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	if len(tgUserList) < 1 {
 		return gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
 	}
-	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
+	err = service.SysOrg().Model(ctx).WherePri(tgUserList[0].OrgId).Scan(&sysOrg)
 	if err != nil {
 		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
-
-	if !service.AdminMember().VerifySuperId(ctx, user.Id) {
-		// 处理端口
-		err = s.handlerPorts(ctx, sysOrg, tgUserList)
-		if err != nil {
-			return
-		}
+	// 处理端口
+	err = s.handlerPorts(ctx, sysOrg, tgUserList)
+	if err != nil {
+		return
 	}
 	// 处理代理
 	tgUserList, err = s.handlerProxy(ctx, tgUserList)
@@ -242,14 +238,13 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	if err != nil {
 		return
 	}
-	err = s.login(ctx, user, tgUserList)
+	err = s.login(ctx, tgUserList)
 
 	return
 }
 
-func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []*entity.TgUser) (err error) {
+func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err error) {
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
-	usernameMap := gmap.NewStrAnyMap(true)
 	for _, tgUser := range tgUserList {
 		loginUser, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, tgUser.Phone)
 		if err != nil {
@@ -260,7 +255,6 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 		}
 		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
-		usernameMap.Set(tgUser.Phone, user.Id)
 	}
 	if len(loginDetail) == 0 {
 		err = gerror.New("所有账号已经登录")
@@ -279,9 +273,6 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 	if err != nil {
 		return
 	}
-
-	_, _ = g.Redis().HSet(ctx, consts.TgLoginAccountKey, usernameMap.Map())
-
 	return
 }
 
@@ -323,7 +314,7 @@ func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) 
 		return err
 	}
 	if userId.IsEmpty() {
-		err = gerror.New(g.I18n().T(ctx, "{#NoLog}"))
+		err = gerror.New(gconv.String(account) + g.I18n().T(ctx, "{#NoLog}"))
 	}
 	return
 }

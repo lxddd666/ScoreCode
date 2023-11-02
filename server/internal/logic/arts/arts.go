@@ -159,7 +159,6 @@ func (s *sArts) Send(ctx context.Context, req *protobuf.RequestMessage) (res *pr
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 	res, err = c.Connect(ctx, req)
-	g.Log().Info(ctx, res.GetActionResult().String())
 	if err != nil {
 		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#RequestServerFailed}"))
 	}

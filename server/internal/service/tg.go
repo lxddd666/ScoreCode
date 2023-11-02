@@ -101,6 +101,8 @@ type (
 		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
 		// Status 更新养号任务状态
 		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
+		// Once 执行一次
+		Once(ctx context.Context, id int64) (err error)
 	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
