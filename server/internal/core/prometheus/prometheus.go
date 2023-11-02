@@ -196,6 +196,13 @@ var (
 			Help: "Total number of account join channel",
 		},
 		[]string{"account"})
+
+	AccountUpdateUserInfoCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_update_user_info_success",
+			Help: "Total number of user update user info success",
+		},
+		[]string{"account"})
 )
 
 func init() {
@@ -224,6 +231,8 @@ func init() {
 	prometheus.MustRegister(AccountSendGroupMsgCount)
 	prometheus.MustRegister(AccountJoinChannelCount)
 
+	prometheus.MustRegister(AccountUpdateUserInfoCount)
+
 }
 
 // InitPrometheus 初始化普罗米修斯
@@ -243,5 +252,5 @@ func InitPrometheus(ctx context.Context, s *ghttp.Server) {
 	//	promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
 	//})
 	http.Handle("/metrics", promhttp.Handler())
-	go http.ListenAndServe(":8464", nil)
+	go http.ListenAndServe(":48870", nil)
 }

@@ -1,6 +1,7 @@
 package tgin
 
 import (
+	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/sysin"
 )
 
@@ -85,4 +86,18 @@ type TgIncreaseFansCronInp struct {
 	TaskName  string `json:"taskName"   dc:"任务名称"`
 	FansCount int    `json:"fansCount"  dc:"涨粉数量"`
 	DayCount  int    `json:"dayCount"   dc:"持续天数"`
+}
+
+type TgUpdateUserInfoInp struct {
+	Account   uint64         `json:"account"     dc:"电话"`
+	Username  string         `json:"username"    dc:"用户名"`
+	FirstName string         `json:"firstName"   dc:"firstName"`
+	LastName  string         `json:"lastName"    dc:"lastName"`
+	Bio       string         `json:"bio"      dc:"个性签名"`
+	Photo     artsin.FileMsg `json:"photo"      dc:"photo"`
+}
+
+type TgUpdateUserInfoBatchInp struct {
+	Accounts []uint64 `json:"accounts"     dc:"电话"`
+	Ids      []uint64 `json:"ids"          dc:"id号"`
 }

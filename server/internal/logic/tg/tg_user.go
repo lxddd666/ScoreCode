@@ -19,6 +19,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	_ "github.com/mattn/go-sqlite3"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
@@ -223,6 +224,7 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 
 	cols := dao.TgUser.Columns()
 	for _, item := range res {
+		loginDetailsRecord(item)
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
 			item.IsOnline = consts.Offline
@@ -251,6 +253,27 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		})
 	}
 	return
+}
+
+func loginDetailsRecord(user entity.TgUser) {
+	status := protobuf.AccountStatus(user.AccountStatus)
+	switch status {
+	case protobuf.AccountStatus_SUCCESS:
+		prometheus.LoginProxySuccessCount.WithLabelValues(user.ProxyAddress).Inc()
+		prometheus.LoginSuccessCounter.WithLabelValues(user.Phone).Inc()
+	case protobuf.AccountStatus_FAIL:
+		prometheus.LoginFailureCounter.WithLabelValues(user.Phone).Inc()
+		prometheus.LoginProxyFailedCount.WithLabelValues(user.ProxyAddress).Inc()
+	case protobuf.AccountStatus_NOT_EXIST:
+		prometheus.LoginFailureCounter.WithLabelValues(user.Phone).Inc()
+	case protobuf.AccountStatus_SEAL:
+		prometheus.AccountBannedCount.WithLabelValues(user.Phone).Inc()
+		prometheus.LoginProxyBannedCount.WithLabelValues(user.ProxyAddress).Inc()
+	default:
+		prometheus.LoginFailureCounter.WithLabelValues(user.Phone).Inc()
+		prometheus.LoginProxyFailedCount.WithLabelValues(user.ProxyAddress).Inc()
+	}
+
 }
 
 // LogoutCallback 登退回调

@@ -2,7 +2,9 @@ package tg
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"github.com/bxcodec/faker/v3"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/crypto/gmd5"
@@ -260,7 +262,10 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 		usernameMap.Set(tgUser.Phone, user.Id)
 	}
-
+	if len(loginDetail) == 0 {
+		err = gerror.New("所有账号已经登录")
+		return
+	}
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_LOGIN,
 		Type:   consts.TgSvc,
@@ -346,9 +351,9 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 	}
 	res, err = service.Arts().SyncContact(ctx, inp, consts.TgSvc)
 	if err == nil {
-		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account))
+		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 		for _, contact := range inp.Contacts {
-			prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(contact))
+			prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(contact)).Inc()
 		}
 	}
 	return
@@ -643,7 +648,7 @@ func (s *sTgArts) TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAd
 	if err == nil {
 		prometheus.AddMemberToChannelCount.WithLabelValues(gconv.String(inp.Channel)).Inc()
 		for _, member := range inp.Members {
-			prometheus.AccountJoinChannelCount.WithLabelValues(gconv.String(member))
+			prometheus.AccountJoinChannelCount.WithLabelValues(gconv.String(member)).Inc()
 		}
 	}
 	return
@@ -670,7 +675,7 @@ func (s *sTgArts) TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJo
 	}
 	resp, err := service.Arts().Send(ctx, req)
 	if err == nil {
-		prometheus.AccountJoinChannelCount.WithLabelValues(gconv.String(inp.Account))
+		prometheus.AccountJoinChannelCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 		contactList := []*tgin.TgContactsListModel{}
 		err = gjson.DecodeTo(resp.Data, &contactList)
 		if err == nil {
@@ -729,6 +734,107 @@ func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionIn
 	}
 	_, err = service.Arts().Send(ctx, req)
 	return
+}
+
+// TgUpdateUserInfo 修改用户信息
+func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error) {
+	model := entity.TgUser{}
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	sendMsg := make(map[uint64]*protobuf.UpdateUserInfoMsg)
+	sendMsg[inp.Account] = &protobuf.UpdateUserInfoMsg{
+		UserName:  inp.Username,
+		FirstName: inp.FirstName,
+		LastName:  inp.LastName,
+		Bio:       inp.Bio,
+		Photo: &protobuf.FileDetailValue{
+			SendType: inp.Photo.MIME,
+			Path:     inp.Photo.Name,
+			Name:     inp.Photo.Name,
+			FileByte: inp.Photo.Data,
+		},
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_UPDATE_USER_INFO,
+		Type:    "telegram",
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_UpdateUserInfoDetail{
+			UpdateUserInfoDetail: &protobuf.UpdateUserInfoDetail{
+				Account:  inp.Account,
+				SendData: sendMsg,
+			},
+		},
+	}
+
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountUpdateUserInfoCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	err = gjson.DecodeTo(resp.Data, &model)
+	if err == nil {
+		updateMap := g.Map{
+			dao.TgUser.Columns().Username:  model.Username,
+			dao.TgUser.Columns().FirstName: model.FirstName,
+			dao.TgUser.Columns().LastName:  model.LastName,
+		}
+		if inp.Photo.MIME != "" {
+			updateMap[dao.TgUser.Columns().Photo] = model.Phone
+		}
+		_, err = dao.TgUser.Ctx(ctx).Data(updateMap).Where(dao.TgUser.Columns().Phone, inp.Account).Update()
+	}
+	return
+}
+
+// TgUpdateUserInfoBatch 批量修改用户信息
+func (s *sTgArts) TgUpdateUserInfoBatch(ctx context.Context, inp *tgin.TgUpdateUserInfoBatchInp) (err error) {
+	//user := contexts.GetUser(ctx)
+	//
+	//loginUserList := make([]uint64, 0)
+	//UserInfoList := make([]*tgin.TgUpdateUserInfoInp, 0)
+	//for _, account := range inp.Accounts {
+	//	if loginErr := s.TgCheckLogin(ctx, account); loginErr != nil {
+	//		_, err = s.CodeLogin(ctx, account)
+	//		if err != nil {
+	//		} else {
+	//			loginUserList = append(loginUserList, account)
+	//		}
+	//	} else {
+	//		loginUserList = append(loginUserList, account)
+	//	}
+	//}
+	//
+	//if len(loginUserList) > 0 {
+	//	username, firstName, lastName := randomUserName()
+	//	userInfo := &tgin.TgUpdateUserInfoInp{
+	//		Username:  username,
+	//		FirstName: firstName,
+	//		LastName:  lastName,
+	//	}
+	//}
+	//service.TgArts().TgUpdateUserInfo(ctx, req.TgUpdateUserInfoInp)
+
+	return
+}
+
+func randomUserName() (userName string, firstName string, lastName string) {
+	suffixName := generateRandomString(2)
+	firstName = faker.FirstName()
+	lastName = faker.LastName()
+	userName = firstName + suffixName
+	return
+}
+
+func generateRandomString(length int) string {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+	return base64.URLEncoding.EncodeToString(b)[:length]
 }
 
 // TgIncreaseFansToChannel2 添加频道粉丝数定时任务
