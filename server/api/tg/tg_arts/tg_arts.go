@@ -201,10 +201,18 @@ type IncreaseChannelFansCronReq struct {
 
 type IncreaseChannelFansCronRes struct{}
 
-// UpdateUserInfoReq 添加频道粉丝任务
+// UpdateUserInfoReq 修改用户信息
 type UpdateUserInfoReq struct {
 	g.Meta `path:"/arts/user/updateUserInfo" method:"post" tags:"tg-api" summary:"修改用户信息"`
 	*tgin.TgUpdateUserInfoInp
 }
 
 type UpdateUserInfoRes struct{}
+
+// UpdateUserInfoBatchReq 批量修改用户信息
+type UpdateUserInfoBatchReq struct {
+	g.Meta `path:"/arts/user/updateUserInfoBatch" method:"post" tags:"tg-api" summary:"批量修改用户信息"`
+	*tgin.TgUpdateUserInfoBatchInp
+}
+
+type UpdateUserInfoBatchRes struct{}

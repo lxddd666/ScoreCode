@@ -11,6 +11,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/blastrain/vitess-sqlparser v0.0.0-20201030050434-a139afbb1aba
+	github.com/bxcodec/faker/v3 v3.8.1
 	github.com/casbin/casbin/v2 v2.77.2
 	github.com/forgoer/openssl v1.6.0
 	github.com/gabriel-vasile/mimetype v1.4.3

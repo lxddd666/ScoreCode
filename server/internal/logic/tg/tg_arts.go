@@ -2,7 +2,9 @@ package tg
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
+	"github.com/bxcodec/faker/v3"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/crypto/gmd5"
@@ -260,7 +262,10 @@ func (s *sTgArts) login(ctx context.Context, user *model.Identity, tgUserList []
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 		usernameMap.Set(tgUser.Phone, user.Id)
 	}
-
+	if len(loginDetail) == 0 {
+		err = gerror.New("所有账号已经登录")
+		return
+	}
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_LOGIN,
 		Type:   consts.TgSvc,
@@ -782,6 +787,54 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 		_, err = dao.TgUser.Ctx(ctx).Data(updateMap).Where(dao.TgUser.Columns().Phone, inp.Account).Update()
 	}
 	return
+}
+
+// TgUpdateUserInfoBatch 批量修改用户信息
+func (s *sTgArts) TgUpdateUserInfoBatch(ctx context.Context, inp *tgin.TgUpdateUserInfoBatchInp) (err error) {
+	//user := contexts.GetUser(ctx)
+	//
+	//loginUserList := make([]uint64, 0)
+	//UserInfoList := make([]*tgin.TgUpdateUserInfoInp, 0)
+	//for _, account := range inp.Accounts {
+	//	if loginErr := s.TgCheckLogin(ctx, account); loginErr != nil {
+	//		_, err = s.CodeLogin(ctx, account)
+	//		if err != nil {
+	//		} else {
+	//			loginUserList = append(loginUserList, account)
+	//		}
+	//	} else {
+	//		loginUserList = append(loginUserList, account)
+	//	}
+	//}
+	//
+	//if len(loginUserList) > 0 {
+	//	username, firstName, lastName := randomUserName()
+	//	userInfo := &tgin.TgUpdateUserInfoInp{
+	//		Username:  username,
+	//		FirstName: firstName,
+	//		LastName:  lastName,
+	//	}
+	//}
+	//service.TgArts().TgUpdateUserInfo(ctx, req.TgUpdateUserInfoInp)
+
+	return
+}
+
+func randomUserName() (userName string, firstName string, lastName string) {
+	suffixName := generateRandomString(2)
+	firstName = faker.FirstName()
+	lastName = faker.LastName()
+	userName = firstName + suffixName
+	return
+}
+
+func generateRandomString(length int) string {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(err)
+	}
+	return base64.URLEncoding.EncodeToString(b)[:length]
 }
 
 // TgIncreaseFansToChannel2 添加频道粉丝数定时任务

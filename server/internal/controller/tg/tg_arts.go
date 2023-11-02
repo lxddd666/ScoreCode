@@ -169,3 +169,9 @@ func (c *cTgArts) UpdateUserInfo(ctx context.Context, req *tgarts.UpdateUserInfo
 	err = service.TgArts().TgUpdateUserInfo(ctx, req.TgUpdateUserInfoInp)
 	return
 }
+
+// UpdateUserInfoBatch 批量修改用户信息
+func (c *cTgArts) UpdateUserInfoBatch(ctx context.Context, req *tgarts.UpdateUserInfoBatchReq) (res *tgarts.IncreaseChannelFansCronRes, err error) {
+	err = service.TgArts().TgUpdateUserInfoBatch(ctx, req.TgUpdateUserInfoBatchInp)
+	return
+}

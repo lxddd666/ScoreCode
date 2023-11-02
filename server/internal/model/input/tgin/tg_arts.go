@@ -96,3 +96,8 @@ type TgUpdateUserInfoInp struct {
 	Bio       string         `json:"bio"      dc:"个性签名"`
 	Photo     artsin.FileMsg `json:"photo"      dc:"photo"`
 }
+
+type TgUpdateUserInfoBatchInp struct {
+	Accounts []uint64 `json:"accounts"     dc:"电话"`
+	Ids      []uint64 `json:"ids"          dc:"id号"`
+}
