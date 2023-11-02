@@ -1,0 +1,8 @@
+{
+ "InputStateInvalid": "The state of input is invalid",
+  "TestIdNotEmpty": "Test ID cannot be empty",
+  "InputSwitchInvalid": "The switch value of the input is invalid",
+  "MinimumPage": "The minimum page number cannot be lower than 1",
+  "MinimumPageNotLower": "The minimum value per page cannot be lower than 1",
+  "MaximumNotGreater": "The maximum value cannot be greater than 200"
+}

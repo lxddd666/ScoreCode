@@ -1,0 +1,8 @@
+{
+ "InputStateInvalid": "輸入的狀態是無效的",
+ "TestIdNotEmpty": "測試ID不能為空",
+ "InputSwitchInvalid": "輸入的開關值是無效的",
+ "MinimumPage": "頁碼最小值不能低於1",
+ "MinimumPageNotLower": "每頁數量最小值不能低於1",
+ "MaximumNotGreater": "最大值不能大於200"
+}

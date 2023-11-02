@@ -1,0 +1,8 @@
+{
+ "InputStateInvalid": "Trạng thái đầu vào không hợp lệ",
+  "TestIdNotEmpty": "ID kiểm tra không thể trống",
+  "InputSwitchInvalid": "Giá trị chuyển đổi của đầu vào không hợp lệ",
+  "MinimumPage": "Số trang tối thiểu không thể thấp hơn 1",
+  "MinimumPageNotLower": "Giá trị tối thiểu trên mỗi trang không thể thấp hơn 1",
+  "MaximumNotGreater": "Giá trị tối đa không thể lớn hơn 200"
+}
