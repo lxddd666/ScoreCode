@@ -18,11 +18,12 @@ type TgIncreaseFansCron struct {
 	Channel       interface{} // 频道地址
 	DayCount      interface{} // 持续天数
 	FansCount     interface{} // 涨粉数量
-	CronStatus    interface{} // 任务状态：0终止，1正在执行，2完成
+	CronStatus    interface{} // 任务状态：0执行，1完成，2终止
 	Comment       interface{} // 备注
 	DeletedAt     *gtime.Time // 删除时间
 	CreatedAt     *gtime.Time // 创建时间
 	UpdatedAt     *gtime.Time // 更新时间
 	ExecutedDays  interface{} // 已执行天数
 	IncreasedFans interface{} // 已添加粉丝数
+	TaskName      interface{} // 任务名称
 }

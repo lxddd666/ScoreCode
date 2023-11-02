@@ -62,7 +62,7 @@ type (
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 		// TgIncreaseFansToChannel 频道涨粉
-		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error)
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -209,26 +209,4 @@ func TgUser() ITgUser {
 
 func RegisterTgUser(i ITgUser) {
 	localTgUser = i
-}
-
-func TgArts() ITgArts {
-	if localTgArts == nil {
-		panic("implement not found for interface ITgArts, forgot register?")
-	}
-	return localTgArts
-}
-
-func RegisterTgArts(i ITgArts) {
-	localTgArts = i
-}
-
-func TgContacts() ITgContacts {
-	if localTgContacts == nil {
-		panic("implement not found for interface ITgContacts, forgot register?")
-	}
-	return localTgContacts
-}
-
-func RegisterTgContacts(i ITgContacts) {
-	localTgContacts = i
 }

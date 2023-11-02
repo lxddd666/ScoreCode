@@ -15,6 +15,7 @@ require (
 	github.com/forgoer/openssl v1.6.0
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-pay/gopay v1.5.97
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.5.4
 	github.com/gogf/gf/contrib/drivers/sqlite/v2 v2.5.4
 	github.com/gogf/gf/contrib/nosql/redis/v2 v2.5.4

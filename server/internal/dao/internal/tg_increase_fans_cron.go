@@ -22,7 +22,6 @@ type TgIncreaseFansCronDao struct {
 type TgIncreaseFansCronColumns struct {
 	Id            string //
 	OrgId         string // 组织ID
-	TaskName      string // 任务名称
 	MemberId      string // 发起任务的用户ID
 	Channel       string // 频道地址
 	DayCount      string // 持续天数
@@ -34,13 +33,13 @@ type TgIncreaseFansCronColumns struct {
 	UpdatedAt     string // 更新时间
 	ExecutedDays  string // 已执行天数
 	IncreasedFans string // 已添加粉丝数
+	TaskName      string // 任务名称
 }
 
 // tgIncreaseFansCronColumns holds the columns for table tg_increase_fans_cron.
 var tgIncreaseFansCronColumns = TgIncreaseFansCronColumns{
 	Id:            "id",
 	OrgId:         "org_id",
-	TaskName:      "task_name",
 	MemberId:      "member_id",
 	Channel:       "channel",
 	DayCount:      "day_count",
@@ -52,6 +51,7 @@ var tgIncreaseFansCronColumns = TgIncreaseFansCronColumns{
 	UpdatedAt:     "updated_at",
 	ExecutedDays:  "executed_days",
 	IncreasedFans: "increased_fans",
+	TaskName:      "task_name",
 }
 
 // NewTgIncreaseFansCronDao creates and returns a new DAO object for table data access.

@@ -286,6 +286,7 @@ func (s *sTgUser) ImportSession(ctx context.Context, file *ghttp.UploadFile) (ms
 	if err != nil {
 		return
 	}
+	//fmt.Println(sessionDetails)
 	err = s.TgSaveSessionMsg(ctx, sessionDetails)
 	if err != nil {
 		return
@@ -376,7 +377,7 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 			//path := gfile.Join(jDirPath, sessionN+".session")
 			// 中文文件特殊字符用gfile.Join拼接解析错误
 			path := jDirPath + "\\" + sessionN + ".session"
-			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path, ctx)
+			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path, ctx, sessionJ)
 			if err != nil {
 				return
 			}
@@ -390,7 +391,7 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 	return
 }
 
-func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
+func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context, sessionJ *tgin.TgImportSessionModel) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
 	// 打开SQLite数据库连接
 	var db *sql.DB
 	db, err = sql.Open("sqlite3", path)
