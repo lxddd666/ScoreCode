@@ -149,9 +149,6 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 					// 没在登录过程中
 					accounts.Append(tgUser)
 				}
-			} else {
-				err = gerror.New("正在登录，请勿频繁操作")
-				return
 			}
 		})
 	}
