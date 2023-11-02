@@ -208,5 +208,6 @@
   "LicenseNameNotEmpty": "The license name cannot be empty",
   "AppIdNotEmpty": "Application ID cannot be empty",
   "AuthorizationEndTimeNotEmpty": "The end time of the authorization cannot be empty",
-  "SuperiorMenuNoCurrentMenu": "The upper menu cannot be the current menu"
+  "SuperiorMenuNoCurrentMenu": "The upper menu cannot be the current menu",
+  "NoSupportAddFromFrontDesk": "Do not support adding variables from the front desk, please first configure variables in the database table [%v]"
 }

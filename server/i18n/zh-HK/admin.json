@@ -208,5 +208,6 @@
   "LicenseNameNotEmpty": "許可名稱不能為空",
   "AppIdNotEmpty": "應用ID不能為空",
   "AuthorizationEndTimeNotEmpty": "授權結束時間不能為空",
-  "SuperiorMenuNoCurrentMenu": "上級菜單不能是當前菜單"
+  "SuperiorMenuNoCurrentMenu": "上級菜單不能是當前菜單",
+  "NoSupportAddFromFrontDesk": "暫不支持從前台添加變量，請先在數據庫表[%v]中配置變量：%v"
 }

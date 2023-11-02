@@ -208,5 +208,6 @@
    "LicenseNameNotEmpty": "许可名称不能为空",
    "AppIdNotEmpty": "应用ID不能为空",
    "AuthorizationEndTimeNotEmpty": "授权结束时间不能为空",
-   "SuperiorMenuNoCurrentMenu": "上级菜单不能是当前菜单"
+   "SuperiorMenuNoCurrentMenu": "上级菜单不能是当前菜单",
+   "NoSupportAddFromFrontDesk": "暂不支持从前台添加变量，请先在数据库表[%v]中配置变量：%v"
 }

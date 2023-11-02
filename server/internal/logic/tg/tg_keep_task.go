@@ -59,7 +59,7 @@ func (s *sTgKeepTask) List(ctx context.Context, in *tgin.TgKeepTaskListInp) (lis
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "获取数据行失败，请稍后重试！"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#GetCountError}")))
 		return
 	}
 
@@ -68,7 +68,7 @@ func (s *sTgKeepTask) List(ctx context.Context, in *tgin.TgKeepTaskListInp) (lis
 	}
 
 	if err = mod.Fields(tgin.TgKeepTaskListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgKeepTask.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "获取列表失败，请稍后重试！"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#GetListError}")))
 		return
 	}
 	return
@@ -88,7 +88,7 @@ func (s *sTgKeepTask) Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (e
 	}
 
 	var (
-		fileName  = "导出养号任务-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName  = g.I18n().T(ctx, "{#ExportNourishingTask}") + gctx.CtxId(ctx) + ".xlsx"
 		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgKeepTaskExportModel
 	)
@@ -110,7 +110,7 @@ func (s *sTgKeepTask) Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err
 		if _, err = s.Model(ctx).
 			Fields(tgin.TgKeepTaskUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改养号任务失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyNourishingTaskFailed}"))
 		}
 		return
 	}
@@ -119,7 +119,7 @@ func (s *sTgKeepTask) Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgKeepTaskInsertFields{}).
 		Data(in).Insert(); err != nil {
-		err = gerror.Wrap(err, "新增养号任务失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddNourishingTaskFailed}"))
 	}
 	return
 }
@@ -127,7 +127,7 @@ func (s *sTgKeepTask) Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err
 // Delete 删除养号任务
 func (s *sTgKeepTask) Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "新增失败，请稍后重试！"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#AddInfoError}")))
 		return
 	}
 	return
@@ -136,7 +136,7 @@ func (s *sTgKeepTask) Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) 
 // View 获取养号任务指定信息
 func (s *sTgKeepTask) View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "获取数据失败，请稍后重试！"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#GetInfoError}")))
 		return
 	}
 	return
@@ -147,7 +147,7 @@ func (s *sTgKeepTask) Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) 
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.TgKeepTask.Columns().Status: in.Status,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "修改失败，请稍后重试！"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#EditInfoError}")))
 		return
 	}
 	return

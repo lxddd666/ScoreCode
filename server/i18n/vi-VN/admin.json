@@ -208,5 +208,6 @@
   "LicenseNameNotEmpty": "Tên giấy phép không thể trống",
   "AppIdNotEmpty": "ID ứng dụng không thể trống",
   "AuthorizationEndTimeNotEmpty": "Thời gian cuối của ủy quyền không thể trống",
-  "SuperiorMenuNoCurrentMenu": "Menu trên không thể là menu hiện tại"
+  "SuperiorMenuNoCurrentMenu": "Menu trên không thể là menu hiện tại",
+  "NoSupportAddFromFrontDesk": "Không hỗ trợ thêm các biến từ máy chủ, trước tiên vui lòng định cấu hình các biến trong bảng cơ sở dữ liệu [%v]"
 }
