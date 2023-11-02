@@ -192,3 +192,11 @@ type TgSendReactionReq struct {
 }
 
 type TgSendReactionRes struct{}
+
+// IncreaseChannelFansCronReq 添加频道粉丝任务
+type IncreaseChannelFansCronReq struct {
+	g.Meta `path:"/arts/channel/increaseFansCron" method:"post" tags:"tg-api" summary:"频道定时任务涨粉"`
+	*tgin.TgIncreaseFansCronInp
+}
+
+type IncreaseChannelFansCronRes struct{}

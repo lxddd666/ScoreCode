@@ -61,6 +61,8 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
+		// TgIncreaseFansToChannel 频道涨粉
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型

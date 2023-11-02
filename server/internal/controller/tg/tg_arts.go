@@ -157,3 +157,9 @@ func (c *cTgArts) SendReaction(ctx context.Context, req *tgarts.TgSendReactionRe
 	err = service.TgArts().TgSendReaction(ctx, req.TgSendReactionInp)
 	return
 }
+
+// IncreaseChannelFansCron 解除绑定代理
+func (c *cTgArts) IncreaseChannelFansCron(ctx context.Context, req *tgarts.IncreaseChannelFansCronReq) (res *tgarts.IncreaseChannelFansCronRes, err error) {
+	err, _ = service.TgArts().TgIncreaseFansToChannel(ctx, req.TgIncreaseFansCronInp)
+	return
+}

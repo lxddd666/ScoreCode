@@ -23,6 +23,7 @@ const (
 	TgRandomProxyBindAccount     = "tg_random_proxy_bind_account"
 	TgActionLoginAccounts        = "tg_action_login_accounts"
 	TgLoginPorts                 = "tg_login_ports"
+	TgIncreaseFansKey            = "tg_increase_fans_key:"
 )
 
 const (
@@ -43,4 +44,8 @@ const (
 	TgLogoutEvent  = "tgLogout"
 	TgMsgEvent     = "tgMsg"
 	TgMsgReadEvEnt = "tgMsgRead"
+)
+
+const (
+	TG_NOT_LOGGED_IN = "未登录"
 )

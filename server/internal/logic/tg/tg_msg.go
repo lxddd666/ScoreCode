@@ -313,7 +313,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 		//记录普罗米修斯发送消息次数
 		if msg.Initiator == msg.Sender {
 			// 发送消息
-			prometheus.SendMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
+			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
 		} else {
 			//回复消息
 			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
@@ -390,4 +390,8 @@ func (s *sTgMsg) handlerReadMsgCallback(ctx context.Context, callbackRes callbac
 	_, err = g.Redis().HDel(ctx, consts.TgMsgReadReqKey, fmt.Sprintf("%s-%d", tgUser.Phone, callbackRes.MsgId))
 	s.sendMsgToUser(ctx, []entity.TgMsg{msg})
 	return err
+}
+
+func (s *sTgMsg) sendMsgRecordToPrometheus() {
+
 }

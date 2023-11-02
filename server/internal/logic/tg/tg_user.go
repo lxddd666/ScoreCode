@@ -21,6 +21,7 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -35,6 +36,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -279,7 +281,13 @@ func (s *sTgUser) LogoutCallback(ctx context.Context, res []entity.TgUser) (err 
 
 // ImportSession 导入session文件
 func (s *sTgUser) ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error) {
+
 	sessionDetails, err := s.handlerReadSessionJsonFiles(ctx, file)
+	if err != nil {
+		return
+	}
+	//fmt.Println(sessionDetails)
+	err = s.TgSaveSessionMsg(ctx, sessionDetails)
 	if err != nil {
 		return
 	}
@@ -287,22 +295,63 @@ func (s *sTgUser) ImportSession(ctx context.Context, file *ghttp.UploadFile) (ms
 	return
 }
 
+// TgSaveSessionMsg 保存session数据到数据库中
+func (s *sTgUser) TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error) {
+	if len(details) > 0 {
+		if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+			Fields(tgin.TgUserInsertFields{}).
+			Data(details).Insert(); err != nil {
+			err = gerror.Wrap(err, "导入tg管理失败，请稍后重试！")
+		}
+	}
+
+	return err
+}
+
 // 读取json文件
 func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.UploadFile) (sessionDetails []*tgin.TgImportSessionModel, err error) {
+	user := contexts.GetUser(ctx)
+	// 获取当前时间戳
+	timestamp := time.Now().Unix()
+	// 根据时间戳生成文件名
+	fileTimeName := fmt.Sprintf("%d.zip", timestamp)
+
+	sessionFileName := file.Filename
+	fmt.Println(sessionFileName)
+	file.Filename = fileTimeName
+
 	temp := gfile.Temp()
+
+	createDir := gfile.Join(temp, gconv.String(timestamp))
+	err = gfile.Mkdir(createDir)
+	if err != nil {
+		err = gerror.New("创建文件夹失败:" + err.Error())
+		return
+	}
+	defer func() { _ = gfile.Remove(createDir) }()
+	temp = createDir
+
 	zipFileName, err := file.Save(temp)
 
 	dsPath := gfile.Join(temp, zipFileName)
 	defer func() { _ = os.Remove(dsPath) }()
+
 	err = gcompress.UnZipFile(dsPath, temp)
 	if err != nil {
 		return
 	}
-	unzipPath := gfile.Join(temp, gfile.Name(zipFileName))
-	fmt.Println(unzipPath)
+
+	unzipPath := gfile.Join(temp, gfile.Name(sessionFileName))
+	var jsonDirPath string
+	if gfile.IsDir(unzipPath) {
+		jsonDirPath = unzipPath
+	} else {
+		jsonDirPath = temp
+	}
 	defer func() { _ = gfile.Remove(unzipPath) }()
 	list := array.New[*tgin.TgImportSessionModel](true)
-	jsonPaths, _ := gfile.ScanDirFile(unzipPath, "*.json", true)
+
+	jsonPaths, _ := gfile.ScanDirFile(jsonDirPath, "*.json", true)
 	wait := sync.WaitGroup{}
 
 	for _, thatPath := range jsonPaths {
@@ -312,17 +361,28 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 			defer wait.Done()
 			sessionJ := &tgin.TgImportSessionModel{}
 			err = gjson.New(gfile.GetBytes(jsonPath)).Scan(&sessionJ)
+			sessionJ.Phone = strings.TrimPrefix(sessionJ.Phone, "+")
+			sessionJ.OrgId = user.OrgId
+			sessionJ.MemberId = user.Id
+			if sessionJ.Username == "null" || sessionJ.Username == "" {
+				sessionJ.Username = nil
+			}
 			if err != nil {
 				return
 			}
 			// SQLite文件路径
-			path := filepath.Join(unzipPath, sessionJ.Phone+".session")
-			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path, ctx)
+			sessionExtensionName := filepath.Base(jsonPath)
+			sessionN := gfile.Name(sessionExtensionName)
+			jDirPath := filepath.Dir(jsonPath)
+			//path := gfile.Join(jDirPath, sessionN+".session")
+			// 中文文件特殊字符用gfile.Join拼接解析错误
+			path := jDirPath + "\\" + sessionN + ".session"
+			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path, ctx, sessionJ)
 			if err != nil {
 				return
 			}
-			time.Sleep(3 * time.Second)
 			list.PushLeft(sessionJ)
+
 		})
 
 	}
@@ -331,7 +391,7 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 	return
 }
 
-func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
+func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context, sessionJ *tgin.TgImportSessionModel) (authKey *tgin.TgImportSessionAuthKeyMsg, err error) {
 	// 打开SQLite数据库连接
 	var db *sql.DB
 	db, err = sql.Open("sqlite3", path)
@@ -351,11 +411,22 @@ func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context) (authKey 
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteExecutionSqlFailed}")+err.Error())
 		return
 	}
+	defer func() { _ = rows.Close() }()
 	if rows.Next() {
 		authKey = &tgin.TgImportSessionAuthKeyMsg{}
 		err = rows.Scan(&authKey.DC, &authKey.Addr, &authKey.Port, &authKey.AuthKey)
 		return
 	}
+	rows2, err2 := db.Query("select id from entities where phone = " + sessionJ.Phone)
+	if err2 != nil {
+		err = gerror.Wrap(err, "sqlite数据库执行sql失败"+err.Error())
+		return
+	}
+	defer func() { _ = rows2.Close() }()
+	if rows2.Next() {
+		err = rows2.Scan(&sessionJ.Id)
+	}
+
 	return
 }
 
@@ -363,47 +434,51 @@ func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context) (authKey 
 func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error) {
 
 	sessionMap := make(map[uint64]*protobuf.ImportTgSessionMsg)
-	for _, s := range inp {
-		phone, err := strconv.ParseUint(s.Phone, 10, 64)
+	if len(inp) > 0 {
+		for _, s := range inp {
+			trimmedPhone := strings.TrimPrefix(s.Phone, "+")
+			phone, err := strconv.ParseUint(trimmedPhone, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			sessionMap[phone] = &protobuf.ImportTgSessionMsg{
+				DC:      int32(s.SessionAuthKey.DC),
+				Addr:    s.SessionAuthKey.Addr,
+				AuthKey: s.SessionAuthKey.AuthKey,
+				DeviceMsg: &protobuf.ImportTgDeviceMsg{
+					AppId:   uint64(s.AppID),
+					AppHash: s.AppHash,
+
+					DeviceModel:    s.Device,
+					AppVersion:     s.AppVersion,
+					SystemVersion:  s.Sdk,
+					LangCode:       s.LangPack,
+					LangPack:       "tdesktop",
+					SystemLangCode: s.SystemLangPack,
+				},
+			}
+		}
+
+		req := &protobuf.RequestMessage{
+			Action: protobuf.Action_IMPORT_TG_SESSION,
+			Type:   "telegram",
+			ActionDetail: &protobuf.RequestMessage_ImportTgSession{
+				ImportTgSession: &protobuf.ImportTgSessionDetail{
+					SendData: sessionMap,
+				},
+			},
+		}
+
+		res, err := service.Arts().Send(ctx, req)
+		g.Log().Info(ctx, res.GetActionResult().String())
 		if err != nil {
-			return "", err
+			return "", gerror.Wrap(err, g.I18n().T(ctx, "{#RequestServerFailed}")+err.Error())
 		}
-		sessionMap[phone] = &protobuf.ImportTgSessionMsg{
-			DC:      int32(s.SessionAuthKey.DC),
-			Addr:    s.SessionAuthKey.Addr,
-			AuthKey: s.SessionAuthKey.AuthKey,
-			DeviceMsg: &protobuf.ImportTgDeviceMsg{
-				AppId:   uint64(s.AppID),
-				AppHash: s.AppHash,
-
-				DeviceModel:    s.Device,
-				AppVersion:     s.AppVersion,
-				SystemVersion:  s.Sdk,
-				LangCode:       s.LangPack,
-				LangPack:       "tdesktop",
-				SystemLangCode: s.SystemLangPack,
-			},
+		if res.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
+			return "", gerror.New(res.Comment)
 		}
 	}
 
-	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_IMPORT_TG_SESSION,
-		Type:   "telegram",
-		ActionDetail: &protobuf.RequestMessage_ImportTgSession{
-			ImportTgSession: &protobuf.ImportTgSessionDetail{
-				SendData: sessionMap,
-			},
-		},
-	}
-
-	res, err := service.Arts().Send(ctx, req)
-	g.Log().Info(ctx, res.GetActionResult().String())
-	if err != nil {
-		return "", gerror.Wrap(err, g.I18n().T(ctx, "{#RequestServerFailed}")+err.Error())
-	}
-	if res.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
-		return "", gerror.New(res.Comment)
-	}
 	return
 }
 

@@ -211,7 +211,7 @@ func (s *sWhatsMsg) TextMsgCallback(ctx context.Context, res queue.MqMsg) (err e
 		//记录普罗米修斯发送消息次数
 		if msg.Initiator == msg.Sender {
 			// 发送消息
-			prometheus.SendMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
+			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
 		} else {
 			//回复消息
 			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()

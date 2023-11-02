@@ -10,13 +10,14 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hotgo/internal/service"
+	"net/http"
 )
 
 var (
 	// LoginSuccessCounter 登录成功记录
 	LoginSuccessCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "user_login_success_total",
+			Name: "tg_user_login_success_total",
 			Help: "Total number of successful user logins",
 		},
 		[]string{"username"},
@@ -24,7 +25,7 @@ var (
 	// LoginFailureCounter 登录失败记录
 	LoginFailureCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "user_login_failure_total",
+			Name: "tg_user_login_failure_total",
 			Help: "Total number of failed user logins",
 		},
 		[]string{"username", "reason"},
@@ -32,7 +33,7 @@ var (
 	// AccountBannedCount 账号被封
 	AccountBannedCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "account_banned",
+			Name: "tg_account_banned",
 			Help: "Total number of account banned",
 		},
 		[]string{"username", "reason"},
@@ -41,7 +42,7 @@ var (
 	// LogoutCount 退出登录记录
 	LogoutCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "user_logout_total",
+			Name: "tg_user_logout_total",
 			Help: "Total number of  user logout",
 		},
 		[]string{"username"},
@@ -49,23 +50,23 @@ var (
 	// AccountBannedCounter 封号记录
 	AccountBannedCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "user_account_banned_total",
+			Name: "tg_user_account_banned_total",
 			Help: "Total number of banned user logins",
 		},
 		[]string{"username", "reason"},
 	)
-	// LoginProxySuccessCount 代理使用数量
+	// LoginProxySuccessCount 代理使用成功数量
 	LoginProxySuccessCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "user_user_proxy_login_success",
+			Name: "tg_user_user_proxy_login_success",
 			Help: "Total number of login success using proxy",
 		},
 		[]string{"proxy"},
 	)
-	// LoginProxyFailedCount 代理使用数量
+	// LoginProxyFailedCount 代理使用失败数量
 	LoginProxyFailedCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "user_user_proxy_login_failed",
+			Name: "tg_user_user_proxy_login_failed",
 			Help: "Total number of login failed using proxy",
 		},
 		[]string{"proxy"},
@@ -73,7 +74,7 @@ var (
 	// LoginProxyBannedCount 代理封号次数
 	LoginProxyBannedCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "account_banned_by_proxy",
+			Name: "tg_account_banned_by_proxy",
 			Help: "Total number of using this proxy",
 		},
 		[]string{"proxy"})
@@ -81,7 +82,7 @@ var (
 	// AccountBeingHackedCout 顶号次数
 	AccountBeingHackedCout = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "account_login_being_hacked",
+			Name: "tg_account_login_being_hacked",
 			Help: "Total number of account being hacked",
 		},
 		[]string{"username"})
@@ -89,7 +90,7 @@ var (
 	// InitiateSyncContactCount 主动联系人
 	InitiateSyncContactCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "initiate_sync_contact",
+			Name: "tg_initiate_sync_contact",
 			Help: "Total number of initiate sync contact",
 		},
 		[]string{"username"})
@@ -97,15 +98,15 @@ var (
 	// PassiveSyncContactCount 被动联系人
 	PassiveSyncContactCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "passive_sync_contact",
+			Name: "tg_passive_sync_contact",
 			Help: "Total number of passive sync contact",
 		},
 		[]string{"username"})
 
-	// SendMsgCount 发送消息次数
-	SendMsgCount = prometheus.NewCounterVec(
+	// SendPrivateChatMsgCount 发送消息次数
+	SendPrivateChatMsgCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "account_sengd_message",
+			Name: "tg_account_seng_private_chat_message",
 			Help: "Total number of send message",
 		},
 		[]string{"username"})
@@ -113,7 +114,7 @@ var (
 	// ReplyMsgCount 回复消息
 	ReplyMsgCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "reply_message_count",
+			Name: "tg_reply_message_count",
 			Help: "Total number of reply message",
 		},
 		[]string{"username"})
@@ -121,10 +122,80 @@ var (
 	// MsgReadCount 消息已读
 	MsgReadCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "Message_read",
+			Name: "tg_message_read",
 			Help: "Total number of message read",
 		},
 		[]string{"username"})
+
+	// CreateGroupCount 创建群
+	CreateGroupCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_create_group",
+			Help: "Total number of account create groups",
+		},
+		[]string{"username"})
+
+	// SendMsgToGroupCount 发送群聊消息
+	SendMsgToGroupCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_send_group_msg",
+			Help: "Total number of send group msg",
+		},
+		[]string{"group"})
+
+	// AddMemberToGroupCount 添加群成员
+	AddMemberToGroupCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_add_group_member",
+			Help: "Total number of add group member",
+		},
+		[]string{"group"})
+
+	AccountJoinGroupCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_user_join_group",
+			Help: "Total number of user join group",
+		},
+		[]string{"group"})
+
+	AccountSendGroupMsgCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_user_send_group_message",
+			Help: "Total number of user send group message",
+		},
+		[]string{"group"})
+
+	// CreateChannelCount 创建频道
+	CreateChannelCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_create_channel",
+			Help: "Total number of account create channel",
+		},
+		[]string{"username"})
+
+	// SendMsgToChannelCount 发送频道消息
+	SendMsgToChannelCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_send_channel_msg",
+			Help: "Total number of send channel msg",
+		},
+		[]string{"channel"})
+
+	// AddMemberToChannelCount 添加频道成员
+	AddMemberToChannelCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_add_channel_member",
+			Help: "Total number of add channel member",
+		},
+		[]string{"channel"})
+
+	// AccountJoinChannelCount 用户添加频道
+	AccountJoinChannelCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_join_channel_",
+			Help: "Total number of account join channel",
+		},
+		[]string{"account"})
 )
 
 func init() {
@@ -139,9 +210,20 @@ func init() {
 	prometheus.MustRegister(InitiateSyncContactCount)
 	prometheus.MustRegister(PassiveSyncContactCount)
 	prometheus.MustRegister(MsgReadCount)
-	prometheus.MustRegister(SendMsgCount)
+	prometheus.MustRegister(SendPrivateChatMsgCount)
 	prometheus.MustRegister(ReplyMsgCount)
 	prometheus.MustRegister(AccountBannedCount)
+	prometheus.MustRegister(CreateGroupCount)
+	prometheus.MustRegister(SendMsgToGroupCount)
+	prometheus.MustRegister(AddMemberToGroupCount)
+	prometheus.MustRegister(CreateChannelCount)
+	prometheus.MustRegister(SendMsgToChannelCount)
+	prometheus.MustRegister(AddMemberToChannelCount)
+
+	prometheus.MustRegister(AccountJoinGroupCount)
+	prometheus.MustRegister(AccountSendGroupMsgCount)
+	prometheus.MustRegister(AccountJoinChannelCount)
+
 }
 
 // InitPrometheus 初始化普罗米修斯
@@ -157,7 +239,9 @@ func InitPrometheus(ctx context.Context, s *ghttp.Server) {
 
 	result, _ := v1api.Targets(ctx)
 	g.Log().Info(ctx, "初始化普罗米修斯：", result)
-	s.BindHandler("/metrics", func(r *ghttp.Request) {
-		promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
-	})
+	//s.BindHandler("/metrics", func(r *ghttp.Request) {
+	//	promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
+	//})
+	http.Handle("/metrics", promhttp.Handler())
+	go http.ListenAndServe(":8464", nil)
 }

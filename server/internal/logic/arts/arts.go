@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/protobuf"
@@ -31,6 +32,8 @@ func (s *sArts) SendMsg(ctx context.Context, item *artsin.MsgInp, imType string)
 		_, err = s.Send(ctx, requestMessage)
 		if err != nil {
 			return "", err
+		} else {
+			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
 		}
 	}
 	if len(item.Files) > 0 {
@@ -38,6 +41,8 @@ func (s *sArts) SendMsg(ctx context.Context, item *artsin.MsgInp, imType string)
 		_, err = s.Send(ctx, requestMessage)
 		if err != nil {
 			return "", err
+		} else {
+			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.Files)))
 		}
 	}
 
