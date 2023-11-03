@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"github.com/bxcodec/faker/v3"
 	"github.com/gabriel-vasile/mimetype"
+	"github.com/go-faker/faker/v4"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -83,15 +83,17 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 	tgUserList := []*entity.TgUser{&tgUser}
-	// 处理端口数
-	// 处理端口
-	err = s.handlerPorts(ctx, sysOrg, tgUserList)
-	if err != nil {
-		return
-	}
 
 	// 处理代理
 	tgUserList, err = s.handlerProxy(ctx, tgUserList)
+	if err != nil {
+		return
+	}
+	if len(tgUserList) == 0 {
+		return
+	}
+	// 处理端口数
+	err = s.handlerPorts(ctx, sysOrg, tgUserList)
 	if err != nil {
 		return
 	}
@@ -107,6 +109,9 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 // 处理端口号
 func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list []*entity.TgUser) (err error) {
 	count := len(list)
+	if count == 0 {
+		return
+	}
 	// 判断端口数是否足够
 	if sysOrg.AssignedPorts+gconv.Int64(count) >= sysOrg.Ports {
 		return gerror.New(g.I18n().T(ctx, "{#InsufficientNumber}"))
@@ -165,7 +170,17 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 	if accounts.IsEmpty() {
 		return nil, gerror.Newf(g.I18n().Tf(ctx, "{#SelectLoggingAccount}"), tgUserList[0].Phone)
 	}
-	loginTgUserList = accounts.Slice()
+	loginTgUserList = make([]*entity.TgUser, 0)
+	for _, tgUser := range accounts.Slice() {
+		loginUser, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, tgUser.Phone)
+		if err != nil {
+			continue
+		}
+		if !loginUser.IsEmpty() {
+			continue
+		}
+		loginTgUserList = append(loginTgUserList, tgUser)
+	}
 	return
 }
 
@@ -223,17 +238,20 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	if err != nil {
 		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
-	// 处理端口
-	err = s.handlerPorts(ctx, sysOrg, tgUserList)
-	if err != nil {
-		return
-	}
+
 	// 处理代理
 	tgUserList, err = s.handlerProxy(ctx, tgUserList)
 	if err != nil {
 		return
 	}
-
+	if len(tgUserList) == 0 {
+		return
+	}
+	// 处理端口
+	err = s.handlerPorts(ctx, sysOrg, tgUserList)
+	if err != nil {
+		return
+	}
 	err = s.handlerSyncAccount(ctx, tgUserList)
 	if err != nil {
 		return
@@ -246,13 +264,6 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err error) {
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	for _, tgUser := range tgUserList {
-		loginUser, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, tgUser.Phone)
-		if err != nil {
-			return err
-		}
-		if !loginUser.IsEmpty() {
-			continue
-		}
 		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 	}
@@ -750,7 +761,7 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_UPDATE_USER_INFO,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_UpdateUserInfoDetail{
 			UpdateUserInfoDetail: &protobuf.UpdateUserInfoDetail{

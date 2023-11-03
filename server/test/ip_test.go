@@ -3,6 +3,7 @@ package test
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/go-faker/faker/v4"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"testing"
@@ -39,4 +40,9 @@ func TestSession(t *testing.T) {
 		return
 	}
 	fmt.Println(bytes)
+}
+
+func TestInp(t *testing.T) {
+	fmt.Println(faker.FirstName())
+	fmt.Println(faker.LastName())
 }
