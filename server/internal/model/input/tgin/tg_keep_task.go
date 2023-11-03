@@ -41,15 +41,15 @@ type TgKeepTaskEditInp struct {
 
 func (in *TgKeepTaskEditInp) Filter(ctx context.Context) (err error) {
 	// 验证任务名称
-	if err := g.Validator().Rules("required").Data(in.TaskName).Messages("任务名称不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.TaskName).Messages(g.I18n().T(ctx, "{#TaskNameNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 	// 验证养号动作
-	if err := g.Validator().Rules("required").Data(in.Actions).Messages("养号动作不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Actions).Messages(g.I18n().T(ctx, "{#NourishingNumberNoEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 	// 验证账号
-	if err := g.Validator().Rules("required").Data(in.Accounts).Messages("账号不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.Accounts).Messages(g.I18n().T(ctx, "{#AccountNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -60,7 +60,7 @@ type TgKeepTaskEditModel struct{}
 
 // TgKeepTaskDeleteInp 删除养号任务
 type TgKeepTaskDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *TgKeepTaskDeleteInp) Filter(ctx context.Context) (err error) {
@@ -71,7 +71,7 @@ type TgKeepTaskDeleteModel struct{}
 
 // TgKeepTaskViewInp 获取指定养号任务信息
 type TgKeepTaskViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *TgKeepTaskViewInp) Filter(ctx context.Context) (err error) {
@@ -119,23 +119,23 @@ type TgKeepTaskExportModel struct {
 
 // TgKeepTaskStatusInp 更新养号任务状态
 type TgKeepTaskStatusInp struct {
-	Id     int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 
 func (in *TgKeepTaskStatusInp) Filter(ctx context.Context) (err error) {
 	if in.Id <= 0 {
-		err = gerror.New(g.I18n().T(ctx, "ID不能为空"))
+		err = gerror.New(g.I18n().T(ctx, g.I18n().T(ctx, "{#IdNotEmpty}")))
 		return
 	}
 
 	if in.Status <= 0 {
-		err = gerror.New(g.I18n().T(ctx, "状态不能为空"))
+		err = gerror.New(g.I18n().T(ctx, g.I18n().T(ctx, "{#StateNotEmpty}")))
 		return
 	}
 
 	if !validate.InSlice(consts.StatusSlice, in.Status) {
-		err = gerror.New(g.I18n().T(ctx, "状态不正确"))
+		err = gerror.New(g.I18n().T(ctx, g.I18n().T(ctx, "{#StateIncorrect}")))
 		return
 	}
 	return
