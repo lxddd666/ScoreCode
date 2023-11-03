@@ -8,6 +8,7 @@ package queue
 import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/grpool"
 	"hotgo/utility/simple"
 	"sync"
 )
@@ -64,7 +65,11 @@ func consumerListen(ctx context.Context, job Consumer) {
 	}
 
 	if listenErr := c.ListenReceiveMsgDo(ctx, topic, func(mqMsg MqMsg) {
-		err = job.Handle(ctx, mqMsg)
+		err = grpool.AddWithRecover(ctx, func(ctx context.Context) {
+			err = job.Handle(ctx, mqMsg)
+		}, func(ctx context.Context, panicErr error) {
+			err = panicErr
+		})
 
 		//if err != nil {
 		//	// 遇到错误，重新加入到队列

@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/grand"
+	"google.golang.org/protobuf/proto"
 	"hotgo/internal/dao"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
@@ -108,10 +109,11 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	time.Sleep(time.Duration(len(tgUserList)) * time.Second)
 	//修改签名
+	bio := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
 	for _, user := range tgUserList {
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account: gconv.Uint64(user.Phone),
-			Bio:     g.Client().Discovery(nil).GetContent(ctx, getContentUrl),
+			Bio:     &bio,
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
@@ -135,8 +137,8 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		lastName := faker.LastName()
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:   gconv.Uint64(user.Phone),
-			FirstName: firstName,
-			LastName:  lastName,
+			FirstName: &firstName,
+			LastName:  &lastName,
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
@@ -160,7 +162,7 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		lastName := faker.LastName()
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:  gconv.Uint64(user.Phone),
-			Username: firstName + lastName + grand.S(3),
+			Username: proto.String(firstName + lastName + grand.S(3)),
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {

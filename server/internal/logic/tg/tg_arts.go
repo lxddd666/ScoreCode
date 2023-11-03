@@ -320,6 +320,22 @@ func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 
 // TgCheckLogin 检查是否登录
 func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) {
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_GET_ONLINE_ACCOUNTS,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetOnlineAccountsDetail{
+			GetOnlineAccountsDetail: &protobuf.GetOnlineAccountsDetail{
+				Phone: []string{gconv.String(account)},
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	if resp.Data == nil {
+		return gerror.New("not login")
+	}
 	userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, strconv.FormatUint(account, 10))
 	if err != nil {
 		return err

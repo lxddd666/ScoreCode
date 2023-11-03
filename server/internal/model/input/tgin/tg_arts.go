@@ -90,10 +90,10 @@ type TgIncreaseFansCronInp struct {
 
 type TgUpdateUserInfoInp struct {
 	Account   uint64         `json:"account"     dc:"电话"`
-	Username  string         `json:"username"    dc:"用户名"`
-	FirstName string         `json:"firstName"   dc:"firstName"`
-	LastName  string         `json:"lastName"    dc:"lastName"`
-	Bio       string         `json:"bio"      dc:"个性签名"`
+	Username  *string        `json:"username"    dc:"用户名"`
+	FirstName *string        `json:"firstName"   dc:"firstName"`
+	LastName  *string        `json:"lastName"    dc:"lastName"`
+	Bio       *string        `json:"bio"      dc:"个性签名"`
 	Photo     artsin.FileMsg `json:"photo"      dc:"photo"`
 }
 

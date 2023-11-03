@@ -367,10 +367,10 @@ message UpdateUserInfoDetail {
 }
 
 message UpdateUserInfoMsg {
-  string userName = 1;
-  string firstName = 2;
-  string lastName = 3;
-  string bio = 4;
+  optional string userName = 1;
+  optional string firstName = 2;
+  optional string lastName = 3;
+  optional string bio = 4;
   FileDetailValue photo = 5;
 }
 
