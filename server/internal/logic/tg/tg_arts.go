@@ -257,7 +257,7 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 	}
 	if len(loginDetail) == 0 {
-		err = gerror.New("所有账号已经登录")
+		err = gerror.New(g.I18n().T(ctx, "{#AllAccountLog}"))
 		return
 	}
 	req := &protobuf.RequestMessage{

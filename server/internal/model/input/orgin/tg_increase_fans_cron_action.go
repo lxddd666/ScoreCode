@@ -38,7 +38,7 @@ type TgIncreaseFansCronActionEditModel struct{}
 
 // TgIncreaseFansCronActionDeleteInp 删除TG频道涨粉任务执行情况
 type TgIncreaseFansCronActionDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgIncreaseFansCronActionDeleteInp) Filter(ctx context.Context) (err error) {
@@ -49,7 +49,7 @@ type TgIncreaseFansCronActionDeleteModel struct{}
 
 // TgIncreaseFansCronActionViewInp 获取指定TG频道涨粉任务执行情况信息
 type TgIncreaseFansCronActionViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgIncreaseFansCronActionViewInp) Filter(ctx context.Context) (err error) {

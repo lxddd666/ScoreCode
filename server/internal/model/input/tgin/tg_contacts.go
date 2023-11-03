@@ -42,7 +42,7 @@ type TgContactsEditInp struct {
 
 func (in *TgContactsEditInp) Filter(ctx context.Context) (err error) {
 	// 验证organization id
-	if err := g.Validator().Rules("required").Data(in.OrgId).Messages("organization id不能为空").Run(ctx); err != nil {
+	if err := g.Validator().Rules("required").Data(in.OrgId).Messages(g.I18n().T(ctx, "{#OrganizationIdNotEmpty}")).Run(ctx); err != nil {
 		return err.Current()
 	}
 
@@ -53,7 +53,7 @@ type TgContactsEditModel struct{}
 
 // TgContactsDeleteInp 删除联系人管理
 type TgContactsDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgContactsDeleteInp) Filter(ctx context.Context) (err error) {
@@ -64,7 +64,7 @@ type TgContactsDeleteModel struct{}
 
 // TgContactsViewInp 获取指定联系人管理信息
 type TgContactsViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgContactsViewInp) Filter(ctx context.Context) (err error) {

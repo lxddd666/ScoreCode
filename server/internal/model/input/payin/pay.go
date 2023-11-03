@@ -63,7 +63,7 @@ type PayEditModel struct{}
 
 // PayDeleteInp 删除支付日志
 type PayDeleteInp struct {
-	Id interface{} `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *PayDeleteInp) Filter(ctx context.Context) (err error) {
@@ -74,7 +74,7 @@ type PayDeleteModel struct{}
 
 // PayViewInp 获取指定支付日志信息
 type PayViewInp struct {
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *PayViewInp) Filter(ctx context.Context) (err error) {
@@ -175,7 +175,7 @@ type PayMaxSortModel struct {
 
 // PayStatusInp 更新支付日志状态
 type PayStatusInp struct {
-	Id     int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id     int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 	Status int   `json:"status" dc:"状态"`
 }
 
@@ -188,7 +188,7 @@ type PayStatusModel struct{}
 // PaySwitchInp 更新支付日志开关状态
 type PaySwitchInp struct {
 	form.SwitchReq
-	Id int64 `json:"id" v:"required#ID不能为空" dc:"ID"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"ID"`
 }
 
 func (in *PaySwitchInp) Filter(ctx context.Context) (err error) {

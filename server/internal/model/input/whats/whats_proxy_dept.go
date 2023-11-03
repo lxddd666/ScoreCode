@@ -34,7 +34,7 @@ type WhatsProxyDeptEditModel struct{}
 
 // WhatsProxyDeptDeleteInp 删除代理关联公司
 type WhatsProxyDeptDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *WhatsProxyDeptDeleteInp) Filter(ctx context.Context) (err error) {
@@ -45,7 +45,7 @@ type WhatsProxyDeptDeleteModel struct{}
 
 // WhatsProxyDeptViewInp 获取指定代理关联公司信息
 type WhatsProxyDeptViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *WhatsProxyDeptViewInp) Filter(ctx context.Context) (err error) {

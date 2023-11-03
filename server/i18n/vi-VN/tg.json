@@ -54,5 +54,8 @@
   "CreateFolderFailed": "Tạo lỗi thư mục:",
   "ExportNourishingTask": "Xuất nhiệm vụ Nourish Nuôi-",
   "ModifyNourishingTaskFailed": "Sửa đổi nhiệm vụ số nuôi dưỡng không thành công, vui lòng thử lại sau",
-  "AddNourishingTaskFailed": "Số Nourish mới được thêm vào không thành công, vui lòng thử lại sau"
+  "AddNourishingTaskFailed": "Số Nourish mới được thêm vào không thành công, vui lòng thử lại sau",
+  "TaskNameNotEmpty": "Tên tác vụ không thể trống",
+  "NourishingNumberNoEmpty": "Nuôi dưỡng số lượng không thể trống",
+  "AllAccountLog": "Tất cả các tài khoản đã được đăng nhập"
 }

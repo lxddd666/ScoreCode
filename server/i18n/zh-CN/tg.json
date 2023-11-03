@@ -54,5 +54,8 @@
   "CreateFolderFailed": "创建文件夹失败:",
   "ExportNourishingTask": "导出养号任务-",
   "ModifyNourishingTaskFailed": "修改养号任务失败，请稍后重试",
-  "AddNourishingTaskFailed": "新增养号任务失败，请稍后重试"
+  "AddNourishingTaskFailed": "新增养号任务失败，请稍后重试",
+  "TaskNameNotEmpty": "任务名称不能为空",
+  "NourishingNumberNoEmpty": "养号动作不能为空",
+  "AllAccountLog": "所有账号已经登录"
 }

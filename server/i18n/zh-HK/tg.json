@@ -54,5 +54,8 @@
   "CreateFolderFailed": "創建文件夾失敗:",
   "ExportNourishingTask": "導出養號任務-",
   "ModifyNourishingTaskFailed": "修改養號任務失敗，請稍後重試",
-  "AddNourishingTaskFailed": "新增養號任務失敗，請稍後重試"
+  "AddNourishingTaskFailed": "新增養號任務失敗，請稍後重試",
+  "TaskNameNotEmpty": "任務名稱不能為空",
+  "NourishingNumberNoEmpty": "養號動作不能為空",
+  "AllAccountLog": "所有賬號已經登錄"
 }
