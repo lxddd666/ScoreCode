@@ -11,6 +11,7 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
@@ -28,9 +29,9 @@ import (
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
 	"hotgo/utility/simple"
+	"hotgo/utility/validate"
 	"math"
 	"math/rand"
-	"strconv"
 	"sync"
 	"time"
 )
@@ -170,16 +171,35 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 	if accounts.IsEmpty() {
 		return nil, gerror.Newf(g.I18n().Tf(ctx, "{#SelectLoggingAccount}"), tgUserList[0].Phone)
 	}
+
+	phones := make([]string, 0)
+	for _, tgUser := range accounts.Slice() {
+		phones = append(phones, tgUser.Phone)
+	}
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_GET_ONLINE_ACCOUNTS,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_GetOnlineAccountsDetail{
+			GetOnlineAccountsDetail: &protobuf.GetOnlineAccountsDetail{
+				Phone: phones,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	var onlineAccounts []tgin.OnlineAccountInp
+	_ = gjson.DecodeTo(resp.Data, &onlineAccounts)
+	phones = make([]string, 0)
+	for _, account := range onlineAccounts {
+		phones = append(phones, account.Phone)
+	}
 	loginTgUserList = make([]*entity.TgUser, 0)
 	for _, tgUser := range accounts.Slice() {
-		loginUser, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, tgUser.Phone)
-		if err != nil {
-			continue
+		if !validate.InSlice(phones, tgUser.Phone) {
+			loginTgUserList = append(loginTgUserList, tgUser)
 		}
-		if !loginUser.IsEmpty() {
-			continue
-		}
-		loginTgUserList = append(loginTgUserList, tgUser)
 	}
 	return
 }
@@ -306,8 +326,9 @@ func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 		logoutDetail[gconv.Uint64(account.Phone)] = ld
 	}
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_LOGOUT,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_LOGOUT,
+		Type:    consts.TgSvc,
+		Account: gconv.Uint64(tgUserList[0].Phone),
 		ActionDetail: &protobuf.RequestMessage_LogoutAction{
 			LogoutAction: &protobuf.LogoutAction{
 				LogoutDetail: logoutDetail,
@@ -335,13 +356,6 @@ func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) 
 	}
 	if resp.Data == nil {
 		return gerror.New("not login")
-	}
-	userId, err := g.Redis().HGet(ctx, consts.TgLoginAccountKey, strconv.FormatUint(account, 10))
-	if err != nil {
-		return err
-	}
-	if userId.IsEmpty() {
-		err = gerror.New(gconv.String(account) + g.I18n().T(ctx, "{#NoLog}"))
 	}
 	return
 }
@@ -470,7 +484,10 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 	}
 	err = gjson.DecodeTo(resp.Data, &list)
 	if err == nil {
-		s.handlerSaveMsg(ctx, resp.Data)
+		simple.SafeGo(gctx.New(), func(ctx context.Context) {
+			s.handlerSaveMsg(ctx, resp.Data)
+		})
+
 	}
 	return
 }
@@ -503,6 +520,9 @@ func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
 	var data callback.MsgCallbackRes
 	err = gjson.DecodeTo(resp.Data, &data)
 	if err != nil {
@@ -768,7 +788,7 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 		LastName:  inp.LastName,
 		Bio:       inp.Bio,
 		Photo: &protobuf.FileDetailValue{
-			SendType: inp.Photo.MIME,
+			SendType: consts.SendTypeByte,
 			Path:     inp.Photo.Name,
 			Name:     inp.Photo.Name,
 			FileByte: inp.Photo.Data,

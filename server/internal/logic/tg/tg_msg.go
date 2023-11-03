@@ -267,8 +267,13 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 					if sendMsg != nil {
 						msg.SendMsg = sendMsg
 					}
+					var tgUser entity.TgUser
+					err = dao.TgUser.Ctx(ctx).Where(do.TgUser{TgId: item.Initiator}).Scan(&tgUser)
+					if err != nil {
+						return
+					}
 					msgInp := &tgin.TgDownloadMsgInp{
-						Account: item.Initiator,
+						Account: gconv.Uint64(tgUser.Phone),
 						MsgId:   gconv.Int64(item.ReqId),
 					}
 					if item.Out != 1 {
@@ -276,6 +281,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 					} else {
 						msgInp.ChatId = gconv.Int64(item.Receiver)
 					}
+
 					res, err := service.TgArts().TgDownloadFile(ctx, msgInp)
 					if err != nil {
 						return err

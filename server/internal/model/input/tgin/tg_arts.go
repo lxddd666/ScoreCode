@@ -101,3 +101,11 @@ type TgUpdateUserInfoBatchInp struct {
 	Accounts []uint64 `json:"accounts"     dc:"电话"`
 	Ids      []uint64 `json:"ids"          dc:"id号"`
 }
+
+type OnlineAccountInp struct {
+	TgId      int64  `json:"tgId"          description:"tg id"`
+	Username  string `json:"username"      description:"账号号码"`
+	FirstName string `json:"firstName"     description:"First Name"`
+	LastName  string `json:"lastName"      description:"Last Name"`
+	Phone     string `json:"phone"         description:"手机号"`
+}

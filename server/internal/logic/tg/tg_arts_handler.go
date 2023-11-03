@@ -114,7 +114,7 @@ func (s *sTgArts) getRandomProxy(ctx context.Context) (result entity.SysProxy, e
 		OrgId:  1,
 		Status: 1,
 		Type:   "socks5",
-	}).Where("max_connections - connected_count > 0").Scan(&result)
+	}).Where("max_connections - assigned_count > 0").Scan(&result)
 
 	if err != nil || g.IsEmpty(result) {
 		err = gerror.New(g.I18n().T(ctx, "{#NoProxyContactAdministrator}"))

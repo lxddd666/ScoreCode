@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/gabriel-vasile/mimetype"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gfile"
+	"github.com/gogf/gf/v2/util/grand"
 	"io"
 	"testing"
 )
@@ -22,4 +26,11 @@ func TestOss(t *testing.T) {
 	buf := bytes.Buffer{}
 	_, err = io.Copy(&buf, obj)
 	fmt.Println(buf)
+}
+
+func TestAvatar(t *testing.T) {
+	content := g.Client().GetBytes(ctx, "https://api.vvhan.com/api/avatar")
+	mime := mimetype.Detect(content)
+	fmt.Println(mime)
+	gfile.PutBytes(grand.S(12)+mime.Extension(), content)
 }

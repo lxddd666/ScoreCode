@@ -82,7 +82,7 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 	}
 
 	// 查询账号状态
-	if in.AccountStatus > 0 {
+	if in.AccountStatus != nil {
 		mod = mod.Where(dao.TgUser.Columns().AccountStatus, in.AccountStatus)
 	}
 
@@ -233,7 +233,6 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
-			_, _ = g.Redis().HSetNX(ctx, consts.TgLoginAccountKey, item.Phone, 1)
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).

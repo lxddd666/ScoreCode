@@ -73,7 +73,7 @@ export const schemas = ref<FormSchema[]>([
   {
     field: 'firstName',
     component: 'NInput',
-    label: 'First Name',
+    label: '名字',
     componentProps: {
       placeholder: '请输入First Name',
       onUpdateValue: (e: any) => {
@@ -84,7 +84,7 @@ export const schemas = ref<FormSchema[]>([
   {
     field: 'lastName',
     component: 'NInput',
-    label: 'Last Name',
+    label: '姓氏',
     componentProps: {
       placeholder: '请输入Last Name',
       onUpdateValue: (e: any) => {
@@ -165,11 +165,11 @@ export const columns = [
     key: 'username',
   },
   {
-    title: '首名称',
+    title: '名字',
     key: 'firstName',
   },
   {
-    title: '尾名称',
+    title: '姓氏',
     key: 'lastName',
   },
   {

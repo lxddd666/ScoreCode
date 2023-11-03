@@ -120,6 +120,7 @@ var (
 		"dwf":   "model/vnd.dwf",
 		"ics":   "text/calendar",
 		"vcard": "text/vcard",
+		"tgs":   "application/gzip",
 	}
 )
 

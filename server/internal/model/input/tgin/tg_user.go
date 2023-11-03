@@ -85,7 +85,7 @@ type TgUserListInp struct {
 	LastName       string        `json:"lastName"       dc:"Last Name"`
 	Phone          string        `json:"phone"          dc:"手机号"`
 	IsOnline       int           `json:"isOnline"       dc:"是否在线"`
-	AccountStatus  int           `json:"accountStatus"  dc:"账号状态"`
+	AccountStatus  *int          `json:"accountStatus"  dc:"账号状态"`
 	ProxyAddress   string        `json:"proxyAddress"   dc:"代理地址"`
 	CreatedAt      []*gtime.Time `json:"createdAt"      dc:"创建时间"`
 }

@@ -2,6 +2,7 @@ package tg
 
 import (
 	"context"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-faker/faker/v4"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -17,7 +18,7 @@ import (
 
 const (
 	getContentUrl = "https://v1.jinrishici.com/all.txt"
-	randomPath    = "resource/random"
+	getPhotoUrl   = "https://api.vvhan.com/api/avatar"
 )
 
 var actions = &actionsManager{
@@ -34,6 +35,7 @@ func init() {
 	actions.tasks[2] = RandBio
 	actions.tasks[3] = RandNickName
 	actions.tasks[4] = RandUsername
+	actions.tasks[5] = RandPhoto
 }
 
 func beforeLogin(ctx context.Context, task *entity.TgKeepTask) (err error, tgUserList []*entity.TgUser) {
@@ -61,7 +63,6 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Duration(len(tgUserList)) * time.Second)
 	//获取话术
 	var scriptList []*entity.SysScript
 	err = dao.SysScript.Ctx(ctx).Where(dao.SysScript.Columns().GroupId, task.ScriptGroup).Scan(&scriptList)
@@ -89,7 +90,7 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 				}
 				_, err = service.TgArts().TgSendMsg(ctx, inp)
 				if err != nil {
-					return
+					continue
 				}
 				time.Sleep(1 * time.Second)
 			}
@@ -107,7 +108,6 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Duration(len(tgUserList)) * time.Second)
 	//修改签名
 	bio := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
 	for _, user := range tgUserList {
@@ -117,7 +117,7 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
-			return
+			continue
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -130,7 +130,6 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Duration(len(tgUserList)) * time.Second)
 	//修改nickName
 	for _, user := range tgUserList {
 		firstName := faker.FirstName()
@@ -142,7 +141,7 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
-			return
+			continue
 		}
 		time.Sleep(1 * time.Second)
 	}
@@ -155,7 +154,6 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	if err != nil {
 		return err
 	}
-	time.Sleep(time.Duration(len(tgUserList)) * time.Second)
 	//修改username
 	for _, user := range tgUserList {
 		firstName := faker.FirstName()
@@ -166,7 +164,34 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
-			return
+			continue
+		}
+		time.Sleep(1 * time.Second)
+	}
+	return err
+}
+
+// RandPhoto 随机头像
+func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	err, tgUserList := beforeLogin(ctx, task)
+	if err != nil {
+		return err
+	}
+	//修改头像
+	for _, user := range tgUserList {
+		avatar := g.Client().Discovery(nil).GetBytes(ctx, getPhotoUrl)
+		mime := mimetype.Detect(avatar)
+		inp := &tgin.TgUpdateUserInfoInp{
+			Account: gconv.Uint64(user.Phone),
+			Photo: artsin.FileMsg{
+				Data: avatar,
+				MIME: mime.String(),
+				Name: grand.S(12) + mime.Extension(),
+			},
+		}
+		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
+		if err != nil {
+			continue
 		}
 		time.Sleep(1 * time.Second)
 	}

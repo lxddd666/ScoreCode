@@ -157,22 +157,19 @@ func (s *sTgKeepTask) Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) 
 
 // Once 执行一次
 func (s *sTgKeepTask) Once(ctx context.Context, id int64) (err error) {
-	var task *entity.TgKeepTask
-	if err = s.Model(ctx).WherePri(id).Scan(&task); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
-	}
-
-	for _, action := range task.Actions.Array() {
-		thisAction := action
-		thisTask := task
-		simple.SafeGo(gctx.New(), func(ctx context.Context) {
-			f := actions.tasks[gconv.Int(thisAction)]
-			err = f(ctx, thisTask)
+	simple.SafeGo(gctx.New(), func(ctx context.Context) {
+		var task *entity.TgKeepTask
+		if err = s.Model(ctx).WherePri(id).Scan(&task); err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
+		}
+		for _, action := range task.Actions.Array() {
+			f := actions.tasks[gconv.Int(action)]
+			err = f(ctx, task)
 			if err != nil {
 				return
 			}
-		})
 
-	}
+		}
+	})
 	return
 }
