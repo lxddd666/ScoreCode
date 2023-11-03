@@ -57,5 +57,7 @@
   "AddNourishingTaskFailed": "新增養號任務失敗，請稍後重試",
   "TaskNameNotEmpty": "任務名稱不能為空",
   "NourishingNumberNoEmpty": "養號動作不能為空",
-  "AllAccountLog": "所有賬號已經登錄"
+  "AllAccountLog": "所有賬號已經登錄",
+  "ObtainAccountFailed": "獲取賬號失敗",
+  "ObtainWordsFailed": "獲取話術失敗"
 }

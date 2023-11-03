@@ -57,5 +57,7 @@
   "AddNourishingTaskFailed": "Số Nourish mới được thêm vào không thành công, vui lòng thử lại sau",
   "TaskNameNotEmpty": "Tên tác vụ không thể trống",
   "NourishingNumberNoEmpty": "Nuôi dưỡng số lượng không thể trống",
-  "AllAccountLog": "Tất cả các tài khoản đã được đăng nhập"
+  "AllAccountLog": "Tất cả các tài khoản đã được đăng nhập",
+  "ObtainAccountFailed": "Không nhận được một tài khoản",
+  "ObtainWordsFailed": "Không có được từ"
 }

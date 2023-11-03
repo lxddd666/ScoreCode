@@ -55,7 +55,9 @@
   "ExportNourishingTask": "Export nourish number task-",
   "ModifyNourishingTaskFailed": "Modify the nourishing number task failed, please try again later",
   "AddNourishingTaskFailed": "The newly added nourish number failed, please try again later",
-  "TaskNameNotEmpty"Z: "The task name cannot be empty",
+  "TaskNameNotEmpty": "The task name cannot be empty",
   "NourishingNumberNoEmpty": "Nourishing the number cannot be empty",
-  "AllAccountLog": "All accounts have been logged in"
+  "AllAccountLog": "All accounts have been logged in",
+  "ObtainAccountFailed": "Failure to get an account",
+  "ObtainWordsFailed": "Failure to obtain words"
 }

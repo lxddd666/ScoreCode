@@ -45,7 +45,7 @@ func beforeLogin(ctx context.Context, task *entity.TgKeepTask) (err error, tgUse
 	//获取账号
 	err = dao.TgUser.Ctx(ctx).WherePri(ids).Scan(&tgUserList)
 	if err != nil {
-		g.Log().Error(ctx, "获取账号失败")
+		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainAccountFailed}"))
 		return
 	}
 	err = service.TgArts().SessionLogin(ctx, ids)
@@ -66,7 +66,7 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	var scriptList []*entity.SysScript
 	err = dao.SysScript.Ctx(ctx).Where(dao.SysScript.Columns().GroupId, task.ScriptGroup).Scan(&scriptList)
 	if err != nil {
-		g.Log().Error(ctx, "获取话术失败")
+		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainWordsFailed}"))
 		return
 	}
 	//相互聊天
