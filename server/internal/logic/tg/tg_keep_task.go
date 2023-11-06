@@ -4,13 +4,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcron"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/global"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/hgrds/lock"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 	tgin "hotgo/internal/model/input/tgin"
@@ -114,10 +120,11 @@ func (s *sTgKeepTask) Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err
 			WherePri(in.Id).Data(in).Update(); err != nil {
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyNourishingTaskFailed}"))
 		}
+		global.PublishClusterSync(ctx, consts.ClusterSyncTgKeepTask, in.Id)
 		return
 	}
 
-	// 新增
+	// 新增 默认是未运行
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgKeepTaskInsertFields{}).
 		Data(in).Insert(); err != nil {
@@ -152,6 +159,7 @@ func (s *sTgKeepTask) Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) 
 		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#EditInfoError}")))
 		return
 	}
+	global.PublishClusterSync(ctx, consts.ClusterSyncTgKeepTask, in.Id)
 	return
 }
 
@@ -172,4 +180,72 @@ func (s *sTgKeepTask) Once(ctx context.Context, id int64) (err error) {
 		}
 	})
 	return
+}
+
+// ClusterSync 集群同步
+func (s *sTgKeepTask) ClusterSync(ctx context.Context, message *gredis.Message) {
+	var task *entity.TgKeepTask
+	if err := s.Model(ctx).WherePri(message.Payload).Scan(&task); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
+		g.Log().Error(ctx, err)
+		return
+	}
+	// 删除原任务，重新创建
+	gcron.Remove(message.Payload)
+	if task.Status == consts.StatusEnabled {
+		ctx = context.WithValue(gctx.New(), consts.ContextKeyCronArgs, message.Payload)
+		t, err := gcron.AddSingleton(ctx, task.Cron, s.Run, message.Payload)
+		if err != nil {
+			return
+		}
+		g.Log().Info(ctx, t)
+	}
+
+}
+
+// Run 执行
+func (s *sTgKeepTask) Run(ctx context.Context) {
+	g.Log().Info(ctx, "run keep task")
+	id := ctx.Value(consts.ContextKeyCronArgs).(string)
+	mutex := lock.Mutex(fmt.Sprintf("%s:%s:%s", "lock", "tgKeepTask", id))
+	// 尝试获取锁，获取不到说明已有节点再执行任务，此时当前节点不执行
+	if err := mutex.TryLockFunc(ctx, func() error {
+		g.Log().Info(ctx, "执行养号任务")
+		var task *entity.TgKeepTask
+		if err := s.Model(ctx).WherePri(id).Scan(&task); err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
+			return err
+		}
+		for _, action := range task.Actions.Array() {
+			f := actions.tasks[gconv.Int(action)]
+			if err := f(ctx, task); err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		g.Log().Error(ctx, err)
+	}
+}
+
+// InitTask 初始化所有任务
+func (s *sTgKeepTask) InitTask(ctx context.Context) {
+	var taskList []entity.TgKeepTask
+	if err := dao.TgKeepTask.Ctx(ctx).WherePri(do.TgKeepTask{Status: consts.StatusEnabled}).Scan(&taskList); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
+		g.Log().Error(ctx, err)
+		return
+	}
+	for _, task := range taskList {
+		if task.Status == consts.StatusEnabled {
+			key := gconv.String(task.Id)
+			ctx = context.WithValue(gctx.New(), consts.ContextKeyCronArgs, key)
+			t, err := gcron.AddSingleton(ctx, task.Cron, s.Run, key)
+			if err != nil {
+				return
+			}
+			g.Log().Info(ctx, t)
+		}
+	}
+
 }

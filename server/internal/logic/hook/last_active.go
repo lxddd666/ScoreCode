@@ -24,7 +24,7 @@ var (
 	mtx      sync.Mutex
 )
 
-// Run a background goroutine to remove old entries from the visitors map.
+// Once a background goroutine to remove old entries from the visitors map.
 func init() {
 	go cleanupVisitors()
 }

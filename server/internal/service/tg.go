@@ -14,10 +14,43 @@ import (
 	"hotgo/internal/model/input/tgin"
 
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/net/ghttp"
 )
 
 type (
+	ITgUser interface {
+		// Model TG账号ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG账号列表
+		List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error)
+		// Export 导出TG账号
+		Export(ctx context.Context, in *tgin.TgUserListInp) (err error)
+		// Edit 修改/新增TG账号
+		Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error)
+		// Delete 删除TG账号
+		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
+		// View 获取TG账号指定信息
+		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
+		// BindMember 绑定用户
+		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
+		// UnBindMember 解除绑定用户
+		UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error)
+		// LoginCallback 登录回调
+		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// LogoutCallback 登退回调
+		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// ImportSession 导入session文件
+		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
+		// TgSaveSessionMsg 保存session数据到数据库中
+		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
+		// TgImportSessionToGrpc 导入session
+		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
+		// UnBindProxy 解绑代理
+		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
+		// BindProxy 绑定代理
+		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+	}
 	ITgArts interface {
 		// SyncAccount 同步账号
 		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
@@ -61,12 +94,16 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
-		// TgIncreaseFansToChannel 频道涨粉
-		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
 		// TgUpdateUserInfoBatch 批量修改用户信息
 		TgUpdateUserInfoBatch(ctx context.Context, inp *tgin.TgUpdateUserInfoBatchInp) (err error)
+		// TgIncreaseFansToChannel2 添加频道粉丝数定时任务
+		TgIncreaseFansToChannel2(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		IncreaseFanAction(ctx context.Context, fan *tgin.TgUserListModel, cron entity.TgIncreaseFansCron, takeName string, channel string) (loginErr error, joinChannelErr error)
+		IncreaseFanActionRetry(ctx context.Context, list []*tgin.TgUserListModel, cron entity.TgIncreaseFansCron, taskName string, channel string) (error, bool)
+		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -103,6 +140,12 @@ type (
 		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
 		// Once 执行一次
 		Once(ctx context.Context, id int64) (err error)
+		// ClusterSync 集群同步
+		ClusterSync(ctx context.Context, message *gredis.Message)
+		// Run 执行
+		Run(ctx context.Context)
+		// InitTask 初始化所有任务
+		InitTask(ctx context.Context)
 	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
@@ -138,48 +181,38 @@ type (
 		// Status 更新代理管理状态
 		Status(ctx context.Context, in *tgin.TgProxyStatusInp) (err error)
 	}
-	ITgUser interface {
-		// Model TG账号ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取TG账号列表
-		List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error)
-		// Export 导出TG账号
-		Export(ctx context.Context, in *tgin.TgUserListInp) (err error)
-		// Edit 修改/新增TG账号
-		Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error)
-		// Delete 删除TG账号
-		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
-		// View 获取TG账号指定信息
-		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
-		// BindMember 绑定用户
-		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
-		// UnBindMember 解除绑定用户
-		UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error)
-		// LoginCallback 登录回调
-		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
-		// LogoutCallback 登退回调
-		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
-		// ImportSession 导入session文件
-		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
-		// TgSaveSessionMsg 保存session数据到数据库中
-		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
-		// TgImportSessionToGrpc 导入session
-		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
-		// UnBindProxy 解绑代理
-		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
-		// BindProxy 绑定代理
-		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
-	}
 )
 
 var (
-	localTgArts     ITgArts
-	localTgContacts ITgContacts
 	localTgKeepTask ITgKeepTask
 	localTgMsg      ITgMsg
 	localTgProxy    ITgProxy
 	localTgUser     ITgUser
+	localTgArts     ITgArts
+	localTgContacts ITgContacts
 )
+
+func TgProxy() ITgProxy {
+	if localTgProxy == nil {
+		panic("implement not found for interface ITgProxy, forgot register?")
+	}
+	return localTgProxy
+}
+
+func RegisterTgProxy(i ITgProxy) {
+	localTgProxy = i
+}
+
+func TgUser() ITgUser {
+	if localTgUser == nil {
+		panic("implement not found for interface ITgUser, forgot register?")
+	}
+	return localTgUser
+}
+
+func RegisterTgUser(i ITgUser) {
+	localTgUser = i
+}
 
 func TgArts() ITgArts {
 	if localTgArts == nil {
@@ -223,26 +256,4 @@ func TgMsg() ITgMsg {
 
 func RegisterTgMsg(i ITgMsg) {
 	localTgMsg = i
-}
-
-func TgProxy() ITgProxy {
-	if localTgProxy == nil {
-		panic("implement not found for interface ITgProxy, forgot register?")
-	}
-	return localTgProxy
-}
-
-func RegisterTgProxy(i ITgProxy) {
-	localTgProxy = i
-}
-
-func TgUser() ITgUser {
-	if localTgUser == nil {
-		panic("implement not found for interface ITgUser, forgot register?")
-	}
-	return localTgUser
-}
-
-func RegisterTgUser(i ITgUser) {
-	localTgUser = i
 }

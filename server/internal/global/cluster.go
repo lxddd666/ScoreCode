@@ -23,9 +23,10 @@ func SubscribeClusterSync(ctx context.Context) {
 	}
 
 	err := pubsub.SubscribeMap(map[string]pubsub.SubHandler{
-		consts.ClusterSyncSysconfig:     service.SysConfig().ClusterSync,             // 系统配置
+		consts.ClusterSyncSysConfig:     service.SysConfig().ClusterSync,             // 系统配置
 		consts.ClusterSyncSysBlacklist:  service.SysBlacklist().ClusterSync,          // 系统黑名单
 		consts.ClusterSyncSysSuperAdmin: service.AdminMember().ClusterSyncSuperAdmin, // 超管
+		consts.ClusterSyncTgKeepTask:    service.TgKeepTask().ClusterSync,            // 养号任务
 	})
 
 	if err != nil {

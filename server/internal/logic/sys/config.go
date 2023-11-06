@@ -279,7 +279,7 @@ func (s *sSysConfig) UpdateConfigByGroup(ctx context.Context, in *sysin.UpdateCo
 		return
 	}
 
-	global.PublishClusterSync(ctx, consts.ClusterSyncSysconfig, nil)
+	global.PublishClusterSync(ctx, consts.ClusterSyncSysConfig, nil)
 	return
 }
 

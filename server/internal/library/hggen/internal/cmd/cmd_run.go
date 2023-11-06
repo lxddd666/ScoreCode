@@ -155,7 +155,7 @@ func (app *cRunApp) Run(ctx context.Context) {
 			//return
 		}
 	}
-	// Run the binary file.
+	// Once the binary file.
 	runCommand := fmt.Sprintf(`%s %s`, outputPath, app.Args)
 	mlog.Print(runCommand)
 	if runtime.GOOS == "windows" {

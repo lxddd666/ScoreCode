@@ -66,6 +66,8 @@ func Init(ctx context.Context) {
 	// 订阅集群同步
 	SubscribeClusterSync(ctx)
 
+	// 加载tg养号任务
+	service.TgKeepTask().InitTask(ctx)
 }
 
 // LoggingServeLogHandler 服务日志处理

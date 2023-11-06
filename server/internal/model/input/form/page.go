@@ -17,7 +17,7 @@ type ReqPageFunc interface {
 // PageReq 分页请求
 type PageReq struct {
 	Page    int `json:"page" example:"1" d:"1" v:"min:1#MinimumPage"  dc:"当前页码"`
-	PerPage int `json:"pageSize" example:"10" d:"10" v:"min:1|max:200#MinimumPageNotLower|MaximumNotGreater" dc:"每页数量"`
+	PerPage int `json:"pageSize" example:"10" d:"10" v:"min:1#MinimumPageNotLower" dc:"每页数量"`
 }
 
 // GetPage 获取当前页码

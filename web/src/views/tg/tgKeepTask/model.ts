@@ -196,7 +196,7 @@ async function loadOptions() {
     ],
   });
 
-  const tgUser = await getTgUserOption();
+  const tgUser = await getTgUserOption({page: 1, pageSize: 9999});
   if (tgUser.list) {
     options.value.accounts = tgUser.list;
     for (let i = 0; i < tgUser.list.length; i++) {

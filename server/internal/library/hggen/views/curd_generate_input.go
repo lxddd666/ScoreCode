@@ -27,7 +27,7 @@ const (
 	InputTypeEditInpValidator = 4 // 添加&编辑验证器
 	InputTypeUpdateFields     = 5 // 编辑修改过滤字段
 	InputTypeInsertFields     = 6 // 编辑新增过滤字段
-	EditInpValidatorGenerally = "if err := g.Validator().Rules(\"%s\").Data(in.%s).Messages(\"%s\").Run(ctx); err != nil {\n\t\treturn err.Current()\n\t}\n"
+	EditInpValidatorGenerally = "if err := g.Validator().Rules(\"%s\").Data(in.%s).Messages(\"%s\").Once(ctx); err != nil {\n\t\treturn err.Current()\n\t}\n"
 )
 
 func (l *gCurd) inputTplData(ctx context.Context, in *CurdPreviewInput) (data g.Map, err error) {

@@ -131,15 +131,15 @@ func (l *Lock) LockFunc(ctx context.Context, f func() error) error {
 // it returns error immediately.
 //
 // It releases the lock after `f` is executed.
-func (l *Lock) TryLockFunc(ctx context.Context, f func()) error {
+func (l *Lock) TryLockFunc(ctx context.Context, f func() error) error {
 	err := l.TryLock(ctx)
 	if err != nil {
-		defer func() {
-			_ = l.Unlock(ctx)
-		}()
-		f()
+		return err
 	}
-	return err
+	defer func() {
+		_ = l.Unlock(ctx)
+	}()
+	return f()
 }
 
 // startWatchDog 看门狗
