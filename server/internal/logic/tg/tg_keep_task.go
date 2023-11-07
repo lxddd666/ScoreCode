@@ -237,15 +237,13 @@ func (s *sTgKeepTask) InitTask(ctx context.Context) {
 		return
 	}
 	for _, task := range taskList {
-		if task.Status == consts.StatusEnabled {
-			key := gconv.String(task.Id)
-			ctx = context.WithValue(gctx.New(), consts.ContextKeyCronArgs, key)
-			t, err := gcron.AddSingleton(ctx, task.Cron, s.Run, key)
-			if err != nil {
-				return
-			}
-			g.Log().Info(ctx, t)
+		key := gconv.String(task.Id)
+		ctx = context.WithValue(gctx.New(), consts.ContextKeyCronArgs, key)
+		t, err := gcron.AddSingleton(ctx, task.Cron, s.Run, key)
+		if err != nil {
+			return
 		}
+		g.Log().Info(ctx, t)
 	}
 
 }
