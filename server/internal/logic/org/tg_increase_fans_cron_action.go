@@ -53,7 +53,7 @@ func (s *sOrgTgIncreaseFansCronAction) List(ctx context.Context, in *orgin.TgInc
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Obtaining the data line failed, please try it later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCountError}"))
 		return
 	}
 
@@ -62,7 +62,7 @@ func (s *sOrgTgIncreaseFansCronAction) List(ctx context.Context, in *orgin.TgInc
 	}
 
 	if err = mod.Fields(orgin.TgIncreaseFansCronActionListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgIncreaseFansCronAction.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Get the list failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
 	return
@@ -119,7 +119,7 @@ func (s *sOrgTgIncreaseFansCronAction) Edit(ctx context.Context, in *orgin.TgInc
 // Delete 删除TG频道涨粉任务执行情况
 func (s *sOrgTgIncreaseFansCronAction) Delete(ctx context.Context, in *orgin.TgIncreaseFansCronActionDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "New failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 		return
 	}
 	return
@@ -128,7 +128,7 @@ func (s *sOrgTgIncreaseFansCronAction) Delete(ctx context.Context, in *orgin.TgI
 // View 获取TG频道涨粉任务执行情况指定信息
 func (s *sOrgTgIncreaseFansCronAction) View(ctx context.Context, in *orgin.TgIncreaseFansCronActionViewInp) (res *orgin.TgIncreaseFansCronActionViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "The data failed, please try it later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
 		return
 	}
 	return
