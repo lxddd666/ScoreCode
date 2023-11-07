@@ -1125,7 +1125,7 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *tgin.TgUserListMod
 	if isJoin > 0 {
 		// 已经加入过了
 		data.JoinStatus = 3
-		data.Comment = "This account has already joined the channel"
+		data.Comment = g.I18n().T(ctx, "{#AccountAddChannel}")
 		_, _ = model.Data(data).Insert()
 		resMap[fan.Phone] = 3
 		return gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}")), nil

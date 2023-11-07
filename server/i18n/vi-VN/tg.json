@@ -60,5 +60,6 @@
   "AllAccountLog": "Tất cả các tài khoản đã được đăng nhập",
   "ObtainAccountFailed": "Không nhận được một tài khoản",
   "ObtainWordsFailed": "Không có được từ",
-  "ExecuteNourishingTask": "Thực hiện nhiệm vụ số nuôi dưỡng"
+  "ExecuteNourishingTask": "Thực hiện nhiệm vụ số nuôi dưỡng",
+  "AccountAddChannel": "Tài khoản này đã tham gia kênh"
 }

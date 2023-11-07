@@ -60,5 +60,6 @@
   "AllAccountLog": "所有账号已经登录",
   "ObtainAccountFailed": "获取账号失败",
   "ObtainWordsFailed": "获取话术失败",
-  "ExecuteNourishingTask": "执行养号任务"
+  "ExecuteNourishingTask": "执行养号任务",
+  "AccountAddChannel": "此帐户已经加入了频道"
 }

@@ -60,5 +60,6 @@
   "AllAccountLog": "All accounts have been logged in",
   "ObtainAccountFailed": "Failure to get an account",
   "ObtainWordsFailed": "Failure to obtain words",
-  "ExecuteNourishingTask": "Execute the Nourishing Number Mission"
+  "ExecuteNourishingTask": "Execute the Nourishing Number Mission",
+  "AccountAddChannel": "This account has already joined the channel"
 }
