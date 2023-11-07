@@ -59,5 +59,6 @@
   "NourishingNumberNoEmpty": "Nuôi dưỡng số lượng không thể trống",
   "AllAccountLog": "Tất cả các tài khoản đã được đăng nhập",
   "ObtainAccountFailed": "Không nhận được một tài khoản",
-  "ObtainWordsFailed": "Không có được từ"
+  "ObtainWordsFailed": "Không có được từ",
+  "ExecuteNourishingTask": "Thực hiện nhiệm vụ số nuôi dưỡng"
 }

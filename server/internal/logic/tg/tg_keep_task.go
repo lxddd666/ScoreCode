@@ -210,7 +210,7 @@ func (s *sTgKeepTask) Run(ctx context.Context) {
 	mutex := lock.Mutex(fmt.Sprintf("%s:%s:%s", "lock", "tgKeepTask", id))
 	// 尝试获取锁，获取不到说明已有节点再执行任务，此时当前节点不执行
 	if err := mutex.TryLockFunc(ctx, func() error {
-		g.Log().Info(ctx, "执行养号任务")
+		g.Log().Info(ctx, g.I18n().T(ctx, "{#ExecuteNourishingTask}"))
 		var task *entity.TgKeepTask
 		if err := s.Model(ctx).WherePri(id).Scan(&task); err != nil {
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))

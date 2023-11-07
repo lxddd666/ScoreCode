@@ -59,5 +59,6 @@
   "NourishingNumberNoEmpty": "Nourishing the number cannot be empty",
   "AllAccountLog": "All accounts have been logged in",
   "ObtainAccountFailed": "Failure to get an account",
-  "ObtainWordsFailed": "Failure to obtain words"
+  "ObtainWordsFailed": "Failure to obtain words",
+  "ExecuteNourishingTask": "Execute the Nourishing Number Mission"
 }
