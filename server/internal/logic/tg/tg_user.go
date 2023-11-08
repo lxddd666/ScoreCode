@@ -224,7 +224,6 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 
 	cols := dao.TgUser.Columns()
 	for _, item := range res {
-		loginDetailsRecord(item)
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
 			item.IsOnline = consts.Offline

@@ -168,12 +168,14 @@ func (s *sTgKeepTask) Once(ctx context.Context, id int64) (err error) {
 	simple.SafeGo(gctx.New(), func(ctx context.Context) {
 		var task *entity.TgKeepTask
 		if err = s.Model(ctx).WherePri(id).Scan(&task); err != nil {
-			err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
+			g.Log().Error(ctx, err)
+			return
 		}
 		for _, action := range task.Actions.Array() {
 			f := actions.tasks[gconv.Int(action)]
 			err = f(ctx, task)
 			if err != nil {
+				g.Log().Error(ctx, err)
 				return
 			}
 

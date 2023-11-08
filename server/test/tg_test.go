@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
 	"github.com/gogf/gf/v2/os/gfile"
 	"hotgo/internal/dao"
+	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"testing"
 )
@@ -141,9 +143,13 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 func TestTgUser(t *testing.T) {
 	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.local.yaml")
 	var list []*entity.TgUser
-	all, err := g.DB().GetAll(ctx, "select id from tg_user")
+	err := dao.TgUser.Ctx(ctx).Fields("id").WhereNot(dao.TgUser.Columns().AccountStatus, 403).Scan(&list)
 	panicErr(err)
-	err = all.Structs(&list)
+	ids := make([]uint64, 0)
+	for _, user := range list {
+		ids = append(ids, user.Id)
+	}
+	_, err = dao.TgKeepTask.Ctx(ctx).WherePri(60001).Data(do.TgKeepTask{Accounts: gjson.New(ids)}).Update()
 	panicErr(err)
 
 }

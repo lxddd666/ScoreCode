@@ -247,7 +247,7 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 		tgUserList []*entity.TgUser
 		sysOrg     entity.SysOrg
 	)
-	err = service.TgUser().Model(ctx).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
+	err = service.TgUser().Model(ctx).WhereNot(dao.TgUser.Columns().AccountStatus, 403).WhereIn(dao.TgUser.Columns().Id, ids).Scan(&tgUserList)
 	if err != nil {
 		return gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
