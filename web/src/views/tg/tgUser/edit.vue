@@ -18,8 +18,8 @@
           :label-width="200"
           class="py-4"
         >
-          <n-form-item label="账号号码" path="username">
-          <n-input placeholder="请输入账号号码" v-model:value="params.username" />
+          <n-form-item label="用户名" path="username">
+          <n-input placeholder="请输入用户名" v-model:value="params.username" />
           </n-form-item>
 
           <n-form-item label="First Name" path="firstName">

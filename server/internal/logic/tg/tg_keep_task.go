@@ -13,6 +13,7 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/global"
+	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/hgrds/lock"
@@ -170,6 +171,11 @@ func (s *sTgKeepTask) Once(ctx context.Context, id int64) (err error) {
 		if err = s.Model(ctx).WherePri(id).Scan(&task); err != nil {
 			g.Log().Error(ctx, err)
 			return
+		}
+		// 获取账号
+		var ids = array.New[int64]()
+		for _, item := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(item))
 		}
 		for _, action := range task.Actions.Array() {
 			f := actions.tasks[gconv.Int(action)]

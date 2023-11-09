@@ -39,6 +39,21 @@ type TgUserInsertFields struct {
 	MemberId      int64       `json:"member_id"    dc:"用户Id"`
 }
 
+// TgUserLoginFields 新增TG账号字段过滤
+type TgUserLoginFields struct {
+	Username      string      `json:"username"      dc:"账号号码"`
+	FirstName     string      `json:"firstName"     dc:"First Name"`
+	LastName      string      `json:"lastName"      dc:"Last Name"`
+	Phone         string      `json:"phone"         dc:"手机号"`
+	Photo         string      `json:"photo"         dc:"账号头像"`
+	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
+	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
+	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
+	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
+	Comment       string      `json:"comment"       dc:"备注"`
+	TgId          uint64      `json:"tg_id"         dc:"tgId"`
+}
+
 // TgUserEditInp 修改/新增TG账号
 type TgUserEditInp struct {
 	entity.TgUser

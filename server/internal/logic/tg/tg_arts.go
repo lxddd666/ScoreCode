@@ -307,6 +307,49 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 	return
 }
 
+// SingleLogin 单独登录
+func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
+
+	if s.isLogin(ctx, tgUser) {
+		return
+	}
+	var sysOrg entity.SysOrg
+	err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
+	if err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
+		return
+	}
+
+	if err = s.handleProxy(ctx, tgUser); err != nil {
+		return
+	}
+	// 处理端口数
+	err = s.handlerPort(ctx, sysOrg, tgUser)
+	if err != nil {
+		return
+	}
+	err = s.handlerSyncAccount(ctx, []*entity.TgUser{tgUser})
+	if err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_LOGIN_SINGLE,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_OrdinarySingleAction{
+			OrdinarySingleAction: &protobuf.OrdinarySingleAction{
+				LoginDetail: &protobuf.LoginDetail{
+					ProxyUrl: tgUser.ProxyAddress,
+				},
+				Account: gconv.Uint64(tgUser.Phone),
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	fmt.Println(resp)
+	return
+}
+
 // Logout 登退
 func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 	var (
@@ -776,7 +819,7 @@ func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionIn
 
 // TgUpdateUserInfo 修改用户信息
 func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error) {
-	model := entity.TgUser{}
+	tgUser := entity.TgUser{}
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
@@ -812,15 +855,16 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 		return
 	}
 	prometheus.AccountUpdateUserInfoCount.WithLabelValues(gconv.String(inp.Account)).Inc()
-	err = gjson.DecodeTo(resp.Data, &model)
+	err = gjson.DecodeTo(resp.Data, &tgUser)
 	if err == nil {
 		updateMap := g.Map{
-			dao.TgUser.Columns().Username:  model.Username,
-			dao.TgUser.Columns().FirstName: model.FirstName,
-			dao.TgUser.Columns().LastName:  model.LastName,
+			dao.TgUser.Columns().Username:  tgUser.Username,
+			dao.TgUser.Columns().FirstName: tgUser.FirstName,
+			dao.TgUser.Columns().LastName:  tgUser.LastName,
+			dao.TgUser.Columns().Comment:   tgUser.Comment,
 		}
 		if inp.Photo.MIME != "" {
-			updateMap[dao.TgUser.Columns().Photo] = model.Phone
+			updateMap[dao.TgUser.Columns().Photo] = tgUser.Phone
 		}
 		_, err = dao.TgUser.Ctx(ctx).Data(updateMap).Where(dao.TgUser.Columns().Phone, inp.Account).Update()
 	}

@@ -39,15 +39,21 @@ func init() {
 	actions.tasks[5] = RandPhoto
 }
 
-func beforeLogin(ctx context.Context, ids []int64) (err error, tgUserList []*entity.TgUser) {
-	//获取账号
-	err = dao.TgUser.Ctx(ctx).WherePri(ids).WhereNot(dao.TgUser.Columns().AccountStatus, 403).Scan(&tgUserList)
+func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
+	err = service.TgArts().SingleLogin(ctx, tgUser)
 	if err != nil {
-		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainAccountFailed}"))
 		return
 	}
-	err = service.TgArts().SessionLogin(ctx, ids)
+	return
+}
+
+func beforeGetTgUsers(ctx context.Context, ids []int64) (tgUserList []*entity.TgUser, err error) {
+	//获取账号
+	err = dao.TgUser.Ctx(ctx).WherePri(ids).
+		WhereNot(dao.TgUser.Columns().AccountStatus, 403).
+		Scan(&tgUserList)
 	if err != nil {
+		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainAccountFailed}"))
 		return
 	}
 	return
@@ -60,45 +66,48 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	for _, id := range task.Accounts.Array() {
 		ids.Append(gconv.Int64(id))
 	}
-	for _, tgUserIds := range ids.Chunk(10) {
-		forErr, tgUserList := beforeLogin(ctx, tgUserIds)
-		if forErr != nil {
-			return forErr
-		}
-		//获取话术
-		var scriptList []*entity.SysScript
-		err = dao.SysScript.Ctx(ctx).Where(dao.SysScript.Columns().GroupId, task.ScriptGroup).Scan(&scriptList)
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return
+	}
+	//获取话术
+	var scriptList []*entity.SysScript
+	err = dao.SysScript.Ctx(ctx).Where(dao.SysScript.Columns().GroupId, task.ScriptGroup).Scan(&scriptList)
+	if err != nil {
+		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainWordsFailed}"))
+		return err
+	}
+	//相互聊天
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
 		if err != nil {
-			g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainWordsFailed}"))
-			return err
+			g.Log().Error(ctx, err)
+			continue
 		}
-		//相互聊天
-		for _, user := range tgUserList {
-			for _, receiver := range tgUserList {
-				if user.Id != receiver.Id {
-					inp := &artsin.MsgInp{
-						Account:  gconv.Uint64(user.Phone),
-						Receiver: gconv.Uint64(receiver.Phone),
-						TextMsg:  nil,
-					}
-					if len(scriptList) > 0 {
-						// 存在话术随机选一条
-						index := grand.Intn(len(scriptList) - 1)
-						inp.TextMsg = []string{scriptList[index].Content}
-					} else {
-						// 随便发句话
-						resp := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
-						inp.TextMsg = []string{resp}
-					}
-					_, err = service.TgArts().TgSendMsg(ctx, inp)
-					if err != nil {
-						continue
-					}
-					time.Sleep(1 * time.Second)
+		for _, receiver := range tgUserList {
+			if user.Id != receiver.Id {
+				inp := &artsin.MsgInp{
+					Account:  gconv.Uint64(user.Phone),
+					Receiver: gconv.Uint64(receiver.Phone),
+					TextMsg:  nil,
 				}
+				if len(scriptList) > 0 {
+					// 存在话术随机选一条
+					index := grand.Intn(len(scriptList) - 1)
+					inp.TextMsg = []string{scriptList[index].Content}
+				} else {
+					// 随便发句话
+					resp := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
+					inp.TextMsg = []string{resp}
+				}
+				_, err = service.TgArts().TgSendMsg(ctx, inp)
+				if err != nil {
+					continue
+				}
+				time.Sleep(1 * time.Second)
 			}
-
 		}
+
 	}
 
 	return
@@ -112,25 +121,29 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	for _, id := range task.Accounts.Array() {
 		ids.Append(gconv.Int64(id))
 	}
-	for _, tgUserIds := range ids.Chunk(10) {
-		forErr, tgUserList := beforeLogin(ctx, tgUserIds)
-		if forErr != nil {
-			return forErr
-		}
-		//修改签名
-		bio := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
-		for _, user := range tgUserList {
-			inp := &tgin.TgUpdateUserInfoInp{
-				Account: gconv.Uint64(user.Phone),
-				Bio:     &bio,
-			}
-			err = service.TgArts().TgUpdateUserInfo(ctx, inp)
-			if err != nil {
-				continue
-			}
-			time.Sleep(1 * time.Second)
-		}
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return
 	}
+	//修改签名
+	bio := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
+		if err != nil {
+			g.Log().Error(ctx, err)
+			continue
+		}
+		inp := &tgin.TgUpdateUserInfoInp{
+			Account: gconv.Uint64(user.Phone),
+			Bio:     &bio,
+		}
+		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
+		if err != nil {
+			continue
+		}
+		time.Sleep(1 * time.Second)
+	}
+
 	return err
 }
 
@@ -141,26 +154,29 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	for _, id := range task.Accounts.Array() {
 		ids.Append(gconv.Int64(id))
 	}
-	for _, tgUserIds := range ids.Chunk(10) {
-		forErr, tgUserList := beforeLogin(ctx, tgUserIds)
-		if forErr != nil {
-			return forErr
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return
+	}
+	//修改nickName
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
+		if err != nil {
+			g.Log().Error(ctx, err)
+			continue
 		}
-		//修改nickName
-		for _, user := range tgUserList {
-			firstName := faker.FirstName()
-			lastName := faker.LastName()
-			inp := &tgin.TgUpdateUserInfoInp{
-				Account:   gconv.Uint64(user.Phone),
-				FirstName: &firstName,
-				LastName:  &lastName,
-			}
-			err = service.TgArts().TgUpdateUserInfo(ctx, inp)
-			if forErr != nil {
-				continue
-			}
-			time.Sleep(1 * time.Second)
+		firstName := faker.FirstName()
+		lastName := faker.LastName()
+		inp := &tgin.TgUpdateUserInfoInp{
+			Account:   gconv.Uint64(user.Phone),
+			FirstName: &firstName,
+			LastName:  &lastName,
 		}
+		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
+		if err != nil {
+			continue
+		}
+		time.Sleep(1 * time.Second)
 	}
 	return err
 }
@@ -172,25 +188,28 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	for _, id := range task.Accounts.Array() {
 		ids.Append(gconv.Int64(id))
 	}
-	for _, tgUserIds := range ids.Chunk(10) {
-		err, tgUserList := beforeLogin(ctx, tgUserIds)
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return err
+	}
+	//修改username
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
 		if err != nil {
-			return err
+			g.Log().Error(ctx, err)
+			continue
 		}
-		//修改username
-		for _, user := range tgUserList {
-			firstName := faker.FirstName()
-			lastName := faker.LastName()
-			inp := &tgin.TgUpdateUserInfoInp{
-				Account:  gconv.Uint64(user.Phone),
-				Username: proto.String(firstName + lastName + grand.S(3)),
-			}
-			err = service.TgArts().TgUpdateUserInfo(ctx, inp)
-			if err != nil {
-				continue
-			}
-			time.Sleep(1 * time.Second)
+		firstName := faker.FirstName()
+		lastName := faker.LastName()
+		inp := &tgin.TgUpdateUserInfoInp{
+			Account:  gconv.Uint64(user.Phone),
+			Username: proto.String(firstName + lastName + grand.S(3)),
 		}
+		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
+		if err != nil {
+			continue
+		}
+		time.Sleep(1 * time.Second)
 	}
 	return err
 }
@@ -202,29 +221,32 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	for _, id := range task.Accounts.Array() {
 		ids.Append(gconv.Int64(id))
 	}
-	for _, tgUserIds := range ids.Chunk(10) {
-		err, tgUserList := beforeLogin(ctx, tgUserIds)
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return err
+	}
+	//修改头像
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
 		if err != nil {
-			return err
+			g.Log().Error(ctx, err)
+			continue
 		}
-		//修改头像
-		for _, user := range tgUserList {
-			avatar := g.Client().Discovery(nil).GetBytes(ctx, getPhotoUrl)
-			mime := mimetype.Detect(avatar)
-			inp := &tgin.TgUpdateUserInfoInp{
-				Account: gconv.Uint64(user.Phone),
-				Photo: artsin.FileMsg{
-					Data: avatar,
-					MIME: mime.String(),
-					Name: grand.S(12) + mime.Extension(),
-				},
-			}
-			err = service.TgArts().TgUpdateUserInfo(ctx, inp)
-			if err != nil {
-				continue
-			}
-			time.Sleep(1 * time.Second)
+		avatar := g.Client().Discovery(nil).GetBytes(ctx, getPhotoUrl)
+		mime := mimetype.Detect(avatar)
+		inp := &tgin.TgUpdateUserInfoInp{
+			Account: gconv.Uint64(user.Phone),
+			Photo: artsin.FileMsg{
+				Data: avatar,
+				MIME: mime.String(),
+				Name: grand.S(12) + mime.Extension(),
+			},
 		}
+		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
+		if err != nil {
+			continue
+		}
+		time.Sleep(1 * time.Second)
 	}
 	return err
 }

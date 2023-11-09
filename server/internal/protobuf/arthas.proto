@@ -7,6 +7,7 @@ enum Action {
   LOGIN = 0;
   LOGOUT = 1;
   ERR_STOP = 31;
+  LOGIN_SINGLE = 37;
 
   //whatsapp
   SEND_MESSAGE = 2;
@@ -44,6 +45,7 @@ enum Action {
   GET_CHANNEL_MEMBER = 33;
   GET_ONLINE_ACCOUNTS = 34;
   UPDATE_USER_INFO = 35;
+  SEARCH = 36;
 }
 
 
@@ -55,6 +57,13 @@ enum Action {
 message OrdinaryAction {
   map<uint64, loginDetail> login_detail = 1;
   string Type = 2;
+}
+
+message OrdinarySingleAction {
+  loginDetail login_detail = 1;
+  string Type = 2;
+  uint64 account = 3;
+
 }
 
 message LogoutAction {
@@ -90,6 +99,17 @@ message GetUserHeadImageAction{
 message getUserHeadImage{
   repeated uint64 account = 1;
 }
+
+message DownUserHeadImageDetail{
+  uint64 account = 1 ;
+  uint64 getUser = 2 ;
+}
+
+message SearchDetail {
+  uint64 Sender = 1;
+  string Search =2;
+}
+
 
 // 定义头像
 message HeadSculpture{
@@ -187,6 +207,9 @@ message RequestMessage {
     GetChannelMemberDetail get_channel_member_detail = 39;
     GetOnlineAccountsDetail get_online_accounts_detail = 40;
     UpdateUserInfoDetail update_user_info_detail = 41;
+    DownUserHeadImageDetail down_user_head_image_detail = 42;
+      SearchDetail search_detail = 43;
+      OrdinarySingleAction ordinary_single_action = 44;
   }
   string type = 18;
   uint64 account = 35; //账号

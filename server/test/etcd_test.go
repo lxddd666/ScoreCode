@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/text/gstr"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"testing"
 )
@@ -39,11 +40,11 @@ func getRemoteCtl() *clientv3.Client {
 
 func TestEtcd(t *testing.T) {
 	localCtl := getLocalCtl()
-	remoteCtl := getRemoteCtl()
+	//remoteCtl := getRemoteCtl()
 
-	resp, _ := localCtl.Get(ctx, "/tg", clientv3.WithPrefix())
+	resp, _ := localCtl.Get(ctx, "/tg/1999111999", clientv3.WithPrefix())
 	for _, kv := range resp.Kvs {
-		_, _ = remoteCtl.Put(ctx, string(kv.Key), string(kv.Value))
+		_, _ = localCtl.Put(ctx, gstr.Replace(string(kv.Key), "1999111999", "6281265397062"), string(kv.Value))
 	}
 
 }

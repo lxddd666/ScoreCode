@@ -19,7 +19,6 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	_ "github.com/mattn/go-sqlite3"
 	"hotgo/internal/consts"
-	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
@@ -222,7 +221,6 @@ func (s *sTgUser) UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberI
 // LoginCallback 登录回调
 func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err error) {
 
-	cols := dao.TgUser.Columns()
 	for _, item := range res {
 		//如果账号在线记录账号登录所使用的代理
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
@@ -235,8 +233,7 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).
-			Fields(cols.TgId, cols.Username, cols.FirstName, cols.LastName, cols.IsOnline, cols.LastLoginTime, cols.AccountStatus).
-			Where(cols.Phone, item.Phone).Update(item)
+			Fields(tgin.TgUserLoginFields{}).OmitNil().Save(item)
 		item.Session = nil
 		// 删除登录过程的redis
 		key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, item.Phone)
@@ -251,27 +248,6 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		})
 	}
 	return
-}
-
-func loginDetailsRecord(user entity.TgUser) {
-	status := protobuf.AccountStatus(user.AccountStatus)
-	switch status {
-	case protobuf.AccountStatus_SUCCESS:
-		prometheus.LoginProxySuccessCount.WithLabelValues(user.ProxyAddress).Inc()
-		prometheus.LoginSuccessCounter.WithLabelValues(user.Phone).Inc()
-	case protobuf.AccountStatus_FAIL:
-		prometheus.LoginFailureCounter.WithLabelValues(user.Phone).Inc()
-		prometheus.LoginProxyFailedCount.WithLabelValues(user.ProxyAddress).Inc()
-	case protobuf.AccountStatus_NOT_EXIST:
-		prometheus.LoginFailureCounter.WithLabelValues(user.Phone).Inc()
-	case protobuf.AccountStatus_SEAL:
-		prometheus.AccountBannedCount.WithLabelValues(user.Phone).Inc()
-		prometheus.LoginProxyBannedCount.WithLabelValues(user.ProxyAddress).Inc()
-	default:
-		prometheus.LoginFailureCounter.WithLabelValues(user.Phone).Inc()
-		prometheus.LoginProxyFailedCount.WithLabelValues(user.ProxyAddress).Inc()
-	}
-
 }
 
 // LogoutCallback 登退回调

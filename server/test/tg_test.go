@@ -143,13 +143,13 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 func TestTgUser(t *testing.T) {
 	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.local.yaml")
 	var list []*entity.TgUser
-	err := dao.TgUser.Ctx(ctx).Fields("id").WhereNot(dao.TgUser.Columns().AccountStatus, 403).Scan(&list)
+	err := dao.TgUser.Ctx(ctx).Fields("id").Where("tg_id", 0).Scan(&list)
 	panicErr(err)
 	ids := make([]uint64, 0)
 	for _, user := range list {
 		ids = append(ids, user.Id)
 	}
-	_, err = dao.TgKeepTask.Ctx(ctx).WherePri(60001).Data(do.TgKeepTask{Accounts: gjson.New(ids)}).Update()
+	_, err = dao.TgKeepTask.Ctx(ctx).WherePri(150002).Data(do.TgKeepTask{Accounts: gjson.New(ids)}).Update()
 	panicErr(err)
 
 }

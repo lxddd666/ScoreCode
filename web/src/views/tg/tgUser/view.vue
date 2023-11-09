@@ -6,7 +6,7 @@
     <n-card :bordered="false" class="proCard mt-4" size="small" :segmented="{ content: true }">
       <n-descriptions label-placement="left" class="py-2" column="4">
         <n-descriptions-item>
-          <template #label>账号号码</template>
+          <template #label>用户名</template>
           {{ formValue.username }}
         </n-descriptions-item>
 

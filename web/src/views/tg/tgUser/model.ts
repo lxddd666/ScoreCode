@@ -62,9 +62,9 @@ export const schemas = ref<FormSchema[]>([
   {
     field: 'username',
     component: 'NInput',
-    label: '账号号码',
+    label: '用户名',
     componentProps: {
-      placeholder: '请输入账号号码',
+      placeholder: '请输入用户名',
       onUpdateValue: (e: any) => {
         console.log(e);
       },
@@ -161,7 +161,7 @@ export const columns = [
     key: "memberUsername",
   },
   {
-    title: '账号号码',
+    title: '用户名',
     key: 'username',
   },
   {
