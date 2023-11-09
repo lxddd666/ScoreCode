@@ -8,6 +8,7 @@ import (
 	"github.com/go-faker/faker/v4"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -308,8 +309,8 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 }
 
 // SingleLogin 单独登录
-func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
-
+func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (result *entity.TgUser, err error) {
+	result = tgUser
 	if s.isLogin(ctx, tgUser) {
 		return
 	}
@@ -346,6 +347,7 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (err e
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
+	_ = gjson.DecodeTo(resp.Data, &result)
 	fmt.Println(resp)
 	return
 }
@@ -526,6 +528,9 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 		return
 	}
 	err = gjson.DecodeTo(resp.Data, &list)
+	for _, item := range list {
+		item.SendMsg = gbase64.MustDecodeToString(item.SendMsg)
+	}
 	if err == nil {
 		simple.SafeGo(gctx.New(), func(ctx context.Context) {
 			s.handlerSaveMsg(ctx, resp.Data)

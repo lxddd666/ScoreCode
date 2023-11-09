@@ -158,6 +158,7 @@
   watch(
     () => props.formParams,
     (value) => {
+      console.log(111)
       loadForm(value);
     }
   );

@@ -1,0 +1,274 @@
+<!-- eslint-disable vue/no-v-html -->
+<template>
+  <div class="message-area">
+    <div class="message-area-list">
+      <n-scrollbar trigger="hover" ref="scrollRef">
+        <div class="message-area-list-wrapper">
+          <div
+            :class="{ 'message-area-list-wrapper-item': true, isMe: item.initiator===item.sender }"
+            v-for="item in messageList"
+            :key="item.reqId"
+          >
+            <div class="message-area-list-wrapper-item-content">
+              <div v-html="item.sendMsg"></div>
+              <span class="message-area-list-wrapper-item-content-meta">
+                <span class="message-area-list-wrapper-item-content-meta-date">{{
+                    item.sendTime
+                  }}</span>
+                <span v-if="item.initiator===item.sender" class="message-area-list-wrapper-item-content-meta-read">{{
+                    item.read === 1 ? '已读' : '未读'
+                    }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </n-scrollbar>
+    </div>
+    <div class="message-area-input">
+      <div class="message-area-input-wrapper">
+        <n-popover placement="top-start" trigger="hover" class="emoji-popover" :show-arrow="false">
+          <template #trigger>
+            <n-icon size="24" class="message-area-input-wrapper-icon">
+              <SmileOutlined/>
+            </n-icon>
+          </template>
+          <div class="large-text">这是表情</div>
+        </n-popover>
+        <div
+          ref="contentRef"
+          @input="onContentInput"
+          @keydown.enter.exact="onContentKeydown"
+          class="message-area-input-wrapper-content"
+          contenteditable
+        ></div>
+        <n-popover placement="top-end" trigger="hover" class="file-popover" :show-arrow="false">
+          <template #trigger>
+            <n-icon size="24" class="message-area-input-wrapper-icon">
+              <PaperClipOutlined/>
+            </n-icon>
+          </template>
+          <div class="large-text">这是附件</div>
+        </n-popover>
+      </div>
+      <div class="message-area-input-button" @click="handleSendMsg">
+        <n-icon size="26" class="message-area-input-button-icon">
+          <PaperPlaneSharp/>
+        </n-icon>
+      </div>
+    </div>
+  </div>
+</template>
+<script lang="ts" setup>
+import {PaperClipOutlined, SmileOutlined} from '@vicons/antd';
+import {PaperPlaneSharp} from '@vicons/ionicons5';
+import {ScrollbarInst} from 'naive-ui';
+import {nextTick, ref, watch} from 'vue';
+import {format} from 'date-fns';
+import {newState, TChatItemParam} from "@/views/tg/chat/components/model";
+import {TgGetMsgHistory} from "@/api/tg/tgUser";
+
+type TMessage = {
+  sendMsg: string;
+  reqId: string;
+  sendTime: string;
+  initiator: number;
+  receiver: number;
+  sender: number;
+  msgType:number;
+  read: number;
+};
+
+const inputText = ref('');
+const idRef = ref(1);
+const scrollRef = ref<ScrollbarInst>();
+const contentRef = ref<HTMLDivElement>();
+const messageList = ref<TMessage[]>([]);
+let isMe = false;
+const scrollToBottom = () => {
+  nextTick(() => {
+    scrollRef.value?.scrollBy({top: 100000000});
+  });
+};
+const handleSendMsg = () => {
+  // console.log('inputText--', inputText.value);
+  isMe = !isMe;
+  inputText.value = '';
+  contentRef.value!.innerHTML = '';
+  scrollToBottom();
+};
+const onContentInput = () => {
+  inputText.value = contentRef.value?.innerHTML ?? '';
+  // console.log('e---', e);
+  // if (e.data) {
+  //   inputText.value += e.data;
+  // }
+};
+const onContentKeydown = (e: KeyboardEvent) => {
+  if (!e.shiftKey) {
+    if (!inputText.value) {
+      // message.warning(`请输入内容后再发送~~~`);
+    } else {
+      handleSendMsg();
+    }
+    e.preventDefault();
+    return false;
+  } else {
+  }
+};
+
+const loadForm = async (account: number, contact: number) => {
+  const res = await TgGetMsgHistory({
+    "contact": contact,
+    "account": account,
+    "limit": 100,
+  })
+  console.log(res)
+  messageList.value = res.list
+}
+
+interface Props {
+  data: TChatItemParam;
+  phone: number;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  phone: 0,
+  data: () => {
+    return newState(null);
+  },
+});
+watch(
+  () => props.data,
+  (value) => {
+    loadForm(props.phone, value.tgId)
+  }
+);
+</script>
+<style lang="less" scoped>
+.message-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 20px;
+  overflow: hidden;
+
+  &-list {
+    flex: 1;
+    padding-top: 24px;
+  // overflow-x: hidden; overflow: hidden; // overflow-y: auto;
+
+    &-wrapper {
+      width: 680px;
+      margin: 0 auto;
+
+      &-item {
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 8px;
+
+        &-content {
+          word-break: break-word;
+          white-space: pre-wrap;
+          background-color: #fff;
+          border-radius: 12px;
+          padding: 6px 8px;
+          font-size: 16px;
+          color: #000;
+          display: flex;
+          align-items: flex-end;
+
+          &-meta {
+            display: flex;
+            margin-left: 8px;
+            gap: 4px;
+            align-items: center;
+            font-size: 12px;
+            color: #686c72bf;
+          }
+        }
+
+        &.isMe {
+          justify-content: flex-end;
+
+          .message-area-list-wrapper-item-content {
+            background-color: #eeffde;
+
+            &-meta {
+              color: #4fae4e;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &-input {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+
+    &-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      background-color: #fff;
+      padding: 18px 12px;
+      border-radius: 12px;
+
+      &-icon {
+        color: #707579;
+      }
+
+      &-content {
+        width: 520px;
+        font-size: 16px;
+        color: #000;
+        vertical-align: text-bottom;
+        max-height: 300px;
+        overflow-y: auto;
+
+        &:focus {
+          border: none;
+          outline: none;
+        }
+      }
+    }
+
+    &-button {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #3390ec;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #3390ec;
+        color: #fff;
+      }
+    }
+  }
+}
+</style>
+<style lang="less">
+[v-placement='top-start'] > .n-popover-shared.emoji-popover {
+  margin-bottom: 20px;
+  margin-left: -12px;
+}
+
+[v-placement='top-end'] > .n-popover-shared.file-popover {
+  margin-bottom: 20px;
+  margin-right: -12px;
+}
+
+.message-area-input-wrapper-content {
+  img {
+    display: inline-block;
+    vertical-align: text-bottom;
+  }
+}
+</style>

@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/text/gstr"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -50,9 +49,8 @@ func TestEtcd(t *testing.T) {
 }
 
 func TestEtcdGet(t *testing.T) {
-	remoteCtl := getRemoteCtl()
+	localCtl := getLocalCtl()
 
-	resp, _ := remoteCtl.Get(ctx, "/tg", clientv3.WithPrefix())
-	fmt.Println(resp.Count)
+	_, _ = localCtl.Delete(ctx, "/tg/1999111999", clientv3.WithPrefix())
 
 }

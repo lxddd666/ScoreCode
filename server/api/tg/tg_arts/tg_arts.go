@@ -2,6 +2,7 @@ package tgarts
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/tgin"
 )
@@ -9,11 +10,11 @@ import (
 // TgLoginReq tg登录
 type TgLoginReq struct {
 	g.Meta `path:"/arts/login" method:"post" tags:"tg-api" summary:"手机验证码登录"`
-	Phone  uint64 `json:"phone" v:"required#SelectLoginMobile" dc:"登录手机号"`
+	Id     int64 `json:"id" v:"required#SelectLoginAccount" dc:"id"`
 }
 
 type TgLoginRes struct {
-	*artsin.LoginModel
+	*entity.TgUser
 }
 
 // TgBatchLoginReq 批量登录

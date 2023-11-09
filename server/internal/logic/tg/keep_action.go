@@ -40,7 +40,7 @@ func init() {
 }
 
 func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
-	err = service.TgArts().SingleLogin(ctx, tgUser)
+	_, err = service.TgArts().SingleLogin(ctx, tgUser)
 	if err != nil {
 		return
 	}

@@ -19,48 +19,6 @@ import (
 )
 
 type (
-	ITgContacts interface {
-		// Model 联系人管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取联系人管理列表
-		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
-		// Export 导出联系人管理
-		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
-		// Edit 修改/新增联系人管理
-		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
-		// Delete 删除联系人管理
-		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
-		// View 获取联系人管理指定信息
-		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
-		// ByTgUser 获取TG账号联系人
-		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
-		// SyncContactCallback 同步联系人
-		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
-	}
-	ITgKeepTask interface {
-		// Model 养号任务ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取养号任务列表
-		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
-		// Export 导出养号任务
-		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
-		// Edit 修改/新增养号任务
-		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
-		// Delete 删除养号任务
-		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
-		// View 获取养号任务指定信息
-		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
-		// Status 更新养号任务状态
-		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
-		// Once 执行一次
-		Once(ctx context.Context, id int64) (err error)
-		// ClusterSync 集群同步
-		ClusterSync(ctx context.Context, message *gredis.Message)
-		// Run 执行
-		Run(ctx context.Context)
-		// InitTask 初始化所有任务
-		InitTask(ctx context.Context)
-	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -137,7 +95,7 @@ type (
 		// SessionLogin 登录
 		SessionLogin(ctx context.Context, ids []int64) (err error)
 		// SingleLogin 单独登录
-		SingleLogin(ctx context.Context, tgUser *entity.TgUser) (err error)
+		SingleLogin(ctx context.Context, tgUser *entity.TgUser) (result *entity.TgUser, err error)
 		// Logout 登退
 		Logout(ctx context.Context, ids []int64) (err error)
 		// TgCheckLogin 检查是否登录
@@ -183,38 +141,58 @@ type (
 		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
 		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
 	}
+	ITgContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
+		// ByTgUser 获取TG账号联系人
+		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
+		// SyncContactCallback 同步联系人
+		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
+	}
+	ITgKeepTask interface {
+		// Model 养号任务ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取养号任务列表
+		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
+		// Export 导出养号任务
+		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
+		// Edit 修改/新增养号任务
+		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
+		// Delete 删除养号任务
+		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
+		// View 获取养号任务指定信息
+		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
+		// Status 更新养号任务状态
+		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
+		// Once 执行一次
+		Once(ctx context.Context, id int64) (err error)
+		// ClusterSync 集群同步
+		ClusterSync(ctx context.Context, message *gredis.Message)
+		// Run 执行
+		Run(ctx context.Context)
+		// InitTask 初始化所有任务
+		InitTask(ctx context.Context)
+	}
 )
 
 var (
-	localTgMsg      ITgMsg
-	localTgProxy    ITgProxy
-	localTgUser     ITgUser
 	localTgArts     ITgArts
 	localTgContacts ITgContacts
 	localTgKeepTask ITgKeepTask
+	localTgMsg      ITgMsg
+	localTgProxy    ITgProxy
+	localTgUser     ITgUser
 )
-
-func TgProxy() ITgProxy {
-	if localTgProxy == nil {
-		panic("implement not found for interface ITgProxy, forgot register?")
-	}
-	return localTgProxy
-}
-
-func RegisterTgProxy(i ITgProxy) {
-	localTgProxy = i
-}
-
-func TgUser() ITgUser {
-	if localTgUser == nil {
-		panic("implement not found for interface ITgUser, forgot register?")
-	}
-	return localTgUser
-}
-
-func RegisterTgUser(i ITgUser) {
-	localTgUser = i
-}
 
 func TgArts() ITgArts {
 	if localTgArts == nil {
@@ -258,4 +236,26 @@ func TgMsg() ITgMsg {
 
 func RegisterTgMsg(i ITgMsg) {
 	localTgMsg = i
+}
+
+func TgProxy() ITgProxy {
+	if localTgProxy == nil {
+		panic("implement not found for interface ITgProxy, forgot register?")
+	}
+	return localTgProxy
+}
+
+func RegisterTgProxy(i ITgProxy) {
+	localTgProxy = i
+}
+
+func TgUser() ITgUser {
+	if localTgUser == nil {
+		panic("implement not found for interface ITgUser, forgot register?")
+	}
+	return localTgUser
+}
+
+func RegisterTgUser(i ITgUser) {
+	localTgUser = i
 }

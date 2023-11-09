@@ -74,6 +74,15 @@ export function TgUnBindProxy(params: any) {
   });
 }
 
+// 登录
+export function TgLogin(params: any) {
+  return tg.request({
+    url: '/arts/login',
+    method: 'POST',
+    params,
+  });
+}
+
 // 批量登录
 export function TgBathLogin(params: any) {
   return tg.request({
@@ -96,4 +105,22 @@ export function TgBathLogout(params: any) {
 // 导出TG账号
 export function Export(params: any) {
   jumpExport('/tgUser/export', params);
+}
+
+// 获取会话列表
+export function TgGetDialogs(params: any) {
+  return tg.request({
+    url: '/arts/getDialogs',
+    method: 'POST',
+    params,
+  });
+}
+
+// 获取聊天记录
+export function TgGetMsgHistory(params: any) {
+  return tg.request({
+    url: '/arts/getMsgHistory',
+    method: 'POST',
+    params,
+  });
 }
