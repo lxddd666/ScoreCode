@@ -124,3 +124,12 @@ export function TgGetMsgHistory(params: any) {
     params,
   });
 }
+
+// 获取聊天记录
+export function TgSendMsg(params: any) {
+  return tg.request({
+    url: '/arts/sendMsg',
+    method: 'POST',
+    params,
+  });
+}

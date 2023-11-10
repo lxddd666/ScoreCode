@@ -23,4 +23,5 @@ const (
 	QueueTgMsgTopic         = `tgMsg`
 	QueueTgReceiverMsgTopic = `tgReceiver`
 	QueueTgSynContact       = `tgContactsSync`
+	QueueTgReadMsgTopic     = `tgReadMsg`
 )

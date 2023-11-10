@@ -1,8 +1,8 @@
-import { SocketEnum } from '@/enums/socketEnum';
-import { notificationStoreWidthOut } from '@/store/modules/notification';
-import { useUserStoreWidthOut } from '@/store/modules/user';
-import { TABS_ROUTES } from '@/store/mutation-types';
-import { isJsonString } from '@/utils/is';
+import {SocketEnum} from '@/enums/socketEnum';
+import {notificationStoreWidthOut} from '@/store/modules/notification';
+import {useUserStoreWidthOut} from '@/store/modules/user';
+import {TABS_ROUTES} from '@/store/mutation-types';
+import {isJsonString} from '@/utils/is';
 
 let socket: WebSocket;
 let isActive: boolean;
@@ -18,7 +18,7 @@ export function getActive(): boolean {
   return isActive;
 }
 
-export function sendMsg(event: string, data = null, isRetry = true) {
+export function sendMsg(event: string, data?: null | any, isRetry = true) {
   if (socket === undefined || !isActive) {
     if (!isRetry) {
       console.log('socket连接异常，发送失败！');
@@ -66,8 +66,10 @@ export function addOnMessage(onMessageList: any, func: Function) {
 export default (onMessage: Function) => {
   const heartCheck = {
     timeout: 5000,
-    timeoutObj: setTimeout(() => {}),
-    serverTimeoutObj: setInterval(() => {}),
+    timeoutObj: setTimeout(() => {
+    }),
+    serverTimeoutObj: setInterval(() => {
+    }),
     reset: function () {
       clearTimeout(this.timeoutObj);
       clearTimeout(this.serverTimeoutObj);

@@ -62,31 +62,34 @@
 import {PaperClipOutlined, SmileOutlined} from '@vicons/antd';
 import {PaperPlaneSharp} from '@vicons/ionicons5';
 import {ScrollbarInst} from 'naive-ui';
-import {nextTick, ref, watch} from 'vue';
+import {inject, nextTick, ref, watch} from 'vue';
 import {newState, TChatItemParam, TMessage} from "@/views/tg/chat/components/model";
-import {TgGetMsgHistory} from "@/api/tg/tgUser";
+import {TgGetMsgHistory, TgSendMsg} from "@/api/tg/tgUser";
+import {addOnMessage, sendMsg} from '@/utils/websocket';
 import CryptoJS from "crypto-js";
-
 
 const inputText = ref('');
 const scrollRef = ref<ScrollbarInst>();
 const contentRef = ref<HTMLDivElement>();
 const messageList = ref<TMessage[]>([]);
-let isMe = false;
 const scrollToBottom = () => {
   nextTick(() => {
     scrollRef.value?.scrollBy({top: 100000000});
   });
 };
 const handleSendMsg = () => {
-  console.log('inputText.value', inputText.value);
-  isMe = !isMe;
+  let textMsg = inputText.value
   inputText.value = '';
   contentRef.value!.innerHTML = '';
+  TgSendMsg({
+    "account": props.me.phone,
+    "receiver": props.data.tgId,
+    "textMsg": [textMsg]
+  })
   scrollToBottom();
 };
 const onContentInput = () => {
-  inputText.value = contentRef.value?.innerHTML ?? '';
+  inputText.value = contentRef.value?.innerText ?? '';
   // console.log('e---', e);
   // if (e.data) {
   //   inputText.value += e.data;
@@ -110,6 +113,21 @@ function base64Dec(base64Str: string) {
   return parsedWordArray.toString(CryptoJS.enc.Utf8);
 }
 
+const onMessageList = inject('onMessageList');
+
+const onTgMessage = (res: { data: string }) => {
+  const data = JSON.parse(res.data);
+  console.log("onTgMessage--->", data);
+  if (data.event === 'tgMsg') {
+    let msg = data.data
+    msg.sendMsg = base64Dec(msg.sendMsg)
+    messageList.value.push(msg);
+    scrollToBottom();
+  }
+};
+
+addOnMessage(onMessageList, onTgMessage);
+
 const loadForm = async (account: number, offsetId: number | undefined, contact: number) => {
   if (offsetId === undefined) {
     offsetId = 100;
@@ -120,6 +138,7 @@ const loadForm = async (account: number, offsetId: number | undefined, contact: 
     "offsetId": Number(offsetId) + 1
   })
   messageList.value = res.list.reverse();
+  scrollToBottom();
 }
 
 interface Props {
@@ -139,6 +158,7 @@ watch(
   () => props.data,
   (value) => {
     loadForm(props.me.phone, props.data.last?.reqId, value.tgId)
+    sendMsg('join', {id: props.me.tgId});
   }
 );
 </script>
