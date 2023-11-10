@@ -16,9 +16,8 @@ type TgMsg struct {
 	CreatedAt     *gtime.Time // 创建时间
 	UpdatedAt     *gtime.Time // 更新时间
 	DeletedAt     *gtime.Time // 删除时间
-	Initiator     interface{} // 聊天发起人
-	Sender        interface{} // 发送人
-	Receiver      interface{} // 接收人
+	TgId          interface{} // 聊天发起人
+	ChatId        interface{} // 会话ID
 	ReqId         interface{} // 请求id
 	Out           interface{} // 是否自己发出
 	SendMsg       []byte      // 发送消息原文(加密)

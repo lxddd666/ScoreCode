@@ -14,9 +14,8 @@ type TgMsg struct {
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"更新时间"`
 	DeletedAt     *gtime.Time `json:"deletedAt"     description:"删除时间"`
-	Initiator     int64       `json:"initiator"     description:"聊天发起人"`
-	Sender        int64       `json:"sender"        description:"发送人"`
-	Receiver      int64       `json:"receiver"      description:"接收人"`
+	TgId          int64       `json:"tgId"          description:"聊天发起人"`
+	ChatId        int64       `json:"chatId"        description:"会话ID"`
 	ReqId         int64       `json:"reqId"         description:"请求id"`
 	Out           int         `json:"out"           description:"是否自己发出"`
 	SendMsg       []byte      `json:"sendMsg"       description:"发送消息原文(加密)"`

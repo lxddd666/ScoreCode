@@ -2,7 +2,6 @@ package tg
 
 import (
 	"context"
-	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/crypto/gmd5"
@@ -27,7 +26,6 @@ import (
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"hotgo/utility/simple"
 )
 
 type sTgMsg struct{}
@@ -55,22 +53,17 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 	}
 
 	// 查询聊天发起人
-	if in.Initiator > 0 {
-		mod = mod.Where(dao.TgMsg.Columns().Initiator, in.Initiator)
-	}
-
-	// 查询发送人
-	if in.Sender > 0 {
-		mod = mod.Where(dao.TgMsg.Columns().Sender, in.Sender)
+	if in.TgId > 0 {
+		mod = mod.Where(dao.TgMsg.Columns().TgId, in.TgId)
 	}
 
 	// 查询接收人
-	if in.Receiver > 0 {
-		mod = mod.Where(dao.TgMsg.Columns().Receiver, in.Receiver)
+	if in.ChatId > 0 {
+		mod = mod.Where(dao.TgMsg.Columns().ChatId, in.ChatId)
 	}
 
 	// 查询请求id
-	if in.ReqId != "" {
+	if in.ReqId != 0 {
 		mod = mod.Where(dao.TgMsg.Columns().ReqId, in.ReqId)
 	}
 
@@ -97,23 +90,6 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 	if err = mod.Fields(tgin.TgMsgListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgMsg.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageListFailed}"))
 		return
-	}
-
-	// 处理是否已读
-	reqIds := garray.NewStrArray()
-	for _, model := range list {
-		reqIds.PushRight(model.ReqId)
-	}
-	if result, err := g.Redis().HKeys(ctx, consts.TgMsgReadReqKey); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageListFailed}"))
-		return list, totalCount, err
-	} else {
-		reqIds.SetArray(result)
-		for _, model := range list {
-			if reqIds.Contains(fmt.Sprintf("%d-%s", model.Initiator, model.ReqId)) {
-				model.Read = consts.Unread
-			}
-		}
 	}
 
 	return
@@ -205,7 +181,7 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	//按消息发送时间推送给前端
 	a.Iterator(func(_ int, msg interface{}) bool {
 
-		websocket.SendToTag(gconv.String(msg.(entity.TgMsg).Initiator), &websocket.WResponse{
+		websocket.SendToTag(gconv.String(msg.(entity.TgMsg).TgId), &websocket.WResponse{
 			Event:     consts.TgMsgEvent,
 			Data:      msg,
 			Code:      gcode.CodeOK.Code(),
@@ -217,30 +193,27 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 }
 
 // MsgCallback 发送消息回调
-func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCallbackRes) (err error) {
+func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCallbackRes) (err error) {
 	var msgList = make([]entity.TgMsg, 0)
-	unreadMap := make(map[string]interface{})
 	for _, item := range textMsgList {
 		msg := entity.TgMsg{
-			Initiator:     int64(item.Initiator),
-			Sender:        int64(item.Sender),
-			Receiver:      gconv.Int64(item.Receiver),
+			TgId:          item.TgId,
+			ChatId:        item.ChatId,
 			SendMsg:       item.SendMsg,
 			TranslatedMsg: item.TranslatedMsg,
 			MsgType:       item.MsgType,
 			SendTime:      gtime.NewFromTime(item.SendTime),
-			Read:          consts.Read, //默认是已读
+			Read:          item.Read, //默认是已读
 			Comment:       item.Comment,
-			ReqId:         gconv.Int64(item.ReqId),
+			ReqId:         item.ReqId,
 			SendStatus:    item.SendStatus,
 			Out:           item.Out,
 		}
 		//转换id
 		if item.AccountType != 1 {
 			if item.Out == 1 {
-				_ = dao.TgUser.Ctx(ctx).Where(do.TgUser{Phone: item.Initiator}).Fields(dao.TgUser.Columns().TgId).Scan(&msg.Initiator)
-				msg.Sender = msg.Initiator
-				_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.Receiver}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.Receiver)
+				_ = dao.TgUser.Ctx(ctx).Where(do.TgUser{Phone: item.TgId}).Fields(dao.TgUser.Columns().TgId).Scan(&msg.TgId)
+				_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.ChatId}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.ChatId)
 			}
 
 		}
@@ -260,15 +233,14 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 					//判断是否下载过该消息
 					var sendMsg []byte
 					_ = s.Model(ctx).Where(do.TgMsg{
-						Initiator: item.Initiator,
-						Sender:    item.Sender,
-						Receiver:  item.Receiver,
+						TgId:   item.TgId,
+						ChatId: item.ChatId,
 					}).Fields(dao.TgMsg.Columns().SendMsg).Scan(&sendMsg)
 					if sendMsg != nil {
 						msg.SendMsg = sendMsg
 					}
 					var tgUser entity.TgUser
-					err = dao.TgUser.Ctx(ctx).Where(do.TgUser{TgId: item.Initiator}).Scan(&tgUser)
+					err = dao.TgUser.Ctx(ctx).Where(do.TgUser{TgId: item.TgId}).Scan(&tgUser)
 					if err != nil {
 						return
 					}
@@ -277,9 +249,9 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 						MsgId:   gconv.Int64(item.ReqId),
 					}
 					if item.Out != 1 {
-						msgInp.ChatId = gconv.Int64(item.Sender)
+						msgInp.ChatId = gconv.Int64(item.TgId)
 					} else {
-						msgInp.ChatId = gconv.Int64(item.Receiver)
+						msgInp.ChatId = gconv.Int64(item.ChatId)
 					}
 
 					res, err := service.TgArts().TgDownloadFile(ctx, msgInp)
@@ -311,93 +283,39 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 
 		}
 		msgList = append(msgList, msg)
-		unreadMap[fmt.Sprintf("%d-%s", msg.Sender, msg.ReqId)] = map[string]interface{}{
-			"read":     consts.Unread,
-			"sender":   msg.Sender,
-			"receiver": msg.Receiver,
-		}
 		//记录普罗米修斯发送消息次数
-		if msg.Initiator == msg.Sender {
+		if msg.Out == 1 {
 			// 发送消息
-			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
+			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(msg.TgId)).Inc()
 		} else {
 			//回复消息
-			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.Sender)).Inc()
+			prometheus.ReplyMsgCount.WithLabelValues(gconv.String(msg.ChatId)).Inc()
 		}
-	}
-	_, err = g.Redis().HSet(ctx, consts.TgMsgReadReqKey, unreadMap)
-	if err != nil {
-		return err
 	}
 	if len(msgList) > 0 {
 		//入库
 		_, err = s.Model(ctx).Fields(tgin.TgMsgInsertFields{}).Save(msgList)
-		for _, item := range msgList {
-			item.Read = consts.Unread
-		}
 		s.sendMsgToUser(ctx, msgList)
 	}
 	return
 }
 
-// ReceiverCallback 接收消息回调
-func (s *sTgMsg) ReceiverCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error) {
-	//接收消息
-	var msg = entity.TgMsg{
-		Initiator:     callbackRes.MsgFromId,
-		Sender:        callbackRes.MsgFromId,
-		Receiver:      callbackRes.PeerId,
-		ReqId:         int64(callbackRes.MsgId),
-		SendMsg:       []byte(callbackRes.Msg),
-		TranslatedMsg: []byte(callbackRes.Msg),
-		MsgType:       1,
-		SendTime:      nil,
-		Read:          consts.Read,
-		SendStatus:    1,
+// ReadMsgCallback 已读回调
+func (s *sTgMsg) ReadMsgCallback(ctx context.Context, readMsg callback.TgReadMsgCallback) (err error) {
+	_, err = dao.TgMsg.Ctx(ctx).Where(do.TgMsg{
+		TgId:   readMsg.TgId,
+		ChatId: readMsg.ChatId,
+		Out:    readMsg.Out,
+	}).Update()
+	if err != nil {
+		return
 	}
-
-	if !g.IsEmpty(msg) {
-		simple.SafeGo(ctx, func(ctx context.Context) {
-			s.sendMsgToUser(ctx, []entity.TgMsg{msg})
-		})
-		//入库
-		_, err = s.Model(ctx).Save(msg)
-	}
-	//自己发出的消息，都标记为已读
-	if callbackRes.Out {
-		return s.handlerReadMsgCallback(ctx, callbackRes)
-	}
+	websocket.SendToTag(gconv.String(readMsg.TgId), &websocket.WResponse{
+		Event:     consts.TgMsgReadEvEnt,
+		Data:      readMsg,
+		Code:      gcode.CodeOK.Code(),
+		ErrorMsg:  "",
+		Timestamp: gtime.Now().Unix(),
+	})
 	return
-}
-
-// 已读标记
-func (s *sTgMsg) handlerReadMsgCallback(ctx context.Context, callbackRes callback.ReceiverCallback) (err error) {
-	// 删除未读标记
-	var msg entity.TgMsg
-	var tgUser entity.TgUser
-	var contact entity.TgContacts
-	err = dao.TgUser.Ctx(ctx).Where(do.TgUser{TgId: callbackRes.MsgFromId}).Scan(&tgUser)
-	if err != nil {
-		return
-	}
-	err = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{TgId: callbackRes.PeerId}).Scan(&contact)
-	if err != nil {
-		return
-	}
-	err = s.Model(ctx).Where(do.TgMsg{
-		Initiator: callbackRes.MsgFromId,
-		Receiver:  callbackRes.PeerId,
-		ReqId:     callbackRes.MsgId,
-	}).Scan(&msg)
-	if err != nil {
-		return
-	}
-	msg.Read = consts.Read
-	_, err = g.Redis().HDel(ctx, consts.TgMsgReadReqKey, fmt.Sprintf("%s-%d", tgUser.Phone, callbackRes.MsgId))
-	s.sendMsgToUser(ctx, []entity.TgMsg{msg})
-	return err
-}
-
-func (s *sTgMsg) sendMsgRecordToPrometheus() {
-
 }

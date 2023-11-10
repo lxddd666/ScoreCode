@@ -5,7 +5,7 @@
       <n-scrollbar trigger="hover" ref="scrollRef">
         <div class="message-area-list-wrapper">
           <div
-            :class="{ 'message-area-list-wrapper-item': true, isMe: item.initiator===item.sender }"
+            :class="{ 'message-area-list-wrapper-item': true, isMe: item.out===1 }"
             v-for="item in messageList"
             :key="item.reqId"
           >
@@ -113,6 +113,11 @@ function base64Dec(base64Str: string) {
   return parsedWordArray.toString(CryptoJS.enc.Utf8);
 }
 
+function thisChatMsgList(list: TMessage[]) {
+  console.log("list", list)
+  return list.filter(item => item.chatId == props.data.tgId)
+}
+
 const onMessageList = inject('onMessageList');
 
 const onTgMessage = (res: { data: string }) => {
@@ -120,8 +125,12 @@ const onTgMessage = (res: { data: string }) => {
   console.log("onTgMessage--->", data);
   if (data.event === 'tgMsg') {
     let msg = data.data
-    msg.sendMsg = base64Dec(msg.sendMsg)
-    messageList.value.push(msg);
+    msg.sendMsg = base64Dec(msg.sendMsg);
+    if (msg.chatId === props.data.tgId) {
+      if (!messageList.value.some(item=>item.reqId === msg.reqId)){
+        messageList.value.push(msg);
+      }
+    }
     scrollToBottom();
   }
 };

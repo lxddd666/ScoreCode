@@ -518,14 +518,14 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 		return
 	}
 	err = service.TgMsg().Model(ctx).OrderDesc(dao.TgMsg.Columns().ReqId).
-		Wheref("initiator = %v and ((sender = %v and receiver = %v) or (sender = %v and receiver = %v))",
-			tgUser.TgId, tgUser.TgId, inp.Contact, inp.Contact, tgUser.TgId).
+		Where(do.TgMsg{TgId: tgUser.TgId, ChatId: inp.Contact}).
+		OrderDesc(dao.TgMsg.Columns().ReqId).
 		Scan(&list)
 	if err != nil {
 		return
 	}
 	if len(list) > 0 {
-		if gconv.Int(list[0].ReqId) == inp.OffsetID-1 {
+		if list[0].ReqId == inp.OffsetID-1 {
 			return
 		}
 	}
@@ -568,7 +568,7 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 }
 
 func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
-	var list []callback.MsgCallbackRes
+	var list []callback.TgMsgCallbackRes
 	_ = gjson.DecodeTo(data, &list)
 	_ = service.TgMsg().MsgCallback(ctx, list)
 }

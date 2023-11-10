@@ -24,9 +24,8 @@ type TgMsgColumns struct {
 	CreatedAt     string // 创建时间
 	UpdatedAt     string // 更新时间
 	DeletedAt     string // 删除时间
-	Initiator     string // 聊天发起人
-	Sender        string // 发送人
-	Receiver      string // 接收人
+	TgId          string // 聊天发起人
+	ChatId        string // 会话ID
 	ReqId         string // 请求id
 	Out           string // 是否自己发出
 	SendMsg       string // 发送消息原文(加密)
@@ -44,9 +43,8 @@ var tgMsgColumns = TgMsgColumns{
 	CreatedAt:     "created_at",
 	UpdatedAt:     "updated_at",
 	DeletedAt:     "deleted_at",
-	Initiator:     "initiator",
-	Sender:        "sender",
-	Receiver:      "receiver",
+	TgId:          "tg_id",
+	ChatId:        "chat_id",
 	ReqId:         "req_id",
 	Out:           "out",
 	SendMsg:       "send_msg",

@@ -31,6 +31,14 @@ type MsgCallbackRes struct {
 	AccountType   int       `json:"accountType"   dc:"账号类型 1:id,2:phone"` //
 }
 
+type TgReadMsgCallback struct {
+	TgId    int64  `json:"TgId"     dc:"聊天发起人"`
+	ChatId  int64  `json:"chatId"      dc:"接收人"`
+	ReqId   int64  `json:"reqId"         dc:"请求id"`
+	Out     int    `json:"out" dc:"是否发出"`
+	Comment string `json:"comment"   description:"comment"`
+}
+
 type ReadMsgCallbackRes struct {
 	ReqId string `json:"reqId"` //请求ID
 }

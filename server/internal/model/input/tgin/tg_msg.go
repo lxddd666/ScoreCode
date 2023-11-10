@@ -10,10 +10,9 @@ import (
 
 // TgMsgUpdateFields 修改消息记录字段过滤
 type TgMsgUpdateFields struct {
-	Initiator     int64       `json:"initiator"     dc:"聊天发起人"`
-	Sender        int64       `json:"sender"        dc:"发送人"`
-	Receiver      int64       `json:"receiver"      dc:"接收人"`
-	ReqId         string      `json:"reqId"         dc:"请求id"`
+	TgId          int64       `json:"initiator"  dc:"聊天发起人"`
+	ChatId        int64       `json:"receiver"   dc:"会话ID"`
+	ReqId         int64       `json:"reqId"      dc:"请求id"`
 	SendMsg       []byte      `json:"sendMsg"       dc:"发送消息原文(加密)"`
 	TranslatedMsg []byte      `json:"translatedMsg" dc:"发送消息译文(加密)"`
 	MsgType       int         `json:"msgType"       dc:"消息类型"`
@@ -21,14 +20,14 @@ type TgMsgUpdateFields struct {
 	Read          int         `json:"read"          dc:"是否已读"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	SendStatus    int         `json:"sendStatus"    dc:"发送状态"`
+	Out           int         `json:"out"           dc:"自己发出"`
 }
 
 // TgMsgInsertFields 新增消息记录字段过滤
 type TgMsgInsertFields struct {
-	Initiator     int64       `json:"initiator"     dc:"聊天发起人"`
-	Sender        int64       `json:"sender"        dc:"发送人"`
-	Receiver      int64       `json:"receiver"      dc:"接收人"`
-	ReqId         string      `json:"reqId"         dc:"请求id"`
+	TgId          int64       `json:"initiator"  dc:"聊天发起人"`
+	ChatId        int64       `json:"receiver"   dc:"会话ID"`
+	ReqId         int64       `json:"reqId"      dc:"请求id"`
 	SendMsg       []byte      `json:"sendMsg"       dc:"发送消息原文(加密)"`
 	TranslatedMsg []byte      `json:"translatedMsg" dc:"发送消息译文(加密)"`
 	MsgType       int         `json:"msgType"       dc:"消息类型"`
@@ -76,10 +75,9 @@ type TgMsgViewModel struct {
 	CreatedAt     *gtime.Time `json:"createdAt"     description:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     description:"更新时间"`
 	DeletedAt     *gtime.Time `json:"deletedAt"     description:"删除时间"`
-	Initiator     int64       `json:"initiator"     description:"聊天发起人"`
-	Sender        int64       `json:"sender"        description:"发送人"`
-	Receiver      int64       `json:"receiver"      description:"接收人"`
-	ReqId         string      `json:"reqId"         description:"请求id"`
+	TgId          int64       `json:"initiator"  dc:"聊天发起人"`
+	ChatId        int64       `json:"receiver"   dc:"会话ID"`
+	ReqId         int64       `json:"reqId"      dc:"请求id"`
 	SendMsg       string      `json:"sendMsg"       description:"发送消息原文(加密)"`
 	TranslatedMsg string      `json:"translatedMsg" description:"发送消息译文(加密)"`
 	MsgType       int         `json:"msgType"       description:"消息类型"`
@@ -87,18 +85,19 @@ type TgMsgViewModel struct {
 	Read          int         `json:"read"          description:"是否已读"`
 	Comment       string      `json:"comment"       description:"备注"`
 	SendStatus    int         `json:"sendStatus"    description:"发送状态"`
+	Out           int         `json:"out"           dc:"自己发出"`
 }
 
 // TgMsgListInp 获取消息记录列表
 type TgMsgListInp struct {
 	form.PageReq
 	CreatedAt  []*gtime.Time `json:"createdAt"  dc:"创建时间"`
-	Initiator  int64         `json:"initiator"  dc:"聊天发起人"`
-	Sender     int64         `json:"sender"     dc:"发送人"`
-	Receiver   int64         `json:"receiver"   dc:"接收人"`
-	ReqId      string        `json:"reqId"      dc:"请求id"`
+	TgId       int64         `json:"initiator"  dc:"聊天发起人"`
+	ChatId     int64         `json:"receiver"   dc:"会话ID"`
+	ReqId      int64         `json:"reqId"      dc:"请求id"`
 	Read       int           `json:"read"       dc:"是否已读"`
 	SendStatus int           `json:"sendStatus" dc:"发送状态"`
+	Out        int           `json:"out"           dc:"自己发出"`
 }
 
 func (in *TgMsgListInp) Filter(ctx context.Context) (err error) {
@@ -109,29 +108,29 @@ type TgMsgListModel struct {
 	Id         uint64      `json:"id"            dc:"id"`
 	CreatedAt  *gtime.Time `json:"createdAt"  dc:"创建时间"`
 	UpdatedAt  *gtime.Time `json:"updatedAt"  dc:"更新时间"`
-	Initiator  int64       `json:"initiator"  dc:"聊天发起人"`
-	Sender     int64       `json:"sender"     dc:"发送人"`
-	Receiver   string      `json:"receiver"   dc:"接收人"`
-	ReqId      string      `json:"reqId"      dc:"请求id"`
+	TgId       int64       `json:"initiator"  dc:"聊天发起人"`
+	ChatId     int64       `json:"receiver"   dc:"会话ID"`
+	ReqId      int         `json:"reqId"      dc:"请求id"`
 	MsgType    int         `json:"msgType"    dc:"消息类型"`
 	SendTime   *gtime.Time `json:"sendTime"   dc:"发送时间"`
 	Read       int         `json:"read"       dc:"是否已读"`
 	SendMsg    string      `json:"sendMsg"    dc:"发送消息原文"`
 	Comment    string      `json:"comment"    dc:"备注"`
 	SendStatus int         `json:"sendStatus" dc:"发送状态"`
+	Out        int         `json:"out"           dc:"自己发出"`
 }
 
 // TgMsgExportModel 导出消息记录
 type TgMsgExportModel struct {
 	CreatedAt  *gtime.Time `json:"createdAt"  dc:"创建时间"`
 	UpdatedAt  *gtime.Time `json:"updatedAt"  dc:"更新时间"`
-	Initiator  int64       `json:"initiator"  dc:"聊天发起人"`
-	Sender     int64       `json:"sender"     dc:"发送人"`
-	Receiver   int64       `json:"receiver"   dc:"接收人"`
+	TgId       int64       `json:"initiator"  dc:"聊天发起人"`
+	ChatId     int64       `json:"receiver"   dc:"会话ID"`
 	ReqId      string      `json:"reqId"      dc:"请求id"`
 	MsgType    int         `json:"msgType"    dc:"消息类型"`
 	SendTime   *gtime.Time `json:"sendTime"   dc:"发送时间"`
 	Read       int         `json:"read"       dc:"是否已读"`
 	Comment    string      `json:"comment"    dc:"备注"`
 	SendStatus int         `json:"sendStatus" dc:"发送状态"`
+	Out        int         `json:"out"           dc:"自己发出"`
 }

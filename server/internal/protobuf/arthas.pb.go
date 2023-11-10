@@ -2187,7 +2187,7 @@ type UintSenderVcard struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Receiver uint64   `protobuf:"varint,1,opt,name=Receiver,proto3" json:"Receiver,omitempty"`
+	Receiver uint64   `protobuf:"varint,1,opt,name=ChatId,proto3" json:"ChatId,omitempty"`
 	Vcards   []*VCard `protobuf:"bytes,2,rep,name=vcards,proto3" json:"vcards,omitempty"`
 }
 
@@ -3452,7 +3452,7 @@ type ReceivingMsgDetail struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Receiver uint64 `protobuf:"varint,1,opt,name=Receiver,proto3" json:"Receiver,omitempty"`
+	Receiver uint64 `protobuf:"varint,1,opt,name=ChatId,proto3" json:"ChatId,omitempty"`
 }
 
 func (x *ReceivingMsgDetail) Reset() {
@@ -4382,7 +4382,7 @@ type MessagesReactionDetail struct {
 
 	Emotion  string            `protobuf:"bytes,1,opt,name=Emotion,proto3" json:"Emotion,omitempty"`
 	Detail   *UintkeyUintvalue `protobuf:"bytes,2,opt,name=detail,proto3" json:"detail,omitempty"`
-	Receiver string            `protobuf:"bytes,3,opt,name=Receiver,proto3" json:"Receiver,omitempty"`
+	Receiver string            `protobuf:"bytes,3,opt,name=ChatId,proto3" json:"ChatId,omitempty"`
 }
 
 func (x *MessagesReactionDetail) Reset() {

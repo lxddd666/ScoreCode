@@ -20,11 +20,11 @@ export interface TMessage {
   sendMsg: string;
   reqId: number;
   sendTime: string;
-  initiator: number;
-  receiver: number;
-  sender: number;
+  tgId: number;
+  chatId: number;
   msgType: number;
   read: number;
+  out: number;
 }
 
 export const defaultState = {
