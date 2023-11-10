@@ -135,3 +135,11 @@ type SitePingReq struct {
 }
 
 type SitePingRes struct{}
+
+// SendHtmlEmailReq 发送自定义邮件
+type SendHtmlEmailReq struct {
+	g.Meta  `path:"/site/sendHtml" tags:"后台基础" method:"post" summary:"发送自定义邮件"`
+	To      string `json:"to" v:"required#ReceiverMailNotEmpty" dc:"接收者邮件，多个用;隔开"`
+	Key     string `json:"key" v:"验签Key"`
+	Content string `json:"content" v:"required#MailContentNotEmpty" dc:"邮件内容"`
+}

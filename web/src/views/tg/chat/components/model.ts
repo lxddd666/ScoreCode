@@ -13,6 +13,18 @@ export interface TChatItemParam {
   message: string;
   isRead: boolean;
   date: string;
+  last?: TMessage;
+}
+
+export interface TMessage {
+  sendMsg: string;
+  reqId: number;
+  sendTime: string;
+  initiator: number;
+  receiver: number;
+  sender: number;
+  msgType: number;
+  read: number;
 }
 
 export const defaultState = {
@@ -29,10 +41,12 @@ export const defaultState = {
   date: '',
 };
 
+
 export function newState(state: TChatItemParam | null): TChatItemParam {
   if (state !== null) {
     return cloneDeep(state);
   }
   return cloneDeep(defaultState);
 }
+
 

@@ -17,12 +17,12 @@
           <div class="chat-item-right-info-name">{{ data.firstName + " " + data.lastName }}</div>
           <div class="chat-item-right-info-meta">
             <n-space :size="4">
-              <span class="chat-item-right-info-meta-read">未读</span>
-              <span class="chat-item-right-info-meta-date">17:55</span>
+              <span class="chat-item-right-info-meta-read">{{ data.last.read===1?'已读':'未读' }}</span>
+              <span class="chat-item-right-info-meta-date">{{ data.last.sendTime }}</span>
             </n-space>
           </div>
         </div>
-        <p class="chat-item-right-message">{{ data.message }}</p>
+        <p class="chat-item-right-message">{{ base64Dec(data.last.sendMsg) }}</p>
       </div>
     </div>
   </n-card>
@@ -31,6 +31,7 @@
 
 
 import {TChatItemParam} from "@/views/tg/chat/components/model";
+import CryptoJS from 'crypto-js';
 
 interface IChatItemProps {
   isActive?: boolean;
@@ -39,6 +40,10 @@ interface IChatItemProps {
 
 defineProps<IChatItemProps>();
 
+function base64Dec(base64Str: string) {
+  let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
+  return parsedWordArray.toString(CryptoJS.enc.Utf8);
+}
 
 </script>
 <style lang="less" scoped>

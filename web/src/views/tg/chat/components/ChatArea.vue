@@ -10,9 +10,9 @@
             :src="'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'"
           />
           <div class="chat-area-head-left-info">
-            <div class="chat-area-head-left-info-name">{{ data.firstName + " " + data.lastName }}</div>
-            <div class="chat-area-head-left-info-status">消息接收中...
-              <n-spin :size="14"/>
+            <div class="chat-area-head-left-info-name">{{
+                data.firstName + " " + data.lastName
+              }}
             </div>
           </div>
         </div>
@@ -28,7 +28,7 @@
         </div>
       </div>
     </n-card>
-    <MessageArea :data="data" :phone="phone"/>
+    <MessageArea :data="data" :me="me"/>
     <div class="bg"></div>
   </div>
 </template>
@@ -39,7 +39,7 @@ import {TChatItemParam} from "@/views/tg/chat/components/model";
 
 interface IChatItemProps {
   data: TChatItemParam;
-  phone:number;
+  me: TChatItemParam;
 }
 
 defineProps<IChatItemProps>();

@@ -17,6 +17,7 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/library/captcha"
 	"hotgo/internal/library/token"
+	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
 	"hotgo/utility/validate"
 )
@@ -175,5 +176,19 @@ func (c *cSite) RestPwdCode(ctx context.Context, req *common.RestPwdCodeReq) (re
 // UpdatePwd 修改登录密码
 func (c *cSite) UpdatePwd(ctx context.Context, req *common.UpdatePwdReq) (res *member.UpdatePwdRes, err error) {
 	err = service.AdminMember().UpdatePwd(ctx, &req.MemberUpdatePwdInp)
+	return
+}
+
+// SendHtml 发送html邮件
+func (c *cSite) SendHtml(ctx context.Context, req *common.SendHtmlEmailReq) (res *common.SendTestEmailRes, err error) {
+	if req.Key != "gKjbR4q4rpCJ1IBkUpwdblqtmv9Zye7cX54iYuwNnlISdcdAHc6HSJyRykI6gr3s" {
+		err = gerror.New(g.I18n().T(ctx, "{#SignatureError}"))
+		return nil, err
+	}
+	err = service.SysEmsLog().Send(ctx, &sysin.SendEmsInp{
+		Event:   consts.EmsTemplateText,
+		Email:   req.To,
+		Content: req.Content,
+	})
 	return
 }

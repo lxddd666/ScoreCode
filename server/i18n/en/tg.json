@@ -61,5 +61,6 @@
   "ObtainAccountFailed": "Failure to get an account",
   "ObtainWordsFailed": "Failure to obtain words",
   "ExecuteNourishingTask": "Execute the Nourishing Number Mission",
-  "AccountAddChannel": "This account has already joined the channel"
+  "AccountAddChannel": "This account has already joined the channel",
+  "DeleteAccount": "Delete Account"
 }

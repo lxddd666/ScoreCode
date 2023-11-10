@@ -458,6 +458,14 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgi
 		return
 	}
 	err = gjson.DecodeTo(resp.Data, &list)
+	if err != nil {
+		return
+	}
+	for _, item := range list {
+		if item.Deleted {
+			item.FirstName = g.I18n().T(ctx, "{#DeleteAccount}")
+		}
+	}
 	return
 }
 
@@ -502,6 +510,25 @@ func (s *sTgArts) handlerSaveContacts(ctx context.Context, account uint64, list 
 
 // TgGetMsgHistory 获取聊天历史
 func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
+	var (
+		tgUser *entity.TgUser
+	)
+	err = service.TgUser().Model(ctx).Where(do.TgUser{Phone: inp.Account}).Scan(&tgUser)
+	if err != nil {
+		return
+	}
+	err = service.TgMsg().Model(ctx).OrderDesc(dao.TgMsg.Columns().ReqId).
+		Wheref("initiator = %v and ((sender = %v and receiver = %v) or (sender = %v and receiver = %v))",
+			tgUser.TgId, tgUser.TgId, inp.Contact, inp.Contact, tgUser.TgId).
+		Scan(&list)
+	if err != nil {
+		return
+	}
+	if len(list) > 0 {
+		if gconv.Int(list[0].ReqId) == inp.OffsetID-1 {
+			return
+		}
+	}
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return

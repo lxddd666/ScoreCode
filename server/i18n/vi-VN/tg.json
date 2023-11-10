@@ -61,5 +61,6 @@
   "ObtainAccountFailed": "Không nhận được một tài khoản",
   "ObtainWordsFailed": "Không có được từ",
   "ExecuteNourishingTask": "Thực hiện nhiệm vụ số nuôi dưỡng",
-  "AccountAddChannel": "Tài khoản này đã tham gia kênh"
+  "AccountAddChannel": "Tài khoản này đã tham gia kênh",
+  "DeleteAccount": "Delete Account"
 }

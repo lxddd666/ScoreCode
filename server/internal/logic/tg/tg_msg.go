@@ -231,7 +231,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.MsgCall
 			SendTime:      gtime.NewFromTime(item.SendTime),
 			Read:          consts.Read, //默认是已读
 			Comment:       item.Comment,
-			ReqId:         item.ReqId,
+			ReqId:         gconv.Int64(item.ReqId),
 			SendStatus:    item.SendStatus,
 			Out:           item.Out,
 		}
@@ -347,7 +347,7 @@ func (s *sTgMsg) ReceiverCallback(ctx context.Context, callbackRes callback.Rece
 		Initiator:     callbackRes.MsgFromId,
 		Sender:        callbackRes.MsgFromId,
 		Receiver:      callbackRes.PeerId,
-		ReqId:         gconv.String(callbackRes.MsgId),
+		ReqId:         int64(callbackRes.MsgId),
 		SendMsg:       []byte(callbackRes.Msg),
 		TranslatedMsg: []byte(callbackRes.Msg),
 		MsgType:       1,

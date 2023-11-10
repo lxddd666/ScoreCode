@@ -60,5 +60,6 @@
   "AllAccountLog": "所有賬號已經登錄",
   "ObtainAccountFailed": "獲取賬號失敗",
   "ObtainWordsFailed": "獲取話術失敗",
-  "AccountAddChannel": "此帳戶已經加入了頻道"
+  "AccountAddChannel": "此帳戶已經加入了頻道",
+  "DeleteAccount": "用戶已刪除"
 }

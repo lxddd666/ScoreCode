@@ -61,5 +61,6 @@
   "ObtainAccountFailed": "获取账号失败",
   "ObtainWordsFailed": "获取话术失败",
   "ExecuteNourishingTask": "执行养号任务",
-  "AccountAddChannel": "此帐户已经加入了频道"
+  "AccountAddChannel": "此帐户已经加入了频道",
+  "DeleteAccount": "用户已删除"
 }

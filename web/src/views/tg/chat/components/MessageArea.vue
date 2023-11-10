@@ -10,14 +10,14 @@
             :key="item.reqId"
           >
             <div class="message-area-list-wrapper-item-content">
-              <div v-html="item.sendMsg"></div>
+              <div>{{ item.sendMsg }}</div>
               <span class="message-area-list-wrapper-item-content-meta">
                 <span class="message-area-list-wrapper-item-content-meta-date">{{
                     item.sendTime
                   }}</span>
-                <span v-if="item.initiator===item.sender" class="message-area-list-wrapper-item-content-meta-read">{{
+                <span class="message-area-list-wrapper-item-content-meta-read">{{
                     item.read === 1 ? '已读' : '未读'
-                    }}</span>
+                  }}</span>
               </span>
             </div>
           </div>
@@ -63,23 +63,12 @@ import {PaperClipOutlined, SmileOutlined} from '@vicons/antd';
 import {PaperPlaneSharp} from '@vicons/ionicons5';
 import {ScrollbarInst} from 'naive-ui';
 import {nextTick, ref, watch} from 'vue';
-import {format} from 'date-fns';
-import {newState, TChatItemParam} from "@/views/tg/chat/components/model";
+import {newState, TChatItemParam, TMessage} from "@/views/tg/chat/components/model";
 import {TgGetMsgHistory} from "@/api/tg/tgUser";
+import CryptoJS from "crypto-js";
 
-type TMessage = {
-  sendMsg: string;
-  reqId: string;
-  sendTime: string;
-  initiator: number;
-  receiver: number;
-  sender: number;
-  msgType:number;
-  read: number;
-};
 
 const inputText = ref('');
-const idRef = ref(1);
 const scrollRef = ref<ScrollbarInst>();
 const contentRef = ref<HTMLDivElement>();
 const messageList = ref<TMessage[]>([]);
@@ -90,7 +79,7 @@ const scrollToBottom = () => {
   });
 };
 const handleSendMsg = () => {
-  // console.log('inputText--', inputText.value);
+  console.log('inputText.value', inputText.value);
   isMe = !isMe;
   inputText.value = '';
   contentRef.value!.innerHTML = '';
@@ -116,23 +105,32 @@ const onContentKeydown = (e: KeyboardEvent) => {
   }
 };
 
-const loadForm = async (account: number, contact: number) => {
+function base64Dec(base64Str: string) {
+  let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
+  return parsedWordArray.toString(CryptoJS.enc.Utf8);
+}
+
+const loadForm = async (account: number, offsetId: number | undefined, contact: number) => {
+  if (offsetId === undefined) {
+    offsetId = 100;
+  }
   const res = await TgGetMsgHistory({
     "contact": contact,
     "account": account,
-    "limit": 100,
+    "offsetId": Number(offsetId) + 1
   })
-  console.log(res)
-  messageList.value = res.list
+  messageList.value = res.list.reverse();
 }
 
 interface Props {
   data: TChatItemParam;
-  phone: number;
+  me: TChatItemParam;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  phone: 0,
+  me: () => {
+    return newState(null);
+  },
   data: () => {
     return newState(null);
   },
@@ -140,7 +138,7 @@ const props = withDefaults(defineProps<Props>(), {
 watch(
   () => props.data,
   (value) => {
-    loadForm(props.phone, value.tgId)
+    loadForm(props.me.phone, props.data.last?.reqId, value.tgId)
   }
 );
 </script>
@@ -155,10 +153,11 @@ watch(
   &-list {
     flex: 1;
     padding-top: 24px;
-  // overflow-x: hidden; overflow: hidden; // overflow-y: auto;
+    overflow: hidden;
+  // overflow-y: auto;
 
     &-wrapper {
-      width: 680px;
+      width: 75%;
       margin: 0 auto;
 
       &-item {

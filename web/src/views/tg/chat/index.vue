@@ -43,7 +43,7 @@
       <n-grid-item span="18" style="overflow: hidden">
         <ChatArea
           :data="activeItem"
-          :phone="phone"
+          :me="me"
         >
         </ChatArea>
       </n-grid-item>
@@ -74,7 +74,7 @@ const chatOptions = ref<DropdownMixedOption[]>([
 const showBackIcon = ref(false);
 const chatList = ref<TChatItemParam[]>([]);
 const activeItem = ref<TChatItemParam>(defaultState);
-const phone = ref<number>(0);
+const me = ref<TChatItemParam>(defaultState);
 const id = Number(router.currentRoute.value.params.id);
 const onSearchClick = () => {
   showBackIcon.value = true;
@@ -94,7 +94,7 @@ const getChatList = async (account: number) => {
 
 const load = async (id: number) => {
   const logInfo = await TgLogin({id: id});
-  phone.value = logInfo.phone;
+  me.value = logInfo;
   await getChatList(logInfo.phone);
 }
 
