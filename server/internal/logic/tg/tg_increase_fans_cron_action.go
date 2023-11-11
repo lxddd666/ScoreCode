@@ -1,11 +1,11 @@
-package org
+package tg
 
 import (
 	"context"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/input/form"
-	orgin "hotgo/internal/model/input/orgin"
+	orgin "hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
@@ -17,23 +17,23 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
-type sOrgTgIncreaseFansCronAction struct{}
+type sTgIncreaseFansCronAction struct{}
 
-func NewOrgTgIncreaseFansCronAction() *sOrgTgIncreaseFansCronAction {
-	return &sOrgTgIncreaseFansCronAction{}
+func NewTgIncreaseFansCronAction() *sTgIncreaseFansCronAction {
+	return &sTgIncreaseFansCronAction{}
 }
 
 func init() {
-	service.RegisterOrgTgIncreaseFansCronAction(NewOrgTgIncreaseFansCronAction())
+	service.RegisterOrgTgIncreaseFansCronAction(NewTgIncreaseFansCronAction())
 }
 
 // Model TG频道涨粉任务执行情况ORM模型
-func (s *sOrgTgIncreaseFansCronAction) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
+func (s *sTgIncreaseFansCronAction) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
 	return handler.Model(dao.TgIncreaseFansCronAction.Ctx(ctx), option...)
 }
 
 // List 获取TG频道涨粉任务执行情况列表
-func (s *sOrgTgIncreaseFansCronAction) List(ctx context.Context, in *orgin.TgIncreaseFansCronActionListInp) (list []*orgin.TgIncreaseFansCronActionListModel, totalCount int, err error) {
+func (s *sTgIncreaseFansCronAction) List(ctx context.Context, in *orgin.TgIncreaseFansCronActionListInp) (list []*orgin.TgIncreaseFansCronActionListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
 	// 查询id
@@ -69,7 +69,7 @@ func (s *sOrgTgIncreaseFansCronAction) List(ctx context.Context, in *orgin.TgInc
 }
 
 // Export 导出TG频道涨粉任务执行情况
-func (s *sOrgTgIncreaseFansCronAction) Export(ctx context.Context, in *orgin.TgIncreaseFansCronActionListInp) (err error) {
+func (s *sTgIncreaseFansCronAction) Export(ctx context.Context, in *orgin.TgIncreaseFansCronActionListInp) (err error) {
 	list, totalCount, err := s.List(ctx, in)
 	if err != nil {
 		return
@@ -96,7 +96,7 @@ func (s *sOrgTgIncreaseFansCronAction) Export(ctx context.Context, in *orgin.TgI
 }
 
 // Edit 修改/新增TG频道涨粉任务执行情况
-func (s *sOrgTgIncreaseFansCronAction) Edit(ctx context.Context, in *orgin.TgIncreaseFansCronActionEditInp) (err error) {
+func (s *sTgIncreaseFansCronAction) Edit(ctx context.Context, in *orgin.TgIncreaseFansCronActionEditInp) (err error) {
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
@@ -117,7 +117,7 @@ func (s *sOrgTgIncreaseFansCronAction) Edit(ctx context.Context, in *orgin.TgInc
 }
 
 // Delete 删除TG频道涨粉任务执行情况
-func (s *sOrgTgIncreaseFansCronAction) Delete(ctx context.Context, in *orgin.TgIncreaseFansCronActionDeleteInp) (err error) {
+func (s *sTgIncreaseFansCronAction) Delete(ctx context.Context, in *orgin.TgIncreaseFansCronActionDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 		return
@@ -126,7 +126,7 @@ func (s *sOrgTgIncreaseFansCronAction) Delete(ctx context.Context, in *orgin.TgI
 }
 
 // View 获取TG频道涨粉任务执行情况指定信息
-func (s *sOrgTgIncreaseFansCronAction) View(ctx context.Context, in *orgin.TgIncreaseFansCronActionViewInp) (res *orgin.TgIncreaseFansCronActionViewModel, err error) {
+func (s *sTgIncreaseFansCronAction) View(ctx context.Context, in *orgin.TgIncreaseFansCronActionViewInp) (res *orgin.TgIncreaseFansCronActionViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
 		return

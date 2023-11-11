@@ -24,4 +24,5 @@ type TgIncreaseFansCron struct {
 	ExecutedDays  int         `json:"executedDays"  description:"已执行天数"`
 	IncreasedFans int         `json:"increasedFans" description:"已添加粉丝数"`
 	TaskName      string      `json:"taskName"      description:"任务名称"`
+	StartTime     *gtime.Time `json:"startTime"     description:"开始时间"`
 }

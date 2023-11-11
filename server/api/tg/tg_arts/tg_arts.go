@@ -210,10 +210,21 @@ type UpdateUserInfoReq struct {
 
 type UpdateUserInfoRes struct{}
 
-// UpdateUserInfoBatchReq 批量修改用户信息
-type UpdateUserInfoBatchReq struct {
-	g.Meta `path:"/arts/user/updateUserInfoBatch" method:"post" tags:"tg-api" summary:"批量修改用户信息"`
-	*tgin.TgUpdateUserInfoBatchInp
+// GetUserAvatarReq 修改用户信息
+type GetUserAvatarReq struct {
+	g.Meta `path:"/arts/user/getUserAvatar" method:"post" tags:"tg-api" summary:"获取用户头像"`
+	*tgin.TgGetUserAvatarInp
 }
 
-type UpdateUserInfoBatchRes struct{}
+type GetUserAvatarReqRes struct {
+	Avatar *tgin.TgDownloadMsgModel `json:"Avatar"   dc:"头像信息"`
+}
+
+type GetSearchInfoReq struct {
+	g.Meta `path:"/arts/search" method:"post" tags:"tg-api" summary:"获取搜索内容详情（TG搜索框搜索结果）"`
+	*tgin.TgGetSearchInfoInp
+}
+
+type GetSearchInfoRes struct {
+	List []*tgin.TgGetSearchInfoModel `json:"list" dc:"search"`
+}

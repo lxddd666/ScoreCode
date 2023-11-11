@@ -62,5 +62,12 @@
   "ObtainWordsFailed": "获取话术失败",
   "ExecuteNourishingTask": "执行养号任务",
   "AccountAddChannel": "此帐户已经加入了频道",
+  "SearchInfoEmpty": "查询该元素信息为空，请核实查询元素",
+  "SearchChannelInfoFail" :"查询到的信息为非频道",
+  "GetUserIdIsEmpty" :"获取用户id为空",
+  "KeepAccountErr" :"培养账号失败",
+  "SearchChannelEmpty": "查无该频道，请输入有效频道地址",
+  "VerifyChannelAddressErr": "请写出完整有效的地址",
+  "CheckChannelMemberCount": "请先校验频道人数再进行操作...."
   "DeleteAccount": "用户已删除"
 }

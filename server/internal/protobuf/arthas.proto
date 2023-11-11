@@ -71,6 +71,18 @@ message LogoutAction {
   string Type = 2;
 }
 
+message DownUserHeadImageDetail{
+  uint64 account = 1 ;
+  uint64 getUser = 2 ;
+}
+
+message SearchDetail {
+  uint64 Sender = 1;
+  string Search =2;
+}
+
+
+
 message loginDetail {
   string proxyUrl = 1;
   string loginId = 2;  //登录的id 用来收验证码
@@ -98,16 +110,6 @@ message GetUserHeadImageAction{
 
 message getUserHeadImage{
   repeated uint64 account = 1;
-}
-
-message DownUserHeadImageDetail{
-  uint64 account = 1 ;
-  uint64 getUser = 2 ;
-}
-
-message SearchDetail {
-  uint64 Sender = 1;
-  string Search =2;
 }
 
 

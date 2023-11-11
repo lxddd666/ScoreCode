@@ -175,8 +175,24 @@ func (c *cTgArts) UpdateUserInfo(ctx context.Context, req *tgarts.UpdateUserInfo
 	return
 }
 
-// UpdateUserInfoBatch 批量修改用户信息
-func (c *cTgArts) UpdateUserInfoBatch(ctx context.Context, req *tgarts.UpdateUserInfoBatchReq) (res *tgarts.IncreaseChannelFansCronRes, err error) {
-	err = service.TgArts().TgUpdateUserInfoBatch(ctx, req.TgUpdateUserInfoBatchInp)
+// GetUserAvatar 获取用户头像信息
+func (c *cTgArts) GetUserAvatar(ctx context.Context, req *tgarts.GetUserAvatarReq) (res *tgarts.GetUserAvatarReqRes, err error) {
+	resp, err := service.TgArts().TgGetUserAvater(ctx, req.TgGetUserAvatarInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.GetUserAvatarReqRes)
+	res.Avatar = resp
+	return
+}
+
+// GetSearchInfo 获取搜索框信息
+func (c *cTgArts) GetSearchInfo(ctx context.Context, req *tgarts.GetSearchInfoReq) (res *tgarts.GetSearchInfoRes, err error) {
+	resp, err := service.TgArts().TgGetSearchInfo(ctx, req.TgGetSearchInfoInp)
+	if err != nil {
+		return
+	}
+	res = new(tgarts.GetSearchInfoRes)
+	res.List = resp
 	return
 }

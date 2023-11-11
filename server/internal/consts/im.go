@@ -24,6 +24,7 @@ const (
 	TgActionLoginAccounts        = "tg_action_login_accounts"
 	TgLoginPorts                 = "tg_login_ports"
 	TgIncreaseFansKey            = "tg_increase_fans_key:"
+	TgLoginErrAccount            = "tg_login_err_account"
 )
 
 const (

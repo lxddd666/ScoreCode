@@ -61,5 +61,12 @@
   "ObtainAccountFailed": "獲取賬號失敗",
   "ObtainWordsFailed": "獲取話術失敗",
   "AccountAddChannel": "此帳戶已經加入了頻道",
+  "SearchInfoEmpty": "査詢該元素資訊為空，請核實査詢元素",
+  "SearchChannelInfoFail" :"査詢到的資訊為非頻道",
+  "GetUserIdIsEmpty" :"獲取用戶id為空",
+  "KeepAccountErr" :"培養帳號失敗",
+  "SearchChannelEmpty": "查無該頻道，請輸入有效頻道地址",
+  "VerifyChannelAddressErr": "請寫出完整有效的地址",
+  "CheckChannelMemberCount": "請先校驗頻道人數再進行操作…."
   "DeleteAccount": "用戶已刪除"
 }

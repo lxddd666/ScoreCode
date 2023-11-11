@@ -1,4 +1,4 @@
-package orgin
+package tgin
 
 import (
 	"context"
@@ -25,6 +25,7 @@ type TgIncreaseFansCronUpdateFields struct {
 type TgIncreaseFansCronInsertFields struct {
 	OrgId         int64  `json:"orgId"         dc:"组织ID"`
 	MemberId      int64  `json:"memberId"      dc:"发起任务的用户ID"`
+	TaskName      string `json:"taskName"      dc:"任务名称"`
 	Channel       string `json:"channel"       dc:"频道地址"`
 	DayCount      int    `json:"dayCount"      dc:"持续天数"`
 	FansCount     int    `json:"fansCount"     dc:"涨粉数量"`
@@ -32,6 +33,7 @@ type TgIncreaseFansCronInsertFields struct {
 	Comment       string `json:"comment"       dc:"备注"`
 	ExecutedDays  int    `json:"executedDays"  dc:"已执行天数"`
 	IncreasedFans int    `json:"increasedFans" dc:"已添加粉丝数"`
+	StartTime     string `json:"startTime"     dc:"开始时间"`
 }
 
 // TgIncreaseFansCronEditInp 修改/新增TG频道涨粉任务
@@ -66,6 +68,22 @@ func (in *TgIncreaseFansCronViewInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+// TgCheckChannelInp 查看channel是否可用
+type TgCheckChannelInp struct {
+	Channel string `json:"channel" v:"required#IdNotEmpty" dc:"频道"`
+}
+
+func (in *TgCheckChannelInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type ChannelIncreaseFanDetailInp struct {
+	DayCount           int  `json:"dayCount"  dc:"任务天数"`
+	FansCount          int  `json:"fansCount" dc:"涨粉数"`
+	ChannelMemberCount int  `json:"channelMemberCount"  dc:"频道粉丝数"`
+	Flag               bool `json:"flag"  dc:"是否按默认的来进行涨粉"`
+}
+
 type TgIncreaseFansCronViewModel struct {
 	entity.TgIncreaseFansCron
 }
@@ -86,6 +104,7 @@ type TgIncreaseFansCronListModel struct {
 	Id            int64       `json:"id"            dc:"id"`
 	OrgId         int64       `json:"orgId"         dc:"组织ID"`
 	MemberId      int64       `json:"memberId"      dc:"发起任务的用户ID"`
+	TaskName      string      `json:"taskName"      dc:"任务名称"`
 	Channel       string      `json:"channel"       dc:"频道地址"`
 	DayCount      int         `json:"dayCount"      dc:"持续天数"`
 	FansCount     int         `json:"fansCount"     dc:"涨粉数量"`
@@ -103,6 +122,7 @@ type TgIncreaseFansCronExportModel struct {
 	OrgId         int64       `json:"orgId"         dc:"组织ID"`
 	MemberId      int64       `json:"memberId"      dc:"发起任务的用户ID"`
 	Channel       string      `json:"channel"       dc:"频道地址"`
+	TaskName      string      `json:"taskName"      dc:"任务名称"`
 	DayCount      int         `json:"dayCount"      dc:"持续天数"`
 	FansCount     int         `json:"fansCount"     dc:"涨粉数量"`
 	CronStatus    int         `json:"cronStatus"    dc:"任务状态：0终止，1正在执行，2完成"`
