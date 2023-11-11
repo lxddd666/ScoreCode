@@ -1369,8 +1369,8 @@ func (s *sTgArts) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncre
 				sleepTime := randomSleepTime(averageSleepTime)
 				//fmt.Printf(g.I18n().T(ctx, "{#Sleep}"+
 				fmt.Println("休眠:", sleepTime, "秒;"+"休眠：", sleepTime/60, "分钟;休眠：", sleepTime/3600, "小时")
-				//time.Sleep(time.Duration(sleepTime) * time.Second)
-				time.Sleep(5 * time.Second)
+				time.Sleep(time.Duration(sleepTime) * time.Second)
+				//time.Sleep(5 * time.Second)
 
 				if todayFollowerCount >= todayFollowerTarget {
 					break
