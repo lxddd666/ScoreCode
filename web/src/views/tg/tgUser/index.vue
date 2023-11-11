@@ -174,7 +174,9 @@ import {usePermission} from '@/hooks/web/usePermission';
 import {
   Delete,
   Export,
-  List, TgBathLogin, TgBathLogout,
+  List,
+  TgBathLogin,
+  TgBathLogout,
   TgBindMember,
   TgBindProxy,
   TgUnBindMember,
@@ -185,8 +187,8 @@ import {
   DeleteOutlined,
   ExportOutlined,
   LoginOutlined,
-  PlusOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  PlusOutlined
 } from '@vicons/antd';
 import {useRouter} from 'vue-router';
 import Edit from './edit.vue';
@@ -216,6 +218,11 @@ const actionColumn = reactive({
     return h(TableAction as any, {
       style: 'button',
       actions: [
+        {
+          label: '聊天室',
+          onClick: handleChat.bind(null, record),
+          auth: ['/arts/batchLogin'],
+        },
         {
           label: '编辑',
           onClick: handleEdit.bind(null, record),
@@ -279,6 +286,10 @@ function handleView(record: Recordable) {
 function handleEdit(record: Recordable) {
   showModal.value = true;
   formParams.value = newState(record as State);
+}
+
+function handleChat(record: Recordable) {
+  router.push({name: 'tgChat', params: {id: record.id}});
 }
 
 function handleDelete(record: Recordable) {

@@ -30,7 +30,7 @@ func (q *qTgMsg) Handle(ctx context.Context, mqMsg queue.MqMsg) (err error) {
 	if err != nil {
 		return
 	}
-	var textMsgList []callback.MsgCallbackRes
+	var textMsgList []callback.TgMsgCallbackRes
 	err = gjson.DecodeTo(imCallback.Data, &textMsgList)
 	if err != nil {
 		return

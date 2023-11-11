@@ -1,12 +1,12 @@
 package artsin
 
-import "context"
+import (
+	"context"
+	"hotgo/internal/model/entity"
+)
 
 type LoginModel struct {
-	Status  int    `json:"status" dc:"状态"`
-	ReqId   string `json:"reqId" dc:"请求ID"`
-	Account uint64 `json:"account" dc:"IM账号"`
-	Phone   uint64 `json:"phone" dc:"手机号"`
+	*entity.TgUser
 }
 
 type SendCodeInp struct {

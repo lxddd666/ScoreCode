@@ -68,6 +68,5 @@
   "SearchChannelEmpty": "查無該頻道，請輸入有效頻道地址",
   "VerifyChannelAddressErr": "請寫出完整有效的地址",
   "CheckChannelMemberCount": "請先校驗頻道人數再進行操作…."
-
-
+  "DeleteAccount": "用戶已刪除"
 }

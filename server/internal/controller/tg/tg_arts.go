@@ -3,6 +3,7 @@ package tg
 import (
 	"context"
 	tgarts "hotgo/api/tg/tg_arts"
+	"hotgo/internal/model/entity"
 	"hotgo/internal/service"
 )
 
@@ -14,9 +15,13 @@ type cTgArts struct{}
 
 // Login 登录账号
 func (c *cTgArts) Login(ctx context.Context, req *tgarts.TgLoginReq) (res *tgarts.TgLoginRes, err error) {
-	result, err := service.TgArts().CodeLogin(ctx, req.Phone)
+	var tgUser *entity.TgUser
+	err = service.TgUser().Model(ctx).WherePri(req.Id).Scan(&tgUser)
+	if err != nil {
+		return
+	}
 	res = new(tgarts.TgLoginRes)
-	res.LoginModel = result
+	res.TgUser, err = service.TgArts().SingleLogin(ctx, tgUser)
 	return
 }
 

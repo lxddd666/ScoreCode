@@ -6,6 +6,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -309,8 +310,8 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 }
 
 // SingleLogin 单独登录
-func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
-
+func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (result *entity.TgUser, err error) {
+	result = tgUser
 	if s.isLogin(ctx, tgUser) {
 		return
 	}
@@ -347,6 +348,7 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (err e
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
+	_ = gjson.DecodeTo(resp.Data, &result)
 	fmt.Println(resp)
 	return
 }
@@ -457,6 +459,14 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgi
 		return
 	}
 	err = gjson.DecodeTo(resp.Data, &list)
+	if err != nil {
+		return
+	}
+	for _, item := range list {
+		if item.Deleted {
+			item.FirstName = g.I18n().T(ctx, "{#DeleteAccount}")
+		}
+	}
 	return
 }
 
@@ -501,6 +511,25 @@ func (s *sTgArts) handlerSaveContacts(ctx context.Context, account uint64, list 
 
 // TgGetMsgHistory 获取聊天历史
 func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
+	var (
+		tgUser *entity.TgUser
+	)
+	err = service.TgUser().Model(ctx).Where(do.TgUser{Phone: inp.Account}).Scan(&tgUser)
+	if err != nil {
+		return
+	}
+	err = service.TgMsg().Model(ctx).OrderDesc(dao.TgMsg.Columns().ReqId).
+		Where(do.TgMsg{TgId: tgUser.TgId, ChatId: inp.Contact}).
+		OrderDesc(dao.TgMsg.Columns().ReqId).
+		Scan(&list)
+	if err != nil {
+		return
+	}
+	if len(list) > 0 {
+		if list[0].ReqId == inp.OffsetID-1 {
+			return
+		}
+	}
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
@@ -527,6 +556,9 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 		return
 	}
 	err = gjson.DecodeTo(resp.Data, &list)
+	for _, item := range list {
+		item.SendMsg = gbase64.MustDecodeToString(item.SendMsg)
+	}
 	if err == nil {
 		simple.SafeGo(gctx.New(), func(ctx context.Context) {
 			s.handlerSaveMsg(ctx, resp.Data)
@@ -537,7 +569,7 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 }
 
 func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
-	var list []callback.MsgCallbackRes
+	var list []callback.TgMsgCallbackRes
 	_ = gjson.DecodeTo(data, &list)
 	_ = service.TgMsg().MsgCallback(ctx, list)
 }

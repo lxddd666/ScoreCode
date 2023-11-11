@@ -69,5 +69,5 @@
   "KeepAccountErr" :"Failed to cultivate account",
   "VerifyChannelAddressErr": "Please provide a complete and valid address",
   "CheckChannelMemberCount": "Please verify the number of channels before proceeding with the operation"
-
+  "DeleteAccount": "Delete Account"
 }
