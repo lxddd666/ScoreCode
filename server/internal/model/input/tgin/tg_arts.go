@@ -97,9 +97,9 @@ type TgUpdateUserInfoInp struct {
 	Photo     artsin.FileMsg `json:"photo"      dc:"photo"`
 }
 
-type TgUpdateUserInfoBatchInp struct {
-	Accounts []uint64 `json:"accounts"     dc:"电话"`
-	Ids      []uint64 `json:"ids"          dc:"id号"`
+type TgGetUserAvatarInp struct {
+	Account uint64 `json:"account"     dc:"电话"`
+	GetUser uint64 `json:"getUser"     dc:"获取头像的用户"`
 }
 
 type OnlineAccountInp struct {
@@ -108,4 +108,24 @@ type OnlineAccountInp struct {
 	FirstName string `json:"firstName"     description:"First Name"`
 	LastName  string `json:"lastName"      description:"Last Name"`
 	Phone     string `json:"phone"         description:"手机号"`
+}
+
+type TgGetSearchInfoInp struct {
+	Sender uint64 `json:"sender"          description:"搜索人"`
+	Search string `json:"search"          description:"搜索内容"`
+}
+
+type TgGetSearchInfoModel struct {
+	TgId               int64  `json:"tgId"                    description:"tg id"`
+	Username           string `json:"username"                description:"用户名称"`
+	FirstName          string `json:"firstName"               description:"firsName"`
+	LastName           string `json:"lastName"                description:"lastName"`
+	ChannelId          int64  `json:"channelId"               description:"频道ID"`
+	ChannelAccessHash  int64  `json:"channelAccessHash"       description:"频道hash"`
+	ChannelTitle       string `json:"channelTitle"            description:"频道名称" `
+	ChannelUserName    string `json:"channelUserName"         description:"频道用户名称"`
+	ChannelMemberCount int    `json:"channelMemberCount"      description:"频道成员数量"`
+	ChatId             int64  `json:"chatId"                  description:"chatId"`
+	ChatTitle          string `json:"chatTitle"               description:"chatTitle"`
+	ChatMemberCount    int    `json:"chatMemberCount"         description:"chatTitle"`
 }

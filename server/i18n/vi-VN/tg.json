@@ -61,5 +61,13 @@
   "ObtainAccountFailed": "Không nhận được một tài khoản",
   "ObtainWordsFailed": "Không có được từ",
   "ExecuteNourishingTask": "Thực hiện nhiệm vụ số nuôi dưỡng",
-  "AccountAddChannel": "Tài khoản này đã tham gia kênh"
+  "AccountAddChannel": "Tài khoản này đã tham gia kênh",
+  "SearchInfoEmpty": "Truy vấn Phần tử này có thông tin trống, vui lòng xác minh phần tử truy vấn",
+  "SearchChannelInfoFail" :"Thông tin không phải là kênh",
+  "GetUserIdIsEmpty" :"Nhận user id rỗng",
+  "KeepAccountErr" :"Tài khoản phát triển thất bại",
+  "SearchChannelEmpty": "Không tìm thấy kênh, vui lòng nhập địa chỉ kênh hợp lệ",
+  "VerifyChannelAddressErr": "Vui lòng viết địa chỉ đầy đủ và hợp lệ",
+  "CheckChannelMemberCount": "Xin vui lòng kiểm tra số lượng kênh trước khi tiến hành thao tác"
+
 }

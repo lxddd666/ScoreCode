@@ -7,6 +7,7 @@ package service
 
 import (
 	"context"
+
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
@@ -172,26 +173,59 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
+		// TgIncreaseFansToChannel 频道涨粉
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
-		// TgUpdateUserInfoBatch 批量修改用户信息
-		TgUpdateUserInfoBatch(ctx context.Context, inp *tgin.TgUpdateUserInfoBatchInp) (err error)
-		// TgIncreaseFansToChannel2 添加频道粉丝数定时任务
-		TgIncreaseFansToChannel2(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
-		IncreaseFanAction(ctx context.Context, fan *tgin.TgUserListModel, cron entity.TgIncreaseFansCron, takeName string, channel string) (loginErr error, joinChannelErr error)
-		IncreaseFanActionRetry(ctx context.Context, list []*tgin.TgUserListModel, cron entity.TgIncreaseFansCron, taskName string, channel string) (error, bool)
-		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
-		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		// TgGetUserAvater 获取用户头像
+		TgGetUserAvater(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgDownloadMsgModel, err error)
+		// TgGetUserAvater 获取用户头像
+		TgGetSearchInfo(ctx context.Context, req *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
+	}
+
+	ITgIncreaseFansCron interface {
+		// Model TG频道涨粉任务ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG频道涨粉任务列表
+		List(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (list []*tgin.TgIncreaseFansCronListModel, totalCount int, err error)
+		// Export 导出TG频道涨粉任务
+		Export(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (err error)
+		// Edit 修改/新增TG频道涨粉任务
+		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
+		// Delete 删除TG频道涨粉任务
+		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronDeleteInp) (err error)
+		// View 获取TG频道涨粉任务指定信息
+		View(ctx context.Context, in *tgin.TgIncreaseFansCronViewInp) (res *tgin.TgIncreaseFansCronViewModel, err error)
+		// CheckChannel 获取检查频道是否可用
+		CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error)
+		// ChannelIncreaseFanDetail 详情
+		ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, totalDay int, err error)
+	}
+	ITgIncreaseFansCronAction interface {
+		// Model TG频道涨粉任务执行情况ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG频道涨粉任务执行情况列表
+		List(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (list []*tgin.TgIncreaseFansCronActionListModel, totalCount int, err error)
+		// Export 导出TG频道涨粉任务执行情况
+		Export(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (err error)
+		// Edit 修改/新增TG频道涨粉任务执行情况
+		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronActionEditInp) (err error)
+		// Delete 删除TG频道涨粉任务执行情况
+		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronActionDeleteInp) (err error)
+		// View 获取TG频道涨粉任务执行情况指定信息
+		View(ctx context.Context, in *tgin.TgIncreaseFansCronActionViewInp) (res *tgin.TgIncreaseFansCronActionViewModel, err error)
 	}
 )
 
 var (
-	localTgMsg      ITgMsg
-	localTgProxy    ITgProxy
-	localTgUser     ITgUser
-	localTgArts     ITgArts
-	localTgContacts ITgContacts
-	localTgKeepTask ITgKeepTask
+	localTgMsg                    ITgMsg
+	localTgProxy                  ITgProxy
+	localTgUser                   ITgUser
+	localTgArts                   ITgArts
+	localTgContacts               ITgContacts
+	localTgIncreaseFansCronAction ITgIncreaseFansCronAction
+	localTgIncreaseFansCron       ITgIncreaseFansCron
+	localTgKeepTask               ITgKeepTask
 )
 
 func TgProxy() ITgProxy {
@@ -258,4 +292,26 @@ func TgMsg() ITgMsg {
 
 func RegisterTgMsg(i ITgMsg) {
 	localTgMsg = i
+}
+
+func TgIncreaseFansCron() ITgIncreaseFansCron {
+	if localTgIncreaseFansCron == nil {
+		panic("implement not found for interface IOrgTgIncreaseFansCron, forgot register?")
+	}
+	return localTgIncreaseFansCron
+}
+
+func RegisterOrgTgIncreaseFansCron(i ITgIncreaseFansCron) {
+	localTgIncreaseFansCron = i
+}
+
+func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
+	if localTgIncreaseFansCronAction == nil {
+		panic("implement not found for interface IOrgTgIncreaseFansCronAction, forgot register?")
+	}
+	return localTgIncreaseFansCronAction
+}
+
+func RegisterOrgTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
+	localTgIncreaseFansCronAction = i
 }

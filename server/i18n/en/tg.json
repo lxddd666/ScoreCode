@@ -61,5 +61,13 @@
   "ObtainAccountFailed": "Failure to get an account",
   "ObtainWordsFailed": "Failure to obtain words",
   "ExecuteNourishingTask": "Execute the Nourishing Number Mission",
-  "AccountAddChannel": "This account has already joined the channel"
+  "AccountAddChannel": "This account has already joined the channel",
+  "SearchInfoEmpty": "The information of this element is empty. Please verify the query element",
+  "SearchChannelEmpty": "No such channel found. Please enter a valid channel address",
+  "SearchChannelInfoFail" : "The information found is not a channel",
+  "GetUserIdIsEmpty" :"Obtain user id as empty",
+  "KeepAccountErr" :"Failed to cultivate account",
+  "VerifyChannelAddressErr": "Please provide a complete and valid address",
+  "CheckChannelMemberCount": "Please verify the number of channels before proceeding with the operation"
+
 }
