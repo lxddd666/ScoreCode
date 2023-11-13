@@ -348,7 +348,12 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
-	_ = gjson.DecodeTo(resp.Data, &result)
+	if err != nil {
+		return
+	}
+	if resp != nil {
+		_ = gjson.DecodeTo(resp.Data, &result)
+	}
 	fmt.Println(resp)
 	return
 }
@@ -1025,8 +1030,17 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cro
 
 	// 登录
 	//_, loginErr = s.CodeLogin(ctx, gconv.Uint64(fan.Phone))
-	_, loginErr = s.SingleLogin(ctx, fan)
+	loginRes, loginErr := s.SingleLogin(ctx, fan)
+
 	if loginErr != nil {
+		data.JoinStatus = 2
+		data.Comment = "login:" + loginErr.Error()
+		_, _ = model.Data(data).Insert()
+		resMap[fan.Phone] = 2
+		return
+	}
+	if loginRes.AccountStatus != 0 {
+		loginErr = gerror.New(g.I18n().T(ctx, "{#LogFailed}"))
 		data.JoinStatus = 2
 		data.Comment = "login:" + loginErr.Error()
 		_, _ = model.Data(data).Insert()
@@ -1049,7 +1063,7 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cro
 		loginErr = err
 		return
 	}
-	fmt.Println(err)
+
 	time.Sleep(3 * time.Second)
 
 	// 加入频道

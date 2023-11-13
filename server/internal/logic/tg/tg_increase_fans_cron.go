@@ -259,6 +259,39 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 	return
 }
 
+// RestartCronApplication 重启后执行定时任务
+func (s *sTgIncreaseFansCron) RestartCronApplication(ctx context.Context) (err error) {
+
+	list := make([]*tgin.TgIncreaseFansCronListModel, 0)
+	mod := s.Model(ctx).Where(dao.TgIncreaseFansCron.Columns().CronStatus, 0)
+	totalCount, err := mod.Clone().Count()
+	if err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCountError}"))
+		return
+	}
+
+	if totalCount == 0 {
+		return
+	}
+	err = mod.Fields(tgin.TgIncreaseFansCronListModel{}).Scan(&list)
+	if err != nil {
+		return
+	}
+	// 启动任务
+	for _, task := range list {
+		inp := &tgin.TgIncreaseFansCronInp{
+			Channel:   task.Channel,
+			TaskName:  task.TaskName,
+			FansCount: task.FansCount,
+			DayCount:  task.DayCount,
+		}
+		_, _ = service.TgArts().TgIncreaseFansToChannel(ctx, inp)
+		time.Sleep(1 * time.Second)
+	}
+
+	return
+}
+
 func (s *sTgIncreaseFansCron) getOneOnlineAccount(ctx context.Context) (uint64, error) {
 	i := 0
 	flag := true
