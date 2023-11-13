@@ -14,12 +14,21 @@ import (
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
+	"math/rand"
 	"time"
 )
 
 const (
-	getContentUrl = "https://v1.jinrishici.com/all.txt"
-	getPhotoUrl   = "https://api.vvhan.com/api/avatar"
+	getContentUrl  = "https://v1.jinrishici.com/all.txt"
+	getContentUrl2 = "https://api.oick.cn/dutang/api.php"
+	getContentUrl3 = "https://api.oick.cn/yulu/api.php"
+
+	getPhotoUrl  = "https://api.vvhan.com/api/avatar"
+	getPhotoUrl2 = "https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images" // 二次元
+	getPhotoUrl3 = "https://imgapi.xl0408.top/index.php"
+	getPhotoUrl4 = "https://source.unsplash.com/random"
+	IMAGE        = "image"
+	TEXT         = "text"
 )
 
 var actions = &actionsManager{
@@ -126,7 +135,11 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		return
 	}
 	//修改签名
-	bio := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
+	url := RandUrl(TEXT)
+	if url == "" {
+		return
+	}
+	bio := g.Client().Discovery(nil).GetContent(ctx, url)
 	for _, user := range tgUserList {
 		err = beforeLogin(ctx, user)
 		if err != nil {
@@ -232,7 +245,11 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			g.Log().Error(ctx, err)
 			continue
 		}
-		avatar := g.Client().Discovery(nil).GetBytes(ctx, getPhotoUrl)
+		url := RandUrl(IMAGE)
+		if url == "" {
+			return
+		}
+		avatar := g.Client().Discovery(nil).GetBytes(ctx, url)
 		mime := mimetype.Detect(avatar)
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account: gconv.Uint64(user.Phone),
@@ -249,4 +266,22 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		time.Sleep(1 * time.Second)
 	}
 	return err
+}
+
+func RandUrl(urlType string) (url string) {
+	photoList := []string{getPhotoUrl, getPhotoUrl2, getPhotoUrl3, getPhotoUrl4}
+	TextList := []string{getContentUrl, getContentUrl2, getContentUrl3}
+
+	if urlType == IMAGE {
+		index := rand.Intn(len(photoList))
+		url = photoList[index]
+		return
+	}
+	if urlType == TEXT {
+		index := rand.Intn(len(TextList))
+		url = TextList[index]
+		return
+	}
+
+	return
 }
