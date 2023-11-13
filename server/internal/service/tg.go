@@ -218,14 +218,14 @@ type (
 )
 
 var (
-	localTgArts                   ITgArts
-	localTgContacts               ITgContacts
-	localTgKeepTask               ITgKeepTask
-	localTgMsg                    ITgMsg
 	localTgProxy                  ITgProxy
 	localTgUser                   ITgUser
-	localTgIncreaseFansCronAction ITgIncreaseFansCronAction
+	localTgArts                   ITgArts
+	localTgContacts               ITgContacts
 	localTgIncreaseFansCron       ITgIncreaseFansCron
+	localTgIncreaseFansCronAction ITgIncreaseFansCronAction
+	localTgKeepTask               ITgKeepTask
+	localTgMsg                    ITgMsg
 )
 
 func TgKeepTask() ITgKeepTask {

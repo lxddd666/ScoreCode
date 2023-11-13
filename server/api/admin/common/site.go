@@ -141,5 +141,6 @@ type SendHtmlEmailReq struct {
 	g.Meta  `path:"/site/sendHtml" tags:"后台基础" method:"post" summary:"发送自定义邮件"`
 	To      string `json:"to" v:"required#ReceiverMailNotEmpty" dc:"接收者邮件，多个用;隔开"`
 	Key     string `json:"key" v:"required#SignatureError" dc:"验签Key"`
+	Title   string `json:"title" dc:"自定义标题，为空时实用默认标题"`
 	Content string `json:"content" v:"required#MailContentNotEmpty" dc:"邮件内容"`
 }

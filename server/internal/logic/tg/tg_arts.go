@@ -1217,15 +1217,6 @@ func removeCtrlPhone(resMap map[string]interface{}, list []*entity.TgUser) []*en
 		}
 		newList = append(newList, k)
 	}
-
-	// 打乱所有号顺序，随机
-	rand.Seed(time.Now().UnixNano())
-
-	// 使用rand包中的Shuffle函数打乱切片的顺序
-	rand.Shuffle(len(newList), func(i, j int) {
-		newList[i], newList[j] = newList[j], newList[i]
-	})
-
 	return newList
 }
 

@@ -33,7 +33,7 @@ func NewTgIncreaseFansCron() *sTgIncreaseFansCron {
 }
 
 func init() {
-	service.RegisterOrgTgIncreaseFansCron(NewTgIncreaseFansCron())
+	service.RegisterTgIncreaseFansCron(NewTgIncreaseFansCron())
 }
 
 // Model TG频道涨粉任务ORM模型
