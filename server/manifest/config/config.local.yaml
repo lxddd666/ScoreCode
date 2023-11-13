@@ -323,8 +323,8 @@ grpc:
   env:
     GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
-    GF_GSVC_DEPLOYMENT: xt23
-    GF_GSVC_NAMESPACE: xt23
+    GF_GSVC_DEPLOYMENT: test
+    GF_GSVC_NAMESPACE: test
     GF_GSVC_VERSION: "latest"
   service:
     arts: arts_manager
