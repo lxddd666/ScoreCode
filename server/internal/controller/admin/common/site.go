@@ -188,6 +188,7 @@ func (c *cSite) SendHtml(ctx context.Context, req *common.SendHtmlEmailReq) (res
 	err = service.SysEmsLog().Send(ctx, &sysin.SendEmsInp{
 		Event:   consts.EmsTemplateText,
 		Email:   req.To,
+		Title:   req.Title,
 		Content: req.Content,
 	})
 	return

@@ -59,6 +59,7 @@ type SendEmsInp struct {
 	Event    string `json:"event"  example:"register"  v:"required#EmailEventNotEmpty"    description:"事件：login、register、resetPwd"`
 	Email    string `json:"email"   v:"required#EmailAddressNotEmpty"   description:"邮箱地址"`
 	Code     string `json:"code"      description:"验证码或短信内容"`
+	Title    string `json:"title" description:"自定义标题，为空时实用默认标题"`
 	Content  string `json:"content"      description:"邮件内容"`
 	Template string `json:"-"         description:"发信模板"`
 	TplData  g.Map  `json:"-" description:"模板变量"`

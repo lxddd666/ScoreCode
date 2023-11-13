@@ -1025,7 +1025,7 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cro
 
 	// 登录
 	//_, loginErr = s.CodeLogin(ctx, gconv.Uint64(fan.Phone))
-	loginErr = s.SingleLogin(ctx, fan)
+	_, loginErr = s.SingleLogin(ctx, fan)
 	if loginErr != nil {
 		data.JoinStatus = 2
 		data.Comment = "login:" + loginErr.Error()

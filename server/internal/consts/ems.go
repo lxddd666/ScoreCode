@@ -25,7 +25,7 @@ const (
 )
 
 var EmsSubjectMap = g.MapStrStr{
-	EmsTemplateText:     "这是一封来自HotGo的邮件",
+	EmsTemplateText:     "这是一封来自Grata的邮件",
 	EmsTemplateCode:     "验证码",
 	EmsTemplateLogin:    "登录验证码",
 	EmsTemplateRegister: "注册验证码",

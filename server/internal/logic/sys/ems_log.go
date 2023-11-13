@@ -167,10 +167,13 @@ func (s *sSysEmsLog) Send(ctx context.Context, in *sysin.SendEmsInp) (err error)
 			return err
 		}
 	}
-
-	subject, ok := consts.EmsSubjectMap[in.Event]
-	if !ok {
-		subject = simple.AppName()
+	subject := in.Title
+	ok := false
+	if in.Title == "" {
+		subject, ok = consts.EmsSubjectMap[in.Event]
+		if !ok {
+			subject = simple.AppName()
+		}
 	}
 
 	err = ems.Send(config, in.Email, subject, in.Content)
