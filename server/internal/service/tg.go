@@ -301,7 +301,7 @@ func TgIncreaseFansCron() ITgIncreaseFansCron {
 	return localTgIncreaseFansCron
 }
 
-func RegisterOrgTgIncreaseFansCron(i ITgIncreaseFansCron) {
+func RegisterTgIncreaseFansCron(i ITgIncreaseFansCron) {
 	localTgIncreaseFansCron = i
 }
 
@@ -312,6 +312,6 @@ func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
 	return localTgIncreaseFansCronAction
 }
 
-func RegisterOrgTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
+func RegisterTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
 	localTgIncreaseFansCronAction = i
 }
