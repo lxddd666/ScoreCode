@@ -212,7 +212,7 @@ queue:
     address: "127.0.0.1:9876"                         # broker地址+端口
     logLevel: "all"                                   # 系统日志级别，可选：all|close|debug|info|warn|error|fatal
   kafka:
-    address: "101.35.51.132:30092"                    # kafka地址+端口
+    address: "10.8.5.21:9092"                    # kafka地址+端口
     version: "3.3.1"                                  # kafka专属配置，默认2.0.0.0
     randClient: true                                  # 开启随机生成clientID，可以实现启动多实例同时一起消费相同topic，加速消费能力的特性，默认为true
     multiConsumer: true                               # 是否支持创建多个消费者
@@ -221,7 +221,7 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "127.0.0.1:6379"
+    address: "10.8.5.21:6379"
     db: "2"
     pass: ""
     idleTimeout: "20"
@@ -230,7 +230,6 @@ redis:
 etcd:
   endpoints:
     - 10.8.5.21:2379
-#    - 127.0.0.1:2379
   username: ""
   password: ""
 
@@ -243,7 +242,6 @@ database:
     stStatus: 1
   default:
     link: "tidb:root:hY7iaIFYHHJu!@tcp(10.8.5.21:31060)/grata?loc=Local&parseTime=true"
-#    link: "tidb:root:hY7iaIFYHHJu!@tcp(103.205.6.236:32698)/grata?loc=Local&parseTime=true"
     debug: true
 
 
@@ -325,8 +323,8 @@ grpc:
   env:
     GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
-    GF_GSVC_DEPLOYMENT: xt23
-    GF_GSVC_NAMESPACE: xt23
+    GF_GSVC_DEPLOYMENT: test
+    GF_GSVC_NAMESPACE: test
     GF_GSVC_VERSION: "latest"
   service:
     arts: arts_manager

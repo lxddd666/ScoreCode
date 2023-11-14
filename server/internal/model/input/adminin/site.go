@@ -56,6 +56,8 @@ type RegisterCodeInp struct {
 type LoginModel struct {
 	Id       int64  `json:"id"              dc:"用户ID"`
 	Username string `json:"username"        dc:"用户名"`
+	Email    string `json:"email"           dc:"邮箱"`
+	Mobile   string `json:"mobile"          dc:"手机"`
 	Token    string `json:"token"           dc:"登录token"`
 	Expires  int64  `json:"expires"         dc:"登录有效期"`
 }
