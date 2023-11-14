@@ -67,6 +67,9 @@
   "KeepAccountErr" :"培養帳號失敗",
   "SearchChannelEmpty": "查無該頻道，請輸入有效頻道地址",
   "VerifyChannelAddressErr": "請寫出完整有效的地址",
-  "CheckChannelMemberCount": "請先校驗頻道人數再進行操作…."
-  "DeleteAccount": "用戶已刪除"
+  "CheckChannelMemberCount": "請先校驗頻道人數再進行操作….",
+  "DeleteAccount": "用戶已刪除",
+  "GetHistoryNil": "獲取歷史記錄為空",
+  "ChannelMsgIsEmpty": "頻道消息為空，不能進行漲粉操作"
+
 }

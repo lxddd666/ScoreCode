@@ -3,6 +3,7 @@ package tg
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
@@ -11,6 +12,7 @@ import (
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/tgin"
+	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
@@ -308,17 +310,166 @@ func (s *sTgIncreaseFansCron) getOneOnlineAccount(ctx context.Context) (uint64, 
 			continue
 		}
 		// 检查是否登录
-		_, err = service.TgArts().CodeLogin(ctx, gconv.Uint64(in.Phone))
+		res, err := service.TgArts().SingleLogin(ctx, &in)
 		if err != nil {
 			g.Redis().SAdd(ctx, consts.TgLoginErrAccount, in.Phone)
 			time.Sleep(2 * time.Second)
 			i++
 			continue
 		}
-		flag = false
-		return gconv.Uint64(in.Phone), err
+		if res.AccountStatus == int(protobuf.AccountStatus_SUCCESS) {
+			flag = false
+			return gconv.Uint64(in.Phone), err
+		}
 	}
 	return 0, gerror.New("获取信息失败")
+}
+
+func emojiToChannelMessages(ctx context.Context, account uint64, channelId string) (err error, msgFlag bool) {
+	msgFlag = true
+	// 加入后先获取会话列表
+	_, err = service.TgArts().TgGetDialogs(ctx, account)
+	if err != nil {
+		return
+	}
+
+	// 获取频道历史记录
+	msgList := make([]uint64, 0)
+	hList, historyErr := service.TgArts().TgGetMsgHistory(ctx, &tgin.TgGetMsgHistoryInp{Account: account, Contact: channelId, OffsetID: 0, Limit: 20})
+	if historyErr != nil {
+		err = historyErr
+		msgFlag = false
+		return
+	}
+	if len(hList) == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#GetHistoryNil}"))
+		msgFlag = false
+		return
+	}
+	i := 0
+	for _, h := range hList {
+		if h.SendMsg != "" {
+			msgList = append(msgList, gconv.Uint64(h.ReqId))
+			i++
+		}
+		if i >= 20 {
+			break
+		}
+	}
+	//截取前20个
+	if len(msgList) == 0 {
+		err = gerror.New("")
+		msgFlag = false
+		return
+	}
+	// 50%概率执行以下操作
+	if randomTrigger() {
+
+		// 点赞
+		emojiList := []string{"❤", "👍", "💔", "🤮", "👌", "🤣", "👏", "😱"}
+
+		randomMsgId := randomSelect(msgList)
+		// 随机获取 表情
+
+		// 还有一步，channel消息已读
+
+		emoji := getRandomElement(emojiList)
+		err = service.TgArts().TgSendReaction(ctx, &tgin.TgSendReactionInp{Account: account, ChatId: gconv.Int64(channelId), MsgIds: randomMsgId, Emoticon: emoji})
+		if err != nil {
+			return
+		}
+		return
+	}
+	return
+}
+
+func getRandomElement(list []string) string {
+	rand.Seed(time.Now().UnixNano())
+	index := rand.Intn(len(list))
+	return list[index]
+}
+
+func randomSelect(items []uint64) []uint64 {
+	count := 1 // 生成1到4之间的随机数，表示要选择的元素个数
+	if len(items) >= 10 {
+		count = rand.Intn(4) + 1 // 生成1到4之间的随机数，表示要选择的元素个数
+	} else if len(items) > 5 {
+		count = rand.Intn(3) + 1 // 生成1到3之间的随机数，表示要选择的元素个数
+	} else if len(items) >= 4 {
+		count = rand.Intn(2) + 1 // 1-2个
+	}
+
+	// 计算每个元素的权重（与位置成反比）
+	weights := make([]float64, len(items))
+	totalWeight := 0.0
+	for i := 0; i < len(items); i++ {
+		weights[i] = 1.0 / float64(i+1)
+		totalWeight += weights[i]
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(items), func(i, j int) {
+		items[i], items[j] = items[j], items[i] // 随机排列索引顺序
+	})
+
+	selectedItems := make([]uint64, 0, count)
+	selectedIndexes := make(map[int]bool)
+
+	for _, item := range items {
+		if len(selectedItems) == count {
+			break
+		}
+
+		index := getIndex(items, item)
+		if !selectedIndexes[index] {
+			selectedItems = append(selectedItems, item)
+			selectedIndexes[index] = true
+		}
+	}
+
+	return selectedItems
+}
+
+func getIndex(items []uint64, target uint64) int {
+	for i, item := range items {
+		if item == target {
+			return i
+		}
+	}
+	return -1
+}
+
+func getAllEmojiList(ctx context.Context, account uint64) (err error, emojiList []string) {
+	standbyList := []string{"❤", "👍", "💔", "👎", "🤮", "👌", "🤣", "👏"}
+
+	all, err := g.Redis().HGetAll(ctx, consts.TgGetEmoJiList)
+	if err != nil || all.IsEmpty() {
+		resp, redisErr := service.TgArts().TgGetEmojiGroup(ctx, &tgin.TgGetEmojiGroupInp{Account: account})
+		if redisErr != nil || len(resp) == 0 {
+			// 获取报错将备用的给他
+			err = redisErr
+			emojiList = standbyList
+			return
+		}
+		for _, emoJilTypes := range resp {
+			emojiList = append(emojiList, emoJilTypes.Emoticons...)
+		}
+		return
+	}
+
+	for _, v := range all.Map() {
+		str, ok := v.(string)
+		if ok {
+			var slice []string
+			err = gjson.DecodeTo([]byte(str), &slice)
+			if err != nil {
+				emojiList = standbyList
+				return
+			}
+			emojiList = append(emojiList, slice...)
+		}
+	}
+	return
 }
 
 func solveEquation(initialFans, targetFans, days int) float64 {
@@ -346,6 +497,20 @@ func calculateDailyGrowth(initialFans int, days int, growthPercentage float64) (
 	total = initialFans
 
 	return
+}
+
+// 50%概率执行
+func randomTrigger() bool {
+	rand.Seed(time.Now().UnixNano())
+
+	randomNumber := rand.Float64()
+	if randomNumber < 0.5 {
+		// 执行操作
+		return true
+	} else {
+		// 不执行操作
+		return false
+	}
 }
 
 func TgChannelJoinByLink_Test(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) error {
