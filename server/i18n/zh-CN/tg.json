@@ -68,6 +68,9 @@
   "KeepAccountErr" :"培养账号失败",
   "SearchChannelEmpty": "查无该频道，请输入有效频道地址",
   "VerifyChannelAddressErr": "请写出完整有效的地址",
-  "CheckChannelMemberCount": "请先校验频道人数再进行操作...."
-  "DeleteAccount": "用户已删除"
+  "CheckChannelMemberCount": "请先校验频道人数再进行操作....",
+  "DeleteAccount": "用户已删除",
+  "GetHistoryNil": "获取历史记录为空",
+  "ChannelMsgIsEmpty": "频道消息为空，不能进行涨粉操作"
+
 }

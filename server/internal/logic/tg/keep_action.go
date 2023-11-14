@@ -22,11 +22,14 @@ const (
 	getContentUrl  = "https://v1.jinrishici.com/all.txt"
 	getContentUrl2 = "https://api.oick.cn/dutang/api.php"
 	getContentUrl3 = "https://api.oick.cn/yulu/api.php"
+	getContentUrl4 = "https://api.likepoems.com/ana/yiyan/"
+	getContentUrl5 = "https://api.likepoems.com/ana/dujitang/"
 
 	getPhotoUrl  = "https://api.vvhan.com/api/avatar"
 	getPhotoUrl2 = "https://api.btstu.cn/sjbz/api.php?lx=dongman&format=images" // 二次元
 	getPhotoUrl3 = "https://imgapi.xl0408.top/index.php"
 	getPhotoUrl4 = "https://source.unsplash.com/random"
+	getPhotoUrl5 = "https://www.loliapi.com/acg/pp/"
 	IMAGE        = "image"
 	TEXT         = "text"
 )
@@ -269,8 +272,8 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 }
 
 func RandUrl(urlType string) (url string) {
-	photoList := []string{getPhotoUrl, getPhotoUrl2, getPhotoUrl3, getPhotoUrl4}
-	TextList := []string{getContentUrl, getContentUrl2, getContentUrl3}
+	photoList := []string{getPhotoUrl, getPhotoUrl2, getPhotoUrl3, getPhotoUrl4, getPhotoUrl5}
+	TextList := []string{getContentUrl, getContentUrl2, getContentUrl3, getContentUrl4, getContentUrl5}
 
 	if urlType == IMAGE {
 		index := rand.Intn(len(photoList))

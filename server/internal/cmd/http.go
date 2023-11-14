@@ -102,9 +102,6 @@ var (
 			// 加载ip访问黑名单
 			service.SysBlacklist().Load(ctx)
 
-			// 启动执行定涨粉
-			//_ = service.TgIncreaseFansCron().RestartCronApplication(ctx)
-
 			// 注册支付成功回调方法
 			payment.RegisterNotifyCallMap(map[string]payment.NotifyCallFunc{
 				consts.OrderGroupAdminOrder: service.AdminOrder().PayNotify, // 后台充值订单

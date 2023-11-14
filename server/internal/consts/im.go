@@ -25,6 +25,7 @@ const (
 	TgLoginPorts                 = "tg_login_ports"
 	TgIncreaseFansKey            = "tg_increase_fans_key:"
 	TgLoginErrAccount            = "tg_login_err_account"
+	TgGetEmoJiList               = "tg_get_emoji_list"
 )
 
 const (

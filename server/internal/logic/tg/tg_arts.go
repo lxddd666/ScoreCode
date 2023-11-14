@@ -827,7 +827,25 @@ func (s *sTgArts) TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroup
 		return
 	}
 	err = gjson.DecodeTo(resp.Data, &res)
+	if len(res) > 0 {
+		_ = setEmoJiToRedis(ctx, res)
+	}
 	return
+}
+
+func setEmoJiToRedis(ctx context.Context, res []*tgin.TgGetEmojiGroupModel) error {
+	for _, emoji := range res {
+		flag, err := g.Redis().HExists(ctx, consts.TgGetEmoJiList, emoji.Title)
+		if err != nil {
+			return err
+		}
+		if flag != 1 {
+			m := make(map[string]interface{})
+			m[emoji.Title] = emoji.Emoticons
+			_, _ = g.Redis().HSet(ctx, consts.TgGetEmoJiList, m)
+		}
+	}
+	return nil
 }
 
 // TgSendReaction 发送消息动作
@@ -1004,7 +1022,7 @@ func (s *sTgArts) createIncreaseFanTask(ctx context.Context, user *model.Identit
 	return
 }
 
-func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string) (loginErr error, joinChannelErr error) {
+func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error) {
 	resMap := make(map[string]interface{})
 
 	model := g.Model(dao.TgIncreaseFansCronAction.Table())
@@ -1039,7 +1057,7 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cro
 		resMap[fan.Phone] = 2
 		return
 	}
-	if loginRes.AccountStatus != 0 {
+	if loginRes.AccountStatus != int(protobuf.AccountStatus_SUCCESS) {
 		loginErr = gerror.New(g.I18n().T(ctx, "{#LogFailed}"))
 		data.JoinStatus = 2
 		data.Comment = "login:" + loginErr.Error()
@@ -1070,8 +1088,8 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cro
 	fl := &tgin.TgChannelJoinByLinkInp{}
 	fl.Link = []string{cron.Channel}
 	fl.Account = gconv.Uint64(fan.Phone)
+
 	joinChannelErr = s.TgChannelJoinByLink(ctx, fl)
-	//joinChannelErr = TgChannelJoinByLink_Test(ctx, fl)
 	if joinChannelErr != nil {
 		if joinChannelErr.Error() == consts.TG_NOT_LOGGED_IN {
 			// 未登录,不属于channel问题报错
@@ -1084,6 +1102,19 @@ func (s *sTgArts) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cro
 		return nil, joinChannelErr
 	}
 	fmt.Println(g.I18n().T(ctx, "{#AddChannelSuccess}") + fan.Phone)
+
+	err, msgFlag := emojiToChannelMessages(ctx, gconv.Uint64(fan.Phone), channelId)
+	if msgFlag == false {
+		data.Comment = "Channel message is empty, unable to generate followers"
+		data.JoinStatus = 1
+		resMap[fan.Phone] = 1
+		_, _ = model.Data(data).Insert()
+		joinChannelErr = gerror.New(g.I18n().T(ctx, "{#ChannelMsgIsEmpty}"))
+	}
+	if err != nil {
+		data.Comment = err.Error()
+	}
+
 	data.JoinStatus = 1
 	resMap[fan.Phone] = 1
 	_, _ = model.Data(data).Insert()
@@ -1119,10 +1150,13 @@ func (s *sTgArts) createKeepTask(ctx context.Context, takeName string, account s
 		if err != nil {
 			return
 		}
-		err = RandBio(ctx, &en)
-		if err != nil {
-			return
+		if randomTrigger() {
+			err = RandBio(ctx, &en)
+			if err != nil {
+				return
+			}
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 	if fan.FirstName == "" || fan.LastName == "" {
@@ -1132,39 +1166,31 @@ func (s *sTgArts) createKeepTask(ctx context.Context, takeName string, account s
 		}
 		time.Sleep(2 * time.Second)
 	}
-	if fan.Photo == "" {
-		err = RandPhoto(ctx, &en)
-		if err != nil {
-			return
+	if randomTrigger() {
+		if fan.Photo == "" {
+			err = RandPhoto(ctx, &en)
+			if err != nil {
+				return
+			}
 		}
 	}
 
-	//resultId, err := g.Model(dao.TgKeepTask.Table()).
-	//	Data(en).InsertAndGetId()
-	//if err != nil {
-	//	err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddNourishingTaskFailed}"))
-	//}
-	//// 执行一次
-	//err = service.TgKeepTask().Once(ctx, resultId)
-	//if err != nil {
-	//	return
-	//}
 	return
 }
 
-func (s *sTgArts) IncreaseFanActionRetry(ctx context.Context, list []*entity.TgUser, cron entity.TgIncreaseFansCron, taskName string, channel string) (error, bool) {
+func (s *sTgArts) IncreaseFanActionRetry(ctx context.Context, list []*entity.TgUser, cron entity.TgIncreaseFansCron, taskName string, channel string, channelId string) (error, bool) {
 	if len(list) == 0 {
 		// 所有账号都已尝试登录，退出递归
 		return gerror.New(g.I18n().T(ctx, "{#NoAccountAvailable}")), false
 	}
 	fan := list[0]
 	list = list[1:]
-	loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cron, taskName, channel)
+	loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cron, taskName, channel, channelId)
 	if joinErr != nil {
 		return joinErr, true
 	}
 	if loginErr != nil {
-		err, flag := s.IncreaseFanActionRetry(ctx, list, cron, taskName, channel)
+		err, flag := s.IncreaseFanActionRetry(ctx, list, cron, taskName, channel, channelId)
 		if !flag {
 			return err, flag
 		}
@@ -1217,6 +1243,14 @@ func removeCtrlPhone(resMap map[string]interface{}, list []*entity.TgUser) []*en
 		}
 		newList = append(newList, k)
 	}
+	// 设置随机数种子
+	rand.Seed(time.Now().UnixNano())
+
+	// 打乱切片元素的顺序
+	rand.Shuffle(len(newList), func(i, j int) {
+		newList[i], newList[j] = newList[j], newList[i]
+	})
+
 	return newList
 }
 
@@ -1389,7 +1423,7 @@ func (s *sTgArts) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncre
 			for _, fan := range list {
 
 				// 登录,加入频道
-				loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, inp.TaskName, inp.Channel)
+				loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, inp.TaskName, inp.Channel, gconv.String(channelModel.ChannelId))
 				if joinErr != nil {
 					// 输入的channel有问题
 					err = joinErr
@@ -1398,7 +1432,7 @@ func (s *sTgArts) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncre
 				if loginErr != nil {
 					// 重新获取一个账号登录,递归
 					list = list[1:]
-					err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, inp.TaskName, inp.Channel)
+					err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, inp.TaskName, inp.Channel, gconv.String(channelModel.ChannelId))
 					if err != nil {
 						break
 					}

@@ -68,6 +68,9 @@
   "KeepAccountErr" :"Tài khoản phát triển thất bại",
   "SearchChannelEmpty": "Không tìm thấy kênh, vui lòng nhập địa chỉ kênh hợp lệ",
   "VerifyChannelAddressErr": "Vui lòng viết địa chỉ đầy đủ và hợp lệ",
-  "CheckChannelMemberCount": "Xin vui lòng kiểm tra số lượng kênh trước khi tiến hành thao tác"
-  "DeleteAccount": "Delete Account"
+  "CheckChannelMemberCount": "Xin vui lòng kiểm tra số lượng kênh trước khi tiến hành thao tác",
+  "DeleteAccount": "Xóa tài khoản",
+  "GetHistoryNil": "Lấy lịch sử bằng không",
+  "ChannelMsgIsEmpty": "Tin nhắn kênh trống, không thể tăng fan."
+
 }
