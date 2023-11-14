@@ -293,6 +293,8 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 
 	res = new(adminin.LoginModel)
 	res.Id = mb.Id
+	res.Email = mb.Email
+	res.Mobile = mb.Mobile
 	res.Username = mb.Username
 	if mb.Salt == "" {
 		err = gerror.New(g.I18n().T(ctx, "{#UserInformationError}"))
@@ -331,6 +333,8 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 
 	res = new(adminin.LoginModel)
 	res.Id = mb.Id
+	res.Email = mb.Email
+	res.Mobile = mb.Mobile
 	res.Username = mb.Username
 
 	err = service.SysSmsLog().VerifyCode(ctx, &sysin.VerifyCodeInp{
@@ -371,6 +375,8 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 
 	res = new(adminin.LoginModel)
 	res.Id = mb.Id
+	res.Email = mb.Email
+	res.Mobile = mb.Mobile
 	res.Username = mb.Username
 
 	err = service.SysEmsLog().VerifyCode(ctx, &sysin.VerifyEmsCodeInp{
@@ -432,6 +438,8 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 
 	res = &adminin.LoginModel{
 		Username: user.Username,
+		Email:    mb.Email,
+		Mobile:   mb.Mobile,
 		Id:       user.Id,
 		Token:    lt,
 		Expires:  expires,
