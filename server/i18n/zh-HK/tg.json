@@ -70,6 +70,9 @@
   "CheckChannelMemberCount": "請先校驗頻道人數再進行操作….",
   "DeleteAccount": "用戶已刪除",
   "GetHistoryNil": "獲取歷史記錄為空",
-  "ChannelMsgIsEmpty": "頻道消息為空，不能進行漲粉操作"
-
+  "ChannelMsgIsEmpty": "頻道消息為空，不能進行漲粉操作",
+  "RiseFans": "每天漲粉數為",
+  "TotalAdd": "總添加數:",
+  "GetInformationFailed": "獲取信息失敗",
+  "AverageTime": "平均時間:"
 }

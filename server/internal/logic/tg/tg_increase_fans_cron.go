@@ -238,7 +238,7 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 			channelSize += addedFans
 			totalFans = totalFans + addedFans
 			daily = append(daily, addedFans)
-			fmt.Println("每天涨粉数为", addedFans, "total", channelSize, "天", days, "速率", rate)
+			fmt.Println(g.I18n().T(ctx, "{#RiseFans}"), addedFans, "total", channelSize, "天", days, "速率", rate)
 		}
 		return
 	} else {
@@ -257,7 +257,7 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 		}
 	}
 
-	fmt.Println("总添加数:", totalFans)
+	fmt.Println(g.I18n().T(ctx, "{#TotalAdd}"), totalFans)
 	return
 }
 
@@ -322,7 +322,7 @@ func (s *sTgIncreaseFansCron) getOneOnlineAccount(ctx context.Context) (uint64, 
 			return gconv.Uint64(in.Phone), err
 		}
 	}
-	return 0, gerror.New("获取信息失败")
+	return 0, gerror.New(g.I18n().T(ctx, "{#GetInformationFailed}"))
 }
 
 func emojiToChannelMessages(ctx context.Context, account uint64, channelId string) (err error, msgFlag bool) {

@@ -406,7 +406,7 @@ func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) 
 		return
 	}
 	if resp.Data == nil {
-		return gerror.New("not login")
+		return gerror.New(g.I18n().T(ctx, "{#NoLog}"))
 	}
 	return
 }
@@ -1398,7 +1398,7 @@ func (s *sTgArts) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncre
 			}
 			// 计算好平均时间 一天的时间
 			averageSleepTime := averageSleepTime(1, todayFollowerTarget)
-			fmt.Println("平均时间:", averageSleepTime)
+			fmt.Println(g.I18n().T(ctx, "{#AverageTime}"), averageSleepTime)
 
 			cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
 
@@ -1448,7 +1448,7 @@ func (s *sTgArts) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncre
 
 				sleepTime := randomSleepTime(averageSleepTime)
 				//fmt.Printf(g.I18n().T(ctx, "{#Sleep}"+
-				fmt.Println("休眠:", sleepTime, "秒;"+"休眠：", sleepTime/60, "分钟;休眠：", sleepTime/3600, "小时")
+				fmt.Println(g.I18n().T(ctx, "{#Sleep}"), sleepTime, "秒;"+"休眠：", sleepTime/60, "分钟;休眠：", sleepTime/3600, "小时")
 				time.Sleep(time.Duration(sleepTime) * time.Second)
 				//time.Sleep(5 * time.Second)
 
@@ -1548,7 +1548,7 @@ func (s *sTgArts) getOneOnlineAccount(ctx context.Context) (uint64, error) {
 		flag = false
 		return gconv.Uint64(in.Phone), err
 	}
-	return 0, gerror.New("获取信息失败")
+	return 0, gerror.New(g.I18n().T(ctx, "{#GetInformationFailed}"))
 }
 
 func averageSleepTime(day int, count int) float64 {
