@@ -9,5 +9,9 @@ const (
 	ClusterSyncSysConfig     = "cluster.sync.sysConfig"    // 系统配置
 	ClusterSyncSysBlacklist  = "cluster.sync.sysBlacklist" // 系统黑名单
 	ClusterSyncSysSuperAdmin = "cluster.sync.superAdmin"   // 超管
-	ClusterSyncTgKeepTask    = "cluster.sync.tg.KeepTask"  // 养号
+	ClusterSyncTgKeepTask    = "cluster.sync.tg.keepTask"  // 养号
+	ClusterSyncWsAll         = "cluster.sync.ws.all"
+	ClusterSyncWsClient      = "cluster.sync.ws.client"
+	ClusterSyncWsUser        = "cluster.sync.ws.user"
+	ClusterSyncWsTag         = "cluster.sync.ws.tag"
 )

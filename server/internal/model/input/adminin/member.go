@@ -144,7 +144,7 @@ type MemberEditInp struct {
 	RealName     string      `json:"realName"                                      dc:"真实姓名"`
 	Avatar       string      `json:"avatar"                                        dc:"头像"`
 	Sex          int         `json:"sex"                                           dc:"性别"`
-	Email        string      `json:"email"                                         dc:"邮箱"`
+	Email        string      `json:"email"   v:"required#EmailNotEmpty"          dc:"邮箱"`
 	Birthday     *gtime.Time `json:"birthday"                                      dc:"生日"`
 	ProvinceId   int         `json:"provinceId"                                    dc:"省"`
 	CityId       int         `json:"cityId"                                        dc:"城市"`
