@@ -13,7 +13,6 @@ import (
 	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/library/hgrds/pubsub"
 	"hotgo/internal/service"
-	"hotgo/internal/websocket"
 )
 
 // SubscribeClusterSync 订阅集群同步，可以用来集中同步数据、状态等
@@ -28,10 +27,6 @@ func SubscribeClusterSync(ctx context.Context) {
 		consts.ClusterSyncSysBlacklist:  service.SysBlacklist().ClusterSync,          // 系统黑名单
 		consts.ClusterSyncSysSuperAdmin: service.AdminMember().ClusterSyncSuperAdmin, // 超管
 		consts.ClusterSyncTgKeepTask:    service.TgKeepTask().ClusterSync,            // 养号任务
-		consts.ClusterSyncWsAll:         websocket.AllBroadcastSync,                  // websocket all
-		consts.ClusterSyncWsClient:      websocket.ClientBroadcastSync,               // websocket client
-		consts.ClusterSyncWsUser:        websocket.UserBroadcastSync,                 // websocket user
-		consts.ClusterSyncWsTag:         websocket.TagBroadcastSync,                  // websocket tag
 	})
 
 	if err != nil {
