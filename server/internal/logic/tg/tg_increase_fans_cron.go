@@ -7,6 +7,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
@@ -108,6 +109,7 @@ func (s *sTgIncreaseFansCron) Export(ctx context.Context, in *tgin.TgIncreaseFan
 
 // Edit 修改/新增TG频道涨粉任务
 func (s *sTgIncreaseFansCron) Edit(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error) {
+	user := contexts.GetUser(ctx)
 	// 修改
 	if in.Id > 0 {
 		if _, err = s.Model(ctx).
@@ -120,6 +122,9 @@ func (s *sTgIncreaseFansCron) Edit(ctx context.Context, in *tgin.TgIncreaseFansC
 
 	// 新增
 	in.StartTime = gtime.Now()
+	in.OrgId = user.OrgId
+	in.MemberId = user.Id
+
 	_, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgIncreaseFansCronInsertFields{}).
 		Data(in).Insert()
@@ -264,7 +269,7 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 // RestartCronApplication 重启后执行定时任务
 func (s *sTgIncreaseFansCron) RestartCronApplication(ctx context.Context) (err error) {
 
-	list := make([]*tgin.TgIncreaseFansCronListModel, 0)
+	list := make([]*entity.TgIncreaseFansCron, 0)
 	mod := s.Model(ctx).Where(dao.TgIncreaseFansCron.Columns().CronStatus, 0)
 	totalCount, err := mod.Clone().Count()
 	if err != nil {
@@ -281,13 +286,7 @@ func (s *sTgIncreaseFansCron) RestartCronApplication(ctx context.Context) (err e
 	}
 	// 启动任务
 	for _, task := range list {
-		inp := &tgin.TgIncreaseFansCronInp{
-			Channel:   task.Channel,
-			TaskName:  task.TaskName,
-			FansCount: task.FansCount,
-			DayCount:  task.DayCount,
-		}
-		_, _ = service.TgArts().TgIncreaseFansToChannel(ctx, inp)
+		_, _ = service.TgArts().TgExecuteIncrease(ctx, *task, true)
 		time.Sleep(1 * time.Second)
 	}
 
@@ -511,6 +510,127 @@ func randomTrigger() bool {
 		// 不执行操作
 		return false
 	}
+}
+
+func averageSleepTime(day int, count int) float64 {
+
+	totalSleepTime := float64(day * 24.0 * 60 * 60) // 总睡眠时间（秒）
+	// 登录账号数
+
+	averageSleepTime := totalSleepTime / float64(count)
+	// 运行需要时间，所以取他的百分之80
+	averageSleepTimeSeconds := averageSleepTime * 0.8
+
+	return averageSleepTimeSeconds
+}
+
+func randomSleepTime(sleepTime float64) int64 {
+	// 向上取整
+	ceilValue := math.Ceil(sleepTime)
+
+	// 计算浮动范围
+	fluctuation := ceilValue * 0.8
+
+	// 生成随机浮动值
+	rand.Seed(time.Now().UnixNano())
+	randomFloat := (rand.Float64() * (2 * fluctuation)) - fluctuation
+
+	// 计算最终结果
+	result := int64(ceilValue + randomFloat)
+
+	return result
+}
+
+func executionDays(startTime, endTime *gtime.Time) int {
+
+	duration := endTime.Sub(startTime)
+	days := int(duration.Hours() / 24)
+
+	return days
+}
+
+func dailyFollowerIncreaseList(totalIncreaseFan int, totalDay int) []int {
+	// 设置随机种子
+	rand.Seed(time.Now().UnixNano())
+
+	// 初始化剩余帐号数量和总涨粉数
+	remainingAccounts := totalIncreaseFan
+	totalFollowers := 0
+
+	// 计算涨粉递增的幅度范围
+	minIncreaseRate := 1.2
+	maxIncreaseRate := 1.7
+
+	dailyFollowerIncrease := make([]int, 0)
+	// 遍历每一天
+	for day := 1; day <= totalDay; day++ {
+		// 计算当天的涨粉递增率
+		increaseRate := minIncreaseRate + rand.Float64()*(maxIncreaseRate-minIncreaseRate)
+
+		// 计算当天的涨粉数量
+		increase := int(float64(remainingAccounts) / float64(totalDay+1-day) * increaseRate)
+
+		// 如果涨粉数量超过剩余帐号数量，修正为剩余帐号数量
+		if increase > remainingAccounts {
+			increase = remainingAccounts
+		}
+
+		// 更新剩余帐号数量和总涨粉数
+		remainingAccounts -= increase
+		totalFollowers += increase
+
+		dailyFollowerIncrease = append(dailyFollowerIncrease, increase)
+	}
+
+	reverseSlice(dailyFollowerIncrease)
+
+	return dailyFollowerIncrease
+}
+
+func reverseSlice(slice []int) {
+	// 使用双指针法将切片倒序
+	left := 0
+	right := len(slice) - 1
+
+	for left < right {
+		slice[left], slice[right] = slice[right], slice[left]
+		left++
+		right--
+	}
+}
+
+func GetAccountsPerDay(totalAccounts, totalDays int) []int {
+	if totalAccounts <= 0 || totalDays <= 0 {
+		return nil
+	}
+
+	rand.Seed(time.Now().UnixNano())
+
+	accountsPerDay := make([]int, totalDays)
+	accountsLeft := totalAccounts
+
+	for i := 0; i < totalDays-1; i++ {
+		accountsToLogin := accountsLeft / (totalDays - i)
+
+		if accountsToLogin <= 0 {
+			accountsPerDay[i] = 0
+			continue
+		}
+
+		var offset int
+		if accountsToLogin > 1 {
+			offset = rand.Intn(accountsToLogin/2) - accountsToLogin/4
+		} else {
+			offset = 0
+		}
+
+		accountsPerDay[i] = accountsToLogin + offset
+		accountsLeft -= accountsPerDay[i]
+	}
+
+	accountsPerDay[totalDays-1] = accountsLeft
+
+	return accountsPerDay
 }
 
 func TgChannelJoinByLink_Test(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) error {

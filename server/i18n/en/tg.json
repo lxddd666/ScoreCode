@@ -75,5 +75,7 @@
   "RiseFans": "The number of fans every day is",
   "TotalAdd": "Total additions:",
   "GetInformationFailed": "Failure to get information",
-  "AverageTime": "Average time:"
+  "AverageTime": "Average time:",
+  "IncreaseTaskCreated": "Channel fan increase task has been created"
+
 }

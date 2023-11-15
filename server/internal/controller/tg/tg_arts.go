@@ -177,7 +177,7 @@ func (c *cTgArts) UpdateUserInfo(ctx context.Context, req *tgarts.UpdateUserInfo
 
 // GetUserAvatar 获取用户头像信息
 func (c *cTgArts) GetUserAvatar(ctx context.Context, req *tgarts.GetUserAvatarReq) (res *tgarts.GetUserAvatarReqRes, err error) {
-	resp, err := service.TgArts().TgGetUserAvater(ctx, req.TgGetUserAvatarInp)
+	resp, err := service.TgArts().TgGetUserAvatar(ctx, req.TgGetUserAvatarInp)
 	if err != nil {
 		return
 	}
