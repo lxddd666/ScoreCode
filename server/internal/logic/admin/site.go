@@ -305,10 +305,10 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 		return
 	}
 
-	if mb.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
-		return
-	}
+	//if mb.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
+	//	return
+	//}
 
 	res, err = s.handleLogin(ctx, mb)
 	return
@@ -347,10 +347,10 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 		return
 	}
 
-	if mb.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
-		return
-	}
+	//if mb.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
+	//	return
+	//}
 
 	res, err = s.handleLogin(ctx, mb)
 	return
@@ -389,10 +389,10 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 		return
 	}
 
-	if mb.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
-		return
-	}
+	//if mb.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
+	//	return
+	//}
 
 	res, err = s.handleLogin(ctx, mb)
 	return
@@ -411,10 +411,10 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 		return
 	}
 
-	if ro.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#RoleDisabled}"))
-		return
-	}
+	//if ro.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#RoleDisabled}"))
+	//	return
+	//}
 
 	user := &model.Identity{
 		Id:       mb.Id,

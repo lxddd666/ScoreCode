@@ -24,7 +24,6 @@
   "RoleNotExist": "角色不存在",
   "RoleDisabled": "角色已被禁用",
   "ObtainUserInformationFailed": "獲取用戶信息失敗",
-  "UserInformationNotExist": "用戶信息不存在",
   "UserIDNotEmpty": "用戶ID不能為空",
   "AccountDeletionProhibited": "超管賬號禁止刪除",
   "UserNotExistOrDeleted": "需要刪除的用戶不存在或已刪除",

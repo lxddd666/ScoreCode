@@ -37,6 +37,7 @@
   "ReceiverMailNotEmpty": "Thư của người nhận không thể trống",
   "EmailEventNotEmpty": "Sự cố email không thể trống",
   "EmailAddressNotEmpty": "Địa chỉ hộp thư không thể trống",
+  "EmailBindFail": "Hộp thư đã bị ràng buộc với các tài khoản khác",
   "UserIdentityAbnormal": "Nhận dạng người dùng bất thường, vui lòng đăng nhập lại",
   "UserInformationNotExist": "thông tin người dùng không tồn tại",
   "UnbindMailboxNoSend": "Không cần gửi hộp thư mà không cần ràng buộc",
@@ -209,5 +210,6 @@
   "AppIdNotEmpty": "ID ứng dụng không thể trống",
   "AuthorizationEndTimeNotEmpty": "Thời gian cuối của ủy quyền không thể trống",
   "SuperiorMenuNoCurrentMenu": "Menu trên không thể là menu hiện tại",
-  "NoSupportAddFromFrontDesk": "Không hỗ trợ thêm các biến từ máy chủ, trước tiên vui lòng định cấu hình các biến trong bảng cơ sở dữ liệu [%v]"
+  "NoSupportAddFromFrontDesk": "Không hỗ trợ thêm các biến từ máy chủ, trước tiên vui lòng định cấu hình các biến trong bảng cơ sở dữ liệu [%v]",
+  "MobileBindFail": "Điện thoại di động đã bị ràng buộc với các tài khoản khác"
 }

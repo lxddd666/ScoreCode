@@ -37,6 +37,7 @@
   "ReceiverMailNotEmpty": "The receiver's mail cannot be empty",
   "EmailEventNotEmpty": "The email incident cannot be empty",
   "EmailAddressNotEmpty": "The mailbox address cannot be empty",
+  "EmailBindFail": "The mailbox has been bound to other accounts",
   "UserIdentityAbnormal": "Unusual user identity, please log in again",
   "UserInformationNotExist": "User information does not exist",
   "UnbindMailboxNoSend": "No need to send the mailbox without binding",
@@ -209,5 +210,6 @@
   "AppIdNotEmpty": "Application ID cannot be empty",
   "AuthorizationEndTimeNotEmpty": "The end time of the authorization cannot be empty",
   "SuperiorMenuNoCurrentMenu": "The upper menu cannot be the current menu",
-  "NoSupportAddFromFrontDesk": "Do not support adding variables from the front desk, please first configure variables in the database table [%v]"
+  "NoSupportAddFromFrontDesk": "Do not support adding variables from the front desk, please first configure variables in the database table [%v]",
+  "MobileBindFail": "Mobile phone has been bound to other accounts"
 }

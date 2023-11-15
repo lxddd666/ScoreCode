@@ -26,7 +26,6 @@
   "RoleNotExist":"Role does not exist",
   "RoleDisabled":"Role has been disabled",
   "ObtainUserInformationFailed":"Failed to obtain user information",
-  "UserInformationNotExist":"User information does not exist",
   "UserIDNotEmpty":"User id can not be empty",
   "AccountProhibitsDeletion":"Super administrator account prohibits deletion",
   "UserNotExistOrDeleted":"The user that needs to be deleted does not exist or has been deleted",

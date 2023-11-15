@@ -471,6 +471,7 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgi
 		if item.Deleted {
 			item.FirstName = g.I18n().T(ctx, "{#DeleteAccount}")
 		}
+		item.Last.SendMsg = gbase64.MustDecodeToString(item.Last.SendMsg)
 	}
 	return
 }
