@@ -1,6 +1,8 @@
 {
   "UsernamePasswordError":"Incorrect user password",
   "UsernameNotEmpty":"Username can not be empty",
+  "FirstNameNotEmpty": "First Name can not be empty",
+  "LastNameNotEmpty": "Last Name can not be empty",
   "PasswordNotEmpty":"Password can not be empty",
   "OriginalPasswordNotEmpty":"The original password can not be empty",
   "NewPasswordNotEmpty":"The new password can not be empty",

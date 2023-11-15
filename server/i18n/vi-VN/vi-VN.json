@@ -1,6 +1,8 @@
 {
   "UsernamePasswordError": "Mật khẩu người dùng không chính xác",
   "UsernameNotEmpty": "Tên ngươi dung không được để trông",
+  "FirstNameNotEmpty": "Tên cuối cùng không thể trống",
+  "LastNameNotEmpty": "Tên là bắt buộc",
   "PasswordNotEmpty": "mật khẩu không thể để trống",
   "OriginalPasswordNotEmpty": "Mật khẩu ban đầu không được để trống",
   "NewPasswordNotEmpty": "Mật khẩu mới không được để trống",

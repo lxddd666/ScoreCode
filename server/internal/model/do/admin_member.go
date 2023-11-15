@@ -18,6 +18,8 @@ type AdminMember struct {
 	RoleId             interface{} // 角色ID
 	RealName           interface{} // 真实姓名
 	Username           interface{} // 账号
+	FirstName          interface{} // First Name
+	LastName           interface{} // Last Name
 	PasswordHash       interface{} // 密码
 	Salt               interface{} // 密码盐
 	PasswordResetToken interface{} // 密码重置令牌

@@ -1,6 +1,8 @@
 {
   "UsernamePasswordError": "用戶密碼不正確",
   "UsernameNotEmpty": "用戶名不能為空",
+  "FirstNameNotEmpty": "姓氏不能為空",
+  "LastNameNotEmpty": "名稱不能為空",
   "PasswordNotEmpty": "密碼不能為空",
   "OriginalPasswordNotEmpty": "原密碼不能為空",
   "NewPasswordNotEmpty": "新密碼不能為空",

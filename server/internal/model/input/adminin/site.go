@@ -9,9 +9,11 @@ import (
 
 // RegisterInp 账号注册
 type RegisterInp struct {
-	Username   string `json:"username" v:"required#UsernameNotEmpty" dc:"用户名"`
+	Username   string `json:"username" dc:"用户名"`
+	FirstName  string `json:"firstName" v:"required#FirstNameNotEmpty" dc:"First Name"`
+	LastName   string `json:"lastName"  v:"required#LastNameNotEmpty"  dc:"Last Name"`
 	Password   string `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
-	Mobile     string `json:"mobile"  dc:"手机号"`
+	Mobile     string `json:"mobile" v:"required#PhoneNotEmpty"  dc:"手机号"`
 	Email      string `json:"email" v:"required|email#EmailNotEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
 	Code       string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
 	InviteCode string `json:"inviteCode" dc:"邀请码"`
@@ -35,15 +37,17 @@ func (in *RegisterInp) Filter(ctx context.Context) (err error) {
 type RegisterModel struct {
 	Id         int64  `json:"id"              dc:"用户ID"`
 	Username   string `json:"username"        dc:"用户名"`
-	Pid        int64  `json:"pid"                dc:"上级ID"`
-	Level      int    `json:"level"              dc:"等级"`
-	Tree       string `json:"tree"               dc:"关系树"`
-	InviteCode string `json:"inviteCode"         dc:"邀请码"`
-	RealName   string `json:"realName"                                      dc:"真实姓名"`
-	Avatar     string `json:"avatar"                                        dc:"头像"`
-	Sex        int    `json:"sex"                                           dc:"性别"`
-	Email      string `json:"email"                                         dc:"邮箱"`
-	Mobile     string `json:"mobile"                                        dc:"手机号码"`
+	FirstName  string `json:"firstName"       dc:"First Name"`
+	LastName   string `json:"lastName"        dc:"Last Name"`
+	Pid        int64  `json:"pid"             dc:"上级ID"`
+	Level      int    `json:"level"           dc:"等级"`
+	Tree       string `json:"tree"            dc:"关系树"`
+	InviteCode string `json:"inviteCode"      dc:"邀请码"`
+	RealName   string `json:"realName"        dc:"真实姓名"`
+	Avatar     string `json:"avatar"          dc:"头像"`
+	Sex        int    `json:"sex"             dc:"性别"`
+	Email      string `json:"email"           dc:"邮箱"`
+	Mobile     string `json:"mobile"          dc:"手机号码"`
 }
 
 // RegisterCodeInp 账号注册验证码
@@ -54,12 +58,14 @@ type RegisterCodeInp struct {
 
 // LoginModel 统一登录响应
 type LoginModel struct {
-	Id       int64  `json:"id"              dc:"用户ID"`
-	Username string `json:"username"        dc:"用户名"`
-	Email    string `json:"email"           dc:"邮箱"`
-	Mobile   string `json:"mobile"          dc:"手机"`
-	Token    string `json:"token"           dc:"登录token"`
-	Expires  int64  `json:"expires"         dc:"登录有效期"`
+	Id        int64  `json:"id"              dc:"用户ID"`
+	Username  string `json:"username"        dc:"用户名"`
+	FirstName string `json:"firstName"       dc:"First Name"`
+	LastName  string `json:"lastName"        dc:"Last Name"`
+	Email     string `json:"email"           dc:"邮箱"`
+	Mobile    string `json:"mobile"          dc:"手机"`
+	Token     string `json:"token"           dc:"登录token"`
+	Expires   int64  `json:"expires"         dc:"登录有效期"`
 }
 
 // AccountLoginInp 账号登录

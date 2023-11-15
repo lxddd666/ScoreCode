@@ -116,6 +116,8 @@ type LoginMemberInfoModel struct {
 	Permissions []string    `json:"permissions"        dc:"角色信息"`
 	RoleId      int64       `json:"-"                  dc:"角色ID"`
 	Username    string      `json:"username"           dc:"用户名"`
+	FirstName   string      `json:"firstName"          dc:"First Name"`
+	LastName    string      `json:"lastName"           dc:"Last Name"`
 	RealName    string      `json:"realName"           dc:"姓名"`
 	Avatar      string      `json:"avatar"             dc:"头像"`
 	Balance     float64     `json:"balance"            dc:"余额"`
@@ -138,13 +140,15 @@ type MemberEditInp struct {
 	Id           int64       `json:"id"                                            dc:"管理员ID"`
 	RoleId       int64       `json:"roleId"    v:"required#RoleNotEmpty"           dc:"角色ID"`
 	OrgId        int64       `json:"orgId"                                         dc:"公司ID"`
-	Username     string      `json:"username"   v:"required#AccountNotEmpty"       dc:"账号"`
+	Username     string      `json:"username"   v:"required#UsernameNotEmpty"      dc:"账号"`
+	FirstName    string      `json:"firstName"  v:"required#FirstNameNotEmpty"     dc:"First Name"`
+	LastName     string      `json:"lastName"   v:"required#LastNameNotEmpty"      dc:"Last Name"`
 	PasswordHash string      `json:"passwordHash"                                  dc:"密码hash"`
 	Password     string      `json:"password"                                      dc:"密码"`
 	RealName     string      `json:"realName"                                      dc:"真实姓名"`
 	Avatar       string      `json:"avatar"                                        dc:"头像"`
 	Sex          int         `json:"sex"                                           dc:"性别"`
-	Email        string      `json:"email"   v:"required#EmailNotEmpty"          dc:"邮箱"`
+	Email        string      `json:"email"   v:"required#EmailNotEmpty"            dc:"邮箱"`
 	Birthday     *gtime.Time `json:"birthday"                                      dc:"生日"`
 	ProvinceId   int         `json:"provinceId"                                    dc:"省"`
 	CityId       int         `json:"cityId"                                        dc:"城市"`
