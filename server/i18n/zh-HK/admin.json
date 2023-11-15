@@ -37,6 +37,7 @@
   "ReceiverMailNotEmpty": "接收者郵件不能為空",
   "EmailEventNotEmpty": "郵件事件不能為空",
   "EmailAddressNotEmpty": "郵箱地址不能為空",
+  "EmailBindFail": "郵箱已綁定其他賬號",
   "UserIdentityAbnormal": "用戶身份異常，請重新登錄",
   "UserInformationNotExist": "用戶信息不存在",
   "UnbindMailboxNoSend": "未綁定郵箱無需發送",
@@ -70,7 +71,7 @@
   "UpdatePoints": "更新積分不能為0",
   "InsufficientBalanceCurrentOrDeducted": "餘額不足，當前餘額為：%v，需要扣除的餘額為：%v",
   "InsufficientPointsCurrentOrDeducted": "積分不足，當前積分為：%v，需要扣除的積分為：%v",
-  "IndexConditions": "索引條件共%v行,共%v頁,當前導出是第%v頁,本頁共%v行",
+  "IndexConditions": "共%v行,共%v頁,當前導出是第%v頁,本頁共%v行",
   "ExportAssetChange": "導出資產變動-",
   "ExportGeneratedDemo": "導出生成演示-",
   "GetTimingTaskFailed": "定時任務獲取失敗, err . %v",
@@ -209,5 +210,6 @@
   "AppIdNotEmpty": "應用ID不能為空",
   "AuthorizationEndTimeNotEmpty": "授權結束時間不能為空",
   "SuperiorMenuNoCurrentMenu": "上級菜單不能是當前菜單",
-  "NoSupportAddFromFrontDesk": "暫不支持從前台添加變量，請先在數據庫表[%v]中配置變量：%v"
+  "NoSupportAddFromFrontDesk": "暫不支持從前台添加變量，請先在數據庫表[%v]中配置變量：%v",
+  "MobileBindFail": "手機已綁定其他賬號"
 }

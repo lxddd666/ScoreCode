@@ -6,12 +6,16 @@
 package websocket
 
 import (
+	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/grpool"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gorilla/websocket"
+	"hotgo/internal/consts"
+	"hotgo/internal/global"
+	"hotgo/internal/library/hgrds/pubsub"
 	"net/http"
 )
 
@@ -27,6 +31,24 @@ func Start() {
 	go clientManager.start()
 	go clientManager.ping()
 	g.Log().Debug(mctx, "start websocket..")
+}
+
+// SubscribeClusterWsSync 订阅集群同步，可以用来集中同步数据、状态等
+func SubscribeClusterWsSync(ctx context.Context) {
+	if !global.IsCluster {
+		return
+	}
+
+	err := pubsub.SubscribeMap(map[string]pubsub.SubHandler{
+		consts.ClusterSyncWsAll:    AllBroadcastSync,    // websocket all
+		consts.ClusterSyncWsClient: ClientBroadcastSync, // websocket client
+		consts.ClusterSyncWsUser:   UserBroadcastSync,   // websocket user
+		consts.ClusterSyncWsTag:    TagBroadcastSync,    // websocket tag
+	})
+
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
 }
 
 // Stop 关闭

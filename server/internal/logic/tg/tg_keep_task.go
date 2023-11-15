@@ -25,6 +25,7 @@ import (
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/simple"
+	"strings"
 )
 
 type sTgKeepTask struct{}
@@ -101,7 +102,7 @@ func (s *sTgKeepTask) Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (e
 		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgKeepTaskExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

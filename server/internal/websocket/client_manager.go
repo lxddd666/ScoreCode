@@ -10,7 +10,10 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcron"
+	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gtime"
+	"hotgo/internal/consts"
+	"hotgo/internal/global"
 	"runtime/debug"
 	"sync"
 )
@@ -295,6 +298,10 @@ func (manager *ClientManager) start() {
 
 // SendToAll 发送全部客户端
 func SendToAll(response *WResponse) {
+	if global.IsCluster {
+		global.PublishClusterSync(gctx.GetInitCtx(), consts.ClusterSyncWsAll, response)
+		return
+	}
 	clientManager.Broadcast <- response
 }
 
@@ -303,6 +310,10 @@ func SendToClientID(id string, response *WResponse) {
 	clientRes := &ClientWResponse{
 		ID:        id,
 		WResponse: response,
+	}
+	if global.IsCluster {
+		global.PublishClusterSync(gctx.GetInitCtx(), consts.ClusterSyncWsClient, clientRes)
+		return
 	}
 	clientManager.ClientBroadcast <- clientRes
 }
@@ -313,6 +324,10 @@ func SendToUser(userID int64, response *WResponse) {
 		UserID:    userID,
 		WResponse: response,
 	}
+	if global.IsCluster {
+		global.PublishClusterSync(gctx.GetInitCtx(), consts.ClusterSyncWsUser, userRes)
+		return
+	}
 	clientManager.UserBroadcast <- userRes
 }
 
@@ -321,6 +336,10 @@ func SendToTag(tag string, response *WResponse) {
 	tagRes := &TagWResponse{
 		Tag:       tag,
 		WResponse: response,
+	}
+	if global.IsCluster {
+		global.PublishClusterSync(gctx.GetInitCtx(), consts.ClusterSyncWsTag, tagRes)
+		return
 	}
 	clientManager.TagBroadcast <- tagRes
 }

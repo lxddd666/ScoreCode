@@ -14,6 +14,7 @@ export interface TChatItemParam {
   isRead: boolean;
   date: string;
   last?: TMessage;
+  msgList: TMessage[];
 }
 
 export interface TMessage {
@@ -39,6 +40,7 @@ export const defaultState = {
   message: '',
   isRead: false,
   date: '',
+  msgList: [],
 };
 
 

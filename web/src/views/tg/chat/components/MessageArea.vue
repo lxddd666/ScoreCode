@@ -6,7 +6,7 @@
         <div class="message-area-list-wrapper">
           <div
             :class="{ 'message-area-list-wrapper-item': true, isMe: item.out===1 }"
-            v-for="item in messageList"
+            v-for="item in data.msgList"
             :key="item.reqId"
           >
             <div class="message-area-list-wrapper-item-content">
@@ -62,11 +62,10 @@
 import {PaperClipOutlined, SmileOutlined} from '@vicons/antd';
 import {PaperPlaneSharp} from '@vicons/ionicons5';
 import {ScrollbarInst} from 'naive-ui';
-import {inject, nextTick, ref, watch} from 'vue';
+import {nextTick, ref, watch} from 'vue';
 import {newState, TChatItemParam, TMessage} from "@/views/tg/chat/components/model";
 import {TgGetMsgHistory, TgSendMsg} from "@/api/tg/tgUser";
-import {addOnMessage, sendMsg} from '@/utils/websocket';
-import CryptoJS from "crypto-js";
+import {sendMsg} from '@/utils/websocket';
 
 const inputText = ref('');
 const scrollRef = ref<ScrollbarInst>();
@@ -108,36 +107,12 @@ const onContentKeydown = (e: KeyboardEvent) => {
   }
 };
 
-function base64Dec(base64Str: string) {
-  let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
-  return parsedWordArray.toString(CryptoJS.enc.Utf8);
-}
 
-function thisChatMsgList(list: TMessage[]) {
-  console.log("list", list)
-  return list.filter(item => item.chatId == props.data.tgId)
-}
-
-const onMessageList = inject('onMessageList');
-
-const onTgMessage = (res: { data: string }) => {
-  const data = JSON.parse(res.data);
-  console.log("onTgMessage--->", data);
-  if (data.event === 'tgMsg') {
-    let msg = data.data
-    msg.sendMsg = base64Dec(msg.sendMsg);
-    if (msg.chatId === props.data.tgId) {
-      if (!messageList.value.some(item=>item.reqId === msg.reqId)){
-        messageList.value.push(msg);
-      }
-    }
-    scrollToBottom();
-  }
-};
-
-addOnMessage(onMessageList, onTgMessage);
-
+const emit = defineEmits(['updateTChatItem']);
 const loadForm = async (account: number, offsetId: number | undefined, contact: number) => {
+  if (props.data.msgList != null && props.data.msgList.length > 0) {
+    return;
+  }
   if (offsetId === undefined) {
     offsetId = 100;
   }
@@ -146,7 +121,8 @@ const loadForm = async (account: number, offsetId: number | undefined, contact: 
     "account": account,
     "offsetId": Number(offsetId) + 1
   })
-  messageList.value = res.list.reverse();
+  props.data.msgList = res.list.reverse();
+  emit('updateTChatItem', props.data);
   scrollToBottom();
 }
 
@@ -166,8 +142,7 @@ const props = withDefaults(defineProps<Props>(), {
 watch(
   () => props.data,
   (value) => {
-    loadForm(props.me.phone, props.data.last?.reqId, value.tgId)
-    sendMsg('join', {id: props.me.tgId});
+    loadForm(props.me.phone, props.data.last?.reqId, value.tgId);
   }
 );
 </script>

@@ -72,6 +72,10 @@
   "DeleteAccount": "用户已删除",
   "GetHistoryNil": "获取历史记录为空",
   "ChannelMsgIsEmpty": "频道消息为空，不能进行涨粉操作",
+  "RiseFans": "每天涨粉数为",
+  "TotalAdd": "总添加数:",
+  "GetInformationFailed": "获取信息失败",
+  "AverageTime": "平均时间:",
   "IncreaseTaskCreated": "频道涨粉任务已任务已创建"
 
 }

@@ -28,7 +28,7 @@
         </div>
       </div>
     </n-card>
-    <MessageArea :data="data" :me="me"/>
+    <MessageArea :data="data" :me="me" @updateTChatItem="updateTChatItem"/>
     <div class="bg"></div>
   </div>
 </template>
@@ -41,6 +41,13 @@ interface IChatItemProps {
   data: TChatItemParam;
   me: TChatItemParam;
 }
+
+const emit = defineEmits(['updateTChatItem']);
+
+function updateTChatItem(item: TChatItemParam) {
+  emit('updateTChatItem', item);
+}
+
 
 defineProps<IChatItemProps>();
 

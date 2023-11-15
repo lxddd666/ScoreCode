@@ -12,4 +12,5 @@ import (
 var (
 	// EtcdClient etcd客户端
 	EtcdClient *clientv3.Client
+	IsCluster  bool
 )

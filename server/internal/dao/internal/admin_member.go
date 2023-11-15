@@ -25,6 +25,8 @@ type AdminMemberColumns struct {
 	RoleId             string // 角色ID
 	RealName           string // 真实姓名
 	Username           string // 账号
+	FirstName          string // First Name
+	LastName           string // Last Name
 	PasswordHash       string // 密码
 	Salt               string // 密码盐
 	PasswordResetToken string // 密码重置令牌
@@ -56,6 +58,8 @@ var adminMemberColumns = AdminMemberColumns{
 	RoleId:             "role_id",
 	RealName:           "real_name",
 	Username:           "username",
+	FirstName:          "first_name",
+	LastName:           "last_name",
 	PasswordHash:       "password_hash",
 	Salt:               "salt",
 	PasswordResetToken: "password_reset_token",

@@ -35,7 +35,8 @@ func WebSocket(ctx context.Context, group *ghttp.RouterGroup) {
 
 	// 启动websocket监听
 	websocket.Start()
-
+	// 订阅集群同步
+	websocket.SubscribeClusterWsSync(ctx)
 	// 注册消息路由
 	websocket.RegisterMsg(websocket.EventHandlers{
 		"ping":                  common.Site.Ping,      // 心跳

@@ -22,7 +22,7 @@
             </n-space>
           </div>
         </div>
-        <p class="chat-item-right-message">{{ base64Dec(data.last.sendMsg) }}</p>
+        <p class="chat-item-right-message">{{ data.last.sendMsg }}</p>
       </div>
     </div>
   </n-card>

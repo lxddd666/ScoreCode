@@ -31,8 +31,8 @@
             <n-scrollbar trigger="hover">
               <ChatItem
                 v-for="item in chatList"
-                :key="item.phone"
-                :is-active="activeItem.phone === item.phone"
+                :key="item.tgId"
+                :is-active="activeItem.tgId === item.tgId"
                 :data="item"
                 @click="onChatItemClick(item)"
               />
@@ -43,6 +43,7 @@
       <n-grid-item span="18" style="overflow: hidden">
         <ChatArea
           :data="activeItem"
+          @updateTChatItem="updateTChatItem"
           :me="me"
         >
         </ChatArea>
@@ -52,7 +53,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import {onMounted, ref} from 'vue';
+import {inject, onMounted, ref} from 'vue';
 import {ArrowLeftOutlined, MenuOutlined, SearchOutlined} from '@vicons/antd';
 import {DropdownMixedOption} from 'naive-ui/lib/dropdown/src/interface';
 import ChatItem from './components/ChatItem.vue';
@@ -60,6 +61,8 @@ import ChatArea from './components/ChatArea.vue';
 import router from "@/router";
 import {TgGetDialogs, TgLogin} from "@/api/tg/tgUser";
 import {defaultState, TChatItemParam} from "@/views/tg/chat/components/model";
+import {addOnMessage, sendMsg} from "@/utils/websocket";
+import CryptoJS from "crypto-js";
 
 const chatOptions = ref<DropdownMixedOption[]>([
   {
@@ -87,7 +90,6 @@ const onChatItemClick = (item: TChatItemParam) => {
 };
 const getChatList = async (account: number) => {
   const res = await TgGetDialogs({account: account});
-  console.log(res)
   chatList.value = res.list;
   activeItem.value = res.list[0];
 };
@@ -95,8 +97,52 @@ const getChatList = async (account: number) => {
 const load = async (id: number) => {
   const logInfo = await TgLogin({id: id});
   me.value = logInfo;
+  sendMsg('join', {id: me.value.tgId});
   await getChatList(logInfo.phone);
 }
+
+function updateTChatItem(item: TChatItemParam) {
+  chatList.value.map(data => {
+    if (data.tgId == item.tgId) {
+      return item;
+    }
+  })
+}
+
+function base64Dec(base64Str: string) {
+  let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
+  return parsedWordArray.toString(CryptoJS.enc.Utf8);
+}
+
+const onMessageList = inject('onMessageList');
+
+const onTgMessage = (res: { data: string }) => {
+  const data = JSON.parse(res.data);
+  console.log("onTgMessage--->", data);
+  if (data.event === 'tgMsg') {
+    let msg = data.data
+    msg.sendMsg = base64Dec(msg.sendMsg);
+    chatList.value.map(data => {
+      if (data.tgId == msg.chatId) {
+        if (!data.msgList.some(item => item.reqId === msg.reqId)) {
+          data.msgList.push(msg);
+        } else {
+          data.msgList.map(item => {
+            if (item.reqId === msg.reqId) {
+              return msg;
+            }
+          });
+        }
+        data.last = msg;
+
+        return;
+      }
+    })
+  }
+};
+
+addOnMessage(onMessageList, onTgMessage);
+
 
 onMounted(() => {
   load(id);

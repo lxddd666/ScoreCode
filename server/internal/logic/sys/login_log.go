@@ -30,6 +30,7 @@ import (
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/useragent"
+	"strings"
 )
 
 type sSysLoginLog struct{}
@@ -121,7 +122,7 @@ func (s *sSysLoginLog) Export(ctx context.Context, in *sysin.LoginLogListInp) (e
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []sysin.LoginLogExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

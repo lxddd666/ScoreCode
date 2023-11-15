@@ -21,6 +21,7 @@ import (
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"strings"
 )
 
 type sSysServeLicense struct{}
@@ -117,7 +118,7 @@ func (s *sSysServeLicense) Export(ctx context.Context, in *sysin.ServeLicenseLis
 		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []sysin.ServeLicenseExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

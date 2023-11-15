@@ -17,8 +17,8 @@ import (
 
 // SubscribeClusterSync 订阅集群同步，可以用来集中同步数据、状态等
 func SubscribeClusterSync(ctx context.Context) {
-	isCluster := g.Cfg().MustGet(ctx, "hotgo.isCluster").Bool()
-	if !isCluster {
+	IsCluster = g.Cfg().MustGet(ctx, "hotgo.isCluster").Bool()
+	if !IsCluster {
 		return
 	}
 

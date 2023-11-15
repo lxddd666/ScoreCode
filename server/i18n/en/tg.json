@@ -68,10 +68,14 @@
   "GetUserIdIsEmpty" :"Obtain user id as empty",
   "KeepAccountErr" :"Failed to cultivate account",
   "VerifyChannelAddressErr": "Please provide a complete and valid address",
-  "CheckChannelMemberCount": "Please verify the number of channels before proceeding with the operation"
+  "CheckChannelMemberCount": "Please verify the number of channels before proceeding with the operation",
   "DeleteAccount": "Delete Account",
   "GetHistoryNil": "Get history nil",
   "ChannelMsgIsEmpty": "Channel message is empty, unable to generate followers",
+  "RiseFans": "The number of fans every day is",
+  "TotalAdd": "Total additions:",
+  "GetInformationFailed": "Failure to get information",
+  "AverageTime": "Average time:",
   "IncreaseTaskCreated": "Channel fan increase task has been created"
 
 }

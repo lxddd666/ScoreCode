@@ -26,6 +26,7 @@ import (
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"strings"
 )
 
 type sTgMsg struct{}
@@ -113,7 +114,7 @@ func (s *sTgMsg) Export(ctx context.Context, in *tgin.TgMsgListInp) (err error) 
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgMsgExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
@@ -174,7 +175,6 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	})
 
 	for _, msg := range msgList {
-		msg.Read = consts.Unread
 		a.Add(msg)
 
 	}
@@ -211,10 +211,8 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 		}
 		//转换id
 		if item.AccountType != 1 {
-			if item.Out == 1 {
-				_ = dao.TgUser.Ctx(ctx).Where(do.TgUser{Phone: item.TgId}).Fields(dao.TgUser.Columns().TgId).Scan(&msg.TgId)
-				_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.ChatId}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.ChatId)
-			}
+			_ = dao.TgUser.Ctx(ctx).Where(do.TgUser{Phone: item.TgId}).Fields(dao.TgUser.Columns().TgId).Scan(&msg.TgId)
+			_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.ChatId}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.ChatId)
 
 		}
 		if item.MsgType != 1 && item.SendStatus == 1 {

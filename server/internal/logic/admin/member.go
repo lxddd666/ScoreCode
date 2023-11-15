@@ -223,6 +223,15 @@ func (s *sAdminMember) UpdateEmail(ctx context.Context, in *adminin.MemberUpdate
 	update := g.Map{
 		dao.AdminMember.Columns().Email: in.Email,
 	}
+	// 验证邮箱是否已绑定其他账号
+	count, err := dao.AdminMember.Ctx(ctx).Where(dao.AdminMember.Columns().Email, in.Email).Count()
+	if err != nil {
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationNotExist}"))
+		return
+	}
+	if count > 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#EmailBindFail}"))
+	}
 
 	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(memberId)).WherePri(memberId).Data(update).Update(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ChangeBindMailboxFailedTryAgain}"))
@@ -258,6 +267,16 @@ func (s *sAdminMember) UpdateMobile(ctx context.Context, in *adminin.MemberUpdat
 	if !validate.IsMobile(in.Mobile) {
 		err = gerror.New(g.I18n().T(ctx, "{#PhoneNumberIncorrect"))
 		return
+	}
+
+	// 验证手机是否已绑定其他账号
+	count, err := dao.AdminMember.Ctx(ctx).Where(dao.AdminMember.Columns().Mobile, in.Mobile).Count()
+	if err != nil {
+		err = gerror.New(g.I18n().T(ctx, "{#UserInformationNotExist}"))
+		return
+	}
+	if count > 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#MobileBindFail}"))
 	}
 
 	// 存在原绑定号码，需要进行验证

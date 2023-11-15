@@ -1,6 +1,8 @@
 {
   "UsernamePasswordError": "用戶密碼不正確",
   "UsernameNotEmpty": "用戶名不能為空",
+  "FirstNameNotEmpty": "姓氏不能為空",
+  "LastNameNotEmpty": "名稱不能為空",
   "PasswordNotEmpty": "密碼不能為空",
   "OriginalPasswordNotEmpty": "原密碼不能為空",
   "NewPasswordNotEmpty": "新密碼不能為空",
@@ -24,7 +26,6 @@
   "RoleNotExist": "角色不存在",
   "RoleDisabled": "角色已被禁用",
   "ObtainUserInformationFailed": "獲取用戶信息失敗",
-  "UserInformationNotExist": "用戶信息不存在",
   "UserIDNotEmpty": "用戶ID不能為空",
   "AccountDeletionProhibited": "超管賬號禁止刪除",
   "UserNotExistOrDeleted": "需要刪除的用戶不存在或已刪除",

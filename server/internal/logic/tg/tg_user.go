@@ -238,14 +238,6 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		// 删除登录过程的redis
 		key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, item.Phone)
 		_, _ = g.Redis().Del(ctx, key)
-		//websocket推送登录结果
-		websocket.SendToTag(gconv.String(item.TgId), &websocket.WResponse{
-			Event:     consts.TgLoginEvent,
-			Data:      item,
-			Code:      gcode.CodeOK.Code(),
-			ErrorMsg:  "",
-			Timestamp: gtime.Now().Unix(),
-		})
 	}
 	return
 }

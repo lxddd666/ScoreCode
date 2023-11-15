@@ -18,6 +18,7 @@ import (
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/validate"
+	"strings"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -116,7 +117,7 @@ func (s *sSysCurdDemo) Export(ctx context.Context, in *sysin.CurdDemoListInp) (e
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []sysin.CurdDemoExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

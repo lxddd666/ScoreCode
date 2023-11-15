@@ -86,12 +86,16 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		return
 	}
 
+	if in.Username == "" {
+		in.Username = in.Email
+	}
+
 	// 验证唯一性
 	err = service.AdminMember().VerifyUnique(ctx, &adminin.VerifyUniqueInp{
 		Where: g.Map{
 			dao.AdminMember.Columns().Username: in.Username,
 			dao.AdminMember.Columns().Mobile:   in.Mobile,
-			dao.AdminMember.Columns().Username: in.Username,
+			dao.AdminMember.Columns().Email:    in.Email,
 		},
 	})
 	if err != nil {
@@ -120,16 +124,18 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 	}
 
 	data.MemberEditInp = &adminin.MemberEditInp{
-		Id:       0,
-		OrgId:    orgId,
-		RoleId:   config.RoleId,
-		Username: in.Username,
-		Password: in.Password,
-		Avatar:   config.Avatar,
-		Sex:      3, // 保密
-		Mobile:   in.Mobile,
-		Email:    in.Email,
-		Status:   consts.StatusEnabled,
+		Id:        0,
+		OrgId:     orgId,
+		RoleId:    config.RoleId,
+		FirstName: in.FirstName,
+		LastName:  in.LastName,
+		Username:  in.Username,
+		Password:  in.Password,
+		Avatar:    config.Avatar,
+		Sex:       3, // 保密
+		Mobile:    in.Mobile,
+		Email:     in.Email,
+		Status:    consts.StatusEnabled,
 	}
 	data.Salt = grand.S(6)
 	data.InviteCode = grand.S(12)
@@ -153,6 +159,8 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		result = &adminin.RegisterModel{
 			Id:         data.Id,
 			Username:   data.Username,
+			FirstName:  data.FirstName,
+			LastName:   data.LastName,
 			Pid:        data.Pid,
 			Level:      data.Level,
 			Tree:       data.Tree,
@@ -232,6 +240,8 @@ func (s *sAdminSite) RestPwd(ctx context.Context, in *adminin.RestPwdInp) (resul
 	result = &adminin.RegisterModel{
 		Id:         member.Id,
 		Username:   member.Username,
+		FirstName:  member.FirstName,
+		LastName:   member.LastName,
 		Pid:        member.Pid,
 		Level:      member.Level,
 		Tree:       member.Tree,
@@ -305,10 +315,10 @@ func (s *sAdminSite) AccountLogin(ctx context.Context, in *adminin.AccountLoginI
 		return
 	}
 
-	if mb.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
-		return
-	}
+	//if mb.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
+	//	return
+	//}
 
 	res, err = s.handleLogin(ctx, mb)
 	return
@@ -347,10 +357,10 @@ func (s *sAdminSite) MobileLogin(ctx context.Context, in *adminin.MobileLoginInp
 		return
 	}
 
-	if mb.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
-		return
-	}
+	//if mb.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
+	//	return
+	//}
 
 	res, err = s.handleLogin(ctx, mb)
 	return
@@ -389,10 +399,10 @@ func (s *sAdminSite) EmailLogin(ctx context.Context, in *adminin.EmailLoginInp) 
 		return
 	}
 
-	if mb.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
-		return
-	}
+	//if mb.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#AccountDisabled}"))
+	//	return
+	//}
 
 	res, err = s.handleLogin(ctx, mb)
 	return
@@ -411,10 +421,10 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 		return
 	}
 
-	if ro.Status != consts.StatusEnabled {
-		err = gerror.New(g.I18n().T(ctx, "{#RoleDisabled}"))
-		return
-	}
+	//if ro.Status != consts.StatusEnabled {
+	//	err = gerror.New(g.I18n().T(ctx, "{#RoleDisabled}"))
+	//	return
+	//}
 
 	user := &model.Identity{
 		Id:       mb.Id,
@@ -437,12 +447,14 @@ func (s *sAdminSite) handleLogin(ctx context.Context, mb *entity.AdminMember) (r
 	}
 
 	res = &adminin.LoginModel{
-		Username: user.Username,
-		Email:    mb.Email,
-		Mobile:   mb.Mobile,
-		Id:       user.Id,
-		Token:    lt,
-		Expires:  expires,
+		Username:  user.Username,
+		FirstName: mb.FirstName,
+		LastName:  mb.LastName,
+		Email:     mb.Email,
+		Mobile:    mb.Mobile,
+		Id:        user.Id,
+		Token:     lt,
+		Expires:   expires,
 	}
 	return
 }

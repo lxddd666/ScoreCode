@@ -20,6 +20,7 @@ import (
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"strings"
 )
 
 type sWhatsProxy struct{}
@@ -120,7 +121,7 @@ func (s *sWhatsProxy) Export(ctx context.Context, in *whatsin.WhatsProxyListInp)
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []whatsin.WhatsProxyExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
