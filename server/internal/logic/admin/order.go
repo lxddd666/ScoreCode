@@ -23,6 +23,7 @@ import (
 	"hotgo/utility/excel"
 	"hotgo/utility/simple"
 	"hotgo/utility/validate"
+	"strings"
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -321,7 +322,7 @@ func (s *sAdminOrder) Export(ctx context.Context, in *adminin.OrderListInp) (err
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []adminin.OrderExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

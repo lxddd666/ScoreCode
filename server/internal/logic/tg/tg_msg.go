@@ -26,6 +26,7 @@ import (
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"strings"
 )
 
 type sTgMsg struct{}
@@ -113,7 +114,7 @@ func (s *sTgMsg) Export(ctx context.Context, in *tgin.TgMsgListInp) (err error) 
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []tgin.TgMsgExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

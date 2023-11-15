@@ -71,7 +71,7 @@
   "UpdatePoints": "更新积分不能为0",
   "InsufficientBalanceCurrentOrDeducted": "余额不足，当前余额为：%v，需要扣除的余额为：%v",
   "InsufficientPointsCurrentOrDeducted": "积分不足，当前积分为：%v，需要扣除的积分为：%v",
-  "IndexConditions": "索引条件共%v行,共%v页,当前导出是第%v页,本页共%v行",
+  "IndexConditions": "共%v行,共%v页,当前导出是第%v页,本页共%v行",
   "ExportAssetChange": "导出资产变动-",
   "ExportGeneratedDemo": "导出生成演示-",
   "GetTimingTaskFailed": "定时任务获取失败, err . %v",

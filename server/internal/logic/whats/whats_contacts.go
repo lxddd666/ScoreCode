@@ -114,7 +114,7 @@ func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsLi
 		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports   []whatsin.WhatsContactsExportModel
 	)
-
+	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}

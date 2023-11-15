@@ -19,5 +19,5 @@
   "QQPaymentNoPass": "QQ payment does not pass",
   "WxPayFailsRefund": "WeChat payment initiated a refund failure, reason:%v",
   "WxPaymentInitiatedRefundFailed": "WeChat payment initiated a refund failure, status code:%v",
-  "ExportSheetName": "Index conditions a total of%V line, a total of%V pages, the current export is the No. 1 pp, this page total%V line"
+  "ExportSheetName": "A total of%V line, a total of%V pages, the current export is the No.%V page, this page total%V line"
 }
