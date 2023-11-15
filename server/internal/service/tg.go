@@ -68,9 +68,11 @@ type (
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
 		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
 		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		// TgExecuteIncrease 执行任务
+		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
 		// TgGetUserAvater 获取用户头像
-		TgGetUserAvater(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgDownloadMsgModel, err error)
-		// TgGetUserAvater 获取用户头像
+		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
+		// TgGetSearchInfo 搜索获取
 		TgGetSearchInfo(ctx context.Context, req *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 	}
 	ITgContacts interface {

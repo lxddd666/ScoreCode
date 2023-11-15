@@ -71,5 +71,7 @@
   "CheckChannelMemberCount": "Please verify the number of channels before proceeding with the operation"
   "DeleteAccount": "Delete Account",
   "GetHistoryNil": "Get history nil",
-  "ChannelMsgIsEmpty": "Channel message is empty, unable to generate followers"
+  "ChannelMsgIsEmpty": "Channel message is empty, unable to generate followers",
+  "IncreaseTaskCreated": "Channel fan increase task has been created"
+
 }

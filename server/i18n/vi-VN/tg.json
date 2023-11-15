@@ -71,6 +71,7 @@
   "CheckChannelMemberCount": "Xin vui lòng kiểm tra số lượng kênh trước khi tiến hành thao tác",
   "DeleteAccount": "Xóa tài khoản",
   "GetHistoryNil": "Lấy lịch sử bằng không",
-  "ChannelMsgIsEmpty": "Tin nhắn kênh trống, không thể tăng fan."
+  "ChannelMsgIsEmpty": "Tin nhắn kênh trống, không thể tăng fan.",
+  "IncreaseTaskCreated": "Nhiệm vụ tăng trưởng kênh đã được tạo."
 
 }

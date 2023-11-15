@@ -45,6 +45,11 @@ type TgDownloadMsgModel struct {
 	*sysin.AttachmentListModel
 }
 
+type TgGetUserAvatarModel struct {
+	TgId   int64  `json:"tgId"          description:"聊天发起人"`
+	Avatar []byte `json:"avatar"        description:"头像" `
+}
+
 type TgChannelCreateInp struct {
 	Account     uint64   `json:"account" dc:"账号"`
 	Title       string   `json:"title" dc:"频道标题"`

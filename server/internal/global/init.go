@@ -70,7 +70,7 @@ func Init(ctx context.Context) {
 	service.TgKeepTask().InitTask(ctx)
 
 	// 加载tg涨粉任务
-	//_ = service.TgIncreaseFansCron().RestartCronApplication(ctx)
+	_ = service.TgIncreaseFansCron().RestartCronApplication(ctx)
 }
 
 // LoggingServeLogHandler 服务日志处理

@@ -71,6 +71,7 @@
   "CheckChannelMemberCount": "请先校验频道人数再进行操作....",
   "DeleteAccount": "用户已删除",
   "GetHistoryNil": "获取历史记录为空",
-  "ChannelMsgIsEmpty": "频道消息为空，不能进行涨粉操作"
+  "ChannelMsgIsEmpty": "频道消息为空，不能进行涨粉操作",
+  "IncreaseTaskCreated": "频道涨粉任务已任务已创建"
 
 }

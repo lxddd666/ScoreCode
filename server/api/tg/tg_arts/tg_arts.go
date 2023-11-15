@@ -217,7 +217,7 @@ type GetUserAvatarReq struct {
 }
 
 type GetUserAvatarReqRes struct {
-	Avatar *tgin.TgDownloadMsgModel `json:"Avatar"   dc:"头像信息"`
+	Avatar *tgin.TgGetUserAvatarModel `json:"Avatar"   dc:"头像信息"`
 }
 
 type GetSearchInfoReq struct {
