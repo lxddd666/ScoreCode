@@ -13,7 +13,7 @@ type RegisterInp struct {
 	FirstName  string `json:"firstName" v:"required#FirstNameNotEmpty" dc:"First Name"`
 	LastName   string `json:"lastName"  v:"required#LastNameNotEmpty"  dc:"Last Name"`
 	Password   string `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
-	Mobile     string `json:"mobile" v:"required#PhoneNotEmpty"  dc:"手机号"`
+	Mobile     string `json:"mobile"  dc:"手机号"`
 	Email      string `json:"email" v:"required|email#EmailNotEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
 	Code       string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
 	InviteCode string `json:"inviteCode" dc:"邀请码"`

@@ -7,17 +7,18 @@
           :size="54"
           color="transparent"
           :src="
-            data.avatar ??
-            'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+            data.avatar?'data:image/jpeg;base64,'+ data.avatar :'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
           "
-        />
+        ></n-avatar>
       </div>
       <div class="chat-item-right">
         <div class="chat-item-right-info">
           <div class="chat-item-right-info-name">{{ data.firstName + " " + data.lastName }}</div>
           <div class="chat-item-right-info-meta">
             <n-space :size="4">
-              <span class="chat-item-right-info-meta-read">{{ data.last.read===1?'已读':'未读' }}</span>
+              <span class="chat-item-right-info-meta-read">{{
+                  data.last.read === 1 ? '已读' : '未读'
+                }}</span>
               <span class="chat-item-right-info-meta-date">{{ data.last.sendTime }}</span>
             </n-space>
           </div>

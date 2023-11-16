@@ -25,6 +25,8 @@ import (
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"slices"
+	"strings"
 )
 
 type sTgMsg struct{}
@@ -211,7 +213,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 			_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.ChatId}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.ChatId)
 
 		}
-		if item.MsgType != 1 && item.SendStatus == 1 {
+		if slices.Contains([]int{2, 3}, item.MsgType) && item.SendStatus == 1 {
 			var result *entity.SysAttachment
 			// md5不为空，判断文件是否已存在
 			if item.Md5 != "" {
