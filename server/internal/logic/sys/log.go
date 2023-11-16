@@ -25,7 +25,6 @@ import (
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
 	"hotgo/utility/excel"
-	"hotgo/utility/simple"
 	"hotgo/utility/validate"
 )
 
@@ -59,9 +58,9 @@ func (s *sSysLog) Export(ctx context.Context, in *sysin.LogListInp) (err error) 
 	}
 
 	var (
-		titleList  = []string{"ID", "应用", "提交类型", "模块", "提交url", "ip地址", "报错code", "报错信息", "对外id", "请求耗时", "创建时间", "用户", "访问地"}
-		fileName   = g.I18n().T(ctx, "{#VisitLogExport}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName  = simple.AppName()
+		titleList = []string{"ID", "应用", "提交类型", "模块", "提交url", "ip地址", "报错code", "报错信息", "对外id", "请求耗时", "创建时间", "用户", "访问地"}
+		fileName  = g.I18n().T(ctx, "{#VisitLogExport}") + gctx.CtxId(ctx) + ".xlsx"
+		//sheetName  = simple.AppName()
 		exportList []exportImage
 		row        exportImage
 	)
@@ -89,7 +88,7 @@ func (s *sSysLog) Export(ctx context.Context, in *sysin.LogListInp) (err error) 
 		exportList = append(exportList, row)
 	}
 
-	err = excel.ExportByStructs(ctx, titleList, exportList, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, titleList, exportList, fileName)
 	return
 }
 

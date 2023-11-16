@@ -3,22 +3,19 @@ package tg
 import (
 	"context"
 	"fmt"
-	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm"
-	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
-	tgin "hotgo/internal/model/input/tgin"
-	"hotgo/internal/service"
-	"hotgo/utility/convert"
-	"hotgo/utility/excel"
-	"strings"
-
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
+	"hotgo/internal/dao"
+	"hotgo/internal/library/hgorm"
+	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/entity"
+	tgin "hotgo/internal/model/input/tgin"
+	"hotgo/internal/service"
+	"hotgo/utility/convert"
+	"hotgo/utility/excel"
 )
 
 type sTgContacts struct{}
@@ -74,7 +71,7 @@ func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (lis
 
 // Export 导出联系人管理
 func (s *sTgContacts) Export(ctx context.Context, in *tgin.TgContactsListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -86,16 +83,14 @@ func (s *sTgContacts) Export(ctx context.Context, in *tgin.TgContactsListInp) (e
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportContactManagement}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []tgin.TgContactsExportModel
+		fileName = g.I18n().T(ctx, "{#ExportContactManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []tgin.TgContactsExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

@@ -25,7 +25,6 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
@@ -127,7 +126,7 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 
 // Export 导出TG账号
 func (s *sTgUser) Export(ctx context.Context, in *tgin.TgUserListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -139,16 +138,15 @@ func (s *sTgUser) Export(ctx context.Context, in *tgin.TgUserListInp) (err error
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportTgAccount}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []tgin.TgUserExportModel
+		fileName = g.I18n().T(ctx, "{#ExportTgAccount}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []tgin.TgUserExportModel
 	)
 
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

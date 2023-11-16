@@ -16,12 +16,10 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"strings"
 )
 
 type sSysServeLicense struct{}
@@ -102,7 +100,7 @@ func (s *sSysServeLicense) List(ctx context.Context, in *sysin.ServeLicenseListI
 
 // Export 导出服务许可证
 func (s *sSysServeLicense) Export(ctx context.Context, in *sysin.ServeLicenseListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -114,16 +112,15 @@ func (s *sSysServeLicense) Export(ctx context.Context, in *sysin.ServeLicenseLis
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportServicePermit}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []sysin.ServeLicenseExportModel
+		fileName = g.I18n().T(ctx, "{#ExportServicePermit}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []sysin.ServeLicenseExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
+
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

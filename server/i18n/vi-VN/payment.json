@@ -18,6 +18,5 @@
   "NoSupportQQPayRefund": "Không hỗ trợ hoàn trả ứng dụng thanh toán QQ trong thời gian này, vui lòng liên hệ với quản trị viên nếu bạn có bất kỳ câu hỏi nào.",
   "QQPaymentNoPass": "Thanh toán QQ không vượt qua",
   "WxPayFailsRefund": "Thanh toán WeChat đã khởi xướng lỗi hoàn lại, Lý do:%V",
-  "WxPaymentInitiatedRefundFailed": "Thanh toán WeChat đã khởi xướng lỗi hoàn lại, mã trạng thái:%V",
-  "ExportSheetName": "Tổng cộng%v dòng, tổng cộng%v trang, xuất khẩu hiện tại là trang%v, trang này tổng số%v dòng"
+  "WxPaymentInitiatedRefundFailed": "Thanh toán WeChat đã khởi xướng lỗi hoàn lại, mã trạng thái:%V"
 }

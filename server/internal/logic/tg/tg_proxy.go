@@ -2,21 +2,18 @@ package tg
 
 import (
 	"context"
-	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm"
-	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/input/form"
-	tgin "hotgo/internal/model/input/tgin"
-	"hotgo/internal/service"
-	"hotgo/utility/convert"
-	"hotgo/utility/excel"
-	"strings"
-
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
+	"hotgo/internal/dao"
+	"hotgo/internal/library/hgorm"
+	"hotgo/internal/library/hgorm/handler"
+	tgin "hotgo/internal/model/input/tgin"
+	"hotgo/internal/service"
+	"hotgo/utility/convert"
+	"hotgo/utility/excel"
 )
 
 type sTgProxy struct{}
@@ -67,7 +64,7 @@ func (s *sTgProxy) List(ctx context.Context, in *tgin.TgProxyListInp) (list []*t
 
 // Export 导出代理管理
 func (s *sTgProxy) Export(ctx context.Context, in *tgin.TgProxyListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -79,16 +76,14 @@ func (s *sTgProxy) Export(ctx context.Context, in *tgin.TgProxyListInp) (err err
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []tgin.TgProxyExportModel
+		fileName = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []tgin.TgProxyExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

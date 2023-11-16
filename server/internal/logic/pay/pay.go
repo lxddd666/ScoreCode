@@ -9,22 +9,19 @@ package pay
 
 import (
 	"context"
-	"hotgo/internal/consts"
-	"hotgo/internal/dao"
-	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/input/form"
-	"hotgo/internal/model/input/payin"
-	"hotgo/internal/service"
-	"hotgo/utility/convert"
-	"hotgo/utility/excel"
-	"hotgo/utility/validate"
-	"strings"
-
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
+	"hotgo/internal/consts"
+	"hotgo/internal/dao"
+	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model/input/payin"
+	"hotgo/internal/service"
+	"hotgo/utility/convert"
+	"hotgo/utility/excel"
+	"hotgo/utility/validate"
 )
 
 type sPay struct{}
@@ -76,7 +73,7 @@ func (s *sPay) List(ctx context.Context, in payin.PayListInp) (list []*payin.Pay
 
 // Export 导出支付日志
 func (s *sPay) Export(ctx context.Context, in payin.PayListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -88,16 +85,14 @@ func (s *sPay) Export(ctx context.Context, in payin.PayListInp) (err error) {
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportPayLog}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []payin.PayExportModel
+		fileName = g.I18n().T(ctx, "{#ExportPayLog}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []payin.PayExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

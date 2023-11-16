@@ -71,7 +71,6 @@
   "UpdatePoints": "Bản cập nhật không thể là 0",
   "InsufficientBalanceCurrentOrDeducted": "Số dư không đủ, số dư hiện tại là:%V, số dư cần được khấu trừ là:%V",
   "InsufficientPointsCurrentOrDeducted": "Không đủ điểm, các điểm hiện tại là:%V, điểm cần được khấu trừ là:%V",
-  "IndexConditions": "Tổng cộng%v dòng, tổng cộng%v trang, xuất khẩu hiện tại là trang%v, trang này của tổng số%v dòng",
   "ExportAssetChange": "Thay đổi tài sản xuất khẩu-",
   "ExportGeneratedDemo": "Trình diễn xuất khẩu-",
   "GetTimingTaskFailed": "Nhiệm vụ thời gian không thành công, err. %V",

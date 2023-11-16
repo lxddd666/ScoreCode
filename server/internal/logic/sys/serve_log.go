@@ -15,12 +15,10 @@ import (
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"strings"
 )
 
 type sSysServeLog struct{}
@@ -88,7 +86,7 @@ func (s *sSysServeLog) List(ctx context.Context, in *sysin.ServeLogListInp) (lis
 
 // Export 导出服务日志
 func (s *sSysServeLog) Export(ctx context.Context, in *sysin.ServeLogListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -100,16 +98,14 @@ func (s *sSysServeLog) Export(ctx context.Context, in *sysin.ServeLogListInp) (e
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportServiceLog}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []sysin.ServeLogExportModel
+		fileName = g.I18n().T(ctx, "{#ExportServiceLog}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []sysin.ServeLogExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return err
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

@@ -9,26 +9,23 @@ package pay
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/library/location"
 	"hotgo/internal/library/payment"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/payin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"strings"
-
-	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 // 订单退款.
@@ -192,7 +189,7 @@ func (s *sPayRefund) List(ctx context.Context, in *payin.PayRefundListInp) (list
 
 // Export 导出交易退款
 func (s *sPayRefund) Export(ctx context.Context, in *payin.PayRefundListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -204,15 +201,13 @@ func (s *sPayRefund) Export(ctx context.Context, in *payin.PayRefundListInp) (er
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportTransactionRefund}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []payin.PayRefundExportModel
+		fileName = g.I18n().T(ctx, "{#ExportTransactionRefund}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []payin.PayRefundExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }

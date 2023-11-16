@@ -18,6 +18,5 @@
   "NoSupportQQPayRefund": "Do not support QQ payment application refund for the time being, please contact the administrator if you have any questions",
   "QQPaymentNoPass": "QQ payment does not pass",
   "WxPayFailsRefund": "WeChat payment initiated a refund failure, reason:%v",
-  "WxPaymentInitiatedRefundFailed": "WeChat payment initiated a refund failure, status code:%v",
-  "ExportSheetName": "A total of%V line, a total of%V pages, the current export is the No.%V page, this page total%V line"
+  "WxPaymentInitiatedRefundFailed": "WeChat payment initiated a refund failure, status code:%v"
 }

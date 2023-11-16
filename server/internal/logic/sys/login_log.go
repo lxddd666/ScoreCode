@@ -24,13 +24,11 @@ import (
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/adminin"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/sysin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/useragent"
-	"strings"
 )
 
 type sSysLoginLog struct{}
@@ -106,7 +104,7 @@ func (s *sSysLoginLog) List(ctx context.Context, in *sysin.LoginLogListInp) (lis
 
 // Export 导出登录日志
 func (s *sSysLoginLog) Export(ctx context.Context, in *sysin.LoginLogListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -118,16 +116,15 @@ func (s *sSysLoginLog) Export(ctx context.Context, in *sysin.LoginLogListInp) (e
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportLoginLog}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []sysin.LoginLogExportModel
+		fileName = g.I18n().T(ctx, "{#ExportLoginLog}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []sysin.LoginLogExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
+
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

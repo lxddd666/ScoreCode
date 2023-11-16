@@ -19,13 +19,11 @@ import (
 	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	tgin "hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/simple"
-	"strings"
 )
 
 type sTgKeepTask struct{}
@@ -86,7 +84,7 @@ func (s *sTgKeepTask) List(ctx context.Context, in *tgin.TgKeepTaskListInp) (lis
 
 // Export 导出养号任务
 func (s *sTgKeepTask) Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -98,16 +96,14 @@ func (s *sTgKeepTask) Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (e
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportNourishingTask}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []tgin.TgKeepTaskExportModel
+		fileName = g.I18n().T(ctx, "{#ExportNourishingTask}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []tgin.TgKeepTaskExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

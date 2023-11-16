@@ -22,13 +22,11 @@ import (
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"strings"
 )
 
 type sWhatsMsg struct{}
@@ -115,7 +113,7 @@ func (s *sWhatsMsg) List(ctx context.Context, in *whatsin.WhatsMsgListInp) (list
 
 // Export 导出消息记录
 func (s *sWhatsMsg) Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -127,16 +125,14 @@ func (s *sWhatsMsg) Export(ctx context.Context, in *whatsin.WhatsMsgListInp) (er
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportMessageRecord}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []whatsin.WhatsMsgExportModel
+		fileName = g.I18n().T(ctx, "{#ExportMessageRecord}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []whatsin.WhatsMsgExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

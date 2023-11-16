@@ -71,7 +71,6 @@
   "UpdatePoints": "The update point cannot be 0",
   "InsufficientBalanceCurrentOrDeducted": "Insufficient balance, the current balance is:%V, the balance that needs to be deducted is:%v",
   "InsufficientPointsCurrentOrDeducted": "Insufficient points, the current points are:%v, the points that need to be deducted are:%v",
-  "IndexConditions": "A total of%V line, a total of%V pages, the current export is the No.%V page, this page of a total of%V line",
   "ExportAssetChange": "Export asset change-",
   "ExportGeneratedDemo": "Export Generation Demonstration-",
   "GetTimingTaskFailed": "Timing task failed, err . %v",

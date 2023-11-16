@@ -11,7 +11,6 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
@@ -82,7 +81,7 @@ func (s *sTgIncreaseFansCron) List(ctx context.Context, in *tgin.TgIncreaseFansC
 
 // Export 导出TG频道涨粉任务
 func (s *sTgIncreaseFansCron) Export(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -94,16 +93,14 @@ func (s *sTgIncreaseFansCron) Export(ctx context.Context, in *tgin.TgIncreaseFan
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportTgChannel}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []tgin.TgIncreaseFansCronExportModel
+		fileName = g.I18n().T(ctx, "{#ExportTgChannel}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []tgin.TgIncreaseFansCronExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

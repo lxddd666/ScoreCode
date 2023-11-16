@@ -2,22 +2,19 @@ package script
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/model/input/form"
 	scriptin "hotgo/internal/model/input/scriptin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"strings"
-
-	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sScriptGroup struct{}
@@ -79,7 +76,7 @@ func (s *sScriptGroup) List(ctx context.Context, in *scriptin.ScriptGroupListInp
 
 // Export 导出话术分组
 func (s *sScriptGroup) Export(ctx context.Context, in *scriptin.ScriptGroupListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -91,16 +88,14 @@ func (s *sScriptGroup) Export(ctx context.Context, in *scriptin.ScriptGroupListI
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportScriptGroup}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []scriptin.ScriptGroupExportModel
+		fileName = g.I18n().T(ctx, "{#ExportScriptGroup}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []scriptin.ScriptGroupExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

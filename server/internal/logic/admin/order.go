@@ -7,6 +7,11 @@ package admin
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -15,7 +20,6 @@ import (
 	"hotgo/internal/library/payment"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/adminin"
-	"hotgo/internal/model/input/form"
 	"hotgo/internal/model/input/payin"
 	"hotgo/internal/service"
 	"hotgo/internal/websocket"
@@ -23,13 +27,6 @@ import (
 	"hotgo/utility/excel"
 	"hotgo/utility/simple"
 	"hotgo/utility/validate"
-	"strings"
-
-	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sAdminOrder struct{}
@@ -306,7 +303,7 @@ func (s *sAdminOrder) List(ctx context.Context, in *adminin.OrderListInp) (list 
 
 // Export 导出充值订单
 func (s *sAdminOrder) Export(ctx context.Context, in *adminin.OrderListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -318,16 +315,14 @@ func (s *sAdminOrder) Export(ctx context.Context, in *adminin.OrderListInp) (err
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportRechargeOrder}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []adminin.OrderExportModel
+		fileName = g.I18n().T(ctx, "{#ExportRechargeOrder}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []adminin.OrderExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

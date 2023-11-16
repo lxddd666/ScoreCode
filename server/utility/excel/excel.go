@@ -39,9 +39,9 @@ var (
 )
 
 // ExportByStructs 导出切片结构体到excel表格
-func ExportByStructs(ctx context.Context, tags []string, list interface{}, fileName string, sheetName string) (err error) {
+func ExportByStructs(ctx context.Context, tags []string, list interface{}, fileName string) (err error) {
 	f := excelize.NewFile()
-	err = f.SetSheetName("Sheet1", sheetName)
+	err = f.SetSheetName("Sheet1", "Sheet1")
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func ExportByStructs(ctx context.Context, tags []string, list interface{}, fileN
 	if err != nil {
 		return
 	}
-	_ = f.SetSheetRow(sheetName, "A1", &tags)
+	_ = f.SetSheetRow("Sheet1", "A1", &tags)
 
 	var (
 		length    = len(tags)
@@ -66,7 +66,7 @@ func ExportByStructs(ctx context.Context, tags []string, list interface{}, fileN
 			widthRow = v
 		}
 	}
-	if err = f.SetColWidth(sheetName, "A", widthRow, 30); err != nil {
+	if err = f.SetColWidth("Sheet1", "A", widthRow, 30); err != nil {
 		return err
 	}
 
@@ -80,10 +80,10 @@ func ExportByStructs(ctx context.Context, tags []string, list interface{}, fileN
 			row = append(row, val)
 		}
 		rowNum++
-		if err = f.SetSheetRow(sheetName, "A"+gconv.String(rowNum), &row); err != nil {
+		if err = f.SetSheetRow("Sheet1", "A"+gconv.String(rowNum), &row); err != nil {
 			return
 		}
-		if err = f.SetCellStyle(sheetName, fmt.Sprintf("A%d", rowNum), lastRow, rowStyleID); err != nil {
+		if err = f.SetCellStyle("Sheet1", fmt.Sprintf("A%d", rowNum), lastRow, rowStyleID); err != nil {
 			return
 		}
 	}

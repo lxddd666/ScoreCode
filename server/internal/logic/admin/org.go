@@ -18,7 +18,6 @@ import (
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"strings"
 )
 
 type sSysOrg struct{}
@@ -106,7 +105,7 @@ func (s *sSysOrg) handlerPortNum(ctx context.Context, list []*tgin.SysOrgListMod
 
 // Export 导出公司信息
 func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -118,16 +117,14 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportOrgTitle}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []tgin.SysOrgExportModel
+		fileName = g.I18n().T(ctx, "{#ExportOrgTitle}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []tgin.SysOrgExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

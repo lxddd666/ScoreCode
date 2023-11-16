@@ -71,7 +71,6 @@
   "UpdatePoints": "更新積分不能為0",
   "InsufficientBalanceCurrentOrDeducted": "餘額不足，當前餘額為：%v，需要扣除的餘額為：%v",
   "InsufficientPointsCurrentOrDeducted": "積分不足，當前積分為：%v，需要扣除的積分為：%v",
-  "IndexConditions": "共%v行,共%v頁,當前導出是第%v頁,本頁共%v行",
   "ExportAssetChange": "導出資產變動-",
   "ExportGeneratedDemo": "導出生成演示-",
   "GetTimingTaskFailed": "定時任務獲取失敗, err . %v",

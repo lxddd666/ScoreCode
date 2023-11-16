@@ -18,6 +18,5 @@
   "NoSupportQQPayRefund": "暫不支持QQ支付申請退款，如有疑問請聯繫管理員",
   "QQPaymentNoPass": "QQ支付驗簽不通過",
   "WxPayFailsRefund": "微信支付發起退款失敗,原因：%v",
-  "WxPaymentInitiatedRefundFailed": "微信支付發起退款失敗,狀態碼：%v",
-  "ExportSheetName": "共%v行,共%v頁,當前導出是第%v頁,本頁共%v行"
+  "WxPaymentInitiatedRefundFailed": "微信支付發起退款失敗,狀態碼：%v"
 }

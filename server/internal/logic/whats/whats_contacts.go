@@ -11,7 +11,6 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	whatsin "hotgo/internal/model/input/whats"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
@@ -98,7 +97,7 @@ func (s *sWhatsContacts) List(ctx context.Context, in *whatsin.WhatsContactsList
 
 // Export 导出联系人管理
 func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -110,16 +109,14 @@ func (s *sWhatsContacts) Export(ctx context.Context, in *whatsin.WhatsContactsLi
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportContactManagement}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#IndexConditions}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []whatsin.WhatsContactsExportModel
+		fileName = g.I18n().T(ctx, "{#ExportContactManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		exports  []whatsin.WhatsContactsExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 

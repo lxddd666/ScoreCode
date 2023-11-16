@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/net/gclient"
+	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
@@ -11,14 +12,12 @@ import (
 	"hotgo/internal/library/hgorm"
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
 	orgin "hotgo/internal/model/input/orgin"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
 	"hotgo/utility/simple"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -26,7 +25,6 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type sOrgSysProxy struct{}
@@ -90,7 +88,7 @@ func (s *sOrgSysProxy) List(ctx context.Context, in *orgin.SysProxyListInp) (lis
 
 // Export 导出代理管理
 func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (err error) {
-	list, totalCount, err := s.List(ctx, in)
+	list, _, err := s.List(ctx, in)
 	if err != nil {
 		return
 	}
@@ -102,16 +100,15 @@ func (s *sOrgSysProxy) Export(ctx context.Context, in *orgin.SysProxyListInp) (e
 	}
 
 	var (
-		fileName  = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
-		sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
-		exports   []orgin.SysProxyExportModel
+		fileName = g.I18n().T(ctx, "{#ExportProxyManagement}") + gctx.CtxId(ctx) + ".xlsx"
+		//sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
+		exports []orgin.SysProxyExportModel
 	)
-	sheetName = strings.TrimSpace(sheetName)[:31]
 	if err = gconv.Scan(list, &exports); err != nil {
 		return
 	}
 
-	err = excel.ExportByStructs(ctx, tags, exports, fileName, sheetName)
+	err = excel.ExportByStructs(ctx, tags, exports, fileName)
 	return
 }
 
