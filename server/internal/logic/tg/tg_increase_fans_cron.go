@@ -300,7 +300,7 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 		}
 	}
 	if total < in.FansCount {
-		last := in.FansCount - totalFans
+		last := in.FansCount - total
 		daily[len(daily)-1] = daily[len(daily)-1] + last
 	}
 	return
