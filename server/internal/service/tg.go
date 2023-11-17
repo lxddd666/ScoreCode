@@ -66,10 +66,6 @@ type (
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
-		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
-		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
-		// TgExecuteIncrease 执行任务
-		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
 		// TgGetUserAvater 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
 		// TgGetSearchInfo 搜索获取
@@ -202,6 +198,12 @@ type (
 		ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, totalDay int, err error)
 		// RestartCronApplication 重启后执行定时任务
 		RestartCronApplication(ctx context.Context) (err error)
+		// TgIncreaseFansToChannel 添加频道粉丝数定时任务
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		// TgExecuteIncrease 执行任务
+		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
+		// UpdateStatus 修改任务状态
+		UpdateStatus(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
 	}
 	ITgIncreaseFansCronAction interface {
 		// Model TG频道涨粉任务执行情况ORM模型

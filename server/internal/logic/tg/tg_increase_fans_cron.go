@@ -9,13 +9,16 @@ import (
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/artsin"
+	"hotgo/internal/model/input/form"
+	"hotgo/internal/model/input/scriptin"
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
+	"hotgo/utility/simple"
 	"math"
 	"math/rand"
 	"strings"
@@ -37,6 +40,17 @@ func NewTgIncreaseFansCron() *sTgIncreaseFansCron {
 func init() {
 	service.RegisterTgIncreaseFansCron(NewTgIncreaseFansCron())
 }
+
+const (
+	TASK_RUNNING = 0 //运行中
+	TAKE_SUCCESS = 1 //执行成功
+	TASK_ERR     = 2 //执行报错
+	TASK_STOP    = 3 //任务终止
+
+	ACCOUNT_SUCCESS = 1 //登录后操作成功
+	ACCOUNT_ERR     = 2 //登录失败或登录后后续操作失败
+	ACCOUNT_JOINED  = 3 //已经添加过channel
+)
 
 // Model TG频道涨粉任务ORM模型
 func (s *sTgIncreaseFansCron) Model(ctx context.Context, option ...*handler.Option) *gdb.Model {
@@ -122,18 +136,19 @@ func (s *sTgIncreaseFansCron) Edit(ctx context.Context, in *tgin.TgIncreaseFansC
 	in.OrgId = user.OrgId
 	in.MemberId = user.Id
 
-	_, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+	cronID, err := s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.TgIncreaseFansCronInsertFields{}).
-		Data(in).Insert()
+		Data(in).InsertAndGetId()
 	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddTgChannelTask}"))
 	} else {
 		// 启动任务
-		err, _ = service.TgArts().TgIncreaseFansToChannel(ctx, &tgin.TgIncreaseFansCronInp{
+		err, _ = s.TgIncreaseFansToChannel(ctx, &tgin.TgIncreaseFansCronInp{
 			Channel:   in.Channel,
 			TaskName:  in.TaskName,
 			FansCount: in.FansCount,
 			DayCount:  in.DayCount,
+			CronId:    cronID,
 		})
 		if err != nil {
 			return
@@ -160,6 +175,18 @@ func (s *sTgIncreaseFansCron) View(ctx context.Context, in *tgin.TgIncreaseFansC
 	return
 }
 
+// UpdateStatus 修改任务状态
+func (s *sTgIncreaseFansCron) UpdateStatus(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error) {
+
+	if _, err = s.Model(ctx).
+		Fields(dao.TgIncreaseFansCron.Columns().CronStatus, dao.TgIncreaseFansCron.Columns().Comment).
+		WherePri(in.Id).Data(in).Update(); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyTgChannelTask}"))
+	}
+	return
+
+}
+
 // CheckChannel 获取TG频道涨粉是否可用
 func (s *sTgIncreaseFansCron) CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error) {
 	if in.Channel == "" {
@@ -173,10 +200,12 @@ func (s *sTgIncreaseFansCron) CheckChannel(ctx context.Context, in *tgin.TgCheck
 		channelUsername = split[len(split)-1]
 	} else {
 		err = gerror.New(g.I18n().T(ctx, "{#VerifyChannelAddressErr}"))
-
 	}
 	available = false
-	account, err := s.getOneOnlineAccount(ctx)
+	account := in.Account
+	if account == 0 {
+		account, err = s.GetOneOnlineAccount(ctx)
+	}
 	searchParam := &tgin.TgGetSearchInfoInp{Sender: account, Search: in.Channel}
 	channelRes, err := service.TgArts().TgGetSearchInfo(ctx, searchParam)
 	if err != nil {
@@ -242,24 +271,38 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 			daily = append(daily, addedFans)
 			fmt.Println(g.I18n().T(ctx, "{#RiseFans}"), addedFans, "total", channelSize, "天", days, "速率", rate)
 		}
-		return
 	} else {
 		_, total := calculateDailyGrowth(channelSize, targetDay, maxRate*100)
 		if targetTotal > total {
 			// 已经超过范围
 			flag = true
 			daily = dailyFollowerIncreaseList(targetFans, targetDay)
-			return
+
 		} else {
 			// 计算速率
 			x := solveEquation(channelSize, targetTotal, targetDay)
 			daily, _ = calculateDailyGrowth(channelSize, targetDay, x)
 			flag = false
-			return
+
 		}
 	}
-
-	fmt.Println(g.I18n().T(ctx, "{#TotalAdd}"), totalFans)
+	total := 0
+	for _, num := range daily {
+		total += num
+	}
+	if total > in.FansCount {
+		last := total - in.FansCount
+		if daily[len(daily)-1] > last {
+			daily[len(daily)-1] = daily[len(daily)-1] - last
+			if daily[len(daily)-1] < 0 {
+				daily[len(daily)-1] = 0
+			}
+		}
+	}
+	if total < in.FansCount {
+		last := in.FansCount - totalFans
+		daily[len(daily)-1] = daily[len(daily)-1] + last
+	}
 	return
 }
 
@@ -283,14 +326,544 @@ func (s *sTgIncreaseFansCron) RestartCronApplication(ctx context.Context) (err e
 	}
 	// 启动任务
 	for _, task := range list {
-		_, _ = service.TgArts().TgExecuteIncrease(ctx, *task, true)
+		_, _ = s.TgExecuteIncrease(ctx, *task, true)
 		time.Sleep(1 * time.Second)
 	}
 
 	return
 }
 
-func (s *sTgIncreaseFansCron) getOneOnlineAccount(ctx context.Context) (uint64, error) {
+// SyncIncreaseFansCronTaskTableData 同步涨粉数据信息
+func (s *sTgIncreaseFansCron) SyncIncreaseFansCronTaskTableData(ctx context.Context, cron *entity.TgIncreaseFansCron) (error, int) {
+	joinSuccessNum, err := g.Model(dao.TgIncreaseFansCronAction.Table()).Where(dao.TgIncreaseFansCronAction.Columns().CronId, cron.Id).
+		Where(dao.TgIncreaseFansCronAction.Columns().JoinStatus, 1).Count()
+	if err != nil {
+		return gerror.New(g.I18n().T(ctx, "{#QueryRecordFailed}") + err.Error()), 0
+	}
+	if cron.IncreasedFans != joinSuccessNum {
+		// 同步更新
+		cron.IncreasedFans = joinSuccessNum
+		_, err := g.Model(dao.TgIncreaseFansCron.Table()).WherePri(cron.Id).Data(dao.TgIncreaseFansCron.Columns().IncreasedFans, joinSuccessNum).Update()
+		if err != nil {
+			return err, 0
+		}
+	}
+	return nil, joinSuccessNum
+}
+
+// CreateIncreaseFanTask 创建任务
+func (s *sTgIncreaseFansCron) CreateIncreaseFanTask(ctx context.Context, user *model.Identity, inp *tgin.TgIncreaseFansCronInp) (err error, cronTask entity.TgIncreaseFansCron) {
+	mod := service.TgUser().Model(ctx)
+
+	mod.Where(dao.TgUser.Columns().AccountStatus, 0).Where(dao.TgUser.Columns().OrgId, user.OrgId)
+
+	totalCount, err := mod.Clone().Count()
+	if totalCount < inp.FansCount {
+		err = gerror.New(g.I18n().T(ctx, "{#AddFansFailedFansNumber}"))
+		return
+	}
+
+	// 将任务添加到
+	cronTask = entity.TgIncreaseFansCron{
+		OrgId:     user.OrgId,
+		MemberId:  user.Id,
+		TaskName:  inp.TaskName,
+		Channel:   inp.Channel,
+		DayCount:  inp.DayCount,
+		FansCount: inp.FansCount,
+		StartTime: gtime.Now(),
+	}
+	result, err := service.TgIncreaseFansCron().Model(ctx).Data(cronTask).InsertAndGetId()
+	if err != nil {
+		err = gerror.New(g.I18n().T(ctx, "{#AddPowderTaskFailed}") + err.Error())
+		return
+	}
+	inp.CronId = result
+	cronTask.Id = gconv.Uint64(result)
+	return
+}
+
+// IncreaseFanAction 涨粉动作
+func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error) {
+	resMap := make(map[string]interface{})
+
+	model := g.Model(dao.TgIncreaseFansCronAction.Table())
+	data := entity.TgIncreaseFansCronAction{
+		CronId:   gconv.Int64(cron.Id),
+		TgUserId: fan.TgId,
+		Phone:    fan.Phone,
+	}
+	defer func() {
+		_, _ = g.Redis().HSet(ctx, consts.TgIncreaseFansKey+takeName, resMap)
+	}()
+	// 查看有无加入频道
+
+	isJoin, _ := g.Model(dao.TgUserContacts.Table()+" tuc").LeftJoin(dao.TgContacts.Table()+" tc", "tc."+dao.TgContacts.Columns().Id+"=tuc."+dao.TgUserContacts.Columns().TgContactsId).
+		Where("tuc."+dao.TgUserContacts.Columns().TgUserId, fan.Id).Where("tc."+dao.TgContacts.Columns().Username, channel).Count()
+	if isJoin > 0 {
+		// 已经加入过了
+		data.JoinStatus = ACCOUNT_JOINED
+		data.Comment = g.I18n().T(ctx, "{#AccountAddChannel}")
+		_, _ = model.Data(data).Insert()
+		resMap[fan.Phone] = ACCOUNT_JOINED
+		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
+		return
+	}
+
+	// 登录
+	//_, loginErr = s.CodeLogin(ctx, gconv.Uint64(fan.Phone))
+	loginRes, loginErr := service.TgArts().SingleLogin(ctx, fan)
+
+	if loginErr != nil {
+		data.JoinStatus = ACCOUNT_ERR
+		data.Comment = "login:" + loginErr.Error()
+		_, _ = model.Data(data).Insert()
+		resMap[fan.Phone] = ACCOUNT_ERR
+		return
+	}
+	if loginRes.AccountStatus != int(protobuf.AccountStatus_SUCCESS) {
+		loginErr = gerror.New(g.I18n().T(ctx, "{#LogFailed}"))
+		data.JoinStatus = ACCOUNT_ERR
+		data.Comment = "login:" + loginErr.Error()
+		_, _ = model.Data(data).Insert()
+		resMap[fan.Phone] = ACCOUNT_ERR
+		return
+	}
+	//if fan.Username == "" {
+	// 养号
+	err := s.CreateKeepTask(ctx, takeName, fan.Phone, fan)
+	if err != nil {
+		loginErr = gerror.New(g.I18n().T(ctx, "{#AddChannelSuccess}") + err.Error())
+	}
+	time.Sleep(5 * time.Second)
+	//}
+
+	//查看搜索框查频道
+	_, err = service.TgArts().TgGetSearchInfo(ctx, &tgin.TgGetSearchInfoInp{Sender: gconv.Uint64(fan.Phone), Search: channel})
+	if err != nil {
+		loginErr = err
+		return
+	}
+	joinFlag, err := checkUserHaveChannel(ctx, gconv.Uint64(fan.Phone), channel)
+	if joinFlag {
+		// 已经加入过了
+		data.JoinStatus = ACCOUNT_JOINED
+		data.Comment = g.I18n().T(ctx, "{#AccountAddChannel}")
+		_, _ = model.Data(data).Insert()
+		resMap[fan.Phone] = ACCOUNT_JOINED
+		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
+		return
+	}
+	time.Sleep(3 * time.Second)
+
+	// 加入频道
+	fl := &tgin.TgChannelJoinByLinkInp{}
+	fl.Link = []string{cron.Channel}
+	fl.Account = gconv.Uint64(fan.Phone)
+
+	joinChannelErr = service.TgArts().TgChannelJoinByLink(ctx, fl)
+	if joinChannelErr != nil {
+		data.JoinStatus = ACCOUNT_ERR
+		data.Comment = "join channel:" + joinChannelErr.Error()
+		_, _ = model.Data(data).Insert()
+		resMap[fan.Phone] = ACCOUNT_ERR
+		return nil, joinChannelErr
+	}
+	fmt.Println(g.I18n().T(ctx, "{#AddChannelSuccess}") + fan.Phone)
+
+	// 点赞操作
+	err, msgFlag := emojiToChannelMessages(ctx, gconv.Uint64(fan.Phone), channelId)
+	if msgFlag == false {
+		// 没有频道消息 不再关注
+		data.Comment = "Channel message is empty, unable to generate followers"
+		data.JoinStatus = ACCOUNT_SUCCESS
+		resMap[fan.Phone] = ACCOUNT_SUCCESS
+		_, _ = model.Data(data).Insert()
+		joinChannelErr = gerror.New(g.I18n().T(ctx, "{#ChannelMsgIsEmpty}"))
+		return
+	}
+	if err != nil {
+		data.Comment = err.Error()
+	}
+
+	data.JoinStatus = 1
+	resMap[fan.Phone] = 1
+	_, _ = model.Data(data).Insert()
+
+	return nil, nil
+}
+
+// CreateKeepTask 传教
+func (s *sTgIncreaseFansCron) CreateKeepTask(ctx context.Context, takeName string, account string, fan *entity.TgUser) (err error) {
+	en := entity.TgKeepTask{
+		TaskName: takeName + account,
+		Cron:     "0 */1 * * * *",
+		Status:   2,
+		Actions:  gjson.New("[3,2,5,4]"),
+	}
+	list, totalCount, err := service.ScriptGroup().List(ctx, &scriptin.ScriptGroupListInp{PageReq: form.PageReq{Page: 1, PerPage: 10}})
+	if err != nil {
+		return
+	}
+	if totalCount != 0 {
+		en.ScriptGroup = list[0].Id
+	}
+
+	ids := make([]int64, 0)
+	ids = append(ids, gconv.Int64(fan.Id))
+	if len(ids) == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#GetUserIdIsEmpty}"))
+		return
+	}
+	en.Accounts = gjson.New(ids)
+
+	if fan.Username == "" {
+		err = RandUsername(ctx, &en)
+		if err != nil {
+			return
+		}
+		if randomTrigger() {
+			err = RandBio(ctx, &en)
+			if err != nil {
+				return
+			}
+		}
+
+		time.Sleep(2 * time.Second)
+	}
+	if fan.FirstName == "" || fan.LastName == "" {
+		err = RandNickName(ctx, &en)
+		if err != nil {
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+	if randomTrigger() {
+		if fan.Photo == "" {
+			err = RandPhoto(ctx, &en)
+			if err != nil {
+				return
+			}
+		}
+	}
+
+	return
+}
+
+// IncreaseFanActionRetry 涨粉动作递归重试
+func (s *sTgIncreaseFansCron) IncreaseFanActionRetry(ctx context.Context, list []*entity.TgUser, cron entity.TgIncreaseFansCron, taskName string, channel string, channelId string) (error, bool) {
+	if len(list) == 0 {
+		// 所有账号都已尝试登录，退出递归
+		return gerror.New(g.I18n().T(ctx, "{#NoAccountAvailable}")), false
+	}
+	fan := list[0]
+	list = list[1:]
+	loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cron, taskName, channel, channelId)
+	if joinErr != nil {
+		return joinErr, true
+	}
+	if loginErr != nil {
+		err, flag := s.IncreaseFanActionRetry(ctx, list, cron, taskName, channel, channelId)
+		if !flag {
+			return err, flag
+		}
+	}
+	return nil, true
+}
+
+// TgIncreaseFansToChannel 新增执行cron任务
+func (s *sTgIncreaseFansCron) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool) {
+
+	finalResult = true
+	user := contexts.Get(ctx).User
+	key := consts.TgIncreaseFansKey + inp.TaskName
+
+	//g.Redis().Del(ctx, key)
+	// 获取需要的天数和总数
+	totalAccounts := inp.FansCount
+	totalDays := inp.DayCount
+
+	defer func() {
+		if err != nil {
+			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: gconv.Uint64(inp.CronId)}})
+			_, _ = g.Redis().Del(ctx, key)
+		}
+	}()
+
+	if totalAccounts == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#AddFansFailed}"))
+		finalResult = true
+		return
+	}
+	if totalDays == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#AddFansFailedValidDay}"))
+		finalResult = true
+		return
+	}
+	// 查看任务
+	if inp.TaskName == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#EnterTaskName}"))
+		finalResult = true
+		return
+	}
+	cronTask := entity.TgIncreaseFansCron{}
+
+	cronMod := service.TgIncreaseFansCron().Model(ctx).Where(dao.TgIncreaseFansCron.Columns().TaskName, inp.TaskName)
+	num, err := cronMod.Clone().Count()
+	if err != nil {
+		return
+	}
+	if num == 0 {
+		// 没创建任务,创建任务
+		err, cronTask = s.CreateIncreaseFanTask(ctx, user, inp)
+		if err != nil {
+			err = gerror.New(g.I18n().T(ctx, "{#CreateTaskFailed}") + err.Error())
+			finalResult = true
+			return
+		}
+	} else {
+		err = cronMod.Scan(&cronTask)
+		if err != nil {
+			return
+		}
+	}
+
+	// 校验是否存在 channel
+	_, available, err := service.TgIncreaseFansCron().CheckChannel(ctx, &tgin.TgCheckChannelInp{inp.Channel, 0})
+	if err != nil {
+		return
+	}
+	if available == false {
+		err = gerror.New(g.I18n().T(ctx, "{#SearchChannelEmpty}"))
+		finalResult = false
+		return
+	}
+	if err != nil {
+		return err, true
+	}
+
+	_, _ = s.TgExecuteIncrease(ctx, cronTask, false)
+
+	return
+}
+
+// TgExecuteIncrease 执行涨粉任务
+func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool) {
+	// 获取需要的天数和总数
+
+	key := consts.TgIncreaseFansKey + cronTask.TaskName
+	totalAccounts := cronTask.FansCount
+	totalDays := cronTask.DayCount
+	defer func() {
+		if err != nil {
+			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+			_, _ = g.Redis().Del(ctx, key)
+		}
+	}()
+	if cronTask.CronStatus != 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#CurrentTaskState}") + gconv.String(cronTask.CronStatus) + g.I18n().T(ctx, "{#CompleteTerminate}"))
+		_, _ = g.Redis().Del(ctx, key)
+		finalResult = true
+		return
+	}
+	if firstFlag {
+		// 查看数据是否同步，防止程序突然终止后数据不同步
+		err, _ = s.SyncIncreaseFansCronTaskTableData(ctx, &cronTask)
+		if err != nil {
+			finalResult = true
+			return
+		}
+
+		// 查看剩下多少粉丝需要添加
+		totalAccounts = totalAccounts - cronTask.IncreasedFans
+		if totalAccounts <= 0 {
+			err = gerror.New(g.I18n().T(ctx, "{#CompleteTask}") + gconv.String(cronTask.ExecutedDays) + g.I18n().T(ctx, "{#AddFansNumber}") + gconv.String(cronTask.IncreasedFans))
+			finalResult = true
+			return
+		}
+	}
+
+	// 把任务天数添加, 查看还有多少天需要执行，
+	execDay := executionDays(cronTask.StartTime, gtime.Now())
+	_, err = service.TgIncreaseFansCron().Model(ctx).WherePri(cronTask.Id).Data(g.Map{dao.TgIncreaseFansCron.Columns().ExecutedDays: execDay}).Update()
+	if err != nil {
+		err = gerror.New(g.I18n().T(ctx, "{#ModifyTaskDayFailed}") + err.Error())
+		finalResult = true
+		return
+	}
+	cronTask.ExecutedDays = execDay
+	totalDays = totalDays - cronTask.ExecutedDays
+
+	// 获取可小号列表
+	mod := service.TgUser().Model(ctx)
+	mod = mod.Where(dao.TgUser.Columns().AccountStatus, 0).Where(dao.TgUser.Columns().OrgId, cronTask.OrgId)
+
+	list := make([]*entity.TgUser, 0)
+	if err = mod.Fields(tgin.TgUserListModel{}).OrderAsc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
+		err = gerror.New(g.I18n().T(ctx, "{#GetTgAccountListFailed}") + err.Error())
+		finalResult = true
+		return
+	}
+
+	result, err := g.Redis().HGetAll(ctx, key)
+	if err != nil {
+		finalResult = true
+		return
+	}
+	resMap := result.Map()
+	// 找到所有的未操作的号
+	list = removeCtrlPhone(resMap, list)
+	if len(list) < totalAccounts {
+		err = gerror.New(g.I18n().T(ctx, "{#NoEnoughAddFans}"))
+		finalResult = true
+		return
+	}
+
+	// 每天所需的涨粉数
+	//dailyFollowerIncrease := dailyFollowerIncreaseList(totalAccounts, totalDays)
+
+	simple.SafeGo(gctx.New(), func(ctx context.Context) {
+		var finishFlag bool = false
+		channelModel, available, err := service.TgIncreaseFansCron().CheckChannel(ctx, &tgin.TgCheckChannelInp{cronTask.Channel, 0})
+		if err != nil {
+			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+			_, _ = g.Redis().Del(ctx, key)
+			return
+		}
+		if available == false {
+			err = gerror.New(g.I18n().T(ctx, "{#SearchChannelEmpty}"))
+			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+			_, _ = g.Redis().Del(ctx, key)
+			return
+		}
+		dailyFollowerIncrease, _, _, err := service.TgIncreaseFansCron().ChannelIncreaseFanDetail(ctx, &tgin.ChannelIncreaseFanDetailInp{
+			ChannelMemberCount: channelModel.ChannelMemberCount,
+			FansCount:          totalAccounts,
+			DayCount:           totalDays})
+
+		// 已经涨粉数（启动后所有天数加起来的涨粉总数）
+		var fanTotalCount int = cronTask.IncreasedFans
+
+		for _, todayFollowerTarget := range dailyFollowerIncrease {
+			if finishFlag {
+				break
+			}
+			// 计算好平均时间 一天的时间
+			averageSleepTime := averageSleepTime(1, todayFollowerTarget)
+			fmt.Println(g.I18n().T(ctx, "{#AverageTime}"), averageSleepTime)
+
+			cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
+
+			// 查看数据是否同步，防止程序突然终止后数据不同步 每天同步数据
+			err, joinSuccessNum := s.SyncIncreaseFansCronTaskTableData(ctx, &cronTask)
+			if err != nil {
+				finalResult = true
+				_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+				_, _ = g.Redis().Del(ctx, key)
+				return
+			}
+			fanTotalCount = joinSuccessNum
+
+			// 每过一天，记录一次
+			cronTask.IncreasedFans = fanTotalCount
+			_ = s.Edit(ctx, &tgin.TgIncreaseFansCronEditInp{cronTask})
+
+			var todayFollowerCount int = 0
+
+			// 开始涨粉
+			for _, fan := range list {
+				// 查看任务状态，可随时终止
+				viewRes, err := s.View(ctx, &tgin.TgIncreaseFansCronViewInp{Id: gconv.Int64(cronTask.Id)})
+				if err != nil {
+					_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+					_, _ = g.Redis().Del(ctx, key)
+					return
+				}
+				if viewRes.CronStatus != TASK_RUNNING {
+					// 任务终止
+					return
+				}
+
+				// 登录,加入频道
+				loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+				if joinErr != nil {
+					// 输入的channel有问题
+					err = joinErr
+					break
+				}
+				if loginErr != nil {
+					// 重新获取一个账号登录,递归
+					list = list[1:]
+					err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+					if err != nil {
+						break
+					}
+				}
+				todayFollowerCount++
+				fanTotalCount++
+
+				//添加粉丝完成后
+				_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(gdb.Map{
+					dao.TgIncreaseFansCron.Columns().IncreasedFans: fanTotalCount,
+				}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
+					Update()
+
+				//	如果添加完毕，则跳出
+				if fanTotalCount >= cronTask.FansCount {
+					finishFlag = true
+					break
+				}
+
+				sleepTime := randomSleepTime(averageSleepTime)
+				//fmt.Printf(g.I18n().T(ctx, "{#Sleep}"+
+				fmt.Println(g.I18n().T(ctx, "{#Sleep}"), sleepTime, "秒;"+"休眠：", sleepTime/60, "分钟;休眠：", sleepTime/3600, "小时")
+				time.Sleep(time.Duration(sleepTime) * time.Second)
+				//time.Sleep(5 * time.Second)
+
+				if todayFollowerCount >= todayFollowerTarget {
+					break
+				}
+			}
+
+			if err != nil {
+				// 终止
+				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
+
+				updateMap := gdb.Map{dao.TgIncreaseFansCron.Columns().CronStatus: TASK_ERR,
+					dao.TgIncreaseFansCron.Columns().ExecutedDays: cronTask.ExecutedDays,
+					dao.TgIncreaseFansCron.Columns().Comment:      err.Error()}
+				if fanTotalCount > 0 {
+					updateMap[dao.TgIncreaseFansCron.Columns().IncreasedFans] = fanTotalCount
+				}
+				_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(updateMap).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).Update()
+
+				_, _ = g.Redis().Del(ctx, key)
+				finalResult = true
+				break
+			}
+
+			// 查询完成情况 如果完成了
+			if fanTotalCount >= cronTask.FansCount {
+				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
+
+				_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(
+					gdb.Map{dao.TgIncreaseFansCron.Columns().CronStatus: 1,
+						dao.TgIncreaseFansCron.Columns().ExecutedDays: cronTask.ExecutedDays,
+					}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
+					Update()
+				_, _ = g.Redis().Del(ctx, key)
+				finalResult = true
+				break
+			}
+
+		}
+
+	})
+	return
+}
+
+// GetOneOnlineAccount 获取一个在线账号
+func (s *sTgIncreaseFansCron) GetOneOnlineAccount(ctx context.Context) (uint64, error) {
 	i := 0
 	flag := true
 	for flag {
@@ -319,6 +892,28 @@ func (s *sTgIncreaseFansCron) getOneOnlineAccount(ctx context.Context) (uint64, 
 		}
 	}
 	return 0, gerror.New(g.I18n().T(ctx, "{#GetInformationFailed}"))
+}
+
+func removeCtrlPhone(resMap map[string]interface{}, list []*entity.TgUser) []*entity.TgUser {
+	// 设置随机数种子
+	rand.Seed(time.Now().UnixNano())
+
+	// 打乱切片元素的顺序
+	rand.Shuffle(len(list), func(i, j int) {
+		list[i], list[j] = list[j], list[i]
+	})
+
+	if len(resMap) == 0 {
+		return list
+	}
+	newList := make([]*entity.TgUser, 0)
+	for _, k := range list {
+		if resMap[k.Phone] != nil {
+			continue
+		}
+		newList = append(newList, k)
+	}
+	return newList
 }
 
 func emojiToChannelMessages(ctx context.Context, account uint64, channelId string) (err error, msgFlag bool) {
@@ -469,16 +1064,12 @@ func getAllEmojiList(ctx context.Context, account uint64) (err error, emojiList 
 }
 
 func solveEquation(initialFans, targetFans, days int) float64 {
-	// Formula: initialFans * (1 + x/100)^days = targetFans
-	// Solving for x: x = 100 * ((targetFans/initialFans)^(1/days) - 1)
-
 	x := 100 * (math.Pow(float64(targetFans)/float64(initialFans), 1.0/float64(days)) - 1)
 	return x
 
 }
 
 func calculateDailyGrowth(initialFans int, days int, growthPercentage float64) (dailyGrowth []int, total int) {
-
 	for i := 1; i <= days; i++ {
 		// 计算每天的涨粉数量
 		growth := int(float64(initialFans) * (growthPercentage / 100))
@@ -538,14 +1129,15 @@ func randomSleepTime(sleepTime float64) int64 {
 	return result
 }
 
+// 计算执行天数
 func executionDays(startTime, endTime *gtime.Time) int {
-
 	duration := endTime.Sub(startTime)
 	days := int(duration.Hours() / 24)
 
 	return days
 }
 
+// 计算每天涨粉量
 func dailyFollowerIncreaseList(totalIncreaseFan int, totalDay int) []int {
 	// 设置随机种子
 	rand.Seed(time.Now().UnixNano())
@@ -584,6 +1176,7 @@ func dailyFollowerIncreaseList(totalIncreaseFan int, totalDay int) []int {
 	return dailyFollowerIncrease
 }
 
+// 切片倒叙
 func reverseSlice(slice []int) {
 	// 使用双指针法将切片倒序
 	left := 0
@@ -596,54 +1189,32 @@ func reverseSlice(slice []int) {
 	}
 }
 
-func GetAccountsPerDay(totalAccounts, totalDays int) []int {
-	if totalAccounts <= 0 || totalDays <= 0 {
-		return nil
+func checkUserHaveChannel(ctx context.Context, account uint64, channel string) (flag bool, err error) {
+	list, err := service.TgArts().TgGetDialogs(ctx, account)
+	if err != nil {
+		return false, nil
 	}
 
-	rand.Seed(time.Now().UnixNano())
+	if channel == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#SearchInfoEmpty}"))
+		return false, err
+	}
+	split := strings.Split(channel, "/")
 
-	accountsPerDay := make([]int, totalDays)
-	accountsLeft := totalAccounts
+	var channelUsername string
+	if len(split) > 0 {
+		channelUsername = split[len(split)-1]
+	}
+	if channelUsername == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#VerifyChannelAddressErr}"))
+		return false, err
+	}
 
-	for i := 0; i < totalDays-1; i++ {
-		accountsToLogin := accountsLeft / (totalDays - i)
-
-		if accountsToLogin <= 0 {
-			accountsPerDay[i] = 0
-			continue
+	for _, dialog := range list {
+		if dialog.Username == channelUsername && dialog.Type == 3 {
+			flag = true
+			return
 		}
-
-		var offset int
-		if accountsToLogin > 1 {
-			offset = rand.Intn(accountsToLogin/2) - accountsToLogin/4
-		} else {
-			offset = 0
-		}
-
-		accountsPerDay[i] = accountsToLogin + offset
-		accountsLeft -= accountsPerDay[i]
 	}
-
-	accountsPerDay[totalDays-1] = accountsLeft
-
-	return accountsPerDay
-}
-
-func TgChannelJoinByLink_Test(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) error {
-	return nil
-}
-
-func CodeLogin_Test(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
-	rand.Seed(time.Now().UnixNano())
-
-	// 生成0到99的随机数
-	random := rand.Intn(100)
-
-	// 根据随机数返回相应的布尔值
-	if random < 80 {
-		return nil, nil
-	} else {
-		return nil, gerror.New(g.I18n().T(ctx, "{#LogFailed}"))
-	}
+	return
 }
