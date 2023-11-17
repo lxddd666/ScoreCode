@@ -37,6 +37,12 @@ func (c *cTgIncreaseFansCron) Edit(ctx context.Context, req *tgincreasefanscron.
 	return
 }
 
+// UpdateStatus 修改频道状态
+func (c *cTgIncreaseFansCron) UpdateStatus(ctx context.Context, req *tgincreasefanscron.UpdateStatusReq) (res *tgincreasefanscron.UpdateStatusRes, err error) {
+	err = service.TgIncreaseFansCron().UpdateStatus(ctx, &req.TgIncreaseFansCronEditInp)
+	return
+}
+
 // View 获取指定TG频道涨粉任务信息
 func (c *cTgIncreaseFansCron) View(ctx context.Context, req *tgincreasefanscron.ViewReq) (res *tgincreasefanscron.ViewRes, err error) {
 	data, err := service.TgIncreaseFansCron().View(ctx, &req.TgIncreaseFansCronViewInp)
@@ -75,6 +81,12 @@ func (c *cTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, req 
 	res.DailyIncreaseFan = resp
 	res.Dangerous = flag
 	res.TotalDay = totalDay
+	return
+}
+
+// IncreaseChannelFansCron 定时添加粉丝
+func (c *cTgArts) IncreaseChannelFansCron(ctx context.Context, req *tgincreasefanscron.IncreaseChannelFansCronReq) (res *tgincreasefanscron.IncreaseChannelFansCronRes, err error) {
+	err, _ = service.TgIncreaseFansCron().TgIncreaseFansToChannel(ctx, &req.TgIncreaseFansCronInp)
 	return
 }
 

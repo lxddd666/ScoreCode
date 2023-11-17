@@ -36,6 +36,13 @@ type ViewRes struct {
 	*tg.TgIncreaseFansCronViewModel
 }
 
+type UpdateStatusReq struct {
+	g.Meta `path:"/tgIncreaseFansCron/updateStatus" method:"get" tags:"TG频道涨粉任务" summary:"修改任务状态"`
+	tg.TgIncreaseFansCronEditInp
+}
+
+type UpdateStatusRes struct{}
+
 // EditReq 修改/新增TG频道涨粉任务
 type EditReq struct {
 	g.Meta `path:"/tgIncreaseFansCron/edit" method:"post" tags:"TG频道涨粉任务" summary:"修改/新增TG频道涨粉任务"`
@@ -71,4 +78,13 @@ type ChannelIncreaseFanDetailRes struct {
 	DailyIncreaseFan []int `json:"dailyIncreaseFan"   dc:"每天添加数量"`
 	Dangerous        bool  `json:"dangerous"          dc:"短时间内涨大量粉丝会存在封号危险"`
 	TotalDay         int   `json:"totalDay"           dc:"默认推荐的时间"`
+}
+
+// IncreaseChannelFansCronReq 添加频道粉丝任务
+type IncreaseChannelFansCronReq struct {
+	g.Meta `path:"/tgIncreaseFansCron/channel/increaseFansCron" method:"post" tags:"tg-api" summary:"频道定时任务涨粉"`
+	tg.TgIncreaseFansCronInp
+}
+
+type IncreaseChannelFansCronRes struct {
 }

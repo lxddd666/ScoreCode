@@ -42,7 +42,6 @@ type TgIncreaseFansCronEditInp struct {
 }
 
 func (in *TgIncreaseFansCronEditInp) Filter(ctx context.Context) (err error) {
-
 	return
 }
 
@@ -71,6 +70,7 @@ func (in *TgIncreaseFansCronViewInp) Filter(ctx context.Context) (err error) {
 // TgCheckChannelInp 查看channel是否可用
 type TgCheckChannelInp struct {
 	Channel string `json:"channel" v:"required#IdNotEmpty" dc:"频道"`
+	Account uint64 `json:"account"  dc:"账号，不传就随机找一个登录账号获取channel"`
 }
 
 func (in *TgCheckChannelInp) Filter(ctx context.Context) (err error) {
@@ -131,4 +131,13 @@ type TgIncreaseFansCronExportModel struct {
 	UpdatedAt     *gtime.Time `json:"updatedAt"     dc:"更新时间"`
 	ExecutedDays  int         `json:"executedDays"  dc:"已执行天数"`
 	IncreasedFans int         `json:"increasedFans" dc:"已添加粉丝数"`
+}
+
+// TgIncreaseFansCronInp 涨粉任务
+type TgIncreaseFansCronInp struct {
+	Channel   string `json:"channel"    dc:"频道地址"`
+	TaskName  string `json:"taskName"   dc:"任务名称"`
+	FansCount int    `json:"fansCount"  dc:"涨粉数量"`
+	DayCount  int    `json:"dayCount"   dc:"持续天数"`
+	CronId    int64  `json:"cronId"     dc:"任务ID"`
 }

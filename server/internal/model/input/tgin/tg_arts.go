@@ -86,13 +86,6 @@ type TgSendReactionInp struct {
 	Emoticon string   `json:"emoticon" dc:"emoji"`
 }
 
-type TgIncreaseFansCronInp struct {
-	Channel   string `json:"channel"    dc:"频道地址"`
-	TaskName  string `json:"taskName"   dc:"任务名称"`
-	FansCount int    `json:"fansCount"  dc:"涨粉数量"`
-	DayCount  int    `json:"dayCount"   dc:"持续天数"`
-}
-
 type TgUpdateUserInfoInp struct {
 	Account   uint64         `json:"account"     dc:"电话"`
 	Username  *string        `json:"username"    dc:"用户名"`
