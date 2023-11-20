@@ -18,7 +18,7 @@ type TgMsg struct {
 	ChatId        int64       `json:"chatId"        description:"会话ID"`
 	ReqId         int64       `json:"reqId"         description:"请求id"`
 	Out           int         `json:"out"           description:"是否自己发出"`
-	SendMsg       []byte      `json:"sendMsg"       description:"发送消息原文(加密)"`
+	SendMsg       string      `json:"sendMsg"       description:"发送消息原文"`
 	TranslatedMsg []byte      `json:"translatedMsg" description:"发送消息译文(加密)"`
 	MsgType       int         `json:"msgType"       description:"消息类型"`
 	SendTime      *gtime.Time `json:"sendTime"      description:"发送时间"`

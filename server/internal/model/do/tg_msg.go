@@ -20,7 +20,7 @@ type TgMsg struct {
 	ChatId        interface{} // 会话ID
 	ReqId         interface{} // 请求id
 	Out           interface{} // 是否自己发出
-	SendMsg       []byte      // 发送消息原文(加密)
+	SendMsg       interface{} // 发送消息原文
 	TranslatedMsg []byte      // 发送消息译文(加密)
 	MsgType       interface{} // 消息类型
 	SendTime      *gtime.Time // 发送时间

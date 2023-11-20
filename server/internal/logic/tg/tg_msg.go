@@ -177,7 +177,6 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	}
 	//按消息发送时间推送给前端
 	a.Iterator(func(_ int, msg interface{}) bool {
-
 		websocket.SendToTag(gconv.String(msg.(entity.TgMsg).TgId), &websocket.WResponse{
 			Event:     consts.TgMsgEvent,
 			Data:      msg,
@@ -196,7 +195,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 		msg := entity.TgMsg{
 			TgId:          item.TgId,
 			ChatId:        item.ChatId,
-			SendMsg:       item.SendMsg,
+			SendMsg:       gconv.String(item.SendMsg),
 			TranslatedMsg: item.TranslatedMsg,
 			MsgType:       item.MsgType,
 			SendTime:      gtime.NewFromTime(item.SendTime),
@@ -222,16 +221,16 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 				}
 			}
 			if result != nil {
-				msg.SendMsg = []byte(gconv.String(result.Id))
+				msg.SendMsg = gconv.String(result.Id)
 			} else {
 				if item.SendMsg == nil {
 					//判断是否下载过该消息
-					var sendMsg []byte
+					var sendMsg string
 					_ = s.Model(ctx).Where(do.TgMsg{
 						TgId:   item.TgId,
 						ChatId: item.ChatId,
 					}).Fields(dao.TgMsg.Columns().SendMsg).Scan(&sendMsg)
-					if sendMsg != nil {
+					if sendMsg != "" {
 						msg.SendMsg = sendMsg
 					}
 					var tgUser entity.TgUser
@@ -254,7 +253,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 						return err
 					}
 
-					msg.SendMsg = []byte(gconv.String(res.Id))
+					msg.SendMsg = gconv.String(res.Id)
 
 				} else {
 					mime := mimetype.Detect(item.SendMsg)
@@ -271,7 +270,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 					if err != nil {
 						return err
 					}
-					msg.SendMsg = []byte(gconv.String(result.Id))
+					msg.SendMsg = gconv.String(result.Id)
 				}
 
 			}

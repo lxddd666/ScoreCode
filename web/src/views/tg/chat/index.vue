@@ -124,7 +124,6 @@ const onTgMessage = (res: { data: string }) => {
   console.log("onTgMessage--->", data);
   if (data.event === 'tgMsg') {
     let msg = data.data
-    msg.sendMsg = base64Dec(msg.sendMsg);
     chatList.value.map(data => {
       if (data.tgId == msg.chatId) {
         if (!data.msgList.some(item => item.reqId === msg.reqId)) {

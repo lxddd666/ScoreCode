@@ -28,7 +28,7 @@ type TgMsgColumns struct {
 	ChatId        string // 会话ID
 	ReqId         string // 请求id
 	Out           string // 是否自己发出
-	SendMsg       string // 发送消息原文(加密)
+	SendMsg       string // 发送消息原文
 	TranslatedMsg string // 发送消息译文(加密)
 	MsgType       string // 消息类型
 	SendTime      string // 发送时间

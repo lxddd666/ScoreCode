@@ -361,9 +361,9 @@ func (s *sTgUser) handlerReadSessionJsonFiles(ctx context.Context, file *ghttp.U
 			sessionExtensionName := filepath.Base(jsonPath)
 			sessionN := gfile.Name(sessionExtensionName)
 			jDirPath := filepath.Dir(jsonPath)
-			//path := gfile.Join(jDirPath, sessionN+".session")
+			path := gfile.Join(jDirPath, sessionN+".session")
 			// 中文文件特殊字符用gfile.Join拼接解析错误
-			path := jDirPath + "\\" + sessionN + ".session"
+			//path := jDirPath + "\\" + sessionN + ".session"
 			sessionJ.SessionAuthKey, err = s.handlerReadAuthKey(path, ctx, sessionJ)
 			if err != nil {
 				return
@@ -393,7 +393,7 @@ func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context, sessionJ 
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteNoPing}")+err.Error())
 		return
 	}
-	rows, err := db.Query("select dc_id,server_address,port,auth_key from sessions")
+	rows, err := db.Query("select dc_id,server_address,port,auth_key from main.sessions")
 	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteExecutionSqlFailed}")+err.Error())
 		return
@@ -404,7 +404,7 @@ func (s *sTgUser) handlerReadAuthKey(path string, ctx context.Context, sessionJ 
 		err = rows.Scan(&authKey.DC, &authKey.Addr, &authKey.Port, &authKey.AuthKey)
 		return
 	}
-	rows2, err2 := db.Query("select id from entities where phone = " + sessionJ.Phone)
+	rows2, err2 := db.Query("select id from main.entities where phone = " + sessionJ.Phone)
 	if err2 != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#SqliteExecutionSqlFailed}")+err.Error())
 		return
