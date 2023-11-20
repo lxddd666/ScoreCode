@@ -59,7 +59,7 @@ import {DropdownMixedOption} from 'naive-ui/lib/dropdown/src/interface';
 import ChatItem from './components/ChatItem.vue';
 import ChatArea from './components/ChatArea.vue';
 import router from "@/router";
-import {TgGetDialogs, TgLogin} from "@/api/tg/tgUser";
+import {TgGetDialogs, TgGetFolders, TgLogin} from "@/api/tg/tgUser";
 import {defaultState, TChatItemParam} from "@/views/tg/chat/components/model";
 import {addOnMessage, sendMsg} from "@/utils/websocket";
 import CryptoJS from "crypto-js";
@@ -89,9 +89,12 @@ const onChatItemClick = (item: TChatItemParam) => {
   activeItem.value = item;
 };
 const getChatList = async (account: number) => {
+  const folders = await TgGetFolders({account: account});
+
   const res = await TgGetDialogs({account: account});
   chatList.value = res.list;
   activeItem.value = res.list[0];
+
 };
 
 const load = async (id: number) => {
@@ -111,7 +114,7 @@ function updateTChatItem(item: TChatItemParam) {
 
 function base64Dec(base64Str: string) {
   let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
-  return parsedWordArray.toString(CryptoJS.enc.Utf8);
+  return parsedWordArray.toString();
 }
 
 const onMessageList = inject('onMessageList');

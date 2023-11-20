@@ -24,6 +24,7 @@ require (
 	github.com/gogf/gf/v2 v2.5.6
 	github.com/golang-jwt/jwt/v5 v5.1.0
 	github.com/gorilla/websocket v1.5.1
+	github.com/gotd/td v0.89.0
 	github.com/kayon/iploc v0.0.0-20200312105652-bda3e968a794
 	github.com/mattn/go-sqlite3 v1.14.18
 	github.com/minio/selfupdate v0.6.0
@@ -76,6 +77,8 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
+	github.com/go-faster/errors v0.6.1 // indirect
+	github.com/go-faster/jx v1.1.0 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -90,6 +93,7 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect
+	github.com/gotd/neo v0.1.5 // indirect
 	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -126,6 +130,7 @@ require (
 	github.com/richardlehane/mscfb v1.0.4 // indirect
 	github.com/richardlehane/msoleps v1.0.3 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/cast v1.5.1 // indirect

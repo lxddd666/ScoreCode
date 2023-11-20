@@ -46,6 +46,10 @@ enum Action {
   GET_ONLINE_ACCOUNTS = 34;
   UPDATE_USER_INFO = 35;
   SEARCH = 36;
+  FORWARD_MESSAGE = 38;
+  DELETE_MEMBER = 39;
+  GET_USER_CHAT_FOLDERS = 40;
+  UPDATE_USER_CHAT_FOLDERS = 41;
 }
 
 
@@ -66,22 +70,24 @@ message OrdinarySingleAction {
 
 }
 
+message ForwardMessageDetail {
+  uint64  Sender    =1;
+  string fromPeer  =2;
+  string ToPeer   =3;
+  repeated int64 MsgIds  =4;
+}
+
+message DeleteMemberDetail {
+  uint64 Sender = 1;
+  string ChatId  = 2;
+  repeated string DeleteUsers = 3;
+  string ChannelId = 4;
+}
+
 message LogoutAction {
   map<uint64, logoutDetail> logout_detail = 1;
   string Type = 2;
 }
-
-message DownUserHeadImageDetail{
-  uint64 account = 1 ;
-  uint64 getUser = 2 ;
-}
-
-message SearchDetail {
-  uint64 Sender = 1;
-  string Search =2;
-}
-
-
 
 message loginDetail {
   string proxyUrl = 1;
@@ -110,6 +116,16 @@ message GetUserHeadImageAction{
 
 message getUserHeadImage{
   repeated uint64 account = 1;
+}
+
+message DownUserHeadImageDetail{
+  uint64 account = 1 ;
+  uint64 getUser = 2 ;
+}
+
+message SearchDetail {
+  uint64 Sender = 1;
+  string Search =2;
 }
 
 
@@ -212,6 +228,10 @@ message RequestMessage {
     DownUserHeadImageDetail down_user_head_image_detail = 42;
       SearchDetail search_detail = 43;
       OrdinarySingleAction ordinary_single_action = 44;
+      ForwardMessageDetail forward_message_detail=45;
+      DeleteMemberDetail delete_member_detail = 46;
+      GetUserChatFoldersDetail get_user_chat_folders_detail = 47;
+    UpdateUserChatFoldersDetail update_user_chat_folders_details = 48;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -446,6 +466,29 @@ message GetEmojiGroupsDetail {
   uint64 Sender =1;
 }
 
+message GetUserChatFoldersDetail{
+  uint64 account = 1;
+}
+
+message UpdateUserChatFoldersDetail{
+  uint64 account = 1;
+  string title = 2;
+  uint64 folderID = 3;
+  repeated PeerBuf pinnedPeers = 4;
+  repeated PeerBuf includePeers = 5;
+  repeated PeerBuf excludePeers = 6;
+  bool groups = 7;
+  bool nonContacts = 8;
+  bool contacts = 9;
+  bool channels = 10;
+  bool bots = 11;
+  bool delete = 12;
+  string emoticon = 13;
+}
+message PeerBuf {
+  bytes buf = 1;
+}
+
 message MessagesReactionDetail{
   string Emotion = 1;
   UintkeyUintvalue detail = 2;
@@ -499,6 +542,8 @@ enum AccountStatus {
   LOGIN_CODE_FAIL = 6;// 验证码错误
   LOGOUT_FAIL = 7;// 登出失败
   LOGIN_SESSION_CORRUPTED = 8;//登录session损坏
+  LOGIN_TIMEOUT = 9;
+
 }
 
 // 定义返回消息

@@ -88,21 +88,22 @@ func (in *TgContactsListInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgContactsListModel struct {
-	Id        int64          `json:"id"        dc:"id"`
-	TgId      int64          `json:"tgId"      dc:"tg id"`
-	Username  string         `json:"username"  dc:"username"`
-	FirstName string         `json:"firstName" dc:"First Name"`
-	LastName  string         `json:"lastName"  dc:"Last Name"`
-	Avatar    string         `json:"avatar"    dc:"头像"`
-	Phone     string         `json:"phone"     dc:"phone"`
-	Type      int            `json:"type"      dc:"type"`
-	OrgId     int64          `json:"orgId"     dc:"organization id"`
-	Comment   string         `json:"comment"   dc:"comment"`
-	CreatedAt *gtime.Time    `json:"createdAt" dc:"创建时间"`
-	UpdatedAt *gtime.Time    `json:"updatedAt" dc:"更新时间"`
-	Last      TgMsgListModel `json:"last" dc:"最新消息"`
-	Creator   bool           `json:"creator"   dc:"creator"`
-	Deleted   bool           `json:"deleted" dc:"Deleted"`
+	Id         int64          `json:"id"        dc:"id"`
+	TgId       int64          `json:"tgId"      dc:"tg id"`
+	AccessHash int64          `json:"accessHash" dc:"AccessHash"`
+	Username   string         `json:"username"  dc:"username"`
+	FirstName  string         `json:"firstName" dc:"First Name"`
+	LastName   string         `json:"lastName"  dc:"Last Name"`
+	Avatar     string         `json:"avatar"    dc:"头像"`
+	Phone      string         `json:"phone"     dc:"phone"`
+	Type       int            `json:"type"      dc:"type"`
+	OrgId      int64          `json:"orgId"     dc:"organization id"`
+	Comment    string         `json:"comment"   dc:"comment"`
+	CreatedAt  *gtime.Time    `json:"createdAt" dc:"创建时间"`
+	UpdatedAt  *gtime.Time    `json:"updatedAt" dc:"更新时间"`
+	Last       TgMsgListModel `json:"last" dc:"最新消息"`
+	Creator    bool           `json:"creator"   dc:"creator"`
+	Deleted    bool           `json:"deleted" dc:"Deleted"`
 }
 
 // TgContactsExportModel 导出联系人管理

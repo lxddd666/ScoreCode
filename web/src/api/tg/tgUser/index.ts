@@ -1,4 +1,4 @@
-import {tg, jumpExport} from '@/utils/http/axios';
+import {jumpExport, tg} from '@/utils/http/axios';
 
 // 获取TG账号列表
 export function List(params: any) {
@@ -105,6 +105,15 @@ export function TgBathLogout(params: any) {
 // 导出TG账号
 export function Export(params: any) {
   jumpExport('/tgUser/export', params);
+}
+
+// 获取会话文件夹
+export function TgGetFolders(params: any) {
+  return tg.request({
+    url: '/arts/folders',
+    method: 'GET',
+    params,
+  });
 }
 
 // 获取会话列表
