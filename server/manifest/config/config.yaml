@@ -221,9 +221,9 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "34.124.217.133:57119"
-    db: "0"
-    pass: "sLAGAU1JHQpI"
+    address: "10.8.5.21:6379"
+    db: "2"
+    pass: ""
     idleTimeout: "20"
 
 # etcd
@@ -323,8 +323,8 @@ grpc:
   env:
     GF_GSVC_Name: grata
     GF_GSVC_PREFIX: service
-    GF_GSVC_DEPLOYMENT: uat
-    GF_GSVC_NAMESPACE: uat
+    GF_GSVC_DEPLOYMENT: zh
+    GF_GSVC_NAMESPACE: zh
     GF_GSVC_VERSION: "latest"
   service:
     arts: arts_manager
