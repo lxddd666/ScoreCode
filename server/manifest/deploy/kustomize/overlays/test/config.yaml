@@ -215,7 +215,7 @@ queue:
 # Redis. 配置参考：https://goframe.org/pages/viewpage.action?pageId=1114217
 redis:
   default:
-    address: "103.205.6.236:32456"
+    address: "redis-cluster-headless:6379"
     db: "2"
     pass: "sLAGAU1JHQpI"
     idleTimeout: "20"
