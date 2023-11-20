@@ -176,12 +176,6 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 
 }
 
-func TestRedis(t *testing.T) {
-	all, err := g.Redis().HGetAll(ctx, consts.WhatsMsgReadReqKey)
-	panicErr(err)
-	g.Dump(all.Map())
-}
-
 func TestArray(t *testing.T) {
 	var list []*entity.WhatsAccount
 	err := dao.WhatsAccount.Ctx(ctx).

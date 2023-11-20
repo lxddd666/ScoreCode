@@ -294,8 +294,6 @@ func dailyFollowerIncreaseList(totalIncreaseFan int, totalDay int) []int {
 		dailyFollowerIncrease = append(dailyFollowerIncrease, increase)
 	}
 
-	reverseSlice(dailyFollowerIncrease)
-
 	return dailyFollowerIncrease
 }
 
