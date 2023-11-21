@@ -58,12 +58,12 @@ func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq)
 
 // GetDialogs 获取chats
 func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
-	list, err := service.TgArts().TgGetDialogs(ctx, req.Account)
+	result, err := service.TgArts().TgGetDialogs(ctx, req.Account)
 	if err != nil {
 		return
 	}
-	res = new(tgarts.TgGetDialogsRes)
-	res.List = list
+	res = (*tgarts.TgGetDialogsRes)(&result.Dialogs)
+
 	return
 }
 

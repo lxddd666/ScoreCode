@@ -6,7 +6,7 @@ import {setupStore} from '@/store';
 import {setupDirectives, setupNaive} from '@/plugins';
 import {AppProvider} from '@/components/Application';
 import Websocket from '@/utils/websocket';
-import * as buffer from "buffer";
+// import * as buffer from "buffer";
 
 async function bootstrap() {
   const appProvider = createApp(AppProvider);
@@ -17,12 +17,12 @@ async function bootstrap() {
   setupNaive(app);
 
 
-  if (typeof (window as any).global === "undefined") {
-    (window as any).global = window;
-  }
-  if (typeof (window as any).Buffer === "undefined") {
-    (window as any).Buffer = buffer.Buffer;
-  }
+  // if (typeof (window as any).global === "undefined") {
+  //   (window as any).global = window;
+  // }
+  // if (typeof (window as any).Buffer === "undefined") {
+  //   (window as any).Buffer = buffer.Buffer;
+  // }
   // 注册全局自定义组件
   //setupCustomComponents();
 

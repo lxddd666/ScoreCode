@@ -12,6 +12,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gotd/td/bin"
+	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
@@ -435,36 +437,26 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 }
 
 // TgGetDialogs 获取chats
-func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error) {
+func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (result tg.MessagesDialogsBox, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, account); err != nil {
 		return
-	}
-	msg := &protobuf.GetDialogList{
-		Account: account,
 	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_DIALOG_LIST,
 		Type:    consts.TgSvc,
 		Account: account,
 		ActionDetail: &protobuf.RequestMessage_GetDialogList{
-			GetDialogList: msg,
+			GetDialogList: &protobuf.GetDialogList{
+				Account: account,
+			},
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
 	if err != nil {
 		return
 	}
-	err = gjson.DecodeTo(resp.Data, &list)
-	if err != nil {
-		return
-	}
-	for _, item := range list {
-		if item.Deleted {
-			item.FirstName = g.I18n().T(ctx, "{#DeleteAccount}")
-		}
-		item.Last.SendMsg = gbase64.MustDecodeToString(item.Last.SendMsg)
-	}
+	err = (&bin.Buffer{Buf: resp.Data}).Decode(&result)
 	return
 }
 

@@ -2,6 +2,7 @@ package tg_arts_folders
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gotd/td/tg"
 )
 
 // GetFoldersReq 获取会话文件夹
@@ -10,4 +11,4 @@ type GetFoldersReq struct {
 	Account uint64 `json:"account" v:"required#SelectLoginAccount" dc:"account"`
 }
 
-type GetFoldersRes []byte
+type GetFoldersRes tg.DialogFilterClassVector

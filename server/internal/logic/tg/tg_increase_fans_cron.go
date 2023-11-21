@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -1209,7 +1210,7 @@ func reverseSlice(slice []int) {
 }
 
 func checkUserHaveChannel(ctx context.Context, account uint64, channel string) (flag bool, err error) {
-	list, err := service.TgArts().TgGetDialogs(ctx, account)
+	result, err := service.TgArts().TgGetDialogs(ctx, account)
 	if err != nil {
 		return false, nil
 	}
@@ -1228,11 +1229,16 @@ func checkUserHaveChannel(ctx context.Context, account uint64, channel string) (
 		err = gerror.New(g.I18n().T(ctx, "{#VerifyChannelAddressErr}"))
 		return false, err
 	}
-
-	for _, dialog := range list {
-		if dialog.Username == channelUsername && dialog.Type == 3 {
-			flag = true
-			return
+	dialogs, b := result.Dialogs.AsModified()
+	if !b {
+		return
+	}
+	for _, class := range dialogs.GetChats() {
+		switch v := class.(type) {
+		case *tg.Channel: // channel#1981ea7e
+			if v.Username == channelUsername {
+				flag = true
+			}
 		}
 	}
 	return

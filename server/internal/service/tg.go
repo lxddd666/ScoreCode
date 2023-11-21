@@ -17,31 +17,10 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/database/gredis"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gotd/td/tg"
 )
 
 type (
-	ITgArtsFolders interface {
-		// GetFolders 获取会话文件夹
-		GetFolders(ctx context.Context, account uint64) (result []byte, err error)
-	}
-	ITgContacts interface {
-		// Model 联系人管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取联系人管理列表
-		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
-		// Export 导出联系人管理
-		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
-		// Edit 修改/新增联系人管理
-		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
-		// Delete 删除联系人管理
-		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
-		// View 获取联系人管理指定信息
-		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
-		// ByTgUser 获取TG账号联系人
-		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
-		// SyncContactCallback 同步联系人
-		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
-	}
 	ITgIncreaseFansCronAction interface {
 		// Model TG频道涨粉任务执行情况ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -51,29 +30,23 @@ type (
 		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronActionDeleteInp) (err error)
 		View(ctx context.Context, in *tgin.TgIncreaseFansCronActionViewInp) (res *tgin.TgIncreaseFansCronActionViewModel, err error)
 	}
-	ITgKeepTask interface {
-		// Model 养号任务ORM模型
+	ITgMsg interface {
+		// Model 消息记录ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取养号任务列表
-		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
-		// Export 导出养号任务
-		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
-		// Edit 修改/新增养号任务
-		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
-		// Delete 删除养号任务
-		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
-		// View 获取养号任务指定信息
-		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
-		// Status 更新养号任务状态
-		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
-		// Once 执行一次
-		Once(ctx context.Context, id int64) (err error)
-		// ClusterSync 集群同步
-		ClusterSync(ctx context.Context, message *gredis.Message)
-		// Run 执行
-		Run(ctx context.Context)
-		// InitTask 初始化所有任务
-		InitTask(ctx context.Context)
+		// List 获取消息记录列表
+		List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.TgMsgListModel, totalCount int, err error)
+		// Export 导出消息记录
+		Export(ctx context.Context, in *tgin.TgMsgListInp) (err error)
+		// Edit 修改/新增消息记录
+		Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error)
+		// Delete 删除消息记录
+		Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error)
+		// View 获取消息记录指定信息
+		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
+		// MsgCallback 发送消息回调
+		MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCallbackRes) (err error)
+		// ReadMsgCallback 已读回调
+		ReadMsgCallback(ctx context.Context, readMsg callback.TgReadMsgCallback) (err error)
 	}
 	ITgUser interface {
 		// Model TG账号ORM模型
@@ -129,7 +102,7 @@ type (
 		// TgSyncContact 同步联系人
 		TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error)
 		// TgGetDialogs 获取chats
-		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
+		TgGetDialogs(ctx context.Context, account uint64) (result tg.MessagesDialogsBox, err error)
 		// TgGetContacts 获取contacts
 		TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error)
 		// TgGetMsgHistory 获取聊天历史
@@ -152,14 +125,33 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
-		// TgGetUserAvatar 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
-		// TgGetSearchInfo 查询搜索
 		TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
-		// TgCheckUsername 校验用户名
 		TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error)
+	}
+	ITgArtsFolders interface {
+		// GetFolders 获取会话文件夹
+		GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error)
+	}
+	ITgContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
+		// ByTgUser 获取TG账号联系人
+		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
+		// SyncContactCallback 同步联系人
+		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
 	}
 	ITgIncreaseFansCron interface {
 		// Model TG频道涨粉任务ORM模型
@@ -199,23 +191,29 @@ type (
 		// GetOneOnlineAccount 获取一个在线账号
 		GetOneOnlineAccount(ctx context.Context) (uint64, error)
 	}
-	ITgMsg interface {
-		// Model 消息记录ORM模型
+	ITgKeepTask interface {
+		// Model 养号任务ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取消息记录列表
-		List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.TgMsgListModel, totalCount int, err error)
-		// Export 导出消息记录
-		Export(ctx context.Context, in *tgin.TgMsgListInp) (err error)
-		// Edit 修改/新增消息记录
-		Edit(ctx context.Context, in *tgin.TgMsgEditInp) (err error)
-		// Delete 删除消息记录
-		Delete(ctx context.Context, in *tgin.TgMsgDeleteInp) (err error)
-		// View 获取消息记录指定信息
-		View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgMsgViewModel, err error)
-		// MsgCallback 发送消息回调
-		MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCallbackRes) (err error)
-		// ReadMsgCallback 已读回调
-		ReadMsgCallback(ctx context.Context, readMsg callback.TgReadMsgCallback) (err error)
+		// List 获取养号任务列表
+		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
+		// Export 导出养号任务
+		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
+		// Edit 修改/新增养号任务
+		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
+		// Delete 删除养号任务
+		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
+		// View 获取养号任务指定信息
+		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
+		// Status 更新养号任务状态
+		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
+		// Once 执行一次
+		Once(ctx context.Context, id int64) (err error)
+		// ClusterSync 集群同步
+		ClusterSync(ctx context.Context, message *gredis.Message)
+		// Run 执行
+		Run(ctx context.Context)
+		// InitTask 初始化所有任务
+		InitTask(ctx context.Context)
 	}
 	ITgProxy interface {
 		// Model 代理管理ORM模型
@@ -236,16 +234,38 @@ type (
 )
 
 var (
-	localTgKeepTask               ITgKeepTask
-	localTgUser                   ITgUser
-	localTgArtsFolders            ITgArtsFolders
-	localTgContacts               ITgContacts
 	localTgIncreaseFansCronAction ITgIncreaseFansCronAction
+	localTgMsg                    ITgMsg
+	localTgUser                   ITgUser
+	localTgKeepTask               ITgKeepTask
 	localTgProxy                  ITgProxy
 	localTgArts                   ITgArts
+	localTgArtsFolders            ITgArtsFolders
+	localTgContacts               ITgContacts
 	localTgIncreaseFansCron       ITgIncreaseFansCron
-	localTgMsg                    ITgMsg
 )
+
+func TgIncreaseFansCron() ITgIncreaseFansCron {
+	if localTgIncreaseFansCron == nil {
+		panic("implement not found for interface ITgIncreaseFansCron, forgot register?")
+	}
+	return localTgIncreaseFansCron
+}
+
+func RegisterTgIncreaseFansCron(i ITgIncreaseFansCron) {
+	localTgIncreaseFansCron = i
+}
+
+func TgKeepTask() ITgKeepTask {
+	if localTgKeepTask == nil {
+		panic("implement not found for interface ITgKeepTask, forgot register?")
+	}
+	return localTgKeepTask
+}
+
+func RegisterTgKeepTask(i ITgKeepTask) {
+	localTgKeepTask = i
+}
 
 func TgProxy() ITgProxy {
 	if localTgProxy == nil {
@@ -267,50 +287,6 @@ func TgArts() ITgArts {
 
 func RegisterTgArts(i ITgArts) {
 	localTgArts = i
-}
-
-func TgIncreaseFansCron() ITgIncreaseFansCron {
-	if localTgIncreaseFansCron == nil {
-		panic("implement not found for interface ITgIncreaseFansCron, forgot register?")
-	}
-	return localTgIncreaseFansCron
-}
-
-func RegisterTgIncreaseFansCron(i ITgIncreaseFansCron) {
-	localTgIncreaseFansCron = i
-}
-
-func TgMsg() ITgMsg {
-	if localTgMsg == nil {
-		panic("implement not found for interface ITgMsg, forgot register?")
-	}
-	return localTgMsg
-}
-
-func RegisterTgMsg(i ITgMsg) {
-	localTgMsg = i
-}
-
-func TgKeepTask() ITgKeepTask {
-	if localTgKeepTask == nil {
-		panic("implement not found for interface ITgKeepTask, forgot register?")
-	}
-	return localTgKeepTask
-}
-
-func RegisterTgKeepTask(i ITgKeepTask) {
-	localTgKeepTask = i
-}
-
-func TgUser() ITgUser {
-	if localTgUser == nil {
-		panic("implement not found for interface ITgUser, forgot register?")
-	}
-	return localTgUser
-}
-
-func RegisterTgUser(i ITgUser) {
-	localTgUser = i
 }
 
 func TgArtsFolders() ITgArtsFolders {
@@ -344,4 +320,26 @@ func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
 
 func RegisterTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
 	localTgIncreaseFansCronAction = i
+}
+
+func TgMsg() ITgMsg {
+	if localTgMsg == nil {
+		panic("implement not found for interface ITgMsg, forgot register?")
+	}
+	return localTgMsg
+}
+
+func RegisterTgMsg(i ITgMsg) {
+	localTgMsg = i
+}
+
+func TgUser() ITgUser {
+	if localTgUser == nil {
+		panic("implement not found for interface ITgUser, forgot register?")
+	}
+	return localTgUser
+}
+
+func RegisterTgUser(i ITgUser) {
+	localTgUser = i
 }
