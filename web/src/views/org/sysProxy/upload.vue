@@ -27,7 +27,7 @@
         :data="{ type: 0 }"
         @finish="finish"
         :custom-request="customRequest"
-        name=条数据"file"
+        name="file"
         :max="maxUpload"
         ref="uploadRef"
       >
