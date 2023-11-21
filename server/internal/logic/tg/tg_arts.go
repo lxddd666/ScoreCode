@@ -971,3 +971,30 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 	}
 	return
 }
+
+func (s *sTgArts) TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Account: inp.Account,
+		Action:  protobuf.Action_CHECK_USERNAME,
+		Type:    "telegram",
+		ActionDetail: &protobuf.RequestMessage_CheckUsernameDetail{
+			CheckUsernameDetail: &protobuf.CheckUserNameDetail{
+				Account:  inp.Account,
+				Username: inp.Username,
+			},
+		},
+	}
+	flag = false
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	if resp.RespondAccountStatus == protobuf.AccountStatus_SUCCESS {
+		flag = true
+	}
+	return
+}

@@ -95,6 +95,11 @@ type TgUpdateUserInfoInp struct {
 	Photo     artsin.FileMsg `json:"photo"      dc:"photo"`
 }
 
+type TgCheckUsernameInp struct {
+	Account  uint64 `json:"account"     dc:"电话"`
+	Username string `json:"username"    dc:"用户名"`
+}
+
 type TgGetUserAvatarInp struct {
 	Account uint64 `json:"account"     dc:"电话"`
 	GetUser uint64 `json:"getUser"     dc:"获取头像的用户"`

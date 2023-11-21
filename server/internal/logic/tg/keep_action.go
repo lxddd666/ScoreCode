@@ -137,13 +137,17 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	if err != nil {
 		return
 	}
-	//修改签名
-	url := RandUrl(TEXT)
-	if url == "" {
-		return
-	}
-	bio := g.Client().Discovery(nil).GetContent(ctx, url)
+
 	for _, user := range tgUserList {
+		//修改签名
+		url := RandUrl(TEXT)
+		if url == "" {
+			return
+		}
+		g.Log().Infof(ctx, "url: %s", url)
+		bio := g.Client().Discovery(nil).GetContent(ctx, url)
+		g.Log().Infof(ctx, "bio: %s", bio)
+
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)

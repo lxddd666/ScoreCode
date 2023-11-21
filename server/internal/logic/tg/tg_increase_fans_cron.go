@@ -2,7 +2,6 @@ package tg
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
@@ -269,7 +268,7 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 			channelSize += addedFans
 			totalFans = totalFans + addedFans
 			daily = append(daily, addedFans)
-			fmt.Println(g.I18n().T(ctx, "{#RiseFans}"), addedFans, "total", channelSize, "天", days, "速率", rate)
+
 		}
 	} else {
 		_, total := calculateDailyGrowth(channelSize, targetDay, maxRate*100)
@@ -469,7 +468,7 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 		resMap[fan.Phone] = ACCOUNT_ERR
 		return nil, joinChannelErr
 	}
-	fmt.Println(g.I18n().T(ctx, "{#AddChannelSuccess}") + fan.Phone)
+	g.Log().Infof(ctx, "{#AddChannelSuccess}: %s", fan.Phone)
 
 	// 点赞操作
 	err, msgFlag := emojiToChannelMessages(ctx, gconv.Uint64(fan.Phone), channelId)
@@ -750,7 +749,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 			}
 			// 计算好平均时间 一天的时间
 			averageSleepTime := averageSleepTime(1, todayFollowerTarget)
-			fmt.Println(g.I18n().T(ctx, "{#AverageTime}"), averageSleepTime)
+			g.Log().Infof(ctx, "average sleep time: %s", averageSleepTime)
 
 			cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
 
@@ -815,8 +814,9 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 				}
 
 				sleepTime := randomSleepTime(averageSleepTime)
-				//fmt.Printf(g.I18n().T(ctx, "{#Sleep}"+
-				fmt.Println(g.I18n().T(ctx, "{#Sleep}"), sleepTime, "秒;"+"休眠：", sleepTime/60, "分钟;休眠：", sleepTime/3600, "小时")
+
+				g.Log().Infof(ctx, "休眠时间: %s 小时", sleepTime/3600)
+
 				time.Sleep(time.Duration(sleepTime) * time.Second)
 				//time.Sleep(5 * time.Second)
 
@@ -1031,7 +1031,7 @@ func getIndex(items []uint64, target uint64) int {
 }
 
 func getAllEmojiList(ctx context.Context, account uint64) (err error, emojiList []string) {
-	standbyList := []string{"❤", "👍", "💔", "👎", "🤮", "👌", "🤣", "👏"}
+	standbyList := []string{"❤", "👍", "👌", "👏"}
 
 	all, err := g.Redis().HGetAll(ctx, consts.TgGetEmoJiList)
 	if err != nil || all.IsEmpty() {

@@ -220,3 +220,11 @@ type GetSearchInfoReq struct {
 type GetSearchInfoRes struct {
 	List []*tgin.TgGetSearchInfoModel `json:"list" dc:"search"`
 }
+
+// CheckUsernameReq 校验用户名2
+type CheckUsernameReq struct {
+	g.Meta `path:"/arts/user/checkUsername" method:"post" tags:"tg-api" summary:"校验用户名"`
+	*tgin.TgCheckUsernameInp
+}
+
+type CheckUsernameRes struct{}

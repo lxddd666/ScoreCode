@@ -50,6 +50,9 @@ enum Action {
   DELETE_MEMBER = 39;
   GET_USER_CHAT_FOLDERS = 40;
   UPDATE_USER_CHAT_FOLDERS = 41;
+  CHECK_USERNAME = 42;
+  UPDATES_GET_STATUS = 43;
+  CREATE_BOT = 44;
 }
 
 
@@ -232,6 +235,9 @@ message RequestMessage {
       DeleteMemberDetail delete_member_detail = 46;
       GetUserChatFoldersDetail get_user_chat_folders_detail = 47;
     UpdateUserChatFoldersDetail update_user_chat_folders_details = 48;
+    CheckUserNameDetail check_username_detail = 49;
+    UpdatesGetStatusDetail update_get_status_detail = 50;
+    CreateBotDetail create_bot_detail = 51;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -493,6 +499,20 @@ message MessagesReactionDetail{
   string Emotion = 1;
   UintkeyUintvalue detail = 2;
   string Receiver = 3;
+}
+
+
+message UpdatesGetStatusDetail{
+  uint64 account = 1;
+}
+
+message CreateBotDetail {
+  uint64 Sender = 1;
+}
+
+message CheckUserNameDetail{
+  uint64 account = 1;
+  string username = 2;
 }
 
 message LeaveDetail {
