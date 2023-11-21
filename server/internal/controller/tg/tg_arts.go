@@ -190,3 +190,9 @@ func (c *cTgArts) GetSearchInfo(ctx context.Context, req *tgarts.GetSearchInfoRe
 	res.List = resp
 	return
 }
+
+// CheckUsername 校验用户名
+func (c *cTgArts) CheckUsername(ctx context.Context, req *tgarts.CheckUsernameReq) (res *tgarts.CheckUsernameRes, err error) {
+	_, err = service.TgArts().TgCheckUsername(ctx, req.TgCheckUsernameInp)
+	return
+}
