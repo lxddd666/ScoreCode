@@ -37,7 +37,7 @@ type ViewRes struct {
 }
 
 type UpdateStatusReq struct {
-	g.Meta `path:"/tgIncreaseFansCron/updateStatus" method:"get" tags:"TG频道涨粉任务" summary:"修改任务状态"`
+	g.Meta `path:"/tgIncreaseFansCron/updateStatus" method:"post" tags:"TG频道涨粉任务" summary:"修改任务状态"`
 	tg.TgIncreaseFansCronEditInp
 }
 

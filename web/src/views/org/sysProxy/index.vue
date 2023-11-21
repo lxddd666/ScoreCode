@@ -15,7 +15,7 @@
         ref="searchFormRef"
       >
         <template #statusSlot="{ model, field }">
-          <n-input v-model:value="model[field]"/>
+          <n-input v-model:value="model[field]" />
         </template>
       </BasicForm>
 
@@ -40,7 +40,7 @@
           >
             <template #icon>
               <n-icon>
-                <PlusOutlined/>
+                <PlusOutlined />
               </n-icon>
             </template>
             添加
@@ -54,7 +54,7 @@
           >
             <template #icon>
               <n-icon>
-                <DeleteOutlined/>
+                <DeleteOutlined />
               </n-icon>
             </template>
             批量删除
@@ -67,7 +67,7 @@
           >
             <template #icon>
               <n-icon>
-                <UploadOutlined/>
+                <UploadOutlined />
               </n-icon>
             </template>
             导入
@@ -80,7 +80,7 @@
           >
             <template #icon>
               <n-icon>
-                <ExportOutlined/>
+                <ExportOutlined />
               </n-icon>
             </template>
             导出
@@ -93,7 +93,7 @@
           >
             <template #icon>
               <n-icon>
-                <Loading3QuartersOutlined/>
+                <Loading3QuartersOutlined />
               </n-icon>
             </template>
             测试
@@ -108,200 +108,200 @@
       :formParams="formParams"
     />
 
-    <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall"/>
+    <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import {h, reactive, ref} from 'vue';
-import {useDialog, useMessage} from 'naive-ui';
-import {BasicTable, TableAction} from '@/components/Table';
-import {BasicForm, useForm} from '@/components/Form/index';
-import {usePermission} from '@/hooks/web/usePermission';
-import {List, Export, Delete, Status, Test} from '@/api/org/sysProxy';
-import {State, columns, schemas, options, newState} from './model';
-import {
-  PlusOutlined,
-  ExportOutlined,
-  DeleteOutlined,
-  UploadOutlined,
-  Loading3QuartersOutlined
-} from '@vicons/antd';
-import {useRouter} from 'vue-router';
-import {getOptionLabel} from '@/utils/hotgo';
-import Edit from './edit.vue';
-import FileUpload from './upload.vue';
-import {Attachment} from "@/components/FileChooser/src/model";
+  import { h, reactive, ref } from 'vue';
+  import { useDialog, useMessage } from 'naive-ui';
+  import { BasicTable, TableAction } from '@/components/Table';
+  import { BasicForm, useForm } from '@/components/Form/index';
+  import { usePermission } from '@/hooks/web/usePermission';
+  import { List, Export, Delete, Status, Test } from '@/api/org/sysProxy';
+  import { State, columns, schemas, options, newState } from './model';
+  import {
+    PlusOutlined,
+    ExportOutlined,
+    DeleteOutlined,
+    UploadOutlined,
+    Loading3QuartersOutlined,
+  } from '@vicons/antd';
+  import { useRouter } from 'vue-router';
+  import { getOptionLabel } from '@/utils/hotgo';
+  import Edit from './edit.vue';
+  import FileUpload from './upload.vue';
+  import { Attachment } from '@/components/FileChooser/src/model';
 
-const {hasPermission} = usePermission();
-const router = useRouter();
-const actionRef = ref();
-const dialog = useDialog();
-const message = useMessage();
-const searchFormRef = ref<any>({});
-const batchDeleteDisabled = ref(true);
-const checkedIds = ref([]);
-const showModal = ref(false);
-const formParams = ref<State>();
-const fileUploadRef = ref();
+  const { hasPermission } = usePermission();
+  const router = useRouter();
+  const actionRef = ref();
+  const dialog = useDialog();
+  const message = useMessage();
+  const searchFormRef = ref<any>({});
+  const batchDeleteDisabled = ref(true);
+  const checkedIds = ref([]);
+  const showModal = ref(false);
+  const formParams = ref<State>();
+  const fileUploadRef = ref();
 
-const actionColumn = reactive({
-  width: 300,
-  title: '操作',
-  key: 'action',
-  // fixed: 'right',
-  render(record) {
-    return h(TableAction as any, {
-      style: 'button',
-      actions: [
-        {
-          label: '编辑',
-          onClick: handleEdit.bind(null, record),
-          auth: ['/sysProxy/edit'],
-        },
-        {
-          label: '禁用',
-          onClick: handleStatus.bind(null, record, 2),
-          ifShow: () => {
-            return record.status === 1;
+  const actionColumn = reactive({
+    width: 300,
+    title: '操作',
+    key: 'action',
+    // fixed: 'right',
+    render(record) {
+      return h(TableAction as any, {
+        style: 'button',
+        actions: [
+          {
+            label: '编辑',
+            onClick: handleEdit.bind(null, record),
+            auth: ['/sysProxy/edit'],
           },
-          auth: ['/sysProxy/status'],
-        },
-        {
-          label: '启用',
-          onClick: handleStatus.bind(null, record, 1),
-          ifShow: () => {
-            return record.status === 2;
+          {
+            label: '禁用',
+            onClick: handleStatus.bind(null, record, 2),
+            ifShow: () => {
+              return record.status === 1;
+            },
+            auth: ['/sysProxy/status'],
           },
-          auth: ['/sysProxy/status'],
+          {
+            label: '启用',
+            onClick: handleStatus.bind(null, record, 1),
+            ifShow: () => {
+              return record.status === 2;
+            },
+            auth: ['/sysProxy/status'],
+          },
+          {
+            label: '删除',
+            onClick: handleDelete.bind(null, record),
+            auth: ['/sysProxy/delete'],
+          },
+        ],
+        dropDownActions: [
+          {
+            label: '查看详情',
+            key: 'view',
+            auth: ['/sysProxy/view'],
+          },
+        ],
+        select: (key) => {
+          if (key === 'view') {
+            return handleView(record);
+          }
         },
-        {
-          label: '删除',
-          onClick: handleDelete.bind(null, record),
-          auth: ['/sysProxy/delete'],
-        },
-      ],
-      dropDownActions: [
-        {
-          label: '查看详情',
-          key: 'view',
-          auth: ['/sysProxy/view'],
-        },
-      ],
-      select: (key) => {
-        if (key === 'view') {
-          return handleView(record);
-        }
+      });
+    },
+  });
+
+  const [register, {}] = useForm({
+    gridProps: { cols: '1 s:1 m:2 l:3 xl:4 2xl:4' },
+    labelWidth: 80,
+    schemas,
+  });
+
+  const loadDataTable = async (res) => {
+    return await List({ ...searchFormRef.value?.formModel, ...res });
+  };
+
+  function addTable() {
+    showModal.value = true;
+    formParams.value = newState(null);
+  }
+
+  function handleUpload() {
+    fileUploadRef.value.openModal();
+  }
+
+  function updateShowModal(value) {
+    showModal.value = value;
+  }
+
+  function onCheckedRow(rowKeys) {
+    batchDeleteDisabled.value = rowKeys.length <= 0;
+    checkedIds.value = rowKeys;
+  }
+
+  function reloadTable() {
+    actionRef.value.reload();
+  }
+
+  function handleView(record: Recordable) {
+    router.push({ name: 'sysProxyView', params: { id: record.id } });
+  }
+
+  function handleEdit(record: Recordable) {
+    showModal.value = true;
+    formParams.value = newState(record as State);
+  }
+
+  function handleDelete(record: Recordable) {
+    dialog.warning({
+      title: '警告',
+      content: '你确定要删除？',
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        Delete(record).then((_res) => {
+          message.success('删除成功');
+          reloadTable();
+        });
+      },
+      onNegativeClick: () => {
+        // message.error('取消');
       },
     });
-  },
-});
-
-const [register, {}] = useForm({
-  gridProps: {cols: '1 s:1 m:2 l:3 xl:4 2xl:4'},
-  labelWidth: 80,
-  schemas,
-});
-
-const loadDataTable = async (res) => {
-  return await List({...searchFormRef.value?.formModel, ...res});
-};
-
-function addTable() {
-  showModal.value = true;
-  formParams.value = newState(null);
-}
-
-function handleUpload() {
-  fileUploadRef.value.openModal();
-}
-
-function updateShowModal(value) {
-  showModal.value = value;
-}
-
-function onCheckedRow(rowKeys) {
-  batchDeleteDisabled.value = rowKeys.length <= 0;
-  checkedIds.value = rowKeys;
-}
-
-function reloadTable() {
-  actionRef.value.reload();
-}
-
-function handleView(record: Recordable) {
-  router.push({name: 'sysProxyView', params: {id: record.id}});
-}
-
-function handleEdit(record: Recordable) {
-  showModal.value = true;
-  formParams.value = newState(record as State);
-}
-
-function handleDelete(record: Recordable) {
-  dialog.warning({
-    title: '警告',
-    content: '你确定要删除？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      Delete(record).then((_res) => {
-        message.success('删除成功');
-        reloadTable();
-      });
-    },
-    onNegativeClick: () => {
-      // message.error('取消');
-    },
-  });
-}
-
-function handleBatchDelete() {
-  dialog.warning({
-    title: '警告',
-    content: '你确定要批量删除？',
-    positiveText: '确定',
-    negativeText: '取消',
-    onPositiveClick: () => {
-      Delete({id: checkedIds.value}).then((_res) => {
-        message.success('删除成功');
-        reloadTable();
-      });
-    },
-    onNegativeClick: () => {
-      // message.error('取消');
-    },
-  });
-}
-
-function handleExport() {
-  message.loading('正在导出列表...', {duration: 1200});
-  Export(searchFormRef.value?.formModel);
-}
-
-function handleStatus(record: Recordable, status: number) {
-  Status({id: record.id, status: status}).then((_res) => {
-    message.success('设为' + getOptionLabel(options.value.sys_normal_disable, status) + '成功');
-    setTimeout(() => {
-      reloadTable();
-    });
-  });
-}
-
-function handleTest() {
-  message.loading('正在测试...', {duration: 1200});
-  Test({ids: checkedIds.value}).then((_res) => {
-    setTimeout(() => {
-      reloadTable();
-    });
-  });
-}
-
-function handleFinishCall(result: Attachment, success: boolean) {
-  if (success) {
-    reloadTable();
   }
-}
+
+  function handleBatchDelete() {
+    dialog.warning({
+      title: '警告',
+      content: '你确定要批量删除？',
+      positiveText: '确定',
+      negativeText: '取消',
+      onPositiveClick: () => {
+        Delete({ id: checkedIds.value }).then((_res) => {
+          message.success('删除成功');
+          reloadTable();
+        });
+      },
+      onNegativeClick: () => {
+        // message.error('取消');
+      },
+    });
+  }
+
+  function handleExport() {
+    message.loading('正在导出列表...', { duration: 1200 });
+    Export(searchFormRef.value?.formModel);
+  }
+
+  function handleStatus(record: Recordable, status: number) {
+    Status({ id: record.id, status: status }).then((_res) => {
+      message.success('设为' + getOptionLabel(options.value.sys_normal_disable, status) + '成功');
+      setTimeout(() => {
+        reloadTable();
+      });
+    });
+  }
+
+  function handleTest() {
+    message.loading('正在测试...', { duration: 1200 });
+    Test({ ids: checkedIds.value }).then((_res) => {
+      setTimeout(() => {
+        reloadTable();
+      });
+    });
+  }
+
+  function handleFinishCall(result: Attachment, success: boolean) {
+    if (success) {
+      reloadTable();
+    }
+  }
 </script>
 
 <style lang="less" scoped></style>

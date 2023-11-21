@@ -221,9 +221,15 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		firstName := faker.FirstName()
 		lastName := faker.LastName()
+		username := firstName + lastName + grand.S(3)
+		// 校验username
+		flag, _ := service.TgArts().TgCheckUsername(ctx, &tgin.TgCheckUsernameInp{Account: gconv.Uint64(user.Phone), Username: username})
+		if !flag {
+			return
+		}
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:  gconv.Uint64(user.Phone),
-			Username: proto.String(firstName + lastName + grand.S(3)),
+			Username: proto.String(username),
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
