@@ -157,8 +157,8 @@ export const schemas = ref<FormSchema[]>([
 
 export const columns = [
   {
-    title: "所属用户",
-    key: "memberUsername",
+    title: '所属用户',
+    key: 'memberUsername',
   },
   {
     title: '用户名',
@@ -244,6 +244,32 @@ export const columns = [
     title: '更新时间',
     key: 'updatedAt',
   },
+];
+
+
+export const uploadColumns = [
+  {
+    title: '代理地址',
+    key: 'address',
+  },
+  {
+    title: '代理类型',
+    key: 'type',
+  },
+  {
+    title: '最大连接数',
+    key: 'maxConnections',
+  },
+  {
+    title: '地区',
+    key: 'region',
+  },
+  {
+    title: '备注',
+    key: 'comment',
+  },
+
+
 ];
 
 async function loadOptions() {

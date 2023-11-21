@@ -182,6 +182,19 @@ func (s *sTgIncreaseFansCron) UpdateStatus(ctx context.Context, in *tgin.TgIncre
 		WherePri(in.Id).Data(in).Update(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyTgChannelTask}"))
 	}
+
+	if in.CronStatus == 0 {
+		task := &entity.TgIncreaseFansCron{}
+		err = s.Model(ctx).WherePri(in.Id).Scan(task)
+		if err != nil {
+			return
+		}
+		err, _ = s.TgExecuteIncrease(ctx, *task, true)
+		if err != nil {
+			return
+		}
+	}
+
 	return
 
 }
@@ -692,6 +705,9 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 	}
 	cronTask.ExecutedDays = execDay
 	totalDays = totalDays - cronTask.ExecutedDays
+	if totalDays < 0 {
+		totalDays = cronTask.ExecutedDays
+	}
 
 	// 获取可小号列表
 	mod := service.TgUser().Model(ctx)
@@ -739,6 +755,9 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 			ChannelMemberCount: channelModel.ChannelMemberCount,
 			FansCount:          totalAccounts,
 			DayCount:           totalDays})
+		if err != nil {
+			return
+		}
 
 		// 已经涨粉数（启动后所有天数加起来的涨粉总数）
 		var fanTotalCount int = cronTask.IncreasedFans
@@ -957,7 +976,7 @@ func emojiToChannelMessages(ctx context.Context, account uint64, channelId strin
 	if randomTrigger() {
 
 		// 点赞
-		emojiList := []string{"❤", "👍", "💔", "🤮", "👌", "🤣", "👏", "😱"}
+		emojiList := []string{"❤", "👍", "👌", "👏", "🔥"}
 
 		randomMsgId := randomSelect(msgList)
 		// 随机获取 表情
@@ -1031,7 +1050,7 @@ func getIndex(items []uint64, target uint64) int {
 }
 
 func getAllEmojiList(ctx context.Context, account uint64) (err error, emojiList []string) {
-	standbyList := []string{"❤", "👍", "👌", "👏"}
+	standbyList := []string{"❤", "👍", "👌", "👏", "🔥"}
 
 	all, err := g.Redis().HGetAll(ctx, consts.TgGetEmoJiList)
 	if err != nil || all.IsEmpty() {

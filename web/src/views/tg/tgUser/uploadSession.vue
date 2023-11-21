@@ -10,7 +10,7 @@
     >
       <template #header>
         <n-tag checkable disabled>
-          {{ '上传' + typeTag }}
+          {{ '上传' + 'zip' }}
         </n-tag>
         <n-button @click="handleDownload" secondary type="info">
           <template #icon>
@@ -23,11 +23,11 @@
       </template>
       <n-upload
         directory-dnd
-        accept=".xlsx,.xlx"
+        accept=".zip,"
         :data="{ type: 0 }"
         @finish="finish"
         :custom-request="customRequest"
-        name=条数据"file"
+        name="file"
         :max="maxUpload"
         ref="uploadRef"
       >
@@ -37,7 +37,7 @@
               <FileAddOutlined/>
             </n-icon>
           </div>
-          <n-text style="font-size: 16px"> 点击或者拖动{{ typeTag }}到该区域来上传</n-text>
+          <n-text style="font-size: 16px"> 点击或者拖动zip到该区域来上传</n-text>
         </n-upload-dragger>
       </n-upload>
     </n-modal>
@@ -112,7 +112,7 @@ import {
   getFileExtension
 } from '@/components/FileChooser/src/model';
 import {columns, uploadColumns} from './model';
-import {Upload} from '@/api/org/sysProxy';
+import {ImportSession} from "@/api/tg/tgUser";
 
 const emit = defineEmits(['reloadTable']);
 
@@ -144,8 +144,8 @@ const typeTag = computed(() => {
 
 function handleDownload() {
   let a = document.createElement("a");
-  a.href = "./static/proxy.xlsx";
-  a.download = "proxy.xlsx";
+  a.href = "./static/session.zip";
+  a.download = "session.zip";
   a.style.display = "none";
   document.body.appendChild(a);
   a.click();
@@ -166,59 +166,24 @@ function customRequest({
                          onProgress
                        }: UploadCustomRequestOptions) {
   var extension = getFileExtension(file.file.name);
-  if (extension != 'xlsx' && extension != 'xls') {
-    message.error('只能上传xlsx格式的excel文件，请重新上传');
+  if (extension != 'zip') {
+    message.error('只能上传zip格式的文件，请重新上传');
     return;
   }
 
   const fileReader = new FileReader();
-  fileReader.onload = (e) => {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, {type: 'array'});
-    const weldmachine = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
-    //中英文映射
-    var columnMapping = {
-      '代理地址': 'address',
-      '代理类型': 'type',
-      '最大连接数': 'maxConnections',
-      '地区': 'region',
-      '备注': 'comment',
-      '状态(1正常, 2停用)': 'status',
-    };
-    var newrows = [];
-    //中英文转换
-    for (let row of weldmachine) {
-      var newRow = {};
-      // 使用for...in循环遍历对象的属性
-      for (let key in row) {
-        //要是能在colmnMapping[key]中找到对应的英文，则变成对应的数据，否则还是用原来的
-        if (columnMapping[key] === undefined) {
-          message.error('解析失败, 请检查文件格式');
-          uploadRef.value.clear();
-          return;
-        }
-        newRow[columnMapping[key] || key] = row[key];
-      }
-      newrows.push(newRow);
-    }
-    //上传数据
-    showTableModal.value = true;
-    tableData.value = newrows;
 
-  }
-  fileReader.onerror = (e) => {
-    message.error('解析失败, 请检查文件格式');
-    showLoading.value = false;
-  }
-  fileReader.readAsArrayBuffer(file.file as File);
 }
 
 
 function handleSumbit() {
+  debugger
   if (tableData.value.length > 0) {
     showLoading.value = true;
+    console.log("hhhh")
+    debugger
     // 导入
-    Upload({"list": tableData.value})
+    ImportSession({"File": tableData.value})
       .then((res) => {
         message.success(res.message)
       })

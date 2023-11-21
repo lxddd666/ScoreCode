@@ -28,6 +28,14 @@ export function Edit(params: any) {
   });
 }
 
+// 添加/编辑TG账号
+export function ImportSession(params: any) {
+  return tg.request({
+    url: '/tgUser/importSession',
+    method: 'POST',
+    params,
+  });
+}
 
 // 获取TG账号指定详情
 export function View(params: any) {
@@ -134,7 +142,7 @@ export function TgGetMsgHistory(params: any) {
   });
 }
 
-// 获取聊天记录
+// 获取发送消息
 export function TgSendMsg(params: any) {
   return tg.request({
     url: '/arts/sendMsg',
@@ -142,3 +150,6 @@ export function TgSendMsg(params: any) {
     params,
   });
 }
+
+
+

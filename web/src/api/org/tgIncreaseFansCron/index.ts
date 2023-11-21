@@ -18,6 +18,14 @@ export function Delete(params: any) {
   });
 }
 
+// 暂停/停止tg号涨粉
+export function UpdateStatus(params: any) {
+  return tg.request({
+    url: '/tgIncreaseFansCron/updateStatus',
+    method: 'POST',
+    params,
+  });
+}
 
 // 添加/编辑TG频道涨粉任务
 export function Edit(params: any) {

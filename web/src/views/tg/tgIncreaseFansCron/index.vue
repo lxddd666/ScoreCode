@@ -1,11 +1,11 @@
 <template>
   <div>
     <n-card :bordered="false" class="proCard">
-         <div class="n-layout-page-header">
-           <n-card :bordered="false" title="TG频道涨粉任务">
+      <div class="n-layout-page-header">
+        <n-card :bordered="false" title="TG频道涨粉任务">
           <!--  这是由系统生成的CURD表格，你可以将此行注释改为表格的描述 -->
-           </n-card>
-         </div>
+        </n-card>
+      </div>
 
       <BasicForm
         @register="register"
@@ -90,12 +90,13 @@
   import { BasicTable, TableAction } from '@/components/Table';
   import { BasicForm, useForm } from '@/components/Form/index';
   import { usePermission } from '@/hooks/web/usePermission';
-  import { List, Export, Delete } from '@/api/org/tgIncreaseFansCron';
+  import { List, Export, Delete, UpdateStatus } from '@/api/org/tgIncreaseFansCron';
   import { State, columns, schemas, options, newState } from './model';
   import { PlusOutlined, ExportOutlined, DeleteOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import { getOptionLabel } from '@/utils/hotgo';
   import Edit from './edit.vue';
+  import { data } from 'autoprefixer';
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -119,6 +120,16 @@
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
+            auth: ['/tgIncreaseFansCron/edit'],
+          },
+          {
+            label: '暂停',
+            onClick: handleStop.bind(null, record),
+            auth: ['/tgIncreaseFansCron/edit'],
+          },
+          {
+            label: '启动',
+            onClick: handleStart.bind(null, record),
             auth: ['/tgIncreaseFansCron/edit'],
           },
           {
@@ -180,6 +191,34 @@
     formParams.value = newState(record as State);
   }
 
+  function handleStart(record: Recordable) {
+    if (record.cronStatus == 3) {
+      var statusData = {
+        id: record.id,
+        cronStatus: 0,
+      };
+      UpdateStatus(statusData).then((_res) => {
+        message.success('修改');
+        reloadTable();
+      });
+    }
+  }
+
+  function handleStop(record: Recordable) {
+    if (record.cronStatus == 0) {
+      var statusData = {
+        id: record.id,
+        cronStatus: 3,
+      };
+      UpdateStatus(statusData).then((_res) => {
+        message.success('修改');
+        reloadTable();
+      });
+    } else {
+      message.error('当前任务状态不是执行状态，不能修改');
+    }
+  }
+
   function handleDelete(record: Recordable) {
     dialog.warning({
       title: '警告',
@@ -220,8 +259,6 @@
     message.loading('正在导出列表...', { duration: 1200 });
     Export(searchFormRef.value?.formModel);
   }
-
-
 </script>
 
 <style lang="less" scoped></style>

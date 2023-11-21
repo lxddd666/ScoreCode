@@ -1,15 +1,12 @@
 import { h, ref } from 'vue';
-import { NAvatar, NImage, NTag, NSwitch, NRate } from 'naive-ui';
+import { NTag } from 'naive-ui';
 import { cloneDeep } from 'lodash-es';
 import { FormSchema } from '@/components/Form';
 import { Dicts } from '@/api/dict/dict';
 
-import { isArray, isNullObject } from '@/utils/is';
-import { getFileExt } from '@/utils/urlUtils';
-import { defRangeShortcuts, defShortcuts, formatToDate } from '@/utils/dateUtil';
-import { validate } from '@/utils/validateUtil';
-import { getOptionLabel, getOptionTag, Options, errorImg } from '@/utils/hotgo';
-
+import { isNullObject } from '@/utils/is';
+import { defRangeShortcuts } from '@/utils/dateUtil';
+import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
 
 export interface State {
   id: number;
@@ -44,6 +41,9 @@ export const defaultState = {
   updatedAt: '',
   executedDays: 0,
   increasedFans: 0,
+  channelMemberCount: 0,
+  recommendedDays: 0,
+  taskName: '',
 };
 
 export function newState(state: State | null): State {
@@ -54,7 +54,7 @@ export function newState(state: State | null): State {
 }
 
 export const options = ref<Options>({
-  sys_normal_disable: [],
+  increase_fans: [],
 });
 
 export const rules = {};
@@ -141,11 +141,11 @@ export const columns = [
           style: {
             marginRight: '6px',
           },
-          type: getOptionTag(options.value.sys_normal_disable, row.cronStatus),
+          type: getOptionTag(options.value.increase_fans, row.cronStatus),
           bordered: false,
         },
         {
-          default: () => getOptionLabel(options.value.sys_normal_disable, row.cronStatus),
+          default: () => getOptionLabel(options.value.increase_fans, row.cronStatus),
         }
       );
     },
@@ -174,14 +174,13 @@ export const columns = [
 
 async function loadOptions() {
   options.value = await Dicts({
-    types: [
-      'sys_normal_disable',
-   ],
+    // types: ['sys_normal_disable'],
+    types: ['increase_fans'],
   });
   for (const item of schemas.value) {
     switch (item.field) {
       case 'cronStatus':
-        item.componentProps.options = options.value.sys_normal_disable;
+        item.componentProps.options = options.value.increase_fans;
         break;
     }
   }
