@@ -2,6 +2,8 @@ package tg
 
 import (
 	"context"
+	"github.com/gotd/td/bin"
+	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
@@ -18,7 +20,7 @@ func init() {
 }
 
 // GetFolders 获取会话文件夹
-func (s *sTgArtsFolders) GetFolders(ctx context.Context, account uint64) (result []byte, err error) {
+func (s *sTgArtsFolders) GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error) {
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_GET_USER_CHAT_FOLDERS,
 		Type:    consts.TgSvc,
@@ -33,6 +35,6 @@ func (s *sTgArtsFolders) GetFolders(ctx context.Context, account uint64) (result
 	if err != nil {
 		return
 	}
-	result = resp.Data
+	err = (&bin.Buffer{Buf: resp.Data}).Decode(&result)
 	return
 }

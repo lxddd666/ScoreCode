@@ -6,10 +6,10 @@
           <div class="search">
             <div class="search-left">
               <n-dropdown
-                v-if="!showBackIcon"
-                trigger="click"
-                placement="bottom-end"
-                :options="chatOptions"
+                  v-if="!showBackIcon"
+                  trigger="click"
+                  placement="bottom-end"
+                  :options="chatOptions"
               >
                 <n-icon size="20" class="search-left-icon">
                   <MenuOutlined/>
@@ -22,29 +22,40 @@
             <div class="search-right">
               <n-input round placeholder="搜索" @click="onSearchClick">
                 <template #prefix>
-                  <n-icon :component="SearchOutlined"/>
+                  <n-icon>
+                    <SearchOutlined/>
+                  </n-icon>
                 </template>
               </n-input>
             </div>
           </div>
-          <div class="chat-list">
-            <n-scrollbar trigger="hover">
-              <ChatItem
-                v-for="item in chatList"
-                :key="item.tgId"
-                :is-active="activeItem.tgId === item.tgId"
-                :data="item"
-                @click="onChatItemClick(item)"
-              />
-            </n-scrollbar>
-          </div>
+          <n-tabs :bar-width="28" type="line" class="custom-tabs" animated default-value="All Chats"
+                  @update:value="onTabUpdate">
+            <n-tab-pane v-for="folder in folderList"
+                        :key="folder.Id??0"
+                        :tab="folder.Title??'All Chats'"
+                        :name="folder.Title??'All Chats'">
+              <div class="chat-list">
+                <n-scrollbar trigger="hover">
+                  <ChatItem
+                      v-for="item in tabChatList"
+                      :key="item.tgId"
+                      :is-active="activeItem.tgId === item.tgId"
+                      :data="item"
+                      @click="onChatItemClick(item)"
+                  />
+                </n-scrollbar>
+              </div>
+            </n-tab-pane>
+          </n-tabs>
+
         </n-card>
       </n-grid-item>
       <n-grid-item span="18" style="overflow: hidden">
         <ChatArea
-          :data="activeItem"
-          @updateTChatItem="updateTChatItem"
-          :me="me"
+            :data="activeItem"
+            @updateTChatItem="updateTChatItem"
+            :me="me"
         >
         </ChatArea>
       </n-grid-item>
@@ -62,7 +73,6 @@ import router from "@/router";
 import {TgGetDialogs, TgGetFolders, TgLogin} from "@/api/tg/tgUser";
 import {defaultState, TChatItemParam} from "@/views/tg/chat/components/model";
 import {addOnMessage, sendMsg} from "@/utils/websocket";
-import CryptoJS from "crypto-js";
 
 const chatOptions = ref<DropdownMixedOption[]>([
   {
@@ -76,26 +86,69 @@ const chatOptions = ref<DropdownMixedOption[]>([
 ]);
 const showBackIcon = ref(false);
 const chatList = ref<TChatItemParam[]>([]);
+const tabChatList = ref<TChatItemParam[]>([]);
 const activeItem = ref<TChatItemParam>(defaultState);
 const me = ref<TChatItemParam>(defaultState);
 const id = Number(router.currentRoute.value.params.id);
+const folderList = ref<any[]>([]);
+
+
+// 搜索
 const onSearchClick = () => {
   showBackIcon.value = true;
 };
+
 const onBackClick = () => {
   showBackIcon.value = false;
 };
+
+// 点击会话
 const onChatItemClick = (item: TChatItemParam) => {
   activeItem.value = item;
 };
+
+// 获取chats
 const getChatList = async (account: number) => {
   const folders = await TgGetFolders({account: account});
-
+  console.log(folders);
+  folderList.value = folders.Elems;
   const res = await TgGetDialogs({account: account});
   chatList.value = res.list;
+  tabChatList.value = res.list;
   activeItem.value = res.list[0];
-
+  console.log(chatList);
 };
+
+// 标签页更新
+const onTabUpdate = (tabName: string) => {
+  if (tabName === "All Chats") {
+    tabChatList.value = chatList.value;
+  } else {
+    folderList.value.forEach(item => {
+      if (item.Title === tabName) {
+        tabChatList.value = [];
+        chatList.value.forEach(chat => {
+          if (item.Contacts === true && chat.type === 1) {
+            tabChatList.value.push(chat);
+          } else if (item.Groups === true && chat.type === 2) {
+            tabChatList.value.push(chat);
+          } else if (item.Broadcasts === true && chat.type === 3) {
+            tabChatList.value.push(chat);
+          } else if (item.Bots === true && chat.type === 4) {
+            tabChatList.value.push(chat);
+          }
+          item.IncludePeers?.forEach(include => {
+            if (include.UserID === chat.tgId || include.ChannelID === chat.tgId || include.ChatID === chat.tgId) {
+              tabChatList.value.push(chat);
+            }
+          })
+        });
+
+
+      }
+    })
+  }
+}
 
 const load = async (id: number) => {
   const logInfo = await TgLogin({id: id});
@@ -104,7 +157,7 @@ const load = async (id: number) => {
   await getChatList(logInfo.phone);
 }
 
-function updateTChatItem(item: TChatItemParam) {
+const updateTChatItem = (item: TChatItemParam) => {
   chatList.value.map(data => {
     if (data.tgId == item.tgId) {
       return item;
@@ -112,10 +165,15 @@ function updateTChatItem(item: TChatItemParam) {
   })
 }
 
-function base64Dec(base64Str: string) {
-  let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
-  return parsedWordArray.toString();
-}
+// function base64Dec(base64Str: string) {
+//   let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
+//   return parsedWordArray.toString();
+// }
+//
+// function base64ToBuffer(b64: string) {
+//   let text = new TextEncoder()
+//   return text.encode(btoa(b64))
+// }
 
 const onMessageList = inject('onMessageList');
 
@@ -208,4 +266,9 @@ onMounted(() => {
     height: 100%;
   }
 }
+
+.custom-tabs {
+  margin-left: 20px;
+}
+
 </style>
