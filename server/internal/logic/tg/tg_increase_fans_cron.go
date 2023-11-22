@@ -398,6 +398,11 @@ func (s *sTgIncreaseFansCron) CreateIncreaseFanTask(ctx context.Context, user *m
 
 // IncreaseFanAction 涨粉动作
 func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error) {
+	n, _ := g.Model(dao.TgIncreaseFansCronAction.Table()).Where(dao.TgIncreaseFansCronAction.Columns().CronId, cron.Id).Where(dao.TgIncreaseFansCronAction.Columns().Phone, fan.Phone).Count()
+	if n > 0 {
+		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
+		return
+	}
 	resMap := make(map[string]interface{})
 
 	model := g.Model(dao.TgIncreaseFansCronAction.Table())
@@ -977,7 +982,7 @@ func emojiToChannelMessages(ctx context.Context, account uint64, channelId strin
 	if randomTrigger() {
 
 		// 点赞
-		emojiList := []string{"❤", "👍", "👌", "👏", "🔥"}
+		emojiList := []string{"❤", "👍", "👌", "👏", "🔥", "😇", "🥰", "😍", "😎", "🤯", "❤️‍🔥", "😎", "🤯", "❤️‍🔥", "🤩"}
 
 		randomMsgId := randomSelect(msgList)
 		// 随机获取 表情

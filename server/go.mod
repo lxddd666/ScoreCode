@@ -10,7 +10,9 @@ require (
 	github.com/alibabacloud-go/tea v1.2.1
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.1+incompatible
+	github.com/antonholmquist/jason v1.0.0
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
+	github.com/astaxie/bat v0.0.2
 	github.com/blastrain/vitess-sqlparser v0.0.0-20201030050434-a139afbb1aba
 	github.com/casbin/casbin/v2 v2.77.2
 	github.com/forgoer/openssl v1.6.0
@@ -38,6 +40,7 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.792
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.792
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
+	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	github.com/ufilesdk-dev/ufile-gosdk v1.0.4
 	github.com/xuri/excelize/v2 v2.8.0
 	go.etcd.io/etcd/client/v3 v3.5.10
