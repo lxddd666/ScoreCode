@@ -120,3 +120,28 @@ type TgContactsExportModel struct {
 	CreatedAt *gtime.Time `json:"createdAt" dc:"创建时间"`
 	UpdatedAt *gtime.Time `json:"updatedAt" dc:"更新时间"`
 }
+
+type TgDialogModel struct {
+	TgId          int64      `json:"tgId"      dc:"tg id"`
+	AccessHash    int64      `json:"accessHash" dc:"AccessHash"`
+	Username      string     `json:"username"  dc:"username"`
+	Title         string     `json:"title" dc:"title"`
+	FirstName     string     `json:"firstName" dc:"First Name"`
+	LastName      string     `json:"lastName"  dc:"Last Name"`
+	Avatar        int64      `json:"avatar"    dc:"头像"`
+	Phone         string     `json:"phone"     dc:"phone"`
+	Type          int        `json:"type"      dc:"type"`
+	Last          TgMsgModel `json:"last" dc:"最新消息"`
+	Creator       bool       `json:"creator"   dc:"creator"`
+	Date          int        `json:"date" dc:"date"`
+	Deleted       bool       `json:"deleted" dc:"Deleted"`
+	Contact       bool       `json:"contact" dc:"contact"`
+	Bot           bool       `json:"bot" dc:"bot"`
+	LastLoginTime int64      `json:"lastLoginTime" dc:"最后登录时间"`
+	UnreadCount   int        `json:"unreadCount"`
+	TopMessage    int        `json:"topMessage"`
+	// Position up to which all incoming messages are read.
+	ReadInboxMaxID int `json:"readInboxMaxID"`
+	// Position up to which all outgoing messages are read.
+	ReadOutboxMaxID int `json:"readOutboxMaxID"`
+}

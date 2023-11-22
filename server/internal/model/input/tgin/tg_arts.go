@@ -103,6 +103,7 @@ type TgCheckUsernameInp struct {
 type TgGetUserAvatarInp struct {
 	Account uint64 `json:"account"     dc:"电话"`
 	GetUser uint64 `json:"getUser"     dc:"获取头像的用户"`
+	PhotoId int64  `json:"photoId" dc:"photoId"`
 }
 
 type OnlineAccountInp struct {

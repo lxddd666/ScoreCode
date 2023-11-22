@@ -62,7 +62,7 @@ func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (
 	if err != nil {
 		return
 	}
-	res = (*tgarts.TgGetDialogsRes)(&result.Dialogs)
+	res = (*tgarts.TgGetDialogsRes)(&result)
 
 	return
 }

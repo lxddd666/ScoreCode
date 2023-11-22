@@ -437,7 +437,7 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 }
 
 // TgGetDialogs 获取chats
-func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (result tg.MessagesDialogsBox, err error) {
+func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgDialogModel, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, account); err != nil {
 		return
@@ -456,7 +456,12 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (result tg.M
 	if err != nil {
 		return
 	}
-	err = (&bin.Buffer{Buf: resp.Data}).Decode(&result)
+	var box tg.MessagesDialogsBox
+	err = (&bin.Buffer{Buf: resp.Data}).Decode(&box)
+	if err != nil {
+		return
+	}
+	list, err = handlerDialogList(box)
 	return
 }
 
@@ -871,6 +876,7 @@ func (s *sTgArts) TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatar
 			DownUserHeadImageDetail: &protobuf.DownUserHeadImageDetail{
 				Account: inp.Account,
 				GetUser: inp.GetUser,
+				PhotoId: inp.PhotoId,
 			},
 		},
 	}
@@ -878,8 +884,9 @@ func (s *sTgArts) TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatar
 	if err != nil {
 		return
 	}
-	_ = gjson.DecodeTo(resp.Data, &res)
-
+	res = &tgin.TgGetUserAvatarModel{
+		Avatar: resp.Data,
+	}
 	return
 }
 

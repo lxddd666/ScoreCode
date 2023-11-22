@@ -2,7 +2,6 @@ package tgarts
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gotd/td/tg"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
 	"hotgo/internal/model/input/tgin"
@@ -95,7 +94,7 @@ type TgGetDialogsReq struct {
 	Account uint64 `json:"account" dc:"IM账号"`
 }
 
-type TgGetDialogsRes tg.MessagesDialogsClass
+type TgGetDialogsRes []*tgin.TgDialogModel
 
 // TgGetContactsReq 获取contacts
 type TgGetContactsReq struct {

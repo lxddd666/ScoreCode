@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
@@ -1234,16 +1233,9 @@ func checkUserHaveChannel(ctx context.Context, account uint64, channel string) (
 		err = gerror.New(g.I18n().T(ctx, "{#VerifyChannelAddressErr}"))
 		return false, err
 	}
-	dialogs, b := result.Dialogs.AsModified()
-	if !b {
-		return
-	}
-	for _, class := range dialogs.GetChats() {
-		switch v := class.(type) {
-		case *tg.Channel: // channel#1981ea7e
-			if v.Username == channelUsername {
-				flag = true
-			}
+	for _, item := range result {
+		if item.Username == channelUsername {
+			flag = true
 		}
 	}
 	return
