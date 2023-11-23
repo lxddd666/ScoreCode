@@ -51,9 +51,6 @@
       width: width,
     }">
       <template #header>
-        <n-tag checkable disabled>
-          {{ '共' + tableData.length + '条数据' }}
-        </n-tag>
         <n-button @click="handleSumbit" :loading="showLoading" secondary type="info">
           确认提交
         </n-button>
@@ -177,8 +174,7 @@ function customRequest({
 
 
 function handleSumbit() {
-  debugger
-  if (tableData.value.length > 0) {
+
     showLoading.value = true;
     console.log("hhhh")
     debugger
@@ -194,11 +190,6 @@ function handleSumbit() {
         showLoading.value = false;
         emit('reloadTable');
       });
-  } else {
-    tableData.value = [];
-    showTableModal.value = false;
-    message.warning('excel格式不正确, 请参考模板')
-  }
 }
 
 function handleClose() {

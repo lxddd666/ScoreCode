@@ -76,6 +76,6 @@
   "TotalAdd": "总添加数:",
   "GetInformationFailed": "获取信息失败",
   "AverageTime": "平均时间:",
-  "IncreaseTaskCreated": "频道涨粉任务已任务已创建"
-
+  "IncreaseTaskCreated": "频道涨粉任务已任务已创建",
+  "ExecuteIncreaseFansTask": "执行涨粉任务"
 }

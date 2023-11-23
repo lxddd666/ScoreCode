@@ -10,11 +10,11 @@ require (
 	github.com/alibabacloud-go/tea v1.2.1
 	github.com/alibabacloud-go/tea-utils/v2 v2.0.4
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.1+incompatible
-	github.com/antonholmquist/jason v1.0.0
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
-	github.com/astaxie/bat v0.0.2
 	github.com/blastrain/vitess-sqlparser v0.0.0-20201030050434-a139afbb1aba
+	github.com/briandowns/spinner v1.23.0
 	github.com/casbin/casbin/v2 v2.77.2
+	github.com/fatih/color v1.16.0
 	github.com/forgoer/openssl v1.6.0
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-faker/faker/v4 v4.2.0
@@ -40,7 +40,6 @@ require (
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.792
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.792
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.45
-	github.com/ttacon/chalk v0.0.0-20160626202418-22c06c80ed31
 	github.com/ufilesdk-dev/ufile-gosdk v1.0.4
 	github.com/xuri/excelize/v2 v2.8.0
 	go.etcd.io/etcd/client/v3 v3.5.10
@@ -77,7 +76,6 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
-	github.com/fatih/color v1.16.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
@@ -162,6 +160,7 @@ require (
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/term v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect

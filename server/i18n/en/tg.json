@@ -76,6 +76,7 @@
   "TotalAdd": "Total additions:",
   "GetInformationFailed": "Failure to get information",
   "AverageTime": "Average time:",
-  "IncreaseTaskCreated": "Channel fan increase task has been created"
+  "IncreaseTaskCreated": "Channel fan increase task has been created",
+  "ExecuteIncreaseFansTask": "Execute the powder raising task"
 
 }

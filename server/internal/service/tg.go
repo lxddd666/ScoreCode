@@ -172,8 +172,8 @@ type (
 		CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error)
 		// ChannelIncreaseFanDetail 计算涨粉每天情况
 		ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, days int, err error)
-		// RestartCronApplication 重启后执行定时任务
-		RestartCronApplication(ctx context.Context) (err error)
+		// InitIncreaseCronApplication 重启后执行定时任务
+		InitIncreaseCronApplication(ctx context.Context) (err error)
 		// SyncIncreaseFansCronTaskTableData 同步涨粉数据信息
 		SyncIncreaseFansCronTaskTableData(ctx context.Context, cron *entity.TgIncreaseFansCron) (error, int)
 		// CreateIncreaseFanTask 创建任务
