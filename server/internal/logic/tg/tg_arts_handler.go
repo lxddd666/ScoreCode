@@ -234,10 +234,13 @@ func convertDialogUser(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs
 			Type:       1,
 			Deleted:    user.Deleted,
 		}
-		photo, photoFlag := user.Photo.AsNotEmpty()
-		if photoFlag {
-			item.Avatar = photo.PhotoID
+		if user.Photo != nil {
+			photo, photoFlag := user.Photo.AsNotEmpty()
+			if photoFlag {
+				item.Avatar = photo.PhotoID
+			}
 		}
+
 		item.Last = convertMsg(dialog, dialogs)
 		d, dFlag := dialog.(*tg.Dialog)
 		if dFlag {
@@ -264,10 +267,13 @@ func convertDialogGroup(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialog
 			Creator: chat.Creator,
 			Date:    chat.Date,
 		}
-		photo, photoFlag := chat.Photo.AsNotEmpty()
-		if photoFlag {
-			item.Avatar = photo.PhotoID
+		if chat.Photo != nil {
+			photo, photoFlag := chat.Photo.AsNotEmpty()
+			if photoFlag {
+				item.Avatar = photo.PhotoID
+			}
 		}
+
 		item.Last = convertMsg(dialog, dialogs)
 	}
 	return
@@ -289,10 +295,13 @@ func convertDialogChannel(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDial
 			Creator:    channel.Creator,
 			Date:       channel.Date,
 		}
-		photo, photoFlag := channel.Photo.AsNotEmpty()
-		if photoFlag {
-			item.Avatar = photo.PhotoID
+		if channel.Photo != nil {
+			photo, photoFlag := channel.Photo.AsNotEmpty()
+			if photoFlag {
+				item.Avatar = photo.PhotoID
+			}
 		}
+
 		item.Last = convertMsg(dialog, dialogs)
 	}
 	return

@@ -7,7 +7,7 @@
             round
             :size="40"
             color="transparent"
-            :src="data.avatar?'data:image/jpeg;base64,'+ data.avatar :'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'"
+            :src="data.avatar"
           ></n-avatar>
           <div class="chat-area-head-left-info">
             <div class="chat-area-head-left-info-name">{{

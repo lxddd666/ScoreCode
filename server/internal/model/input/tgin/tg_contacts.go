@@ -128,7 +128,7 @@ type TgDialogModel struct {
 	Title         string     `json:"title" dc:"title"`
 	FirstName     string     `json:"firstName" dc:"First Name"`
 	LastName      string     `json:"lastName"  dc:"Last Name"`
-	Avatar        int64      `json:"avatar"    dc:"头像"`
+	Avatar        int64      `json:"avatar,string"    dc:"头像"`
 	Phone         string     `json:"phone"     dc:"phone"`
 	Type          int        `json:"type"      dc:"type"`
 	Last          TgMsgModel `json:"last" dc:"最新消息"`

@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
 	"github.com/gogf/gf/v2/os/gfile"
+	"github.com/gogf/gf/v2/text/gstr"
 	"hotgo/internal/dao"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -18,7 +19,7 @@ func TestTgLoginLocal(t *testing.T) {
 	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.local.yaml")
 	var (
 		url    = "http://127.0.0.1:4887/tg/arts/login"
-		token  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwib3JnSWQiOjEwMCwicGlkIjowLCJkZXB0SWQiOjEwMCwicm9sZUlkIjoxLCJyb2xlS2V5Ijoic3VwZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwicmVhbE5hbWUiOiLkuI3kv6EiLCJhdmF0YXIiOiIvc3JjL2Fzc2V0cy9pbWFnZXMvbG9nby5wbmciLCJlbWFpbCI6IjEzMzgxNDI1MEBxcS5jb20iLCJtb2JpbGUiOiIxNTMwMzgzMDU3MSIsImFwcCI6ImFkbWluIiwibG9naW5BdCI6IjIwMjMtMTAtMDggMTY6NDc6NDIifQ.vN8jLSW6TZB82Cc2iJuMBOB-_qG7LgVGvjgmS2xAtzU"
+		token  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwib3JnSWQiOjEsInBpZCI6MCwicm9sZUlkIjoxLCJyb2xlS2V5Ijoic3VwZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwicmVhbE5hbWUiOiLkuI3kv6EiLCJhdmF0YXIiOiJodHRwOi8vZ3JhdGEuZ2VuLWNvZGUudG9wL2dyYXRhL2F0dGFjaG1lbnQvMjAyMy0xMC0yNC9jd2dqczB2NHNuMHdsb2NlamIuZ2lmIiwiZW1haWwiOiIxMzM4MTQyNTBAcXEuY29tIiwibW9iaWxlIjoiMTUzMDM4MzA1NzEiLCJhcHAiOiJhZG1pbiIsImxvZ2luQXQiOiIyMDIzLTEwLTI1IDE0OjA4OjEzIn0.RWlj1s2f-T7NTHsY5sTd13l0zDmfqKuVpXlX9-rK15E"
 		header = `Accept: application/json
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9
@@ -29,7 +30,46 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 	)
 
 	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
-		"phone": 16893992489,
+		"id": 120258,
+	})
+	fmt.Println(resp)
+
+}
+
+func TestTxt(t *testing.T) {
+	test := gfile.GetContents("/Users/macos/Downloads/test.txt")
+	fmt.Println(test)
+	sList := gstr.Split(test, "\r\n")
+	fmt.Println(sList)
+}
+
+func TestTgSendMsg(t *testing.T) {
+	var (
+		url    = "http://localhost:4887/tg/arts/sendMsg"
+		token  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwib3JnSWQiOjEsInBpZCI6MCwicm9sZUlkIjoxLCJyb2xlS2V5Ijoic3VwZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwicmVhbE5hbWUiOiLkuI3kv6EiLCJhdmF0YXIiOiJodHRwOi8vZ3JhdGEuZ2VuLWNvZGUudG9wL2dyYXRhL2F0dGFjaG1lbnQvMjAyMy0xMC0yNC9jd2dqczB2NHNuMHdsb2NlamIuZ2lmIiwiZW1haWwiOiIxMzM4MTQyNTBAcXEuY29tIiwibW9iaWxlIjoiMTUzMDM4MzA1NzEiLCJhcHAiOiJhZG1pbiIsImxvZ2luQXQiOiIyMDIzLTEwLTI1IDE0OjA4OjEzIn0.RWlj1s2f-T7NTHsY5sTd13l0zDmfqKuVpXlX9-rK15E"
+		header = `Accept: application/json
+Accept-Encoding: gzip, deflate
+Accept-Language: zh-CN,zh;q=0.9
+Authorization: %s
+Content-Length: 19
+Content-Type: application/json
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36`
+	)
+	//test := gfile.GetContents("/Users/macos/Downloads/test.txt")
+	//sList := gstr.Split(test, "\r\n")
+	//strArray := garray.NewStrArrayFrom(sList)
+	//for _, s := range strArray.Range(1, 200) {
+	//	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
+	//		"account":  84788551082,
+	//		"receiver": s,
+	//		"textMsg":  g.Array{"hello!"},
+	//	})
+	//	fmt.Println(resp)
+	//}
+	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
+		"account":  84788551082,
+		"receiver": []string{"luxuedng"},
+		"textMsg":  g.Array{"hello!"},
 	})
 	fmt.Println(resp)
 
@@ -61,7 +101,6 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 		}},
 	})
 	fmt.Println(resp)
-	fmt.Println("kubectl create rolebinding arts-deploy --clusterrole=admin --serviceaccount=arts-system:default --namespace=arts-system")
 }
 
 func TestImportProxy(t *testing.T) {

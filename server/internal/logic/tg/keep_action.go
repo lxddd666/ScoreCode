@@ -100,7 +100,7 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			if user.Id != receiver.Id {
 				inp := &artsin.MsgInp{
 					Account:  gconv.Uint64(user.Phone),
-					Receiver: gconv.Uint64(receiver.Phone),
+					Receiver: []string{receiver.Phone},
 					TextMsg:  nil,
 				}
 				if len(scriptList) > 0 {

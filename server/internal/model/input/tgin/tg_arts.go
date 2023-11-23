@@ -47,7 +47,7 @@ type TgDownloadMsgModel struct {
 
 type TgGetUserAvatarModel struct {
 	TgId   int64  `json:"tgId"          description:"聊天发起人"`
-	Avatar []byte `json:"avatar"        description:"头像" `
+	Avatar string `json:"avatar"        description:"头像" `
 }
 
 type TgChannelCreateInp struct {

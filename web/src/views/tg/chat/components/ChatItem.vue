@@ -4,24 +4,24 @@
       <div class="chat-item-left">
         <n-avatar
           round
+          lazy
           :size="54"
           color="transparent"
-          :src="
-            data.avatar?'data:image/jpeg;base64,'+ data.avatar :'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
-          "
+          :src="data.avatar"
         ></n-avatar>
       </div>
       <div class="chat-item-right">
         <div class="chat-item-right-info">
           <div class="chat-item-right-info-name">{{
               data.type == 1 ? data.firstName + " " + data.lastName : data.title
-            }}</div>
+            }}
+          </div>
           <div class="chat-item-right-info-meta">
             <n-space :size="4">
               <span class="chat-item-right-info-meta-read">{{
                   data.unreadCount < 1 ? '已读' : '未读'
                 }}</span>
-              <span class="chat-item-right-info-meta-date">{{ data.last.sendTime }}</span>
+              <span class="chat-item-right-info-meta-date">{{ data.last.date }}</span>
             </n-space>
           </div>
         </div>
@@ -34,19 +34,19 @@
 
 
 import {TChatItemParam} from "@/views/tg/chat/components/model";
-import CryptoJS from 'crypto-js';
+import {TgGetUserAvatar} from "@/api/tg/tgUser";
+import {watch} from "vue";
 
 interface IChatItemProps {
   isActive?: boolean;
   data: TChatItemParam;
+  me: TChatItemParam;
 }
 
-defineProps<IChatItemProps>();
+const props = defineProps<IChatItemProps>();
 
-function base64Dec(base64Str: string) {
-  let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
-  return parsedWordArray.toString(CryptoJS.enc.Utf8);
-}
+
+
 
 </script>
 <style lang="less" scoped>

@@ -176,7 +176,7 @@ func (c *cTgArts) GetUserAvatar(ctx context.Context, req *tgarts.GetUserAvatarRe
 		return
 	}
 	res = new(tgarts.GetUserAvatarReqRes)
-	res.Avatar = resp
+	res.TgGetUserAvatarModel = resp
 	return
 }
 

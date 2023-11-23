@@ -249,35 +249,37 @@ func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res 
 	defer grpc.CloseConn(conn)
 	c := protobuf.NewArthasClient(conn)
 	syncContactKey := fmt.Sprintf("%s%d", consts.WhatsRedisSyncContactAccountKey, inp.Account)
-	flag, err := g.Redis().SIsMember(ctx, syncContactKey, gconv.String(inp.Receiver))
-	if err != nil {
-		return "", err
-	}
-	if flag != 1 {
-		// 该联系人未同步
-		syncContactReq := whatsin.SyncContactReq{
-			Values: make([]uint64, 0),
-		}
-
-		syncContactReq.Key = inp.Account
-		syncContactReq.Values = append(syncContactReq.Values, gconv.Uint64(inp.Receiver))
-
-		//2.同步通讯录
-		syncContactMsg := s.syncContact(syncContactReq)
-		artsRes, err := c.Connect(ctx, syncContactMsg)
+	for _, receiver := range inp.Receiver {
+		flag, err := g.Redis().SIsMember(ctx, syncContactKey, receiver)
 		if err != nil {
 			return "", err
 		}
-		g.Log().Info(ctx, artsRes.GetActionResult().String())
-	}
+		if flag != 1 {
+			// 该联系人未同步
+			syncContactReq := whatsin.SyncContactReq{
+				Values: make([]uint64, 0),
+			}
 
-	if len(inp.TextMsg) > 0 {
-		requestMessage := s.sendTextMessage(inp)
-		artsRes, err := c.Connect(ctx, requestMessage)
-		if err != nil {
-			return "", err
+			syncContactReq.Key = inp.Account
+			syncContactReq.Values = append(syncContactReq.Values, gconv.Uint64(receiver))
+
+			//2.同步通讯录
+			syncContactMsg := s.syncContact(syncContactReq)
+			artsRes, err := c.Connect(ctx, syncContactMsg)
+			if err != nil {
+				return "", err
+			}
+			g.Log().Info(ctx, artsRes.GetActionResult().String())
 		}
-		g.Log().Info(ctx, artsRes.GetActionResult().String())
+
+		if len(inp.TextMsg) > 0 {
+			requestMessage := s.sendTextMessage(inp)
+			artsRes, err := c.Connect(ctx, requestMessage)
+			if err != nil {
+				return "", err
+			}
+			g.Log().Info(ctx, artsRes.GetActionResult().String())
+		}
 	}
 
 	return
@@ -286,12 +288,14 @@ func (s *sWhatsArts) WhatsSendMsg(ctx context.Context, inp *artsin.MsgInp) (res 
 func (s *sWhatsArts) sendTextMessage(msgReq *artsin.MsgInp) *protobuf.RequestMessage {
 	list := make([]*protobuf.SendMessageAction, 0)
 
-	tmp := &protobuf.SendMessageAction{}
-	sendData := make(map[uint64]*protobuf.UintkeyStringvalue)
-	sendData[msgReq.Account] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(msgReq.Receiver), Values: msgReq.TextMsg}
-	tmp.SendData = sendData
+	for _, receiver := range msgReq.Receiver {
+		tmp := &protobuf.SendMessageAction{}
+		sendData := make(map[uint64]*protobuf.UintkeyStringvalue)
+		sendData[msgReq.Account] = &protobuf.UintkeyStringvalue{Key: gconv.Uint64(receiver), Values: msgReq.TextMsg}
+		tmp.SendData = sendData
 
-	list = append(list, tmp)
+		list = append(list, tmp)
+	}
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_SEND_MESSAGE,

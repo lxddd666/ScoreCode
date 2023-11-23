@@ -151,5 +151,11 @@ export function TgSendMsg(params: any) {
   });
 }
 
-
-
+// 下载头像
+export function TgGetUserAvatar(params: any) {
+  return tg.request({
+    url: '/arts/user/getUserAvatar',
+    method: 'POST',
+    params,
+  })
+}

@@ -53,6 +53,7 @@ enum Action {
   CHECK_USERNAME = 42;
   UPDATES_GET_STATUS = 43;
   CREATE_BOT = 44;
+  START_BOT = 45;
 }
 
 
@@ -241,6 +242,7 @@ message RequestMessage {
     CheckUserNameDetail check_username_detail = 49;
     UpdatesGetStatusDetail update_get_status_detail = 50;
     CreateBotDetail create_bot_detail = 51;
+      StartBotDetail  start_bot_detail = 52;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -490,6 +492,11 @@ message UpdatesGetStatusDetail{
 
 message CreateBotDetail {
   uint64 Sender = 1;
+}
+
+message StartBotDetail {
+  uint64 Sender = 1;
+  repeated string BotUserNames = 2;
 }
 
 

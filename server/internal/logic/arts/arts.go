@@ -51,11 +51,14 @@ func (s *sArts) SendMsg(ctx context.Context, item *artsin.MsgInp, imType string)
 
 func (s *sArts) sendTextMessage(msgReq *artsin.MsgInp, imType string) *protobuf.RequestMessage {
 	list := make([]*protobuf.SendMessageAction, 0)
-	tmp := &protobuf.SendMessageAction{}
-	sendData := make(map[uint64]*protobuf.StringKeyStringvalue)
-	sendData[msgReq.Account] = &protobuf.StringKeyStringvalue{Key: gconv.String(msgReq.Receiver), Values: msgReq.TextMsg}
-	tmp.SendTgData = sendData
-	list = append(list, tmp)
+	for _, receiver := range msgReq.Receiver {
+		tmp := &protobuf.SendMessageAction{}
+		sendData := make(map[uint64]*protobuf.StringKeyStringvalue)
+		sendData[msgReq.Account] = &protobuf.StringKeyStringvalue{Key: receiver, Values: msgReq.TextMsg}
+		tmp.SendTgData = sendData
+		list = append(list, tmp)
+	}
+
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SEND_MESSAGE,
 		Account: msgReq.Account,
@@ -72,21 +75,24 @@ func (s *sArts) sendTextMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 
 func (s *sArts) sendFileMessage(msgReq *artsin.MsgInp, imType string) *protobuf.RequestMessage {
 	list := make([]*protobuf.SendFileAction, 0)
-	tmp := &protobuf.SendFileAction{}
-	sendData := make(map[uint64]*protobuf.UintTgFileDetailValue)
+	for _, receiver := range msgReq.Receiver {
+		tmp := &protobuf.SendFileAction{}
+		sendData := make(map[uint64]*protobuf.UintTgFileDetailValue)
 
-	fileDetail := make([]*protobuf.FileDetailValue, 0)
-	for _, fileMsg := range msgReq.Files {
-		fileDetail = append(fileDetail, &protobuf.FileDetailValue{
-			FileType: fileMsg.MIME,
-			SendType: consts.SendTypeByte,
-			Name:     fileMsg.Name,
-			FileByte: gbase64.MustDecode(fileMsg.Data),
-		})
+		fileDetail := make([]*protobuf.FileDetailValue, 0)
+		for _, fileMsg := range msgReq.Files {
+			fileDetail = append(fileDetail, &protobuf.FileDetailValue{
+				FileType: fileMsg.MIME,
+				SendType: consts.SendTypeByte,
+				Name:     fileMsg.Name,
+				FileByte: gbase64.MustDecode(fileMsg.Data),
+			})
+		}
+		sendData[msgReq.Account] = &protobuf.UintTgFileDetailValue{Key: receiver, Value: fileDetail}
+		tmp.SendTgData = sendData
+		list = append(list, tmp)
 	}
-	sendData[msgReq.Account] = &protobuf.UintTgFileDetailValue{Key: gconv.String(msgReq.Receiver), Value: fileDetail}
-	tmp.SendTgData = sendData
-	list = append(list, tmp)
+
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SEND_FILE,
 		Type:    imType,
