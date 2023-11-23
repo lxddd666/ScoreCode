@@ -11,7 +11,7 @@
           ></n-avatar>
           <div class="chat-area-head-left-info">
             <div class="chat-area-head-left-info-name">{{
-                data.firstName + " " + data.lastName
+                data.type == 1 ? data.firstName + " " + data.lastName : data.title
               }}
             </div>
           </div>

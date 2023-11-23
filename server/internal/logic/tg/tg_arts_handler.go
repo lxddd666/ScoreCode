@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
@@ -16,6 +17,7 @@ import (
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
+	"slices"
 )
 
 func (s *sTgArts) handlerRandomProxy(ctx context.Context, notAccounts *array.Array[*entity.TgUser]) (err error, result *array.Array[*entity.TgUser]) {
@@ -191,4 +193,144 @@ func (s *sTgArts) isLogin(ctx context.Context, tgUser *entity.TgUser) bool {
 		return true
 	}
 	return false
+}
+
+func handlerDialogList(dialogListBox tg.MessagesDialogsBox) (list []*tgin.TgDialogModel, err error) {
+	dialogs, b := dialogListBox.Dialogs.AsModified()
+	if !b {
+		return
+	}
+	list = make([]*tgin.TgDialogModel, 0)
+	for _, dialog := range dialogs.GetDialogs() {
+		var item *tgin.TgDialogModel
+		switch dialog.GetPeer().(type) {
+		case *tg.PeerUser: // peerUser#59511722
+			item = convertDialogUser(dialog, dialogs)
+		case *tg.PeerChat: // peerChat#36c6019a
+			item = convertDialogGroup(dialog, dialogs)
+		case *tg.PeerChannel: // peerChat#36c6019a
+			item = convertDialogChannel(dialog, dialogs)
+		}
+		if item != nil {
+			list = append(list, item)
+		}
+	}
+	return
+}
+
+func convertDialogUser(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (item *tgin.TgDialogModel) {
+	i := slices.IndexFunc(dialogs.GetUsers(), func(class tg.UserClass) bool {
+		return class.GetID() == getPeerId(dialog.GetPeer())
+	})
+	if i > -1 {
+		user := dialogs.GetUsers()[i].(*tg.User)
+		item = &tgin.TgDialogModel{
+			TgId:       user.ID,
+			AccessHash: user.AccessHash,
+			Username:   user.Username,
+			FirstName:  user.FirstName,
+			LastName:   user.LastName,
+			Phone:      user.Phone,
+			Type:       1,
+			Deleted:    user.Deleted,
+		}
+		photo, photoFlag := user.Photo.AsNotEmpty()
+		if photoFlag {
+			item.Avatar = photo.PhotoID
+		}
+		item.Last = convertMsg(dialog, dialogs)
+		d, dFlag := dialog.(*tg.Dialog)
+		if dFlag {
+			item.UnreadCount = d.UnreadCount
+			item.ReadOutboxMaxID = d.ReadOutboxMaxID
+			item.ReadInboxMaxID = d.ReadInboxMaxID
+			item.TopMessage = d.TopMessage
+		}
+	}
+	return
+}
+
+func convertDialogGroup(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (item *tgin.TgDialogModel) {
+	i := slices.IndexFunc(dialogs.GetUsers(), func(class tg.UserClass) bool {
+		return class.GetID() == getPeerId(dialog.GetPeer())
+	})
+	if i > -1 {
+		chat := dialogs.GetChats()[i].(*tg.Chat)
+		item = &tgin.TgDialogModel{
+			TgId:    chat.ID,
+			Title:   chat.Title,
+			Type:    2,
+			Last:    tgin.TgMsgModel{},
+			Creator: chat.Creator,
+			Date:    chat.Date,
+		}
+		photo, photoFlag := chat.Photo.AsNotEmpty()
+		if photoFlag {
+			item.Avatar = photo.PhotoID
+		}
+		item.Last = convertMsg(dialog, dialogs)
+	}
+	return
+}
+
+func convertDialogChannel(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (item *tgin.TgDialogModel) {
+	i := slices.IndexFunc(dialogs.GetUsers(), func(class tg.UserClass) bool {
+		return class.GetID() == getPeerId(dialog.GetPeer())
+	})
+	if i > -1 {
+		channel := dialogs.GetChats()[i].(*tg.Channel)
+		item = &tgin.TgDialogModel{
+			TgId:       channel.ID,
+			AccessHash: channel.AccessHash,
+			Title:      channel.Title,
+			Username:   channel.Username,
+			Type:       3,
+			Last:       tgin.TgMsgModel{},
+			Creator:    channel.Creator,
+			Date:       channel.Date,
+		}
+		photo, photoFlag := channel.Photo.AsNotEmpty()
+		if photoFlag {
+			item.Avatar = photo.PhotoID
+		}
+		item.Last = convertMsg(dialog, dialogs)
+	}
+	return
+}
+
+func convertMsg(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (result tgin.TgMsgModel) {
+	topMessage := dialog.GetTopMessage()
+	for _, msg := range dialogs.GetMessages() {
+		switch message := msg.(type) {
+		case *tg.Message: // message#38116ee0
+			if message.GetID() == topMessage {
+				return tgin.TgMsgModel{
+					TgId:    getPeerId(dialog.GetPeer()),
+					ChatId:  getPeerId(message.PeerID),
+					Id:      message.ID,
+					Date:    message.Date,
+					Message: message.Message,
+					Out:     message.Out,
+					Media:   gjson.New(message.Media),
+				}
+
+			}
+		case *tg.MessageService: // messageService#2b085862
+
+		}
+
+	}
+	return
+}
+
+func getPeerId(peer tg.PeerClass) int64 {
+	switch p := peer.(type) {
+	case *tg.PeerUser: // peerUser#59511722
+		return p.UserID
+	case *tg.PeerChat: // peerChat#36c6019a
+		return p.ChatID
+	case *tg.PeerChannel: // peerChannel#a2a5371e
+		return p.ChannelID
+	}
+	return 0
 }

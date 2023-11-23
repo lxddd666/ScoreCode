@@ -113,9 +113,10 @@ const getChatList = async (account: number) => {
   console.log(folders);
   folderList.value = folders.Elems;
   const res = await TgGetDialogs({account: account});
-  chatList.value = res.list;
-  tabChatList.value = res.list;
-  activeItem.value = res.list[0];
+  console.log(res);
+  chatList.value = res;
+  tabChatList.value = res;
+  activeItem.value = res[0];
   console.log(chatList);
 };
 
@@ -165,15 +166,6 @@ const updateTChatItem = (item: TChatItemParam) => {
   })
 }
 
-// function base64Dec(base64Str: string) {
-//   let parsedWordArray = CryptoJS.enc.Base64.parse(base64Str);
-//   return parsedWordArray.toString();
-// }
-//
-// function base64ToBuffer(b64: string) {
-//   let text = new TextEncoder()
-//   return text.encode(btoa(b64))
-// }
 
 const onMessageList = inject('onMessageList');
 
@@ -184,11 +176,11 @@ const onTgMessage = (res: { data: string }) => {
     let msg = data.data
     chatList.value.map(data => {
       if (data.tgId == msg.chatId) {
-        if (!data.msgList.some(item => item.reqId === msg.reqId)) {
+        if (!data.msgList.some(item => item.id === msg.id)) {
           data.msgList.push(msg);
         } else {
           data.msgList.map(item => {
-            if (item.reqId === msg.reqId) {
+            if (item.id === msg.id) {
               return msg;
             }
           });

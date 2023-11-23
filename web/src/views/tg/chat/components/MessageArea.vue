@@ -7,16 +7,16 @@
           <div
             :class="{ 'message-area-list-wrapper-item': true, isMe: item.out===1 }"
             v-for="item in data.msgList"
-            :key="item.reqId"
+            :key="item.id"
           >
             <div class="message-area-list-wrapper-item-content">
-              <div>{{ item.sendMsg }}</div>
+              <div>{{ item.message }}</div>
               <span class="message-area-list-wrapper-item-content-meta">
                 <span class="message-area-list-wrapper-item-content-meta-date">{{
-                    item.sendTime
+                    item.date
                   }}</span>
                 <span class="message-area-list-wrapper-item-content-meta-read">{{
-                    item.read === 1 ? '已读' : '未读'
+                    item.id > 1 ? '已读' : '未读'
                   }}</span>
               </span>
             </div>

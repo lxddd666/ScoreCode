@@ -2,6 +2,7 @@ package tgin
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 
@@ -133,4 +134,14 @@ type TgMsgExportModel struct {
 	Comment    string      `json:"comment"    dc:"备注"`
 	SendStatus int         `json:"sendStatus" dc:"发送状态"`
 	Out        int         `json:"out"           dc:"自己发出"`
+}
+
+type TgMsgModel struct {
+	Id      int         `json:"id"`
+	TgId    int64       `json:"initiator"  dc:"聊天发起人"`
+	ChatId  int64       `json:"receiver"   dc:"会话ID"`
+	Date    int         `json:"date"       dc:"发送时间"`
+	Message string      `json:"message"    dc:"message"`
+	Media   *gjson.Json `json:"media" dc:"media"`
+	Out     bool        `json:"out"        dc:"自己发出"`
 }

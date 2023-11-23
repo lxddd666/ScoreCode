@@ -39,8 +39,8 @@ enum Action {
   INVITE_TO_CHANNEL = 26;
   IMPORT_TG_SESSION = 27;
   JOIN_BY_LINK = 28;
-  GET_EMOJI_GROUP=29;
-  MESSAGES_REACTION=30;
+  GET_EMOJI_GROUP = 29;
+  MESSAGES_REACTION = 30;
   LEAVE = 32;
   GET_CHANNEL_MEMBER = 33;
   GET_ONLINE_ACCOUNTS = 34;
@@ -74,15 +74,15 @@ message OrdinarySingleAction {
 }
 
 message ForwardMessageDetail {
-  uint64  Sender    =1;
-  string fromPeer  =2;
-  string ToPeer   =3;
-  repeated int64 MsgIds  =4;
+  uint64  Sender = 1;
+  string fromPeer = 2;
+  string ToPeer = 3;
+  repeated int64 MsgIds = 4;
 }
 
 message DeleteMemberDetail {
   uint64 Sender = 1;
-  string ChatId  = 2;
+  string ChatId = 2;
   repeated string DeleteUsers = 3;
   string ChannelId = 4;
 }
@@ -96,6 +96,8 @@ message loginDetail {
   string proxyUrl = 1;
   string loginId = 2;  //登录的id 用来收验证码
   TgDeviceConfig tgDevice = 3; // 登录设备信息
+  bool isBot = 4;
+  string token = 5;
 }
 
 message TgDeviceConfig {
@@ -124,11 +126,12 @@ message getUserHeadImage{
 message DownUserHeadImageDetail{
   uint64 account = 1 ;
   uint64 getUser = 2 ;
+  int64 photoId = 3;
 }
 
 message SearchDetail {
   uint64 Sender = 1;
-  string Search =2;
+  string Search = 2;
 }
 
 
@@ -229,11 +232,11 @@ message RequestMessage {
     GetOnlineAccountsDetail get_online_accounts_detail = 40;
     UpdateUserInfoDetail update_user_info_detail = 41;
     DownUserHeadImageDetail down_user_head_image_detail = 42;
-      SearchDetail search_detail = 43;
-      OrdinarySingleAction ordinary_single_action = 44;
-      ForwardMessageDetail forward_message_detail=45;
-      DeleteMemberDetail delete_member_detail = 46;
-      GetUserChatFoldersDetail get_user_chat_folders_detail = 47;
+    SearchDetail search_detail = 43;
+    OrdinarySingleAction ordinary_single_action = 44;
+    ForwardMessageDetail forward_message_detail = 45;
+    DeleteMemberDetail delete_member_detail = 46;
+    GetUserChatFoldersDetail get_user_chat_folders_detail = 47;
     UpdateUserChatFoldersDetail update_user_chat_folders_details = 48;
     CheckUserNameDetail check_username_detail = 49;
     UpdatesGetStatusDetail update_get_status_detail = 50;
@@ -393,8 +396,8 @@ message CreateChannelDetail {
   string   ChannelUserName = 2;
   string   ChannelDescription = 3;
   UintkeyStringvalue detail = 4;
-  bool IsChannel =5;
-  bool IsSuperGroup =6;
+  bool IsChannel = 5;
+  bool IsSuperGroup = 6;
 }
 
 message  AddGroupMemberDetail {
@@ -405,10 +408,10 @@ message  AddGroupMemberDetail {
 message GetChannelMemberDetail {
   uint64 Sender = 1;
   string Channel = 2;
-  int64  Offset =3;
-  int64 Limit  = 4;
-  string  SearchType =5;
-  int64 TopMsgId =6;
+  int64  Offset = 3;
+  int64 Limit = 4;
+  string  SearchType = 5;
+  int64 TopMsgId = 6;
 }
 
 message UpdateUserInfoDetail {
@@ -469,12 +472,26 @@ message JoinByLinkDetail {
 }
 
 message GetEmojiGroupsDetail {
-  uint64 Sender =1;
+  uint64 Sender = 1;
 }
 
 message GetUserChatFoldersDetail{
   uint64 account = 1;
 }
+
+message CheckUserNameDetail{
+  uint64 account = 1;
+  string username = 2;
+}
+
+message UpdatesGetStatusDetail{
+  uint64 account = 1;
+}
+
+message CreateBotDetail {
+  uint64 Sender = 1;
+}
+
 
 message UpdateUserChatFoldersDetail{
   uint64 account = 1;
@@ -499,20 +516,6 @@ message MessagesReactionDetail{
   string Emotion = 1;
   UintkeyUintvalue detail = 2;
   string Receiver = 3;
-}
-
-
-message UpdatesGetStatusDetail{
-  uint64 account = 1;
-}
-
-message CreateBotDetail {
-  uint64 Sender = 1;
-}
-
-message CheckUserNameDetail{
-  uint64 account = 1;
-  string username = 2;
 }
 
 message LeaveDetail {

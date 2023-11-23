@@ -13,17 +13,19 @@
       </div>
       <div class="chat-item-right">
         <div class="chat-item-right-info">
-          <div class="chat-item-right-info-name">{{ data.firstName + " " + data.lastName }}</div>
+          <div class="chat-item-right-info-name">{{
+              data.type == 1 ? data.firstName + " " + data.lastName : data.title
+            }}</div>
           <div class="chat-item-right-info-meta">
             <n-space :size="4">
               <span class="chat-item-right-info-meta-read">{{
-                  data.last.read === 1 ? '已读' : '未读'
+                  data.unreadCount < 1 ? '已读' : '未读'
                 }}</span>
               <span class="chat-item-right-info-meta-date">{{ data.last.sendTime }}</span>
             </n-space>
           </div>
         </div>
-        <p class="chat-item-right-message">{{ data.last.sendMsg }}</p>
+        <p class="chat-item-right-message">{{ data.last.message }}</p>
       </div>
     </div>
   </n-card>
