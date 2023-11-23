@@ -205,7 +205,6 @@ func (s *sTgKeepTask) ClusterSync(ctx context.Context, message *gredis.Message) 
 		}
 		g.Log().Info(ctx, t)
 	}
-
 }
 
 // Run 执行

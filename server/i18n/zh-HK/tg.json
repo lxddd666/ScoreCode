@@ -75,6 +75,7 @@
   "TotalAdd": "總添加數:",
   "GetInformationFailed": "獲取信息失敗",
   "AverageTime": "平均時間:",
-  "IncreaseTaskCreated": "頻道漲粉任務已任務已創建"
+  "IncreaseTaskCreated": "頻道漲粉任務已任務已創建",
+  "ExecuteIncreaseFansTask": "執行漲粉任務"
 
 }

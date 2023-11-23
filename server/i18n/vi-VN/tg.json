@@ -76,6 +76,7 @@
   "TotalAdd": "Tổng số bổ sung:",
   "GetInformationFailed": "Thất bại trong việc lấy thông tin",
   "AverageTime": "Thời gian trung bình:",
-  "IncreaseTaskCreated": "Nhiệm vụ tăng trưởng kênh đã được tạo."
+  "IncreaseTaskCreated": "Nhiệm vụ tăng trưởng kênh đã được tạo.",
+  "ExecuteIncreaseFansTask": "Thực hiện nhiệm vụ tăng phấn"
 
 }

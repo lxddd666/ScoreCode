@@ -2,12 +2,14 @@ package tg
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgorm/handler"
+	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
@@ -318,8 +320,8 @@ func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *
 	return
 }
 
-// RestartCronApplication 重启后执行定时任务
-func (s *sTgIncreaseFansCron) RestartCronApplication(ctx context.Context) (err error) {
+// InitIncreaseCronApplication 重启后执行定时任务
+func (s *sTgIncreaseFansCron) InitIncreaseCronApplication(ctx context.Context) (err error) {
 
 	list := make([]*entity.TgIncreaseFansCron, 0)
 	mod := s.Model(ctx).Where(dao.TgIncreaseFansCron.Columns().CronStatus, 0)
@@ -338,6 +340,7 @@ func (s *sTgIncreaseFansCron) RestartCronApplication(ctx context.Context) (err e
 	}
 	// 启动任务
 	for _, task := range list {
+		g.Log().Info(ctx, g.I18n().T(ctx, "{#ExecuteIncreaseFansTask}"))
 		_, _ = s.TgExecuteIncrease(ctx, *task, true)
 		time.Sleep(1 * time.Second)
 	}
@@ -743,143 +746,151 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 	//dailyFollowerIncrease := dailyFollowerIncreaseList(totalAccounts, totalDays)
 
 	simple.SafeGo(gctx.New(), func(ctx context.Context) {
-		var finishFlag bool = false
-		channelModel, available, err := service.TgIncreaseFansCron().CheckChannel(ctx, &tgin.TgCheckChannelInp{cronTask.Channel, 0})
-		if err != nil {
-			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
-			_, _ = g.Redis().Del(ctx, key)
-			return
-		}
-		if available == false {
-			err = gerror.New(g.I18n().T(ctx, "{#SearchChannelEmpty}"))
-			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
-			_, _ = g.Redis().Del(ctx, key)
-			return
-		}
-		dailyFollowerIncrease, _, _, err := service.TgIncreaseFansCron().ChannelIncreaseFanDetail(ctx, &tgin.ChannelIncreaseFanDetailInp{
-			ChannelMemberCount: channelModel.ChannelMemberCount,
-			FansCount:          totalAccounts,
-			DayCount:           totalDays})
-		if err != nil {
-			return
-		}
-
-		// 已经涨粉数（启动后所有天数加起来的涨粉总数）
-		var fanTotalCount int = cronTask.IncreasedFans
-
-		for _, todayFollowerTarget := range dailyFollowerIncrease {
-			if finishFlag {
-				break
-			}
-			// 计算好平均时间 一天的时间
-			averageSleepTime := averageSleepTime(1, todayFollowerTarget)
-			g.Log().Infof(ctx, "average sleep time: %s", averageSleepTime)
-
-			cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
-
-			// 查看数据是否同步，防止程序突然终止后数据不同步 每天同步数据
-			err, joinSuccessNum := s.SyncIncreaseFansCronTaskTableData(ctx, &cronTask)
+		mutex := lock.Mutex(fmt.Sprintf("%s:%s:%s", "lock", "increaseFansTask", cronTask.Id))
+		// 尝试获取锁，获取不到说明已有节点再执行任务，此时当前节点不执行
+		if err := mutex.TryLockFunc(ctx, func() error {
+			g.Log().Info(ctx, g.I18n().T(ctx, "{#ExecuteIncreaseFansTask}"))
+			var finishFlag bool = false
+			channelModel, available, err := service.TgIncreaseFansCron().CheckChannel(ctx, &tgin.TgCheckChannelInp{cronTask.Channel, 0})
 			if err != nil {
-				finalResult = true
 				_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
 				_, _ = g.Redis().Del(ctx, key)
-				return
+				return err
 			}
-			fanTotalCount = joinSuccessNum
+			if available == false {
+				err = gerror.New(g.I18n().T(ctx, "{#SearchChannelEmpty}"))
+				_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+				_, _ = g.Redis().Del(ctx, key)
+				return err
+			}
+			dailyFollowerIncrease, _, _, err := service.TgIncreaseFansCron().ChannelIncreaseFanDetail(ctx, &tgin.ChannelIncreaseFanDetailInp{
+				ChannelMemberCount: channelModel.ChannelMemberCount,
+				FansCount:          totalAccounts,
+				DayCount:           totalDays})
+			if err != nil {
+				return err
+			}
 
-			// 每过一天，记录一次
-			cronTask.IncreasedFans = fanTotalCount
-			_ = s.Edit(ctx, &tgin.TgIncreaseFansCronEditInp{cronTask})
+			// 已经涨粉数（启动后所有天数加起来的涨粉总数）
+			var fanTotalCount int = cronTask.IncreasedFans
 
-			var todayFollowerCount int = 0
-
-			// 开始涨粉
-			for _, fan := range list {
-				// 查看任务状态，可随时终止
-				viewRes, err := s.View(ctx, &tgin.TgIncreaseFansCronViewInp{Id: gconv.Int64(cronTask.Id)})
-				if err != nil {
-					_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
-					_, _ = g.Redis().Del(ctx, key)
-					return
-				}
-				if viewRes.CronStatus != TASK_RUNNING {
-					// 任务终止
-					return
-				}
-
-				// 登录,加入频道
-				loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
-				if joinErr != nil {
-					// 输入的channel有问题
-					err = joinErr
+			for _, todayFollowerTarget := range dailyFollowerIncrease {
+				if finishFlag {
 					break
 				}
-				if loginErr != nil {
-					// 重新获取一个账号登录,递归
-					list = list[1:]
-					err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+				// 计算好平均时间 一天的时间
+				averageSleepTime := averageSleepTime(1, todayFollowerTarget)
+				g.Log().Infof(ctx, "average sleep time: %s", averageSleepTime)
+
+				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
+
+				// 查看数据是否同步，防止程序突然终止后数据不同步 每天同步数据
+				err, joinSuccessNum := s.SyncIncreaseFansCronTaskTableData(ctx, &cronTask)
+				if err != nil {
+					finalResult = true
+					_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+					_, _ = g.Redis().Del(ctx, key)
+					return err
+				}
+				fanTotalCount = joinSuccessNum
+
+				// 每过一天，记录一次
+				cronTask.IncreasedFans = fanTotalCount
+				_ = s.Edit(ctx, &tgin.TgIncreaseFansCronEditInp{cronTask})
+
+				var todayFollowerCount int = 0
+
+				// 开始涨粉
+				for _, fan := range list {
+					// 查看任务状态，可随时终止
+					viewRes, err := s.View(ctx, &tgin.TgIncreaseFansCronViewInp{Id: gconv.Int64(cronTask.Id)})
 					if err != nil {
+						_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
+						_, _ = g.Redis().Del(ctx, key)
+						return err
+					}
+					if viewRes.CronStatus != TASK_RUNNING {
+						// 任务终止
+						return nil
+					}
+
+					// 登录,加入频道
+					loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+					if joinErr != nil {
+						// 输入的channel有问题
+						err = joinErr
+						break
+					}
+					if loginErr != nil {
+						// 重新获取一个账号登录,递归
+						list = list[1:]
+						err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+						if err != nil {
+							break
+						}
+					}
+					todayFollowerCount++
+					fanTotalCount++
+
+					//添加粉丝完成后
+					_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(gdb.Map{
+						dao.TgIncreaseFansCron.Columns().IncreasedFans: fanTotalCount,
+					}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
+						Update()
+
+					//	如果添加完毕，则跳出
+					if fanTotalCount >= cronTask.FansCount {
+						finishFlag = true
+						break
+					}
+
+					sleepTime := randomSleepTime(averageSleepTime)
+
+					g.Log().Infof(ctx, "休眠时间: %s 小时", sleepTime/3600)
+
+					time.Sleep(time.Duration(sleepTime) * time.Second)
+					//time.Sleep(5 * time.Second)
+
+					if todayFollowerCount >= todayFollowerTarget {
 						break
 					}
 				}
-				todayFollowerCount++
-				fanTotalCount++
 
-				//添加粉丝完成后
-				_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(gdb.Map{
-					dao.TgIncreaseFansCron.Columns().IncreasedFans: fanTotalCount,
-				}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
-					Update()
+				if err != nil {
+					// 终止
+					cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
 
-				//	如果添加完毕，则跳出
-				if fanTotalCount >= cronTask.FansCount {
-					finishFlag = true
-					break
-				}
-
-				sleepTime := randomSleepTime(averageSleepTime)
-
-				g.Log().Infof(ctx, "休眠时间: %s 小时", sleepTime/3600)
-
-				time.Sleep(time.Duration(sleepTime) * time.Second)
-				//time.Sleep(5 * time.Second)
-
-				if todayFollowerCount >= todayFollowerTarget {
-					break
-				}
-			}
-
-			if err != nil {
-				// 终止
-				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
-
-				updateMap := gdb.Map{dao.TgIncreaseFansCron.Columns().CronStatus: TASK_ERR,
-					dao.TgIncreaseFansCron.Columns().ExecutedDays: cronTask.ExecutedDays,
-					dao.TgIncreaseFansCron.Columns().Comment:      err.Error()}
-				if fanTotalCount > 0 {
-					updateMap[dao.TgIncreaseFansCron.Columns().IncreasedFans] = fanTotalCount
-				}
-				_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(updateMap).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).Update()
-
-				_, _ = g.Redis().Del(ctx, key)
-				finalResult = true
-				break
-			}
-
-			// 查询完成情况 如果完成了
-			if fanTotalCount >= cronTask.FansCount {
-				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
-
-				_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(
-					gdb.Map{dao.TgIncreaseFansCron.Columns().CronStatus: 1,
+					updateMap := gdb.Map{dao.TgIncreaseFansCron.Columns().CronStatus: TASK_ERR,
 						dao.TgIncreaseFansCron.Columns().ExecutedDays: cronTask.ExecutedDays,
-					}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
-					Update()
-				_, _ = g.Redis().Del(ctx, key)
-				finalResult = true
-				break
-			}
+						dao.TgIncreaseFansCron.Columns().Comment:      err.Error()}
+					if fanTotalCount > 0 {
+						updateMap[dao.TgIncreaseFansCron.Columns().IncreasedFans] = fanTotalCount
+					}
+					_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(updateMap).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).Update()
 
+					_, _ = g.Redis().Del(ctx, key)
+					finalResult = true
+					break
+				}
+
+				// 查询完成情况 如果完成了
+				if fanTotalCount >= cronTask.FansCount {
+					cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
+
+					_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(
+						gdb.Map{dao.TgIncreaseFansCron.Columns().CronStatus: 1,
+							dao.TgIncreaseFansCron.Columns().ExecutedDays: cronTask.ExecutedDays,
+						}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
+						Update()
+					_, _ = g.Redis().Del(ctx, key)
+					finalResult = true
+					break
+				}
+
+			}
+			return nil
+		}); err != nil {
+			g.Log().Error(ctx, err)
 		}
 
 	})
