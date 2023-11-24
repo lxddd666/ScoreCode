@@ -21,6 +21,7 @@ func Tg(ctx context.Context, group *ghttp.RouterGroup) {
 			tg.TgIncreaseFansCron, //频道涨粉
 			tg.TgArts,             // arts-api
 			tg.ArtsFolders,        // 会话文件夹
+			tg.TgFolders,          // 社交账号分组
 		)
 
 	})

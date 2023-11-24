@@ -21,47 +21,14 @@ import (
 )
 
 type (
-	ITgArtsFolders interface {
-		// GetFolders 获取会话文件夹
-		GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error)
-	}
-	ITgIncreaseFansCron interface {
-		// Model TG频道涨粉任务ORM模型
+	ITgIncreaseFansCronAction interface {
+		// Model TG频道涨粉任务执行情况ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取TG频道涨粉任务列表
-		List(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (list []*tgin.TgIncreaseFansCronListModel, totalCount int, err error)
-		// Export 导出TG频道涨粉任务
-		Export(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (err error)
-		// Edit 修改/新增TG频道涨粉任务
-		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
-		// Delete 删除TG频道涨粉任务
-		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronDeleteInp) (err error)
-		// View 获取TG频道涨粉任务指定信息
-		View(ctx context.Context, in *tgin.TgIncreaseFansCronViewInp) (res *tgin.TgIncreaseFansCronViewModel, err error)
-		// UpdateStatus 修改任务状态
-		UpdateStatus(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
-		// CheckChannel 获取TG频道涨粉是否可用
-		CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error)
-		// ChannelIncreaseFanDetail 计算涨粉每天情况
-		ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, days int, err error)
-		// InitIncreaseCronApplication 重启后执行定时任务
-		InitIncreaseCronApplication(ctx context.Context) (err error)
-		// SyncIncreaseFansCronTaskTableData 同步涨粉数据信息
-		SyncIncreaseFansCronTaskTableData(ctx context.Context, cron *entity.TgIncreaseFansCron) (error, int)
-		// CreateIncreaseFanTask 创建任务
-		CreateIncreaseFanTask(ctx context.Context, user *model.Identity, inp *tgin.TgIncreaseFansCronInp) (err error, cronTask entity.TgIncreaseFansCron)
-		// IncreaseFanAction 涨粉动作
-		IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error)
-		// CreateKeepTask 传教
-		CreateKeepTask(ctx context.Context, takeName string, account string, fan *entity.TgUser) (err error)
-		// IncreaseFanActionRetry 涨粉动作递归重试
-		IncreaseFanActionRetry(ctx context.Context, list []*entity.TgUser, cron entity.TgIncreaseFansCron, taskName string, channel string, channelId string) (error, bool)
-		// TgIncreaseFansToChannel 新增执行cron任务
-		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
-		// TgExecuteIncrease 执行涨粉任务
-		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
-		// GetOneOnlineAccount 获取一个在线账号
-		GetOneOnlineAccount(ctx context.Context) (uint64, error)
+		List(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (list []*tgin.TgIncreaseFansCronActionListModel, totalCount int, err error)
+		Export(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (err error)
+		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronActionEditInp) (err error)
+		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronActionDeleteInp) (err error)
+		View(ctx context.Context, in *tgin.TgIncreaseFansCronActionViewInp) (res *tgin.TgIncreaseFansCronActionViewModel, err error)
 	}
 	ITgKeepTask interface {
 		// Model 养号任务ORM模型
@@ -105,7 +72,138 @@ type (
 		// ReadMsgCallback 已读回调
 		ReadMsgCallback(ctx context.Context, readMsg callback.TgReadMsgCallback) (err error)
 	}
-	ITgArts interface {
+	ITgProxy interface {
+		// Model 代理管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取代理管理列表
+		List(ctx context.Context, in *tgin.TgProxyListInp) (list []*tgin.TgProxyListModel, totalCount int, err error)
+		// Export 导出代理管理
+		Export(ctx context.Context, in *tgin.TgProxyListInp) (err error)
+		// Edit 修改/新增代理管理
+		Edit(ctx context.Context, in *tgin.TgProxyEditInp) (err error)
+		// Delete 删除代理管理
+		Delete(ctx context.Context, in *tgin.TgProxyDeleteInp) (err error)
+		// View 获取代理管理指定信息
+		View(ctx context.Context, in *tgin.TgProxyViewInp) (res *tgin.TgProxyViewModel, err error)
+		// Status 更新代理管理状态
+		Status(ctx context.Context, in *tgin.TgProxyStatusInp) (err error)
+	}
+	ITgUserFolders interface {
+		// Model tg账号关联分组ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取tg账号关联分组列表
+		List(ctx context.Context, in *tgin.TgUserFoldersListInp) (list []*tgin.TgUserFoldersListModel, totalCount int, err error)
+	}
+	ITgArtsFolders interface {
+		// GetFolders 获取会话文件夹
+		GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error)
+	}
+	ITgIncreaseFansCron interface {
+		// Model TG频道涨粉任务ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG频道涨粉任务列表
+		List(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (list []*tgin.TgIncreaseFansCronListModel, totalCount int, err error)
+		// Export 导出TG频道涨粉任务
+		Export(ctx context.Context, in *tgin.TgIncreaseFansCronListInp) (err error)
+		// Edit 修改/新增TG频道涨粉任务
+		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
+		// Delete 删除TG频道涨粉任务
+		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronDeleteInp) (err error)
+		// View 获取TG频道涨粉任务指定信息
+		View(ctx context.Context, in *tgin.TgIncreaseFansCronViewInp) (res *tgin.TgIncreaseFansCronViewModel, err error)
+		// UpdateStatus 修改任务状态
+		UpdateStatus(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
+		// CheckChannel 获取TG频道涨粉是否可用
+		CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error)
+		// ChannelIncreaseFanDetail 计算涨粉每天情况
+		ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, days int, err error)
+		// InitIncreaseCronApplication 重启后执行定时任务
+		InitIncreaseCronApplication(ctx context.Context) (err error)
+		// SyncIncreaseFansCronTaskTableData 同步涨粉数据信息
+		SyncIncreaseFansCronTaskTableData(ctx context.Context, cron *entity.TgIncreaseFansCron) (error, int)
+		// CreateIncreaseFanTask 创建任务
+		CreateIncreaseFanTask(ctx context.Context, user *model.Identity, inp *tgin.TgIncreaseFansCronInp) (err error, cronTask entity.TgIncreaseFansCron)
+		// IncreaseFanAction 涨粉动作
+		IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error)
+		// CreateKeepTask 传教
+		CreateKeepTask(ctx context.Context, takeName string, account string, fan *entity.TgUser) (err error)
+		// IncreaseFanActionRetry 涨粉动作递归重试
+		IncreaseFanActionRetry(ctx context.Context, list []*entity.TgUser, cron entity.TgIncreaseFansCron, taskName string, channel string, channelId string) (error, bool)
+		// TgIncreaseFansToChannel 新增执行cron任务
+		TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool)
+		// TgExecuteIncrease 执行涨粉任务
+		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
+		// GetOneOnlineAccount 获取一个在线账号
+		GetOneOnlineAccount(ctx context.Context) (uint64, error)
+	}
+	ITgContacts interface {
+		// Model 联系人管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取联系人管理列表
+		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
+		// Export 导出联系人管理
+		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
+		// Edit 修改/新增联系人管理
+		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
+		// Delete 删除联系人管理
+		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
+		// View 获取联系人管理指定信息
+		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
+		// ByTgUser 获取TG账号联系人
+		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
+		// SyncContactCallback 同步联系人
+		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
+	}
+	ITgFolders interface {
+		// Model tg分组ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取tg分组列表
+		List(ctx context.Context, in *tgin.TgFoldersListInp) (list []*tgin.TgFoldersListModel, totalCount int, err error)
+		// Export 导出tg分组
+		Export(ctx context.Context, in *tgin.TgFoldersListInp) (err error)
+		// Edit 修改/新增tg分组
+		Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err error)
+		// Delete 删除tg分组
+		Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (err error)
+		// View 获取tg分组指定信息
+		View(ctx context.Context, in *tgin.TgFoldersViewInp) (res *tgin.TgFoldersViewModel, err error)
+		//  EditUserFolder 修改账号分组
+		EditUserFolder(ctx context.Context, inp tgin.TgEditeUserFolderInp) (err error)
+	}
+	ITgUser interface {
+		// Model TG账号ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取TG账号列表
+		List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error)
+		// Export 导出TG账号
+		Export(ctx context.Context, in *tgin.TgUserListInp) (err error)
+		// Edit 修改/新增TG账号
+		Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error)
+		// Delete 删除TG账号
+		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
+		// View 获取TG账号指定信息
+		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
+		// BindMember 绑定用户
+		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
+		// UnBindMember 解除绑定用户
+		UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error)
+		// LoginCallback 登录回调
+		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// LogoutCallback 登退回调
+		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
+		// ImportSession 导入session文件
+		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
+		// TgSaveSessionMsg 保存session数据到数据库中
+		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
+		// TgImportSessionToGrpc 导入session
+		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
+		// UnBindProxy 解绑代理
+		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
+		// BindProxy 绑定代理
+		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+	}
+	IManager interface{}
+	ITgArts  interface {
 		// SyncAccount 同步账号
 		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
 		// CodeLogin 登录
@@ -150,100 +248,40 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
+		// TgGetUserAvatar 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
 		TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
 		TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error)
 	}
-	ITgIncreaseFansCronAction interface {
-		// Model TG频道涨粉任务执行情况ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		List(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (list []*tgin.TgIncreaseFansCronActionListModel, totalCount int, err error)
-		Export(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (err error)
-		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronActionEditInp) (err error)
-		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronActionDeleteInp) (err error)
-		View(ctx context.Context, in *tgin.TgIncreaseFansCronActionViewInp) (res *tgin.TgIncreaseFansCronActionViewModel, err error)
-	}
-	ITgProxy interface {
-		// Model 代理管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取代理管理列表
-		List(ctx context.Context, in *tgin.TgProxyListInp) (list []*tgin.TgProxyListModel, totalCount int, err error)
-		// Export 导出代理管理
-		Export(ctx context.Context, in *tgin.TgProxyListInp) (err error)
-		// Edit 修改/新增代理管理
-		Edit(ctx context.Context, in *tgin.TgProxyEditInp) (err error)
-		// Delete 删除代理管理
-		Delete(ctx context.Context, in *tgin.TgProxyDeleteInp) (err error)
-		// View 获取代理管理指定信息
-		View(ctx context.Context, in *tgin.TgProxyViewInp) (res *tgin.TgProxyViewModel, err error)
-		// Status 更新代理管理状态
-		Status(ctx context.Context, in *tgin.TgProxyStatusInp) (err error)
-	}
-	ITgUser interface {
-		// Model TG账号ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取TG账号列表
-		List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error)
-		// Export 导出TG账号
-		Export(ctx context.Context, in *tgin.TgUserListInp) (err error)
-		// Edit 修改/新增TG账号
-		Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error)
-		// Delete 删除TG账号
-		Delete(ctx context.Context, in *tgin.TgUserDeleteInp) (err error)
-		// View 获取TG账号指定信息
-		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
-		// BindMember 绑定用户
-		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
-		// UnBindMember 解除绑定用户
-		UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error)
-		// LoginCallback 登录回调
-		LoginCallback(ctx context.Context, res []entity.TgUser) (err error)
-		// LogoutCallback 登退回调
-		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
-		// ImportSession 导入session文件
-		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
-		// TgSaveSessionMsg 保存session数据到数据库中
-		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
-		// TgImportSessionToGrpc 导入session
-		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
-		// UnBindProxy 解绑代理
-		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
-		// BindProxy 绑定代理
-		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
-	}
-	ITgContacts interface {
-		// Model 联系人管理ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取联系人管理列表
-		List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error)
-		// Export 导出联系人管理
-		Export(ctx context.Context, in *tgin.TgContactsListInp) (err error)
-		// Edit 修改/新增联系人管理
-		Edit(ctx context.Context, in *tgin.TgContactsEditInp) (err error)
-		// Delete 删除联系人管理
-		Delete(ctx context.Context, in *tgin.TgContactsDeleteInp) (err error)
-		// View 获取联系人管理指定信息
-		View(ctx context.Context, in *tgin.TgContactsViewInp) (res *tgin.TgContactsViewModel, err error)
-		// ByTgUser 获取TG账号联系人
-		ByTgUser(ctx context.Context, tgUserId int64) (list []*tgin.TgContactsListModel, err error)
-		// SyncContactCallback 同步联系人
-		SyncContactCallback(ctx context.Context, in map[uint64][]*tgin.TgContactsListModel) (err error)
-	}
 )
 
 var (
-	localTgKeepTask               ITgKeepTask
-	localTgMsg                    ITgMsg
+	localManager                  IManager
 	localTgArts                   ITgArts
+	localTgContacts               ITgContacts
+	localTgFolders                ITgFolders
+	localTgUser                   ITgUser
+	localTgProxy                  ITgProxy
+	localTgUserFolders            ITgUserFolders
 	localTgArtsFolders            ITgArtsFolders
 	localTgIncreaseFansCron       ITgIncreaseFansCron
-	localTgUser                   ITgUser
-	localTgContacts               ITgContacts
 	localTgIncreaseFansCronAction ITgIncreaseFansCronAction
-	localTgProxy                  ITgProxy
+	localTgKeepTask               ITgKeepTask
+	localTgMsg                    ITgMsg
 )
+
+func Manager() IManager {
+	if localManager == nil {
+		panic("implement not found for interface IManager, forgot register?")
+	}
+	return localManager
+}
+
+func RegisterManager(i IManager) {
+	localManager = i
+}
 
 func TgArts() ITgArts {
 	if localTgArts == nil {
@@ -254,6 +292,39 @@ func TgArts() ITgArts {
 
 func RegisterTgArts(i ITgArts) {
 	localTgArts = i
+}
+
+func TgContacts() ITgContacts {
+	if localTgContacts == nil {
+		panic("implement not found for interface ITgContacts, forgot register?")
+	}
+	return localTgContacts
+}
+
+func RegisterTgContacts(i ITgContacts) {
+	localTgContacts = i
+}
+
+func TgFolders() ITgFolders {
+	if localTgFolders == nil {
+		panic("implement not found for interface ITgFolders, forgot register?")
+	}
+	return localTgFolders
+}
+
+func RegisterTgFolders(i ITgFolders) {
+	localTgFolders = i
+}
+
+func TgUser() ITgUser {
+	if localTgUser == nil {
+		panic("implement not found for interface ITgUser, forgot register?")
+	}
+	return localTgUser
+}
+
+func RegisterTgUser(i ITgUser) {
+	localTgUser = i
 }
 
 func TgArtsFolders() ITgArtsFolders {
@@ -278,6 +349,17 @@ func RegisterTgIncreaseFansCron(i ITgIncreaseFansCron) {
 	localTgIncreaseFansCron = i
 }
 
+func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
+	if localTgIncreaseFansCronAction == nil {
+		panic("implement not found for interface ITgIncreaseFansCronAction, forgot register?")
+	}
+	return localTgIncreaseFansCronAction
+}
+
+func RegisterTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
+	localTgIncreaseFansCronAction = i
+}
+
 func TgKeepTask() ITgKeepTask {
 	if localTgKeepTask == nil {
 		panic("implement not found for interface ITgKeepTask, forgot register?")
@@ -300,28 +382,6 @@ func RegisterTgMsg(i ITgMsg) {
 	localTgMsg = i
 }
 
-func TgContacts() ITgContacts {
-	if localTgContacts == nil {
-		panic("implement not found for interface ITgContacts, forgot register?")
-	}
-	return localTgContacts
-}
-
-func RegisterTgContacts(i ITgContacts) {
-	localTgContacts = i
-}
-
-func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
-	if localTgIncreaseFansCronAction == nil {
-		panic("implement not found for interface ITgIncreaseFansCronAction, forgot register?")
-	}
-	return localTgIncreaseFansCronAction
-}
-
-func RegisterTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
-	localTgIncreaseFansCronAction = i
-}
-
 func TgProxy() ITgProxy {
 	if localTgProxy == nil {
 		panic("implement not found for interface ITgProxy, forgot register?")
@@ -333,13 +393,13 @@ func RegisterTgProxy(i ITgProxy) {
 	localTgProxy = i
 }
 
-func TgUser() ITgUser {
-	if localTgUser == nil {
-		panic("implement not found for interface ITgUser, forgot register?")
+func TgUserFolders() ITgUserFolders {
+	if localTgUserFolders == nil {
+		panic("implement not found for interface ITgUserFolders, forgot register?")
 	}
-	return localTgUser
+	return localTgUserFolders
 }
 
-func RegisterTgUser(i ITgUser) {
-	localTgUser = i
+func RegisterTgUserFolders(i ITgUserFolders) {
+	localTgUserFolders = i
 }
