@@ -133,3 +133,19 @@ type TgGetSearchInfoModel struct {
 	ChatTitle          string `json:"chatTitle"               description:"chatTitle"`
 	ChatMemberCount    int    `json:"chatMemberCount"         description:"chatTitle"`
 }
+
+type TgReadPeerHistoryInp struct {
+	Sender   uint64 `json:"sender"          description:"账号"`
+	Receiver string `json:"receiver"        description:"被获取人"`
+}
+
+type TgReadChannelHistoryInp struct {
+	Sender   uint64 `json:"sender"          description:"账号"`
+	Receiver string `json:"receiver"        description:"channel id"`
+}
+
+type ChannelReadAddViewInp struct {
+	Sender   uint64  `json:"sender"          description:"账号"`
+	Receiver string  `json:"receiver"        description:"channel id"`
+	MsgIds   []int32 `json:"msgIds"        description:"msg ids"`
+}

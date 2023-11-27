@@ -54,6 +54,11 @@ enum Action {
   UPDATES_GET_STATUS = 43;
   CREATE_BOT = 44;
   START_BOT = 45;
+  READ_HISTORY = 46;
+  CHANNEL_READ_VIEW = 47;
+  EDIT_ADMIN = 48;
+  SET_TYPE_ACTION = 49;
+  READ_CHANNEL_HISTORY = 50;
 }
 
 
@@ -242,11 +247,16 @@ message RequestMessage {
     CheckUserNameDetail check_username_detail = 49;
     UpdatesGetStatusDetail update_get_status_detail = 50;
     CreateBotDetail create_bot_detail = 51;
-      StartBotDetail  start_bot_detail = 52;
+    StartBotDetail  start_bot_detail = 52;
+    ReadHistoryDetail read_history_detail = 54;
+    ChannelReadViewDetail channel_read_view_detail = 55;
+    EditAdminDetail edit_admin_detail = 56;
+    SetTypeActionDetail set_type_action_detail = 57;
+    ReadChannelHistoryDetail read_channel_history_action = 58;
   }
   string type = 18;
   uint64 account = 35; //账号
-
+  string key = 53;
 }
 
 message UintkeyUintvalue {
@@ -481,6 +491,72 @@ message GetUserChatFoldersDetail{
   uint64 account = 1;
 }
 
+message ChannelReadViewDetail{
+  uint64 account = 1;
+  string receiver = 2;
+  repeated int32 msgIds = 3;
+}
+
+message EditAdminDetail{
+  uint64 Sender  = 1;
+  string ModifiedUser = 2;
+  string Channel = 3;
+  string Rank = 4;
+  AdminRightsDetail   AdminRights =5;
+}
+
+message AdminRightsDetail {
+  // If set, allows the admin to modify the description of the channel/supergroup¹
+  bool ChangeInfo =1;
+  // If set, allows the admin to post messages in the channel¹
+  bool PostMessages = 2;
+  // If set, allows the admin to also edit messages from other admins in the channel¹
+  bool EditMessages  =3;
+  // If set, allows the admin to also delete messages from other admins in the channel¹
+  bool DeleteMessages =4;
+  // If set, allows the admin to ban users from the channel/supergroup¹
+  bool BanUsers  =5;
+  // If set, allows the admin to invite users in the channel/supergroup¹
+  bool InviteUsers =6;
+  // If set, allows the admin to pin messages in the channel/supergroup¹
+  bool PinMessages =7;
+  // If set, allows the admin to add other admins with the same (or more limited)
+  bool AddAdmins  =8;
+  // Whether this admin is anonymous
+  bool Anonymous  =9;
+  // If set, allows the admin to change group call/livestream settings
+  bool ManageCall =10;
+  // Set this flag if none of the other flags are set, but you still want the user to be an
+  // admin: if this or any of the other flags are set, the admin can get the chat admin
+  // log¹, get chat statistics², get message statistics in channels³, get channel
+  // members, see anonymous administrators in supergroups and ignore slow mode.
+  bool Other =11;
+  // If set, allows the admin to create, delete or modify forum topics »¹.
+  bool ManageTopics  =12;
+  // PostStories field of ChatAdminRights.
+  bool PostStories  =13;
+  // EditStories field of ChatAdminRights.
+  bool EditStories  =14;
+  // DeleteStories field of ChatAdminRights.
+  bool DeleteStories  =15;
+}
+
+message SetTypeActionDetail {
+  uint64 Sender  =1;
+  string Receiver =2;
+  string FileType  =3;
+}
+
+message ReadHistoryDetail{
+  uint64 account = 1;
+  string receiver = 2;
+}
+
+message ReadChannelHistoryDetail{
+  uint64 account = 1;
+  string receiver = 2;
+}
+
 message CheckUserNameDetail{
   uint64 account = 1;
   string username = 2;
@@ -591,6 +667,7 @@ message ResponseMessage {
   string   comment = 9;
   bytes    data = 10;
   AccountStatus respond_account_status = 11; // 账号的执行返回状态
+  string   key = 12;
 }
 message LoginCallbacks{
   repeated LoginCallback results = 1;

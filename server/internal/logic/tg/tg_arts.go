@@ -951,6 +951,79 @@ func (s *sTgArts) TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfo
 	return
 }
 
+// TgReadPeerHistory 消息已读
+func (s *sTgArts) TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHistoryInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Account: inp.Sender,
+		Action:  protobuf.Action_READ_HISTORY,
+		Type:    "telegram",
+		ActionDetail: &protobuf.RequestMessage_ReadHistoryDetail{
+			ReadHistoryDetail: &protobuf.ReadHistoryDetail{
+				Account:  inp.Sender,
+				Receiver: inp.Receiver,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// TgReadChannelHistory channel消息已读
+func (s *sTgArts) TgReadChannelHistory(ctx context.Context, inp *tgin.TgReadChannelHistoryInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Account: inp.Sender,
+		Action:  protobuf.Action_READ_CHANNEL_HISTORY,
+		Type:    "telegram",
+		ActionDetail: &protobuf.RequestMessage_ReadChannelHistoryAction{
+			ReadChannelHistoryAction: &protobuf.ReadChannelHistoryDetail{
+				Account:  inp.Sender,
+				Receiver: inp.Receiver,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	return
+}
+
+// TgChannelReadAddView channel view++
+func (s *sTgArts) TgChannelReadAddView(ctx context.Context, inp *tgin.ChannelReadAddViewInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Account: inp.Sender,
+		Action:  protobuf.Action_CHANNEL_READ_VIEW,
+		Type:    "telegram",
+		ActionDetail: &protobuf.RequestMessage_ChannelReadViewDetail{
+			ChannelReadViewDetail: &protobuf.ChannelReadViewDetail{
+				Account:  inp.Sender,
+				Receiver: inp.Receiver,
+				MsgIds:   inp.MsgIds,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	return
+}
+
 // TgUpdateUserInfo 修改用户信息
 func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error) {
 	tgUser := entity.TgUser{}

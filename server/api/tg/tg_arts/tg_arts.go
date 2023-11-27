@@ -226,3 +226,27 @@ type CheckUsernameReq struct {
 }
 
 type CheckUsernameRes struct{}
+
+// ReadPeerHistoryReq 用户消息已读
+type ReadPeerHistoryReq struct {
+	g.Meta `path:"/arts/user/readPeerHistory" method:"post" tags:"tg-api" summary:"消息已读"`
+	*tgin.TgReadPeerHistoryInp
+}
+
+type ReadPeerHistoryRes struct{}
+
+// ReadChannelHistoryReq 用户消息已读
+type ReadChannelHistoryReq struct {
+	g.Meta `path:"/arts/channel/readChannelHistory" method:"post" tags:"tg-api" summary:"channel消息已读"`
+	*tgin.TgReadChannelHistoryInp
+}
+
+type ReadChannelHistoryRes struct{}
+
+// ChannelAddViewReq channel view add
+type ChannelAddViewReq struct {
+	g.Meta `path:"/arts/channel/ChannelReadAddViewInp" method:"post" tags:"tg-api" summary:"channel消息view ++"`
+	*tgin.ChannelReadAddViewInp
+}
+
+type ChannelAddViewRes struct{}
