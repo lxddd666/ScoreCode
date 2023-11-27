@@ -6,7 +6,6 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -505,7 +504,7 @@ func (s *sTgArts) handlerSaveContacts(ctx context.Context, account uint64, list 
 }
 
 // TgGetMsgHistory 获取聊天历史
-func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgListModel, err error) {
+func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgModel, err error) {
 	var (
 		tgUser *entity.TgUser
 	)
@@ -513,15 +512,15 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 	if err != nil {
 		return
 	}
-	err = service.TgMsg().Model(ctx).OrderDesc(dao.TgMsg.Columns().ReqId).
+	err = service.TgMsg().Model(ctx).OrderDesc(dao.TgMsg.Columns().MsgId).
 		Where(do.TgMsg{TgId: tgUser.TgId, ChatId: inp.Contact}).
-		OrderDesc(dao.TgMsg.Columns().ReqId).
+		OrderDesc(dao.TgMsg.Columns().MsgId).
 		Scan(&list)
 	if err != nil {
 		return
 	}
 	if len(list) > 0 {
-		if list[0].ReqId == inp.OffsetID-1 {
+		if list[0].MsgId == inp.OffsetID-1 {
 			return
 		}
 	}
@@ -550,22 +549,21 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 	if err != nil {
 		return
 	}
-	err = gjson.DecodeTo(resp.Data, &list)
-	for _, item := range list {
-		item.SendMsg = gbase64.MustDecodeToString(item.SendMsg)
+	var box tg.MessagesMessagesBox
+	err = (&bin.Buffer{Buf: resp.Data}).Decode(&box)
+	if err != nil {
+		return
 	}
+	list = s.convertMessagesBox(tgUser, box)
 	if err == nil {
 		simple.SafeGo(gctx.New(), func(ctx context.Context) {
-			s.handlerSaveMsg(ctx, resp.Data)
+			s.handlerSaveMsg(ctx, list)
 		})
-
 	}
 	return
 }
 
-func (s *sTgArts) handlerSaveMsg(ctx context.Context, data []byte) {
-	var list []callback.TgMsgCallbackRes
-	_ = gjson.DecodeTo(data, &list)
+func (s *sTgArts) handlerSaveMsg(ctx context.Context, list []*tgin.TgMsgModel) {
 	_ = service.TgMsg().MsgCallback(ctx, list)
 }
 

@@ -2,9 +2,7 @@ package tg
 
 import (
 	"context"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/garray"
-	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -12,11 +10,11 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gogf/gf/v2/util/gutil"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/hgorm/handler"
-	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -25,7 +23,6 @@ import (
 	"hotgo/internal/websocket"
 	"hotgo/utility/convert"
 	"hotgo/utility/excel"
-	"slices"
 )
 
 type sTgMsg struct{}
@@ -64,12 +61,7 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 
 	// 查询请求id
 	if in.ReqId != 0 {
-		mod = mod.Where(dao.TgMsg.Columns().ReqId, in.ReqId)
-	}
-
-	// 查询是否已读
-	if in.Read > 0 {
-		mod = mod.Where(dao.TgMsg.Columns().Read, in.Read)
+		mod = mod.Where(dao.TgMsg.Columns().MsgId, in.ReqId)
 	}
 
 	// 查询发送状态
@@ -162,13 +154,7 @@ func (s *sTgMsg) View(ctx context.Context, in *tgin.TgMsgViewInp) (res *tgin.TgM
 func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 	// 自定义排序数组，降序排序(SortedIntArray管理的数据是升序)
 	a := garray.NewSortedArray(func(v1, v2 interface{}) int {
-		if (v1.(entity.TgMsg)).SendTime.Before((v2.(entity.TgMsg)).SendTime) {
-			return 1
-		}
-		if (v1.(entity.TgMsg)).SendTime.After((v2.(entity.TgMsg)).SendTime) {
-			return -1
-		}
-		return 0
+		return gutil.ComparatorInt((v1.(entity.TgMsg)).Date, (v2.(entity.TgMsg)).Date)
 	})
 
 	for _, msg := range msgList {
@@ -189,92 +175,22 @@ func (s *sTgMsg) sendMsgToUser(ctx context.Context, msgList []entity.TgMsg) {
 }
 
 // MsgCallback 发送消息回调
-func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCallbackRes) (err error) {
+func (s *sTgMsg) MsgCallback(ctx context.Context, list []*tgin.TgMsgModel) (err error) {
 	var msgList = make([]entity.TgMsg, 0)
-	for _, item := range textMsgList {
+	for _, item := range list {
 		msg := entity.TgMsg{
-			TgId:          item.TgId,
-			ChatId:        item.ChatId,
-			SendMsg:       gconv.String(item.SendMsg),
-			TranslatedMsg: item.TranslatedMsg,
-			MsgType:       item.MsgType,
-			SendTime:      gtime.NewFromTime(item.SendTime),
-			Read:          item.Read, //默认是已读
-			Comment:       item.Comment,
-			ReqId:         item.ReqId,
-			SendStatus:    item.SendStatus,
-			Out:           item.Out,
+			TgId:    item.TgId,
+			ChatId:  item.ChatId,
+			Message: item.Message,
+			MsgType: 1,
+			Date:    item.Date,
+			MsgId:   item.MsgId,
+			Media:   item.Media,
 		}
-		//转换id
-		if item.AccountType != 1 {
-			_ = dao.TgUser.Ctx(ctx).Where(do.TgUser{Phone: item.TgId}).Fields(dao.TgUser.Columns().TgId).Scan(&msg.TgId)
-			_ = dao.TgContacts.Ctx(ctx).Where(do.TgContacts{Phone: item.ChatId}).Fields(dao.TgContacts.Columns().TgId).Scan(&msg.ChatId)
-
-		}
-		if slices.Contains([]int{2, 3}, item.MsgType) && item.SendStatus == 1 {
-			var result *entity.SysAttachment
-			// md5不为空，判断文件是否已存在
-			if item.Md5 != "" {
-				result, err = storager.HasFile(ctx, item.Md5)
-				if err != nil {
-					return err
-				}
-			}
-			if result != nil {
-				msg.SendMsg = gconv.String(result.Id)
-			} else {
-				if item.SendMsg == nil {
-					//判断是否下载过该消息
-					var sendMsg string
-					_ = s.Model(ctx).Where(do.TgMsg{
-						TgId:   item.TgId,
-						ChatId: item.ChatId,
-					}).Fields(dao.TgMsg.Columns().SendMsg).Scan(&sendMsg)
-					if sendMsg != "" {
-						msg.SendMsg = sendMsg
-					}
-					var tgUser entity.TgUser
-					err = dao.TgUser.Ctx(ctx).Where(do.TgUser{TgId: item.TgId}).Scan(&tgUser)
-					if err != nil {
-						return
-					}
-					msgInp := &tgin.TgDownloadMsgInp{
-						Account: gconv.Uint64(tgUser.Phone),
-						MsgId:   gconv.Int64(item.ReqId),
-					}
-					if item.Out != 1 {
-						msgInp.ChatId = gconv.Int64(item.TgId)
-					} else {
-						msgInp.ChatId = gconv.Int64(item.ChatId)
-					}
-
-					res, err := service.TgArts().TgDownloadFile(ctx, msgInp)
-					if err != nil {
-						return err
-					}
-
-					msg.SendMsg = gconv.String(res.Id)
-
-				} else {
-					mime := mimetype.Detect(item.SendMsg)
-					var meta = &storager.FileMeta{
-						Filename: item.FileName,
-						Size:     gconv.Int64(len(item.SendMsg)),
-						MimeType: mime.String(),
-						Ext:      storager.Ext(item.FileName),
-						Md5:      gmd5.MustEncryptBytes(item.SendMsg),
-						Content:  item.SendMsg,
-					}
-					meta.Kind = storager.GetFileKind(meta.Ext)
-					result, err := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
-					if err != nil {
-						return err
-					}
-					msg.SendMsg = gconv.String(result.Id)
-				}
-
-			}
-
+		if item.Out {
+			msg.Out = 1
+		} else {
+			msg.Out = 2
 		}
 		msgList = append(msgList, msg)
 		//记录普罗米修斯发送消息次数
@@ -288,7 +204,7 @@ func (s *sTgMsg) MsgCallback(ctx context.Context, textMsgList []callback.TgMsgCa
 	}
 	if len(msgList) > 0 {
 		//入库
-		_, err = s.Model(ctx).Fields(tgin.TgMsgInsertFields{}).Save(msgList)
+		_, err = s.Model(ctx).Fields(tgin.TgMsgModel{}).Save(msgList)
 		s.sendMsgToUser(ctx, msgList)
 	}
 	return

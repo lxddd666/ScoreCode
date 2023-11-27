@@ -5,6 +5,7 @@
 package entity
 
 import (
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 )
 
@@ -16,13 +17,13 @@ type TgMsg struct {
 	DeletedAt     *gtime.Time `json:"deletedAt"     description:"删除时间"`
 	TgId          int64       `json:"tgId"          description:"聊天发起人"`
 	ChatId        int64       `json:"chatId"        description:"会话ID"`
-	ReqId         int64       `json:"reqId"         description:"请求id"`
+	MsgId         int         `json:"msgId"         description:"请求id"`
 	Out           int         `json:"out"           description:"是否自己发出"`
-	SendMsg       string      `json:"sendMsg"       description:"发送消息原文"`
+	Message       string      `json:"message"       description:"发送消息原文"`
 	TranslatedMsg []byte      `json:"translatedMsg" description:"发送消息译文(加密)"`
+	Media         *gjson.Json `json:"media"         description:"文件"`
 	MsgType       int         `json:"msgType"       description:"消息类型"`
-	SendTime      *gtime.Time `json:"sendTime"      description:"发送时间"`
-	Read          int         `json:"read"          description:"是否已读"`
+	Date          int         `json:"date"          description:"发送时间"`
 	Comment       string      `json:"comment"       description:"备注"`
 	SendStatus    int         `json:"sendStatus"    description:"发送状态"`
 }

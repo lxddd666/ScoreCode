@@ -212,6 +212,14 @@ func handlerDialogList(dialogListBox tg.MessagesDialogsBox) (list []*tgin.TgDial
 			item = convertDialogChannel(dialog, dialogs)
 		}
 		if item != nil {
+			item.Last = convertDialogMsg(dialog, dialogs)
+			d, dFlag := dialog.(*tg.Dialog)
+			if dFlag {
+				item.UnreadCount = d.UnreadCount
+				item.ReadOutboxMaxID = d.ReadOutboxMaxID
+				item.ReadInboxMaxID = d.ReadInboxMaxID
+				item.TopMessage = d.TopMessage
+			}
 			list = append(list, item)
 		}
 	}
@@ -241,20 +249,12 @@ func convertDialogUser(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs
 			}
 		}
 
-		item.Last = convertMsg(dialog, dialogs)
-		d, dFlag := dialog.(*tg.Dialog)
-		if dFlag {
-			item.UnreadCount = d.UnreadCount
-			item.ReadOutboxMaxID = d.ReadOutboxMaxID
-			item.ReadInboxMaxID = d.ReadInboxMaxID
-			item.TopMessage = d.TopMessage
-		}
 	}
 	return
 }
 
 func convertDialogGroup(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (item *tgin.TgDialogModel) {
-	i := slices.IndexFunc(dialogs.GetUsers(), func(class tg.UserClass) bool {
+	i := slices.IndexFunc(dialogs.GetChats(), func(class tg.ChatClass) bool {
 		return class.GetID() == getPeerId(dialog.GetPeer())
 	})
 	if i > -1 {
@@ -274,13 +274,12 @@ func convertDialogGroup(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialog
 			}
 		}
 
-		item.Last = convertMsg(dialog, dialogs)
 	}
 	return
 }
 
 func convertDialogChannel(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (item *tgin.TgDialogModel) {
-	i := slices.IndexFunc(dialogs.GetUsers(), func(class tg.UserClass) bool {
+	i := slices.IndexFunc(dialogs.GetChats(), func(class tg.ChatClass) bool {
 		return class.GetID() == getPeerId(dialog.GetPeer())
 	})
 	if i > -1 {
@@ -302,12 +301,11 @@ func convertDialogChannel(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDial
 			}
 		}
 
-		item.Last = convertMsg(dialog, dialogs)
 	}
 	return
 }
 
-func convertMsg(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (result tgin.TgMsgModel) {
+func convertDialogMsg(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (result tgin.TgMsgModel) {
 	topMessage := dialog.GetTopMessage()
 	for _, msg := range dialogs.GetMessages() {
 		switch message := msg.(type) {
@@ -316,7 +314,7 @@ func convertMsg(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (resu
 				return tgin.TgMsgModel{
 					TgId:    getPeerId(dialog.GetPeer()),
 					ChatId:  getPeerId(message.PeerID),
-					Id:      message.ID,
+					MsgId:   message.ID,
 					Date:    message.Date,
 					Message: message.Message,
 					Out:     message.Out,
@@ -330,6 +328,49 @@ func convertMsg(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDialogs) (resu
 
 	}
 	return
+}
+
+func (s *sTgArts) convertMessagesBox(user *entity.TgUser, box tg.MessagesMessagesBox) (list []*tgin.TgMsgModel) {
+	list = make([]*tgin.TgMsgModel, 0)
+	switch messages := box.Messages.(type) {
+	case *tg.MessagesMessages: // messages.messages#8c718e87
+		//已返回所有消息
+		for _, message := range messages.Messages {
+			result := s.ConvertMsg(user.TgId, message)
+			list = append(list, &result)
+		}
+	case *tg.MessagesMessagesSlice: // messages.messagesSlice#3a54685e
+		// 说明没有读取完所有消息
+		for _, message := range messages.Messages {
+			result := s.ConvertMsg(user.TgId, message)
+			list = append(list, &result)
+		}
+	case *tg.MessagesChannelMessages: // messages.channelMessages#c776ba4e
+		for _, message := range messages.Messages {
+			result := s.ConvertMsg(user.TgId, message)
+			list = append(list, &result)
+		}
+	}
+	return
+}
+
+func (s *sTgArts) ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel) {
+	switch message := msg.(type) {
+	case *tg.Message: // message#38116ee0
+		result = tgin.TgMsgModel{
+			TgId:    tgId,
+			ChatId:  getPeerId(message.PeerID),
+			MsgId:   message.ID,
+			Date:    message.Date,
+			Message: message.Message,
+			Out:     message.Out,
+			Media:   gjson.New(message.Media),
+		}
+	case *tg.MessageService: // messageService#2b085862
+
+	}
+
+	return result
 }
 
 func getPeerId(peer tg.PeerClass) int64 {

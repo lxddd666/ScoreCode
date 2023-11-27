@@ -18,10 +18,10 @@ const (
 	QueueWhatsLogoutTopic      = `logout`      // 登出日志
 	QueueWhatsSendStatusTopic  = `sendStatus`  // 发送状态回调
 
-	QueueTgLoginTopic       = `tgLogin`
-	QueueTgLogoutTopic      = `tgLogout`
-	QueueTgMsgTopic         = `tgMsg`
-	QueueTgReceiverMsgTopic = `tgReceiver`
-	QueueTgSynContact       = `tgContactsSync`
-	QueueTgReadMsgTopic     = `tgReadMsg`
+	QueueTgLoginTopic   = `tgLogin`
+	QueueTgLogoutTopic  = `tgLogout`
+	QueueTgMsgTopic     = `tgSendMsg`
+	QueueTgNewMsgTopic  = `tgNewMsg`
+	QueueTgSynContact   = `tgContactsSync`
+	QueueTgReadMsgTopic = `tgReadMsg`
 )

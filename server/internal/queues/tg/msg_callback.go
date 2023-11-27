@@ -3,9 +3,11 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/consts"
 	"hotgo/internal/library/queue"
 	"hotgo/internal/model/callback"
+	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 )
 
@@ -33,7 +35,20 @@ func (q *qTgMsg) Handle(ctx context.Context, mqMsg queue.MqMsg) (err error) {
 	var textMsgList []callback.TgMsgCallbackRes
 	err = gjson.DecodeTo(imCallback.Data, &textMsgList)
 	if err != nil {
+		g.Log().Error(ctx, "tgSendMsgCallback: ", imCallback.Data)
 		return
 	}
-	return service.TgMsg().MsgCallback(ctx, textMsgList)
+	list := make([]*tgin.TgMsgModel, 0)
+	for _, res := range textMsgList {
+		item := &tgin.TgMsgModel{
+			MsgId:   int(res.ReqId),
+			TgId:    res.TgId,
+			ChatId:  res.ChatId,
+			Date:    int(res.SendTime),
+			Message: res.SendMsg,
+			Out:     res.Out == 1,
+		}
+		list = append(list, item)
+	}
+	return service.TgMsg().MsgCallback(ctx, list)
 }

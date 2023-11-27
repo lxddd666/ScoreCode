@@ -5,9 +5,9 @@
       <n-scrollbar trigger="hover" ref="scrollRef">
         <div class="message-area-list-wrapper">
           <div
-            :class="{ 'message-area-list-wrapper-item': true, isMe: item.out===1 }"
+            :class="{ 'message-area-list-wrapper-item': true, isMe: item.out }"
             v-for="item in data.msgList"
-            :key="item.id"
+            :key="item.msgId"
           >
             <div class="message-area-list-wrapper-item-content">
               <div>{{ item.message }}</div>
@@ -16,7 +16,7 @@
                     item.date
                   }}</span>
                 <span class="message-area-list-wrapper-item-content-meta-read">{{
-                    item.id > 1 ? '已读' : '未读'
+                    item.msgId > 1 ? '已读' : '未读'
                   }}</span>
               </span>
             </div>
@@ -65,7 +65,6 @@ import {ScrollbarInst} from 'naive-ui';
 import {nextTick, ref, watch} from 'vue';
 import {newState, TChatItemParam, TMessage} from "@/views/tg/chat/components/model";
 import {TgGetMsgHistory, TgSendMsg} from "@/api/tg/tgUser";
-import {sendMsg} from '@/utils/websocket';
 
 const inputText = ref('');
 const scrollRef = ref<ScrollbarInst>();
@@ -142,7 +141,7 @@ const props = withDefaults(defineProps<Props>(), {
 watch(
   () => props.data,
   (value) => {
-    loadForm(props.me.phone, props.data.last?.reqId, value.tgId);
+    loadForm(props.me.phone, props.data.last?.msgId, value.tgId);
   }
 );
 </script>

@@ -137,9 +137,9 @@ type TgMsgExportModel struct {
 }
 
 type TgMsgModel struct {
-	Id      int         `json:"id"`
-	TgId    int64       `json:"initiator"  dc:"聊天发起人"`
-	ChatId  int64       `json:"receiver"   dc:"会话ID"`
+	MsgId   int         `json:"msgId"`
+	TgId    int64       `json:"tgId"  dc:"聊天发起人"`
+	ChatId  int64       `json:"chatId"   dc:"会话ID"`
 	Date    int         `json:"date"       dc:"发送时间"`
 	Message string      `json:"message"    dc:"message"`
 	Media   *gjson.Json `json:"media" dc:"media"`

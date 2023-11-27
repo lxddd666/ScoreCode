@@ -2,6 +2,7 @@ package tg
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/net/ghttp"
 	tgarts "hotgo/api/tg/tg_arts"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/service"
@@ -58,12 +59,12 @@ func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq)
 
 // GetDialogs 获取chats
 func (c *cTgArts) GetDialogs(ctx context.Context, req *tgarts.TgGetDialogsReq) (res *tgarts.TgGetDialogsRes, err error) {
-	result, err := service.TgArts().TgGetDialogs(ctx, req.Account)
+	list, err := service.TgArts().TgGetDialogs(ctx, req.Account)
 	if err != nil {
 		return
 	}
-	res = (*tgarts.TgGetDialogsRes)(&result)
-
+	res = new(tgarts.TgGetDialogsRes)
+	res.List = list
 	return
 }
 
@@ -175,8 +176,7 @@ func (c *cTgArts) GetUserAvatar(ctx context.Context, req *tgarts.GetUserAvatarRe
 	if err != nil {
 		return
 	}
-	res = new(tgarts.GetUserAvatarReqRes)
-	res.TgGetUserAvatarModel = resp
+	ghttp.RequestFromCtx(ctx).Response.RedirectTo(resp.Avatar)
 	return
 }
 

@@ -94,7 +94,9 @@ type TgGetDialogsReq struct {
 	Account uint64 `json:"account" dc:"IM账号"`
 }
 
-type TgGetDialogsRes []*tgin.TgDialogModel
+type TgGetDialogsRes struct {
+	List []*tgin.TgDialogModel `json:"list" dc:"数据列表"`
+}
 
 // TgGetContactsReq 获取contacts
 type TgGetContactsReq struct {
@@ -113,7 +115,7 @@ type TgGetMsgHistoryReq struct {
 }
 
 type TgGetMsgHistoryRes struct {
-	List []*tgin.TgMsgListModel `json:"list"   dc:"数据列表"`
+	List []*tgin.TgMsgModel `json:"list"   dc:"数据列表"`
 }
 
 // TgDownloadMsgReq 获取聊天历史
@@ -202,13 +204,11 @@ type UpdateUserInfoRes struct{}
 
 // GetUserAvatarReq 修改用户信息
 type GetUserAvatarReq struct {
-	g.Meta `path:"/arts/user/getUserAvatar" method:"post" tags:"tg-api" summary:"获取用户头像"`
+	g.Meta `path:"/arts/user/getUserAvatar" method:"get" tags:"tg-api" summary:"获取用户头像"`
 	*tgin.TgGetUserAvatarInp
 }
 
-type GetUserAvatarReqRes struct {
-	*tgin.TgGetUserAvatarModel
-}
+type GetUserAvatarReqRes string
 
 type GetSearchInfoReq struct {
 	g.Meta `path:"/arts/search" method:"post" tags:"tg-api" summary:"获取搜索内容详情（TG搜索框搜索结果）"`
