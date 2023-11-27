@@ -132,6 +132,12 @@ type (
 		// GetFolders 获取会话文件夹
 		GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error)
 	}
+	ITgUserFolders interface {
+		// Model tg账号关联分组ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取tg账号关联分组列表
+		List(ctx context.Context, in *tgin.TgUserFoldersListInp) (list []*tgin.TgUserFoldersListModel, totalCount int, err error)
+	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -201,6 +207,22 @@ type (
 		// ReadMsgCallback 已读回调
 		ReadMsgCallback(ctx context.Context, readMsg callback.TgReadMsgCallback) (err error)
 	}
+	ITgFolders interface {
+		// Model tg分组ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取tg分组列表
+		List(ctx context.Context, in *tgin.TgFoldersListInp) (list []*tgin.TgFoldersListModel, totalCount int, err error)
+		// Export 导出tg分组
+		Export(ctx context.Context, in *tgin.TgFoldersListInp) (err error)
+		// Edit 修改/新增tg分组
+		Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err error)
+		// Delete 删除tg分组
+		Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (err error)
+		// View 获取tg分组指定信息
+		View(ctx context.Context, in *tgin.TgFoldersViewInp) (res *tgin.TgFoldersViewModel, err error)
+		//  EditUserFolder 修改账号分组
+		EditUserFolder(ctx context.Context, inp tgin.TgEditeUserFolderInp) (err error)
+	}
 	ITgUser interface {
 		// Model TG账号ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -245,6 +267,8 @@ var (
 	localTgKeepTask               ITgKeepTask
 	localTgMsg                    ITgMsg
 	localTgUser                   ITgUser
+	localTgFolders                ITgFolders
+	localTgUserFolders            ITgUserFolders
 )
 
 func TgIncreaseFansCron() ITgIncreaseFansCron {
@@ -344,4 +368,26 @@ func TgUser() ITgUser {
 
 func RegisterTgUser(i ITgUser) {
 	localTgUser = i
+}
+
+func TgFolders() ITgFolders {
+	if localTgFolders == nil {
+		panic("implement not found for interface ITgFolders, forgot register?")
+	}
+	return localTgFolders
+}
+
+func RegisterTgFolders(i ITgFolders) {
+	localTgFolders = i
+}
+
+func TgUserFolders() ITgUserFolders {
+	if localTgUserFolders == nil {
+		panic("implement not found for interface ITgUserFolders, forgot register?")
+	}
+	return localTgUserFolders
+}
+
+func RegisterTgUserFolders(i ITgUserFolders) {
+	localTgUserFolders = i
 }

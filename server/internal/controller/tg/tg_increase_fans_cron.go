@@ -89,5 +89,3 @@ func (c *cTgArts) IncreaseChannelFansCron(ctx context.Context, req *tgincreasefa
 	err, _ = service.TgIncreaseFansCron().TgIncreaseFansToChannel(ctx, &req.TgIncreaseFansCronInp)
 	return
 }
-
-//
