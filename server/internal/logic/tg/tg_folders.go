@@ -126,16 +126,16 @@ func (s *sTgFolders) Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err e
 
 	// 新增
 	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-		_, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+		id, err := s.Model(ctx, &handler.Option{FilterAuth: false}).
 			Fields(tgin.TgFoldersInsertFields{}).
-			Data(in).Insert()
+			Data(in).InsertAndGetId()
 		if err != nil {
 			err = gerror.Wrap(err, "新增tg分组失败，请稍后重试！")
 		}
 		if len(in.Accounts) > 0 {
 			list := make([]entity.TgUserFolders, 0)
 			for _, account := range in.Accounts {
-				list = append(list, entity.TgUserFolders{TgUserId: account, FolderId: in.Id})
+				list = append(list, entity.TgUserFolders{TgUserId: account, FolderId: gconv.Uint64(id)})
 			}
 			_, err = g.Model(dao.TgUserFolders.Table()).Fields(dao.TgUserFolders.Columns().TgUserId, dao.TgUserFolders.Columns().FolderId).
 				Data(list).Insert()
