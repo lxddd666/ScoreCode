@@ -22,6 +22,7 @@ import (
 	"hotgo/utility/simple"
 	"math"
 	"math/rand"
+	"slices"
 	"strings"
 	"time"
 
@@ -746,7 +747,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 	//dailyFollowerIncrease := dailyFollowerIncreaseList(totalAccounts, totalDays)
 
 	simple.SafeGo(gctx.New(), func(ctx context.Context) {
-		mutex := lock.Mutex(fmt.Sprintf("%s:%s:%s", "lock", "increaseFansTask", cronTask.Id))
+		mutex := lock.Mutex(fmt.Sprintf("%s:%s:%d", "lock", "increaseFansTask", cronTask.Id))
 		// 尝试获取锁，获取不到说明已有节点再执行任务，此时当前节点不执行
 		if err := mutex.TryLockFunc(ctx, func() error {
 			g.Log().Info(ctx, g.I18n().T(ctx, "{#ExecuteIncreaseFansTask}"))
@@ -974,8 +975,8 @@ func emojiToChannelMessages(ctx context.Context, account uint64, channelId strin
 	}
 	i := 0
 	for _, h := range hList {
-		if h.SendMsg != "" {
-			msgList = append(msgList, gconv.Uint64(h.ReqId))
+		if h.Message != "" {
+			msgList = append(msgList, gconv.Uint64(h.MsgId))
 			i++
 		}
 		if i >= 20 {
@@ -1046,7 +1047,7 @@ func randomSelect(items []uint64) []uint64 {
 			break
 		}
 
-		index := getIndex(items, item)
+		index := slices.Index(items, item)
 		if !selectedIndexes[index] {
 			selectedItems = append(selectedItems, item)
 			selectedIndexes[index] = true
@@ -1054,15 +1055,6 @@ func randomSelect(items []uint64) []uint64 {
 	}
 
 	return selectedItems
-}
-
-func getIndex(items []uint64, target uint64) int {
-	for i, item := range items {
-		if item == target {
-			return i
-		}
-	}
-	return -1
 }
 
 func getAllEmojiList(ctx context.Context, account uint64) (err error, emojiList []string) {

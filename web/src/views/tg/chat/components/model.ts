@@ -24,7 +24,7 @@ export interface TChatItemParam {
 
 export interface TMessage {
     message: string;
-    id: number;
+    msgId: number;
     date: number;
     tgId: number;
     chatId: number;

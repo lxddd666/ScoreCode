@@ -3,11 +3,10 @@
     <n-card :bordered="false" class="proCard chat-area-head-card">
       <div class="chat-area-head">
         <div class="chat-area-head-left">
-          <n-avatar
-            round
-            :size="40"
-            color="transparent"
-            :src="data.avatar"
+          <n-avatar :size="54" round
+                    color="transparent"
+                    :src="data.avatar==0?'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg':
+            tgPrefix+'/arts/user/getUserAvatar?authorization='+token+'&account='+me.phone+'&getUser='+data.tgId+'&photoId='+data.avatar"
           ></n-avatar>
           <div class="chat-area-head-left-info">
             <div class="chat-area-head-left-info-name">{{
@@ -36,6 +35,9 @@
 import {MoreOutlined, SearchOutlined} from '@vicons/antd';
 import MessageArea from './MessageArea.vue';
 import {TChatItemParam} from "@/views/tg/chat/components/model";
+import {useGlobSetting} from "@/hooks/setting";
+import {storage} from "@/utils/Storage";
+import {ACCESS_TOKEN} from "@/store/mutation-types";
 
 interface IChatItemProps {
   data: TChatItemParam;
@@ -48,6 +50,10 @@ function updateTChatItem(item: TChatItemParam) {
   emit('updateTChatItem', item);
 }
 
+const globSetting = useGlobSetting();
+const tgPrefix = globSetting.tgPrefix || '';
+
+const token = storage.get(ACCESS_TOKEN);
 
 defineProps<IChatItemProps>();
 

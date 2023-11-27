@@ -2,13 +2,25 @@
   <n-card :bordered="false" class="proCard">
     <div :class="['chat-item', isActive ? 'active' : '']">
       <div class="chat-item-left">
-        <n-avatar
-          round
-          lazy
-          :size="54"
-          color="transparent"
-          :src="data.avatar"
+
+        <n-badge v-if="data.unreadCount>0" :value="data.unreadCount">
+          <n-avatar
+            round
+            :size="54"
+            color="transparent"
+            :src="data.avatar==0?'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg':
+            tgPrefix+'/arts/user/getUserAvatar?authorization='+token+'&account='+me.phone+'&getUser='+data.tgId+'&photoId='+data.avatar"
+          ></n-avatar>
+        </n-badge>
+        <n-avatar v-else
+                  round
+                  lazy
+                  :size="54"
+                  color="transparent"
+                  :src="data.avatar==0?'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg':
+            tgPrefix+'/arts/user/getUserAvatar?authorization='+token+'&account='+me.phone+'&getUser='+data.tgId+'&photoId='+data.avatar"
         ></n-avatar>
+
       </div>
       <div class="chat-item-right">
         <div class="chat-item-right-info">
@@ -34,8 +46,9 @@
 
 
 import {TChatItemParam} from "@/views/tg/chat/components/model";
-import {TgGetUserAvatar} from "@/api/tg/tgUser";
-import {watch} from "vue";
+import {storage} from "@/utils/Storage";
+import {ACCESS_TOKEN} from "@/store/mutation-types";
+import {useGlobSetting} from "@/hooks/setting";
 
 interface IChatItemProps {
   isActive?: boolean;
@@ -43,9 +56,13 @@ interface IChatItemProps {
   me: TChatItemParam;
 }
 
+const globSetting = useGlobSetting();
+const tgPrefix = globSetting.tgPrefix || '';
+
+const token = storage.get(ACCESS_TOKEN);
+
+
 const props = defineProps<IChatItemProps>();
-
-
 
 
 </script>

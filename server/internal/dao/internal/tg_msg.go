@@ -26,13 +26,13 @@ type TgMsgColumns struct {
 	DeletedAt     string // 删除时间
 	TgId          string // 聊天发起人
 	ChatId        string // 会话ID
-	ReqId         string // 请求id
+	MsgId         string // 请求id
 	Out           string // 是否自己发出
-	SendMsg       string // 发送消息原文
+	Message       string // 发送消息原文
 	TranslatedMsg string // 发送消息译文(加密)
+	Media         string // 文件
 	MsgType       string // 消息类型
-	SendTime      string // 发送时间
-	Read          string // 是否已读
+	Date          string // 发送时间
 	Comment       string // 备注
 	SendStatus    string // 发送状态
 }
@@ -45,13 +45,13 @@ var tgMsgColumns = TgMsgColumns{
 	DeletedAt:     "deleted_at",
 	TgId:          "tg_id",
 	ChatId:        "chat_id",
-	ReqId:         "req_id",
+	MsgId:         "msg_id",
 	Out:           "out",
-	SendMsg:       "send_msg",
+	Message:       "message",
 	TranslatedMsg: "translated_msg",
+	Media:         "media",
 	MsgType:       "msg_type",
-	SendTime:      "send_time",
-	Read:          "read",
+	Date:          "date",
 	Comment:       "comment",
 	SendStatus:    "send_status",
 }

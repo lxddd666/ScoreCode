@@ -71,7 +71,7 @@ import {DropdownMixedOption} from 'naive-ui/lib/dropdown/src/interface';
 import ChatItem from './components/ChatItem.vue';
 import ChatArea from './components/ChatArea.vue';
 import router from "@/router";
-import {TgGetDialogs, TgGetFolders, TgGetUserAvatar, TgLogin} from "@/api/tg/tgUser";
+import {TgGetDialogs, TgGetFolders, TgLogin} from "@/api/tg/tgUser";
 import {defaultState, TChatItemParam} from "@/views/tg/chat/components/model";
 import {addOnMessage, sendMsg} from "@/utils/websocket";
 
@@ -114,30 +114,11 @@ const getChatList = async (account: number) => {
   console.log(folders);
   folderList.value = folders.Elems;
   const res = await TgGetDialogs({account: account});
-  res.forEach((item: TChatItemParam) => {
-    if (item.avatar != "0") {
-       getAvatar(item).then(at => {
-         console.log(at)
-        item.avatar = at
-      })
-    } else {
-      item.avatar = 'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg';
-    }
-    chatList.value.push(item);
-    tabChatList.value.push(item);
-  });
-  console.log(chatList.value);
-  activeItem.value = res[0];
+  chatList.value = res.list;
+  tabChatList.value = res.list;
+  activeItem.value = res.list[0];
 };
 
-const getAvatar = async (data: TChatItemParam) => {
-  const res = await TgGetUserAvatar({
-    account: me.value.phone,
-    getUser: data.tgId,
-    photoId: data.avatar
-  });
-  return res.avatar;
-}
 
 // 标签页更新
 const onTabUpdate = (tabName: string) => {

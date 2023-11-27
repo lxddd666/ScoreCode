@@ -46,7 +46,7 @@ func (s serviceInstall) Run(ctx context.Context) (err error) {
 		return
 	}
 	mlog.Printf("I found some installable paths for you(from $PATH): ")
-	mlog.Printf("  %2s | %8s | %9s | %s", "Id", "Writable", "Installed", "Path")
+	mlog.Printf("  %2s | %8s | %9s | %s", "MsgId", "Writable", "Installed", "Path")
 
 	// Print all paths status and determine the default selectedID value.
 	var (
@@ -116,7 +116,7 @@ func (s serviceInstall) Run(ctx context.Context) (err error) {
 			}
 			// Check if out of range.
 			if inputID >= len(paths) || inputID < 0 {
-				mlog.Printf("invalid install destination Id: %d", inputID)
+				mlog.Printf("invalid install destination MsgId: %d", inputID)
 				continue
 			}
 			selectedID = inputID

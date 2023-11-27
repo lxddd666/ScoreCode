@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/text/gstr"
+	"github.com/gotd/td/bin"
 	"hotgo/internal/dao"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -30,7 +32,7 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 	)
 
 	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
-		"id": 120258,
+		"id": 780009,
 	})
 	fmt.Println(resp)
 
@@ -41,6 +43,12 @@ func TestTxt(t *testing.T) {
 	fmt.Println(test)
 	sList := gstr.Split(test, "\r\n")
 	fmt.Println(sList)
+	strArray := garray.NewStrArrayFrom(sList)
+	json := gjson.New(strArray.Range(100, 200))
+	err := gfile.PutBytes("test.json", json.MustToJson())
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestTgSendMsg(t *testing.T) {
@@ -55,21 +63,15 @@ Content-Length: 19
 Content-Type: application/json
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36`
 	)
-	//test := gfile.GetContents("/Users/macos/Downloads/test.txt")
-	//sList := gstr.Split(test, "\r\n")
-	//strArray := garray.NewStrArrayFrom(sList)
-	//for _, s := range strArray.Range(1, 200) {
-	//	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
-	//		"account":  84788551082,
-	//		"receiver": s,
-	//		"textMsg":  g.Array{"hello!"},
-	//	})
-	//	fmt.Println(resp)
-	//}
+	test := gfile.GetContents("/Users/macos/Downloads/test.txt")
+	sList := gstr.Split(test, "\r\n")
+	strArray := garray.NewStrArrayFrom(sList)
+	fmt.Println(strArray)
 	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
-		"account":  84788551082,
-		"receiver": []string{"luxuedng"},
-		"textMsg":  g.Array{"hello!"},
+		"account": 84788551082,
+		//"receiver": strArray.Range(1, 101),
+		"receiver": []string{"it00021hot"},
+		"textMsg":  g.Array{"whatsapp filter ,make sales easier, contact:https://t.me/whatsbro1"},
 	})
 	fmt.Println(resp)
 
@@ -190,5 +192,16 @@ func TestTgUser(t *testing.T) {
 	}
 	_, err = dao.TgKeepTask.Ctx(ctx).WherePri(150002).Data(do.TgKeepTask{Accounts: gjson.New(ids)}).Update()
 	panicErr(err)
+
+}
+
+func TestBuff(t *testing.T) {
+	s := "5WJd0W3OH1TUkCNXSqL5D4AYzFMpcQBmU2Z6jqAEdoUCh8FBTliq8ADmMbmqwVpkSJ6NE9Zpj5O2NK1eLnD0zpUgZ/7lfk/t/KdvjXnRReC/NicyEMWG4OvFZQFbKDSEWkzUbpkjnbQNjNYOceU9IT8c3yAcaoyZ4Oe17vbcV52dTyiGMgh8Eq+enesJOy3N50g78VKghEhu"
+	buffer := bin.Buffer{Buf: gbase64.MustDecodeString(s)}
+	id, err := buffer.ID()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(id)
 
 }
