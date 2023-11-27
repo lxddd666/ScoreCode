@@ -196,3 +196,21 @@ func (c *cTgArts) CheckUsername(ctx context.Context, req *tgarts.CheckUsernameRe
 	_, err = service.TgArts().TgCheckUsername(ctx, req.TgCheckUsernameInp)
 	return
 }
+
+// ReadPeerHistory 用户信息消息已读
+func (c *cTgArts) ReadPeerHistory(ctx context.Context, req *tgarts.ReadPeerHistoryReq) (res *tgarts.CheckUsernameRes, err error) {
+	err = service.TgArts().TgReadPeerHistory(ctx, req.TgReadPeerHistoryInp)
+	return
+}
+
+// ReadChannelHistory channel消息已读
+func (c *cTgArts) ReadChannelHistory(ctx context.Context, req *tgarts.ReadChannelHistoryReq) (res *tgarts.CheckUsernameRes, err error) {
+	err = service.TgArts().TgReadChannelHistory(ctx, req.TgReadChannelHistoryInp)
+	return
+}
+
+// ChannelAddView channel view++
+func (c *cTgArts) ChannelAddView(ctx context.Context, req *tgarts.ChannelAddViewReq) (res *tgarts.CheckUsernameRes, err error) {
+	err = service.TgArts().TgChannelReadAddView(ctx, req.ChannelReadAddViewInp)
+	return
+}

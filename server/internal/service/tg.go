@@ -122,11 +122,19 @@ type (
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 		// TgGetUserAvatar 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
+		// TgGetSearchInfo 搜索栏
 		TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
+		// TgCheckUsername 校验username
 		TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error)
 		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
+		// TgReadPeerHistory 消息已读
+		TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHistoryInp) (err error)
+		// TgReadChannelHistory channel 消息已读
+		TgReadChannelHistory(ctx context.Context, inp *tgin.TgReadChannelHistoryInp) (err error)
+		// TgChannelReadAddView channel view 加加
+		TgChannelReadAddView(ctx context.Context, inp *tgin.ChannelReadAddViewInp) (err error)
 	}
 	ITgArtsFolders interface {
 		// GetFolders 获取会话文件夹
