@@ -18,24 +18,24 @@
           :label-width="200"
           class="py-4"
         >
-          <n-form-item label="任务名称" path="taskName">
-            <n-input placeholder="请输入任务名称" v-model:value="params.taskName" />
+          <n-form-item label="组织ID" path="orgId">
+            <n-input-number placeholder="请输入组织ID" v-model:value="params.orgId" />
           </n-form-item>
 
-          <n-form-item label="表达式" path="cron">
-            <n-input placeholder="请输入表达式" v-model:value="params.cron" />
+          <n-form-item label="用户ID" path="memberId">
+            <n-input-number placeholder="请输入用户ID" v-model:value="params.memberId" />
           </n-form-item>
 
-          <n-form-item label="养号动作" path="actions">
-            <n-select multiple v-model:value="params.actions" :options="options.keep_action" />
+          <n-form-item label="分组名称" path="folderName">
+            <n-input placeholder="请输入分组名称" v-model:value="params.folderName" />
           </n-form-item>
 
           <n-form-item label="账号" path="accounts">
             <n-select multiple v-model:value="params.accounts" :options="options.accounts" />
           </n-form-item>
 
-          <n-form-item label="话术分组" path="scriptGroup">
-            <n-select v-model:value="params.scriptGroup" :options="options.scriptGroup" />
+          <n-form-item label="备注" path="comment">
+            <n-input type="textarea" placeholder="备注" v-model:value="params.comment" />
           </n-form-item>
         </n-form>
         <template #action>
@@ -50,9 +50,9 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onMounted, ref, watch } from 'vue';
-  import { Edit, View } from '@/api/tg/tgKeepTask';
-  import { newState, options, rules, State } from './model';
+  import { onMounted, ref, computed, watch } from 'vue';
+  import { Edit, View } from '@/api/tg/tgFolders';
+  import { rules, options, State, newState } from './model';
   import { useMessage } from 'naive-ui';
   import { adaModalWidth } from '@/utils/hotgo';
 

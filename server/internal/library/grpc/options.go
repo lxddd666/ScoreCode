@@ -16,9 +16,7 @@ package grpc
 
 import (
 	"github.com/gogf/gf/contrib/rpc/grpcx/v2"
-	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/keepalive"
 	"time"
 
 	"google.golang.org/grpc"
@@ -92,21 +90,19 @@ func Dial(address string, opts ...grpc.DialOption) *grpc.ClientConn {
 	if len(opts) > 0 {
 		grpcOpts = append(grpcOpts, grpcOpts...)
 	}
-	grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithConnectParams(grpc.ConnectParams{
-			Backoff:           backoff.Config{},
-			MinConnectTimeout: BackoffMaxDelay,
-		}),
-		grpc.WithInitialWindowSize(InitialWindowSize),
-		grpc.WithInitialConnWindowSize(InitialConnWindowSize),
-		grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(MaxSendMsgSize)),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(MaxRecvMsgSize)),
-		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time:                KeepAliveTime,
-			Timeout:             KeepAliveTimeout,
-			PermitWithoutStream: true,
-		}),
-	)
+	grpcOpts = append(grpcOpts, grpc.WithTransportCredentials(insecure.NewCredentials())) //grpc.WithConnectParams(grpc.ConnectParams{
+	//	Backoff:           backoff.Config{},
+	//	MinConnectTimeout: BackoffMaxDelay,
+	//}),
+	//grpc.WithInitialWindowSize(InitialWindowSize),
+	//grpc.WithInitialConnWindowSize(InitialConnWindowSize),
+	//grpc.WithDefaultCallOptions(grpc.MaxCallSendMsgSize(MaxSendMsgSize)),
+	//grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(MaxRecvMsgSize)),
+	//grpc.WithKeepaliveParams(keepalive.ClientParameters{
+	//	Time:                KeepAliveTime,
+	//	Timeout:             KeepAliveTimeout,
+	//	PermitWithoutStream: true,
+	//}),
 
 	return grpcx.Client.MustNewGrpcClientConn(address, grpcOpts...)
 }

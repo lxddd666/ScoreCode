@@ -15,7 +15,7 @@ var (
 )
 
 var (
-	deadlines = 15
+	deadlines = 60
 )
 
 func GetManagerConn(ctx context.Context) *grpc.ClientConn {

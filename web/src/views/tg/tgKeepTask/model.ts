@@ -1,13 +1,12 @@
-import {h, ref} from 'vue';
-import {cloneDeep} from 'lodash-es';
-import {FormSchema} from '@/components/Form';
-import {Dicts} from '@/api/dict/dict';
-import {defRangeShortcuts} from '@/utils/dateUtil';
-import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
-import {getScriptGroupOption, getTgUserOption} from "@/api/tg/tgKeepTask";
-import {isNullObject} from "@/utils/is";
-import {NTag} from "naive-ui";
-
+import { h, ref } from 'vue';
+import { cloneDeep } from 'lodash-es';
+import { FormSchema } from '@/components/Form';
+import { Dicts } from '@/api/dict/dict';
+import { defRangeShortcuts } from '@/utils/dateUtil';
+import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
+import { getScriptGroupOption, getTgUserOption } from '@/api/tg/tgKeepTask';
+import { isNullObject } from '@/utils/is';
+import { NTag } from 'naive-ui';
 
 export interface State {
   id: number;
@@ -190,17 +189,15 @@ export const columns = [
 
 async function loadOptions() {
   options.value = await Dicts({
-    types: [
-      'keep_action',
-      'sys_job_status',
-    ],
+    types: ['keep_action', 'sys_job_status'],
   });
 
-  const tgUser = await getTgUserOption({page: 1, pageSize: 9999});
+  const tgUser = await getTgUserOption({ page: 1, pageSize: 9999 });
   if (tgUser.list) {
     options.value.accounts = tgUser.list;
     for (let i = 0; i < tgUser.list.length; i++) {
-      tgUser.list[i].label = tgUser.list[i].phone + "--" + tgUser.list[i].firstName + " " + tgUser.list[i].lastName;
+      tgUser.list[i].label =
+        tgUser.list[i].phone + '--' + tgUser.list[i].firstName + ' ' + tgUser.list[i].lastName;
       tgUser.list[i].value = tgUser.list[i].id;
     }
   } else {
@@ -234,7 +231,6 @@ async function loadOptions() {
         break;
     }
   }
-
 }
 
 await loadOptions();

@@ -2,7 +2,7 @@
   <div>
     <n-card :bordered="false" class="proCard">
       <div class="n-layout-page-header">
-        <n-card :bordered="false" title="养号任务">
+        <n-card :bordered="false" title="tg分组">
           <!--  这是由系统生成的CURD表格，你可以将此行注释改为表格的描述 -->
         </n-card>
       </div>
@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/tgKeepTask/edit'])"
+            v-if="hasPermission(['/tgFolders/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -50,7 +50,7 @@
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
             class="min-left-space"
-            v-if="hasPermission(['/tgKeepTask/delete'])"
+            v-if="hasPermission(['/tgFolders/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -63,7 +63,7 @@
             type="primary"
             @click="handleExport"
             class="min-left-space"
-            v-if="hasPermission(['/tgKeepTask/export'])"
+            v-if="hasPermission(['/tgFolders/export'])"
           >
             <template #icon>
               <n-icon>
@@ -90,13 +90,12 @@
   import { BasicTable, TableAction } from '@/components/Table';
   import { BasicForm, useForm } from '@/components/Form/index';
   import { usePermission } from '@/hooks/web/usePermission';
-  import { Delete, Export, List, Once, Status } from '@/api/tg/tgKeepTask';
-  import { columns, newState, options, schemas, State } from './model';
-  import { DeleteOutlined, ExportOutlined, PlusOutlined } from '@vicons/antd';
+  import { List, Export, Delete } from '@/api/tg/tgFolders';
+  import { State, columns, schemas, newState } from './model';
+  import { PlusOutlined, ExportOutlined, DeleteOutlined } from '@vicons/antd';
   import { useRouter } from 'vue-router';
-  import Edit from './edit.vue';
   import { getOptionLabel } from '@/utils/hotgo';
-
+  import Edit from './edit.vue';
   const { hasPermission } = usePermission();
   const router = useRouter();
   const actionRef = ref();
@@ -120,47 +119,24 @@
           {
             label: '编辑',
             onClick: handleEdit.bind(null, record),
-            auth: ['/tgKeepTask/edit'],
+            auth: ['/tgFolders/edit'],
           },
           {
-            label: '暂停',
-            onClick: handleStatus.bind(null, record, 2),
-            ifShow: () => {
-              return record.status === 1;
-            },
-            auth: ['/tgKeepTask/status'],
-          },
-          {
-            label: '执行',
-            onClick: handleStatus.bind(null, record, 1),
-            ifShow: () => {
-              return record.status === 2;
-            },
-            auth: ['/tgKeepTask/status'],
-          },
-          {
-            label: '执行一次',
-            onClick: handleOnce.bind(null, record),
-            auth: ['/tgKeepTask/once'],
+            label: '删除',
+            onClick: handleDelete.bind(null, record),
+            auth: ['/tgFolders/delete'],
           },
         ],
         dropDownActions: [
           {
             label: '查看详情',
             key: 'view',
-            auth: ['/tgKeepTask/view'],
-          },
-          {
-            label: '删除',
-            key: 'delete',
-            auth: ['/tgKeepTask/delete'],
+            auth: ['/tgFolders/view'],
           },
         ],
         select: (key) => {
           if (key === 'view') {
             return handleView(record);
-          } else if (key === 'delete') {
-            return handleDelete(record);
           }
         },
       });
@@ -196,30 +172,12 @@
   }
 
   function handleView(record: Recordable) {
-    router.push({ name: 'tgKeepTaskView', params: { id: record.id } });
+    router.push({ name: 'tgFoldersView', params: { id: record.id } });
   }
 
   function handleEdit(record: Recordable) {
     showModal.value = true;
     formParams.value = newState(record as State);
-  }
-
-  function handleOnce(record: Recordable) {
-    dialog.warning({
-      title: '警告',
-      content: '提交成功后将立即执行一次，你确定要执行吗？？',
-      positiveText: '确定',
-      negativeText: '取消',
-      onPositiveClick: () => {
-        Once({ id: record.id }).then((_res) => {
-          message.success('执行成功');
-          reloadTable();
-        });
-      },
-      onNegativeClick: () => {
-        // message.error('取消');
-      },
-    });
   }
 
   function handleDelete(record: Recordable) {
@@ -261,15 +219,6 @@
   function handleExport() {
     message.loading('正在导出列表...', { duration: 1200 });
     Export(searchFormRef.value?.formModel);
-  }
-
-  function handleStatus(record: Recordable, status: number) {
-    Status({ id: record.id, status: status }).then((_res) => {
-      message.success('设为' + getOptionLabel(options.value.sys_job_status, status) + '成功');
-      setTimeout(() => {
-        reloadTable();
-      });
-    });
   }
 </script>
 
