@@ -28,7 +28,7 @@ type ExportRes struct{}
 
 // ViewReq 获取公司信息指定信息
 type ViewReq struct {
-	g.Meta `path:"/org/view" method:"get" tags:"公司信息" summary:"获取公司信息指定信息"`
+	g.Meta `path:"/org/view" method:"get" tags:"公司信息" summary:"获取公司信息详情"`
 	tgin.SysOrgViewInp
 }
 

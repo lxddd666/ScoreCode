@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
 	"github.com/gogf/gf/v2/os/gfile"
+	"github.com/gogf/gf/v2/text/gregex"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gotd/td/bin"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"hotgo/internal/dao"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -182,15 +185,15 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 }
 
 func TestTgUser(t *testing.T) {
-	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.local.yaml")
+	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.prod.yaml")
 	var list []*entity.TgUser
-	err := dao.TgUser.Ctx(ctx).Fields("id").Where("tg_id", 0).Scan(&list)
+	err := dao.TgUser.Ctx(ctx).Fields("id").Where("username='' or username is null").Scan(&list)
 	panicErr(err)
 	ids := make([]uint64, 0)
 	for _, user := range list {
 		ids = append(ids, user.Id)
 	}
-	_, err = dao.TgKeepTask.Ctx(ctx).WherePri(150002).Data(do.TgKeepTask{Accounts: gjson.New(ids)}).Update()
+	_, err = dao.TgKeepTask.Ctx(ctx).WherePri(330001).Data(do.TgKeepTask{Accounts: gjson.New(ids)}).Update()
 	panicErr(err)
 
 }
@@ -203,5 +206,39 @@ func TestBuff(t *testing.T) {
 		panic(err)
 	}
 	fmt.Println(id)
+
+}
+
+func TestEtcdUser(t *testing.T) {
+	g.Cfg().GetAdapter().(*gcfg.AdapterFile).SetFileName("config.prod.yaml")
+	oldPrefix := "/tg"
+	ctl := getRemoteCtl()
+	getRes, err := ctl.Get(ctx, oldPrefix, clientv3.WithPrefix())
+	if err != nil {
+		panic(err)
+	}
+	nstMap := gmap.NewStrAnyMap()
+
+	for _, kv := range getRes.Kvs {
+		key := string(kv.Key)
+		g.Log().Info(ctx, "key:", key)
+		result, err := gregex.MatchString(`[\d]+`, key)
+		if err != nil {
+			panic(err)
+		}
+		ns := result[0]
+		g.Log().Info(ctx, "ns:", ns)
+		var keys []string
+		if nstMap.Contains(ns) {
+			list := nstMap.Get(ns)
+			keys = list.([]string)
+		} else {
+			keys = make([]string, 0)
+		}
+		keys = append(keys, key)
+		nstMap.Set(ns, keys)
+	}
+
+	_, _ = dao.TgUser.Ctx(ctx).WhereNotIn("phone", nstMap.Keys()).Delete()
 
 }

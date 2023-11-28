@@ -40,11 +40,11 @@ func getRemoteCtl() *clientv3.Client {
 
 func TestEtcd(t *testing.T) {
 	localCtl := getLocalCtl()
-	//remoteCtl := getRemoteCtl()
-
-	resp, _ := localCtl.Get(ctx, "/tg/1999111999", clientv3.WithPrefix())
+	remoteCtl := getRemoteCtl()
+	_, _ = remoteCtl.Delete(ctx, "/tg", clientv3.WithPrefix())
+	resp, _ := localCtl.Get(ctx, "/new/tg", clientv3.WithPrefix())
 	for _, kv := range resp.Kvs {
-		_, _ = localCtl.Put(ctx, gstr.Replace(string(kv.Key), "1999111999", "6281265397062"), string(kv.Value))
+		_, _ = remoteCtl.Put(ctx, gstr.Replace(string(kv.Key), "/new/tg", "/tg"), string(kv.Value))
 	}
 
 }
@@ -53,7 +53,9 @@ func TestEtcdGet(t *testing.T) {
 	localCtl := getLocalCtl()
 	///service/zh/zh/telegram
 	//_, _ = localCtl.Delete(ctx, "/tg/14013986054", clientv3.WithPrefix())
-	get, _ := localCtl.Get(ctx, "/service/zh/zh/telegram", clientv3.WithPrefix())
+	//get, _ := localCtl.Get(ctx, "/service/zh/zh/telegram", clientv3.WithPrefix())
+	get, _ := localCtl.Delete(ctx, "/new/tg", clientv3.WithPrefix())
+
 	fmt.Println(get)
 
 }

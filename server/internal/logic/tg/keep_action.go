@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-faker/faker/v4"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/grand"
@@ -205,6 +206,12 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 
 // RandUsername 随机username
 func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand username",
+	}
 	// 获取账号
 	var ids = array.New[int64]()
 	for _, id := range task.Accounts.Array() {
@@ -224,10 +231,14 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		firstName := faker.FirstName()
 		lastName := faker.LastName()
 		username := firstName + lastName + grand.S(3)
+		keepLog.Account = int64(user.Id)
+		keepLog.Content = gjson.New(g.Map{"username": username})
 		// 校验username
 		flag, _ := service.TgArts().TgCheckUsername(ctx, &tgin.TgCheckUsernameInp{Account: gconv.Uint64(user.Phone), Username: username})
 		if !flag {
-			return
+			keepLog.Comment = "校验username不通过"
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
+			continue
 		}
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:  gconv.Uint64(user.Phone),
@@ -235,8 +246,12 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
+		keepLog.Status = 1
+		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 		time.Sleep(1 * time.Second)
 	}
 	return err
