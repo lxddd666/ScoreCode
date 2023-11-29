@@ -90,7 +90,6 @@ type (
 		Logout(ctx context.Context, ids []int64) (err error)
 		// TgCheckLogin 检查是否登录
 		TgCheckLogin(ctx context.Context, account uint64) (err error)
-
 		// TgSendMsg 发送消息
 		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
 		// TgSyncContact 同步联系人

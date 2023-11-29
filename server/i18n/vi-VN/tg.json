@@ -78,6 +78,11 @@
   "AverageTime": "Thời gian trung bình:",
   "IncreaseTaskCreated": "Nhiệm vụ tăng trưởng kênh đã được tạo.",
   "ExecuteIncreaseFansTask": "Thực hiện nhiệm vụ tăng phấn",
+  "CheckChannelErr": "Nhận channelid rỗng",
+  "ExecutePlanNil" : "Kế hoạch thực hiện không được để trống",
+  "TaskNotCreated" : "Tác vụ chưa được tạo",
   "ExportTgGroup": "Xuất khẩu nhóm tg-",
   "AddTgGroupError": "Nhóm tg mới thất bại, vui lòng thử lại sau！"
+
+
 }

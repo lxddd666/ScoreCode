@@ -39,15 +39,19 @@
               v-model:value="params.channelMemberCount"
             />
           </n-form-item>
+          <n-form-item label="频道Id" path="channelId">
+            <n-input :disabled="true" placeholder="频道Id" v-model:value="params.channelId" />
+          </n-form-item>
           <n-form-item label="持续天数" path="dayCount">
             <n-input-number placeholder="请输入持续天数" v-model:value="params.dayCount" />
-            推荐天数-><n-input-number
+          </n-form-item>
+          <n-form-item label="执行计划" path="executedPlanStr">
+            <n-input
               :disabled="true"
-              placeholder="推荐天数"
-              v-model:value="params.recommendedDays"
+              placeholder="执行计划"
+              v-model:value="params.executedPlanStr"
             />
           </n-form-item>
-
           <n-form-item label="涨粉数量" path="fansCount">
             <n-input-number placeholder="请输入涨粉数量" v-model:value="params.fansCount" />
             <n-space>
@@ -129,12 +133,17 @@
     formRef.value.validate((errors) => {
       if (!errors) {
         DailyIncrease(params.value).then((_res) => {
-          debugger;
           params.value.recommendedDays = _res.totalDay;
+          params.value.executedPlan = _res.dailyIncreaseFan;
+          debugger;
           var str = '';
+          var planStr = '[';
           _res.dailyIncreaseFan.forEach(function (fanIncrease, index) {
             str += '第' + (index + 1) + '天：' + fanIncrease + '粉丝\n';
+            planStr += fanIncrease + ',';
           });
+          planStr += ']';
+          params.value.executedPlanStr = planStr;
           console.info(str);
           message.success('操作成功' + '每日增长数量约为' + str);
           setTimeout(() => {
@@ -156,10 +165,13 @@
       if (!errors) {
         CheckChannel(params.value).then((_res) => {
           params.value.channelMemberCount = _res.channelMsg.channelMemberCount;
+          params.value.channelId = _res.channelMsg.channelId;
           debugger;
           message.success(
             '频道有效,频道Title:' +
               _res.channelMsg.channelTitle +
+              ',频道Id:' +
+              _res.channelMsg.channelId +
               ',频道人数:' +
               _res.channelMsg.channelMemberCount
           );

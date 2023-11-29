@@ -78,6 +78,9 @@
   "AverageTime": "平均时间:",
   "IncreaseTaskCreated": "频道涨粉任务已任务已创建",
   "ExecuteIncreaseFansTask": "执行涨粉任务",
+  "CheckChannelErr": "获取channel id为空",
+  "ExecutePlanNil" : "执行计划不能为空",
+  "TaskNotCreated" : "任务未创建",
   "ExportTgGroup": "导出tg分组-",
   "AddTgGroupError": "新增tg分组失败，请稍后重试！"
 }

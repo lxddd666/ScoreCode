@@ -2,6 +2,7 @@ package tg
 
 import (
 	"context"
+	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-faker/faker/v4"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -50,6 +51,7 @@ func init() {
 	actions.tasks[3] = RandNickName
 	actions.tasks[4] = RandUsername
 	actions.tasks[5] = RandPhoto
+	actions.tasks[6] = ReadChannelMsg
 }
 
 func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
@@ -68,6 +70,34 @@ func beforeGetTgUsers(ctx context.Context, ids []int64) (tgUserList []*entity.Tg
 	if err != nil {
 		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainAccountFailed}"))
 		return
+	}
+	return
+}
+
+// ReadChannelMsg 读channel信息和点赞
+func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	// 获取账号
+	var ids = array.New[int64]()
+	for _, id := range task.Accounts.Array() {
+		ids.Append(gconv.Int64(id))
+	}
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return
+	}
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
+		if err != nil {
+			g.Log().Error(ctx, err)
+			continue
+		}
+		dialogList, err := service.TgArts().TgGetDialogs(ctx, gconv.Uint64(user.Phone))
+		if err != nil {
+			continue
+		}
+		for _, dialog := range dialogList {
+			fmt.Println(dialog)
+		}
 	}
 	return
 }

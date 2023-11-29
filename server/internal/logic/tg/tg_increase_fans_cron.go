@@ -146,11 +146,13 @@ func (s *sTgIncreaseFansCron) Edit(ctx context.Context, in *tgin.TgIncreaseFansC
 	} else {
 		// 启动任务
 		err, _ = s.TgIncreaseFansToChannel(ctx, &tgin.TgIncreaseFansCronInp{
-			Channel:   in.Channel,
-			TaskName:  in.TaskName,
-			FansCount: in.FansCount,
-			DayCount:  in.DayCount,
-			CronId:    cronID,
+			Channel:      in.Channel,
+			TaskName:     in.TaskName,
+			FansCount:    in.FansCount,
+			DayCount:     in.DayCount,
+			CronId:       cronID,
+			ChannelId:    in.ChannelId,
+			ExecutedPlan: in.ExecutedPlan,
 		})
 		if err != nil {
 			return
@@ -246,12 +248,10 @@ func (s *sTgIncreaseFansCron) CheckChannel(ctx context.Context, in *tgin.TgCheck
 
 // ChannelIncreaseFanDetail 计算涨粉每天情况
 func (s *sTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, days int, err error) {
-
 	if in.ChannelMemberCount == 0 {
 		err = gerror.New(g.I18n().T(ctx, "{#CheckChannelMemberCount}"))
 		return
 	}
-
 	channelSize := in.ChannelMemberCount
 	targetFans := in.FansCount
 	targetDay := in.DayCount
@@ -364,6 +364,17 @@ func (s *sTgIncreaseFansCron) SyncIncreaseFansCronTaskTableData(ctx context.Cont
 			return err, 0
 		}
 	}
+	for _, n := range cron.ExecutedPlan {
+		num := int(n)
+		if joinSuccessNum > num {
+			joinSuccessNum -= num
+			cron.ExecutedPlan = cron.ExecutedPlan[1:]
+		} else {
+			num -= joinSuccessNum
+			cron.ExecutedPlan[0] = int64(num)
+			break
+		}
+	}
 	return nil, joinSuccessNum
 }
 
@@ -388,6 +399,7 @@ func (s *sTgIncreaseFansCron) CreateIncreaseFanTask(ctx context.Context, user *m
 		DayCount:  inp.DayCount,
 		FansCount: inp.FansCount,
 		StartTime: gtime.Now(),
+		ChannelId: inp.ChannelId,
 	}
 	result, err := service.TgIncreaseFansCron().Model(ctx).Data(cronTask).InsertAndGetId()
 	if err != nil {
@@ -402,6 +414,7 @@ func (s *sTgIncreaseFansCron) CreateIncreaseFanTask(ctx context.Context, user *m
 // IncreaseFanAction 涨粉动作
 func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error) {
 	n, _ := g.Model(dao.TgIncreaseFansCronAction.Table()).Where(dao.TgIncreaseFansCronAction.Columns().CronId, cron.Id).Where(dao.TgIncreaseFansCronAction.Columns().Phone, fan.Phone).Count()
+
 	if n > 0 {
 		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
 		return
@@ -491,6 +504,8 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 		return nil, joinChannelErr
 	}
 	g.Log().Infof(ctx, "{#AddChannelSuccess}: %s", fan.Phone)
+	// 消息已读
+	_ = service.TgArts().TgReadChannelHistory(ctx, &tgin.TgReadChannelHistoryInp{Sender: gconv.Uint64(fan.Phone), Receiver: channelId})
 
 	// 点赞操作
 	err, msgFlag := emojiToChannelMessages(ctx, gconv.Uint64(fan.Phone), channelId)
@@ -596,7 +611,7 @@ func (s *sTgIncreaseFansCron) IncreaseFanActionRetry(ctx context.Context, list [
 func (s *sTgIncreaseFansCron) TgIncreaseFansToChannel(ctx context.Context, inp *tgin.TgIncreaseFansCronInp) (err error, finalResult bool) {
 
 	finalResult = true
-	user := contexts.Get(ctx).User
+	//user := contexts.Get(ctx).User
 	key := consts.TgIncreaseFansKey + inp.TaskName
 
 	//g.Redis().Del(ctx, key)
@@ -627,6 +642,17 @@ func (s *sTgIncreaseFansCron) TgIncreaseFansToChannel(ctx context.Context, inp *
 		finalResult = true
 		return
 	}
+	if inp.ChannelId == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#CheckChannelErr}"))
+		finalResult = true
+		return
+	}
+	if len(inp.ExecutedPlan) == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#CheckChannelErr}"))
+		finalResult = true
+		return
+	}
+
 	cronTask := entity.TgIncreaseFansCron{}
 
 	cronMod := service.TgIncreaseFansCron().Model(ctx).Where(dao.TgIncreaseFansCron.Columns().TaskName, inp.TaskName)
@@ -636,12 +662,14 @@ func (s *sTgIncreaseFansCron) TgIncreaseFansToChannel(ctx context.Context, inp *
 	}
 	if num == 0 {
 		// 没创建任务,创建任务
-		err, cronTask = s.CreateIncreaseFanTask(ctx, user, inp)
-		if err != nil {
-			err = gerror.New(g.I18n().T(ctx, "{#CreateTaskFailed}") + err.Error())
-			finalResult = true
-			return
-		}
+		//err, cronTask = s.CreateIncreaseFanTask(ctx, user, inp)
+		//if err != nil {
+		//	err = gerror.New(g.I18n().T(ctx, "{#CreateTaskFailed}") + err.Error())
+		//	finalResult = true
+		//	return
+		//}
+		err = gerror.New(g.I18n().T(ctx, "{#TaskNotCreated}"))
+		return
 	} else {
 		err = cronMod.Scan(&cronTask)
 		if err != nil {
@@ -752,35 +780,19 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 		if err := mutex.TryLockFunc(ctx, func() error {
 			g.Log().Info(ctx, g.I18n().T(ctx, "{#ExecuteIncreaseFansTask}"))
 			var finishFlag bool = false
-			channelModel, available, err := service.TgIncreaseFansCron().CheckChannel(ctx, &tgin.TgCheckChannelInp{cronTask.Channel, 0})
-			if err != nil {
-				_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
-				_, _ = g.Redis().Del(ctx, key)
-				return err
-			}
-			if available == false {
-				err = gerror.New(g.I18n().T(ctx, "{#SearchChannelEmpty}"))
-				_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
-				_, _ = g.Redis().Del(ctx, key)
-				return err
-			}
-			dailyFollowerIncrease, _, _, err := service.TgIncreaseFansCron().ChannelIncreaseFanDetail(ctx, &tgin.ChannelIncreaseFanDetailInp{
-				ChannelMemberCount: channelModel.ChannelMemberCount,
-				FansCount:          totalAccounts,
-				DayCount:           totalDays})
-			if err != nil {
-				return err
-			}
 
 			// 已经涨粉数（启动后所有天数加起来的涨粉总数）
 			var fanTotalCount int = cronTask.IncreasedFans
 
-			for _, todayFollowerTarget := range dailyFollowerIncrease {
+			for _, todayFollowerTarget := range cronTask.ExecutedPlan {
+				if todayFollowerTarget == 0 {
+					continue
+				}
 				if finishFlag {
 					break
 				}
 				// 计算好平均时间 一天的时间
-				averageSleepTime := averageSleepTime(1, todayFollowerTarget)
+				averageSleepTime := averageSleepTime(1, int(todayFollowerTarget))
 				g.Log().Infof(ctx, "average sleep time: %s", averageSleepTime)
 
 				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
@@ -816,7 +828,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 					}
 
 					// 登录,加入频道
-					loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+					loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(cronTask.ChannelId))
 					if joinErr != nil {
 						// 输入的channel有问题
 						err = joinErr
@@ -825,7 +837,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 					if loginErr != nil {
 						// 重新获取一个账号登录,递归
 						list = list[1:]
-						err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(channelModel.ChannelId))
+						err, _ = s.IncreaseFanActionRetry(ctx, list, cronTask, cronTask.TaskName, cronTask.Channel, gconv.String(cronTask.ChannelId))
 						if err != nil {
 							break
 						}
@@ -852,7 +864,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 					time.Sleep(time.Duration(sleepTime) * time.Second)
 					//time.Sleep(5 * time.Second)
 
-					if todayFollowerCount >= todayFollowerTarget {
+					if todayFollowerCount >= int(todayFollowerTarget) {
 						break
 					}
 				}
@@ -1001,6 +1013,11 @@ func emojiToChannelMessages(ctx context.Context, account uint64, channelId strin
 		// 还有一步，channel消息已读
 
 		emoji := getRandomElement(emojiList)
+		msgIds := make([]int64, 0)
+		for _, i := range randomMsgId {
+			msgIds = append(msgIds, int64(i))
+		}
+		service.TgArts().TgChannelReadAddView(ctx, &tgin.ChannelReadAddViewInp{Sender: account, Receiver: channelId, MsgIds: msgIds})
 		err = service.TgArts().TgSendReaction(ctx, &tgin.TgSendReactionInp{Account: account, ChatId: gconv.Int64(channelId), MsgIds: randomMsgId, Emoticon: emoji})
 		if err != nil {
 			return
@@ -1239,6 +1256,7 @@ func checkUserHaveChannel(ctx context.Context, account uint64, channel string) (
 	for _, item := range result {
 		if item.Username == channelUsername {
 			flag = true
+			return
 		}
 	}
 	return
