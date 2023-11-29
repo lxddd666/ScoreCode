@@ -1,0 +1,13 @@
+# Copyright VMware, Inc.
+# SPDX-License-Identifier: APACHE-2.0
+
+version: '2'
+
+services:
+  grata:
+    image: liuzhihu1-docker.pkg.coding.net/arts/arts/grata:84426ded85f9179f85f0a2549e682ba8ec2b0c1d
+    ports:
+      - '4887:4887'
+    volumes:
+      - 'config.yaml:/app/config.yaml'
+    restart: always
