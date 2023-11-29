@@ -26,6 +26,18 @@ func (c *cTgArts) Login(ctx context.Context, req *tgarts.TgLoginReq) (res *tgart
 	return
 }
 
+// CodeLogin 验证码登录
+func (c *cTgArts) CodeLogin(ctx context.Context, req *tgarts.TgCodeLoginReq) (res *tgarts.TgCodeLoginRes, err error) {
+	reqId, err := service.TgArts().CodeLogin(ctx, req.Phone)
+	if err != nil {
+		return nil, err
+	}
+	res = new(tgarts.TgCodeLoginRes)
+	res.Phone = req.Phone
+	res.ReqId = reqId
+	return
+}
+
 // BatchLogin 批量登录账号
 func (c *cTgArts) BatchLogin(ctx context.Context, req *tgarts.TgBatchLoginReq) (res *tgarts.TgBatchLoginRes, err error) {
 	err = service.TgArts().SessionLogin(ctx, req.Ids)

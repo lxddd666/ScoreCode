@@ -9,12 +9,23 @@ import (
 
 // TgLoginReq tg登录
 type TgLoginReq struct {
-	g.Meta `path:"/arts/login" method:"post" tags:"tg-api" summary:"手机验证码登录"`
+	g.Meta `path:"/arts/login" method:"post" tags:"tg-api" summary:"tg登录(已有session)"`
 	Id     int64 `json:"id" v:"required#SelectLoginAccount" dc:"id"`
 }
 
 type TgLoginRes struct {
 	*entity.TgUser
+}
+
+// TgCodeLoginReq 手机号登录发送验证码
+type TgCodeLoginReq struct {
+	g.Meta `path:"/arts/sendCode" method:"post" tags:"tg-api" summary:"手机号登录发送验证码"`
+	Phone  uint64 `json:"phone" v:"required" dc:"phone"`
+}
+
+type TgCodeLoginRes struct {
+	Phone uint64 `json:"phone" v:"required#AccountNumberNotEmpty" dc:"手机号"`
+	ReqId string `json:"reqId" v:"required#CodeNotEmpty" dc:"请求ID"`
 }
 
 // TgBatchLoginReq 批量登录
@@ -28,14 +39,14 @@ type TgBatchLoginRes struct{}
 // TgBatchLogoutReq 批量登录
 type TgBatchLogoutReq struct {
 	g.Meta `path:"/arts/batchLogout" method:"post" tags:"tg-api" summary:"批量下线"`
-	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"ids"`
+	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"勾选账号列表id数组"`
 }
 
 type TgBatchLogoutRes struct{}
 
 // TgSendCodeReq tg发送验证码
 type TgSendCodeReq struct {
-	g.Meta `path:"/arts/sendCode" method:"post" tags:"tg-api" summary:"输入验证码"`
+	g.Meta `path:"/arts/codeLogin" method:"post" tags:"tg-api" summary:"tg验证码登录(生成session)"`
 	*artsin.SendCodeInp
 }
 

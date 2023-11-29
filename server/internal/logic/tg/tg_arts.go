@@ -536,6 +536,7 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 	return
 }
 
+// TgCheckUsername 校验username
 func (s *sTgArts) TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {

@@ -169,7 +169,7 @@ func (s *sArts) Send(ctx context.Context, req *protobuf.RequestMessage) (res *pr
 		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#RequestServerFailed}"))
 	}
 	if res.ActionResult != protobuf.ActionResult_ALL_SUCCESS {
-		return nil, gerror.NewCode(gcode.New(int(res.ActionResult), res.Comment, nil), res.Comment)
+		return res, gerror.NewCode(gcode.New(int(res.ActionResult), res.Comment, nil), res.Comment)
 	}
 	return
 }

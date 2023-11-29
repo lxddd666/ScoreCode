@@ -11,6 +11,7 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -43,22 +44,32 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 }
 
 // CodeLogin 登录
-func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.LoginModel, err error) {
+func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (reqId string, err error) {
 	var (
 		tgUser entity.TgUser
 		sysOrg entity.SysOrg
 	)
+	if count, err := service.TgUser().Model(ctx).Where(dao.TgUser.Columns().Phone, phone).Count(); err != nil || count > 0 {
+		return "", gerror.New(g.I18n().T(ctx, "{#PhoneExist}"))
+	}
+	user := contexts.GetUser(ctx)
+	_, err = service.TgUser().Model(ctx).Save(do.TgUser{
+		OrgId:         user.OrgId,
+		MemberId:      user.Id,
+		Phone:         phone,
+		AccountStatus: 0,
+		IsOnline:      2,
+	})
+	if err != nil {
+		return "", gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
+	}
 	err = service.TgUser().Model(ctx).Where(dao.TgUser.Columns().Phone, phone).Scan(&tgUser)
 	if err != nil {
-		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
+		return "", gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
 	}
-	if g.IsEmpty(tgUser) {
-		return nil, gerror.New(g.I18n().T(ctx, "{#NotAccount}"))
-	}
-
-	err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
+	err = service.SysOrg().Model(ctx).WherePri(user.OrgId).Scan(&sysOrg)
 	if err != nil {
-		return nil, gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
+		return "", gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 	}
 	tgUserList := []*entity.TgUser{&tgUser}
 
@@ -80,7 +91,26 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (res *artsin.Logi
 		return
 	}
 
-	err = s.login(ctx, tgUserList)
+	req := &protobuf.RequestMessage{
+		Action: protobuf.Action_LOGIN_SINGLE,
+		Type:   consts.TgSvc,
+		ActionDetail: &protobuf.RequestMessage_OrdinarySingleAction{
+			OrdinarySingleAction: &protobuf.OrdinarySingleAction{
+				LoginDetail: &protobuf.LoginDetail{
+					ProxyUrl: tgUser.ProxyAddress,
+				},
+				Account: gconv.Uint64(tgUser.Phone),
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		if resp.ActionResult == protobuf.ActionResult_LOGIN_NEED_CODE {
+			reqId = resp.LoginId
+			return reqId, nil
+		}
+		return
+	}
 	return
 }
 

@@ -10,9 +10,9 @@ type LoginModel struct {
 }
 
 type SendCodeInp struct {
-	Phone uint64 `json:"phone" dc:"手机号"`
-	ReqId string `json:"reqId" dc:"请求ID"`
-	Code  string `json:"code" dc:"验证码"`
+	Phone uint64 `json:"phone" v:"required#AccountNumberNotEmpty" dc:"手机号"`
+	ReqId string `json:"reqId" v:"required#CodeNotEmpty" dc:"请求ID"`
+	Code  string `json:"code" v:"required#CodeNotEmpty" dc:"验证码"`
 }
 
 func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
