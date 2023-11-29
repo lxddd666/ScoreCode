@@ -1,0 +1,108 @@
+.expandableSelect-label {
+    position: absolute;
+    top: -25% !important;
+    font-size: 0.875rem;
+    font-weight: 400;
+    height: 100%;
+    width: 100%;
+}
+
+.multiSelect-select .MuiSelect-select {
+    text-wrap: wrap;
+}
+
+.sticky {
+    z-index: 1;
+    position: sticky;
+    box-shadow: inset 1px 0 1px rgba(0, 0, 0, 0.2);
+    max-width: 250px;
+    min-width: 200px;
+}
+
+.hideBackdrop {
+    background-color: unset;
+}
+
+.MuiButtonBase-root,
+.MuiFormLabel-root,
+.MuiLabelBase-root,
+.MuiInputBase-root,
+.MuiOutlinedInput-root,
+.MuiFormControl-root,
+.MuiTypography-root,
+.MuiTable-root,
+.MuiList-root,
+.MuiDialog-root,
+.MuiAppBar-root,
+.MuiPaper-root,
+.MuiCard-root,
+.MuiSlider-root,
+.MuiTableRow-root,
+.MuiTableCell-root {
+    &.MuiTableRow-hover:hover {
+        background-color: var(--secondary-main);
+        td.sticky {
+            background-color: var(--secondary-main);
+        }
+    }
+}
+
+.MuiList-root {
+    max-width: unset;
+}
+
+.ExpandableSelect.Mui.MuiFormControl-root label {
+    top: 15%;
+}
+
+.ExpandableRadioWrapperContent:hover {
+    background-color: var(--secondary-main);
+}
+
+.MultiLineInput.MuiFormControl-root > label,
+.MultiLineInput.MuiFormControl-root > label[data-shrink='false'] {
+    top: 20%;
+}
+
+.NoPrefixRadio:hover,
+.NoPrefixRadio:checked {
+    background-color: unset;
+    animation: unset;
+}
+
+th.sticky,
+td.sticky {
+    background-color: var(--white);
+}
+
+.borderTable > thead,
+.borderTable > tbody > tr:nth-child(even) {
+    background-color: var(--gray);
+}
+
+.borderTable > thead > tr > th,
+.borderTable > tbody > tr > td {
+    border: 1px solid var(--gray);
+}
+
+.MuiPaper-root.MuiMenu-paper.MuiPaper-elevation {
+    max-height: 40%;
+    max-width: 100%;
+}
+
+.generalContainer {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+    & > .MuiGrid-item {
+        padding: 0;
+    }
+}
+
+.generalContainer:hover {
+    background-color: var(--primary-main);
+}
+
+.inputFileContainer {
+    background-color: var(--gray);
+}

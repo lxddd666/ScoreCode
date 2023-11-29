@@ -1,0 +1,96 @@
+/* START extra small responsive view - xs */
+@media screen and (max-width: 600px) {
+    .hidden-xs {
+        display: none;
+        visibility: hidden;
+    }
+
+    .customTablePagination {
+        width: 100%;
+    }
+
+    .MuiList-root {
+        max-width: unset;
+    }
+
+    .sticky {
+        max-width: 100px;
+        min-width: 50px;
+    }
+
+    .MuiInputBase-root.MuiOutlinedInput-root {
+        padding-right: 0px;
+    }
+
+    .expandableSelectContainer {
+        max-width: -webkit-fill-available;
+    }
+
+    // .MuiPopper-root {
+    //     max-width: 320px;
+    //     width: 320px;
+    // }
+
+    // .MuiTabs-root {
+    // }
+}
+/* END extra small responsive view - xs */
+
+/* START small responsive view - sm */
+@media only screen and (min-width: 600px) {
+    .customTablePagination {
+        width: 100%;
+    }
+
+    .MuiList-root {
+        max-width: unset;
+    }
+
+    .sticky {
+        max-width: 150px;
+        min-width: 100px;
+    }
+}
+/* END small responsive view - sm */
+
+/* START medium responsive view - md */
+@media only screen and (min-width: 768px) {
+    .customTablePagination {
+        width: 70%;
+    }
+
+    .MuiList-root {
+        max-width: unset;
+    }
+
+    .sticky {
+        max-width: 200px;
+        min-width: 150px;
+    }
+}
+/* END medium responsive view - md */
+
+/* START large responsive view - lg */
+@media only screen and (min-width: 992px) {
+    .customTablePagination {
+        width: 50%;
+    }
+
+    .MuiList-root {
+        max-width: unset;
+    }
+
+    .sticky {
+        max-width: 250px;
+        min-width: 200px;
+    }
+}
+/* END large responsive view - lg */
+
+/* START extra large responsive view - xl */
+@media only screen and (min-width: 1200px) {
+    .MuiList-root {
+        max-width: unset;
+    }
+}
+/* END extra large responsive view - xl */
