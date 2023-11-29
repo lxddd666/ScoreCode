@@ -21,6 +21,7 @@ type TgUser struct {
 	LastName      interface{} // Last Name
 	Phone         interface{} // 手机号
 	Photo         interface{} // 账号头像
+	Bio           interface{} // 个性签名
 	AccountStatus interface{} // 账号状态
 	IsOnline      interface{} // 是否在线
 	ProxyAddress  interface{} // 代理地址

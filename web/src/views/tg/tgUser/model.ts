@@ -1,20 +1,23 @@
 import {h, ref} from 'vue';
-import {NTag} from 'naive-ui';
+import {NImage, NTag} from 'naive-ui';
 import {cloneDeep} from 'lodash-es';
 import {FormSchema} from '@/components/Form';
 import {Dicts} from '@/api/dict/dict';
 
 import {isNullObject} from '@/utils/is';
 import {defRangeShortcuts} from '@/utils/dateUtil';
-import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import {errorImg, getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import {getPhoto} from "@/utils/tgUtils";
 
 export interface State {
   id: number;
+  tgId: number;
   username: string;
   firstName: string;
   lastName: string;
   phone: string;
-  photo: string;
+  photo: number;
+  bio: string;
   accountStatus: number;
   isOnline: number;
   proxyAddress: string;
@@ -28,11 +31,13 @@ export interface State {
 
 export const defaultState = {
   id: 0,
+  tgId: 0,
   username: '',
   firstName: '',
   lastName: '',
   phone: '',
-  photo: '',
+  photo: 0,
+  bio: '',
   accountStatus: 0,
   isOnline: -1,
   proxyAddress: '',
@@ -179,6 +184,21 @@ export const columns = [
   {
     title: '账号头像',
     key: 'photo',
+    render(row) {
+      // @ts-ignore
+      return h(NImage, {
+        width: 40,
+        height: 40,
+        src: getPhoto(row.phone, row.tgId, row.photo),
+        fallbackSrc: errorImg,
+        style: {
+          width: '40px',
+          height: '40px',
+          'max-width': '100%',
+          'max-height': '100%',
+        },
+      });
+    },
   },
   {
     title: '账号状态',

@@ -29,6 +29,7 @@ type TgUserColumns struct {
 	LastName      string // Last Name
 	Phone         string // 手机号
 	Photo         string // 账号头像
+	Bio           string // 个性签名
 	AccountStatus string // 账号状态
 	IsOnline      string // 是否在线
 	ProxyAddress  string // 代理地址
@@ -52,6 +53,7 @@ var tgUserColumns = TgUserColumns{
 	LastName:      "last_name",
 	Phone:         "phone",
 	Photo:         "photo",
+	Bio:           "bio",
 	AccountStatus: "account_status",
 	IsOnline:      "is_online",
 	ProxyAddress:  "proxy_address",

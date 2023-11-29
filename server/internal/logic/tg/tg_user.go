@@ -154,11 +154,29 @@ func (s *sTgUser) Export(ctx context.Context, in *tgin.TgUserListInp) (err error
 func (s *sTgUser) Edit(ctx context.Context, in *tgin.TgUserEditInp) (err error) {
 	// 修改
 	if in.Id > 0 {
-		if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).
-			Fields(tgin.TgUserUpdateFields{}).
-			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyTgAccountFailed}"))
+		var updateItem entity.TgUser
+		err = s.Model(ctx).WherePri(in.Id).Scan(&updateItem)
+		if err != nil {
+			return
 		}
+		_, err = service.TgArts().SingleLogin(ctx, &updateItem)
+		if err != nil {
+			return
+		}
+		inp := &tgin.TgUpdateUserInfoInp{Account: gconv.Uint64(updateItem.Phone)}
+		if in.Username != updateItem.Username {
+			inp.Username = &in.Username
+		}
+		if in.FirstName != updateItem.FirstName {
+			inp.FirstName = &in.FirstName
+		}
+		if in.LastName != updateItem.LastName {
+			inp.LastName = &in.LastName
+		}
+		if in.Bio != updateItem.Bio {
+			inp.Bio = &in.Bio
+		}
+		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		return
 	}
 
@@ -231,7 +249,7 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).
-			Fields(tgin.TgUserLoginFields{}).OmitNil().Save(item)
+			Fields(tgin.TgUserLoginFields{}).OmitNil().Update(item)
 		item.Session = nil
 		// 删除登录过程的redis
 		key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, item.Phone)

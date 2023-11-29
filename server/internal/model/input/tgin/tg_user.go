@@ -10,33 +10,29 @@ import (
 
 // TgUserUpdateFields 修改TG账号字段过滤
 type TgUserUpdateFields struct {
-	Username      string      `json:"username"      dc:"账号号码"`
-	FirstName     string      `json:"firstName"     dc:"First Name"`
-	LastName      string      `json:"lastName"      dc:"Last Name"`
-	Phone         string      `json:"phone"         dc:"手机号"`
-	Photo         string      `json:"photo"         dc:"账号头像"`
-	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
-	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
-	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
-	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
-	Comment       string      `json:"comment"       dc:"备注"`
+	Username     string `json:"username"      dc:"账号号码"`
+	FirstName    string `json:"firstName"     dc:"First Name"`
+	LastName     string `json:"lastName"      dc:"Last Name"`
+	Phone        string `json:"phone"         dc:"手机号"`
+	Photo        int64  `json:"photo,string"  dc:"账号头像"`
+	Bio          string `json:"bio"           dc:"个性签名"`
+	ProxyAddress string `json:"proxyAddress"  dc:"代理地址"`
+	Comment      string `json:"comment"       dc:"备注"`
 }
 
 // TgUserInsertFields 新增TG账号字段过滤
 type TgUserInsertFields struct {
-	Username      string      `json:"username"      dc:"账号号码"`
-	FirstName     string      `json:"firstName"     dc:"First Name"`
-	LastName      string      `json:"lastName"      dc:"Last Name"`
-	Phone         string      `json:"phone"         dc:"手机号"`
-	Photo         string      `json:"photo"         dc:"账号头像"`
-	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
-	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
-	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
-	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
-	Comment       string      `json:"comment"       dc:"备注"`
-	TgId          uint64      `json:"tg_id"         dc:"tgId"`
-	OrgId         int64       `json:"org_id"        dc:"组织ID"`
-	MemberId      int64       `json:"member_id"    dc:"用户Id"`
+	Username     string `json:"username"             dc:"账号号码"`
+	FirstName    string `json:"firstName"            dc:"First Name"`
+	LastName     string `json:"lastName"             dc:"Last Name"`
+	Phone        string `json:"phone"                dc:"手机号"`
+	Photo        int64  `json:"photo,string"         dc:"账号头像"`
+	Bio          string `json:"bio"                  dc:"个性签名"`
+	ProxyAddress string `json:"proxyAddress"         dc:"代理地址"`
+	Comment      string `json:"comment"              dc:"备注"`
+	TgId         uint64 `json:"tg_id,string"         dc:"tgId"`
+	OrgId        int64  `json:"org_id,string"        dc:"组织ID"`
+	MemberId     int64  `json:"member_id,string"     dc:"用户Id"`
 }
 
 // TgUserLoginFields 新增TG账号字段过滤
@@ -46,6 +42,7 @@ type TgUserLoginFields struct {
 	LastName      string      `json:"lastName"      dc:"Last Name"`
 	Phone         string      `json:"phone"         dc:"手机号"`
 	Photo         string      `json:"photo"         dc:"账号头像"`
+	Bio           string      `json:"bio"           dc:"个性签名"`
 	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
 	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
 	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
@@ -87,22 +84,41 @@ func (in *TgUserViewInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgUserViewModel struct {
-	entity.TgUser
+	Id            uint64      `json:"id,string"            description:""`
+	OrgId         int64       `json:"orgId,string"         description:"组织ID"`
+	MemberId      int64       `json:"memberId,string"      description:"用户ID"`
+	TgId          int64       `json:"tgId,string"          description:"tg id"`
+	Username      string      `json:"username"             description:"账号号码"`
+	FirstName     string      `json:"firstName"            description:"First Name"`
+	LastName      string      `json:"lastName"             description:"Last Name"`
+	Phone         string      `json:"phone"                description:"手机号"`
+	Photo         int64       `json:"photo,string"         description:"账号头像"`
+	Bio           string      `json:"bio"                  description:"个性签名"`
+	AccountStatus int         `json:"accountStatus"        description:"账号状态"`
+	IsOnline      int         `json:"isOnline"             description:"是否在线"`
+	ProxyAddress  string      `json:"proxyAddress"         description:"代理地址"`
+	PublicProxy   int         `json:"publicProxy"          description:"公共代理"`
+	LastLoginTime *gtime.Time `json:"lastLoginTime"        description:"上次登录时间"`
+	Comment       string      `json:"comment"              description:"备注"`
+	Session       []byte      `json:"session"              description:"session"`
+	DeletedAt     *gtime.Time `json:"deletedAt"            description:"删除时间"`
+	CreatedAt     *gtime.Time `json:"createdAt"            description:"创建时间"`
+	UpdatedAt     *gtime.Time `json:"updatedAt"            description:"更新时间"`
 }
 
 // TgUserListInp 获取TG账号列表
 type TgUserListInp struct {
 	form.PageReq
-	MemberId       int64         `json:"memberId"       dc:"所属用户ID"`
-	MemberUsername string        `json:"memberUsername" dc:"所属用户名"`
-	Username       string        `json:"username"       dc:"账号号码"`
-	FirstName      string        `json:"firstName"      dc:"First Name"`
-	LastName       string        `json:"lastName"       dc:"Last Name"`
-	Phone          string        `json:"phone"          dc:"手机号"`
-	IsOnline       int           `json:"isOnline"       dc:"是否在线"`
-	AccountStatus  *int          `json:"accountStatus"  dc:"账号状态"`
-	ProxyAddress   string        `json:"proxyAddress"   dc:"代理地址"`
-	CreatedAt      []*gtime.Time `json:"createdAt"      dc:"创建时间"`
+	MemberId       int64         `json:"memberId,string"       dc:"所属用户ID"`
+	MemberUsername string        `json:"memberUsername"        dc:"所属用户名"`
+	Username       string        `json:"username"              dc:"账号号码"`
+	FirstName      string        `json:"firstName"             dc:"First Name"`
+	LastName       string        `json:"lastName"              dc:"Last Name"`
+	Phone          string        `json:"phone"                 dc:"手机号"`
+	IsOnline       int           `json:"isOnline"              dc:"是否在线"`
+	AccountStatus  *int          `json:"accountStatus"         dc:"账号状态"`
+	ProxyAddress   string        `json:"proxyAddress"          dc:"代理地址"`
+	CreatedAt      []*gtime.Time `json:"createdAt"             dc:"创建时间"`
 }
 
 func (in *TgUserListInp) Filter(ctx context.Context) (err error) {
@@ -110,24 +126,25 @@ func (in *TgUserListInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgUserListModel struct {
-	Id             int64       `json:"id"             dc:"id"`
-	OrgId          int64       `json:"orgId"          dc:"公司ID"`
-	MemberId       int64       `json:"memberId"       dc:"所属用户ID"`
-	MemberUsername string      `json:"memberUsername" dc:"所属用户名"`
-	Username       string      `json:"username"       dc:"账号号码"`
-	FirstName      string      `json:"firstName"      dc:"First Name"`
-	LastName       string      `json:"lastName"       dc:"Last Name"`
-	Phone          string      `json:"phone"          dc:"手机号"`
-	Photo          string      `json:"photo"          dc:"账号头像"`
-	AccountStatus  int         `json:"accountStatus"  dc:"账号状态"`
-	IsOnline       int         `json:"isOnline"       dc:"是否在线"`
-	ProxyAddress   string      `json:"proxyAddress"   dc:"代理地址"`
-	PublicProxy    int         `json:"-"              dc:"公共代理"`
-	LastLoginTime  *gtime.Time `json:"lastLoginTime"  dc:"上次登录时间"`
-	Comment        string      `json:"comment"        dc:"备注"`
-	CreatedAt      *gtime.Time `json:"createdAt"      dc:"创建时间"`
-	TgId           int64       `json:"tgId"          dc:"tg id"`
-	UpdatedAt      *gtime.Time `json:"updatedAt"      dc:"更新时间"`
+	Id             int64       `json:"id,string"             dc:"id"`
+	OrgId          int64       `json:"orgId,string"          dc:"公司ID"`
+	MemberId       int64       `json:"memberId,string"       dc:"所属用户ID"`
+	MemberUsername string      `json:"memberUsername"        dc:"所属用户名"`
+	Username       string      `json:"username"              dc:"账号号码"`
+	FirstName      string      `json:"firstName"             dc:"First Name"`
+	LastName       string      `json:"lastName"              dc:"Last Name"`
+	Phone          string      `json:"phone"                 dc:"手机号"`
+	Photo          int64       `json:"photo,string"          dc:"账号头像"`
+	AccountStatus  int         `json:"accountStatus"         dc:"账号状态"`
+	IsOnline       int         `json:"isOnline"              dc:"是否在线"`
+	ProxyAddress   string      `json:"proxyAddress"          dc:"代理地址"`
+	PublicProxy    int         `json:"-"                     dc:"公共代理"`
+	LastLoginTime  *gtime.Time `json:"lastLoginTime"         dc:"上次登录时间"`
+	Comment        string      `json:"comment"               dc:"备注"`
+	CreatedAt      *gtime.Time `json:"createdAt"             dc:"创建时间"`
+	TgId           int64       `json:"tgId,string"           dc:"tg id"`
+	Bio            string      `json:"bio"                   dc:"个性签名"`
+	UpdatedAt      *gtime.Time `json:"updatedAt"             dc:"更新时间"`
 }
 
 // TgUserExportModel 导出TG账号

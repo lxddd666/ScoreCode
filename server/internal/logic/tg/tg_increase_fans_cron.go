@@ -575,7 +575,7 @@ func (s *sTgIncreaseFansCron) CreateKeepTask(ctx context.Context, takeName strin
 		time.Sleep(2 * time.Second)
 	}
 	if randomTrigger() {
-		if fan.Photo == "" {
+		if fan.Photo == 0 {
 			err = RandPhoto(ctx, &en)
 			if err != nil {
 				return

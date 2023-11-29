@@ -10,7 +10,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hotgo/internal/service"
-	"net/http"
 )
 
 var (
@@ -248,9 +247,9 @@ func InitPrometheus(ctx context.Context, s *ghttp.Server) {
 
 	result, _ := v1api.Targets(ctx)
 	g.Log().Info(ctx, "初始化普罗米修斯：", result)
-	//s.BindHandler("/metrics", func(r *ghttp.Request) {
-	//	promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
-	//})
-	http.Handle("/metrics", promhttp.Handler())
-	go http.ListenAndServe(":48870", nil)
+	s.BindHandler(g.Cfg().MustGet(ctx, "prometheus.handler.path").String(), func(r *ghttp.Request) {
+		promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
+	})
+	//http.Handle("/metrics", promhttp.Handler())
+	//go http.ListenAndServe(":48870", nil)
 }

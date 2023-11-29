@@ -18,7 +18,8 @@ type TgUser struct {
 	FirstName     string      `json:"firstName"     description:"First Name"`
 	LastName      string      `json:"lastName"      description:"Last Name"`
 	Phone         string      `json:"phone"         description:"手机号"`
-	Photo         string      `json:"photo"         description:"账号头像"`
+	Photo         int64       `json:"photo"         description:"账号头像"`
+	Bio           string      `json:"bio"           description:"个性签名"`
 	AccountStatus int         `json:"accountStatus" description:"账号状态"`
 	IsOnline      int         `json:"isOnline"      description:"是否在线"`
 	ProxyAddress  string      `json:"proxyAddress"  description:"代理地址"`

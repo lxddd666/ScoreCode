@@ -33,19 +33,6 @@
       >
         <template #tableTitle>
           <n-button
-            type="primary"
-            @click="addTable"
-            class="min-left-space"
-            v-if="hasPermission(['/tgUser/edit'])"
-          >
-            <template #icon>
-              <n-icon>
-                <PlusOutlined />
-              </n-icon>
-            </template>
-            添加
-          </n-button>
-          <n-button
             type="error"
             @click="handleBatchDelete"
             :disabled="batchSelectDisabled"

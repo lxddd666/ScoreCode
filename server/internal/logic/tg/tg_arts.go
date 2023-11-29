@@ -5,7 +5,6 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/encoding/gjson"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/tg"
@@ -514,21 +513,25 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 		return
 	}
 	prometheus.AccountUpdateUserInfoCount.WithLabelValues(gconv.String(inp.Account)).Inc()
-	var user tg.User
-	err = (&bin.Buffer{Buf: resp.Data}).Decode(&user)
+	var userFull tg.UsersUserFull
+	err = (&bin.Buffer{Buf: resp.Data}).Decode(&userFull)
 	if err == nil {
-		updateMap := g.Map{
-			dao.TgUser.Columns().Username:  user.Username,
-			dao.TgUser.Columns().FirstName: user.FirstName,
-			dao.TgUser.Columns().LastName:  user.LastName,
-		}
-		if user.Photo != nil {
-			photo, pFlag := user.Photo.AsNotEmpty()
-			if pFlag {
-				updateMap[dao.TgUser.Columns().Photo] = photo.PhotoID
+		if user, b := userFull.Users[0].AsNotEmpty(); b {
+			updateMap := do.TgUser{
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Username:  user.Username,
+				Bio:       userFull.FullUser.About,
 			}
+			if user.Photo != nil {
+				photo, pFlag := user.Photo.AsNotEmpty()
+				if pFlag {
+					updateMap.Photo = photo.PhotoID
+				}
+			}
+			_, err = dao.TgUser.Ctx(ctx).Data(updateMap).OmitEmpty().Where(dao.TgUser.Columns().Phone, inp.Account).Update()
 		}
-		_, err = dao.TgUser.Ctx(ctx).Data(updateMap).Where(dao.TgUser.Columns().Phone, inp.Account).Update()
+
 	}
 	return
 }
