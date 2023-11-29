@@ -77,6 +77,7 @@
   "GetInformationFailed": "Failure to get information",
   "AverageTime": "Average time:",
   "IncreaseTaskCreated": "Channel fan increase task has been created",
-  "ExecuteIncreaseFansTask": "Execute the powder raising task"
-
+  "ExecuteIncreaseFansTask": "Execute the powder raising task",
+  "ExportTgGroup": "Export tg group-",
+  "AddTgGroupError": "The new tg group fails, please try again later！"
 }

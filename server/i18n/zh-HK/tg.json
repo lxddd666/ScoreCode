@@ -76,6 +76,7 @@
   "GetInformationFailed": "獲取信息失敗",
   "AverageTime": "平均時間:",
   "IncreaseTaskCreated": "頻道漲粉任務已任務已創建",
-  "ExecuteIncreaseFansTask": "執行漲粉任務"
-
+  "ExecuteIncreaseFansTask": "執行漲粉任務",
+  "ExportTgGroup": "導出tg分組-",
+  "AddTgGroupError": "新增tg分組失敗，請稍後重試！"
 }

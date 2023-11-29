@@ -40,7 +40,7 @@ type TgFoldersEditModel struct{}
 
 // TgFoldersDeleteInp 删除tg分组
 type TgFoldersDeleteInp struct {
-	Id interface{} `json:"id" v:"required#id不能为空" dc:"id"`
+	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgFoldersDeleteInp) Filter(ctx context.Context) (err error) {
@@ -64,7 +64,7 @@ type TgEditeUserFolderModel struct {
 
 // TgFoldersViewInp 获取指定tg分组信息
 type TgFoldersViewInp struct {
-	Id int64 `json:"id" v:"required#id不能为空" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgFoldersViewInp) Filter(ctx context.Context) (err error) {

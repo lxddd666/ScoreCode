@@ -49,7 +49,7 @@ func (s *sTgFolders) List(ctx context.Context, in *tgin.TgFoldersListInp) (list 
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Obtaining the data line failed, please try it later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCountError}"))
 		return
 	}
 
@@ -58,7 +58,7 @@ func (s *sTgFolders) List(ctx context.Context, in *tgin.TgFoldersListInp) (list 
 	}
 
 	if err = mod.Fields(tgin.TgFoldersListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgFolders.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Get the list failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
 	return
@@ -78,7 +78,7 @@ func (s *sTgFolders) Export(ctx context.Context, in *tgin.TgFoldersListInp) (err
 	}
 
 	var (
-		fileName = "导出tg分组-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName = g.I18n().T(ctx, "{#ExportTgGroup}") + gctx.CtxId(ctx) + ".xlsx"
 		exports  []tgin.TgFoldersExportModel
 	)
 
@@ -130,7 +130,7 @@ func (s *sTgFolders) Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err e
 			Fields(tgin.TgFoldersInsertFields{}).
 			Data(in).InsertAndGetId()
 		if err != nil {
-			err = gerror.Wrap(err, "新增tg分组失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddTgGroupError}"))
 		}
 		if len(in.Accounts) > 0 {
 			list := make([]entity.TgUserFolders, 0)
@@ -152,7 +152,7 @@ func (s *sTgFolders) Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err e
 // Delete 删除tg分组
 func (s *sTgFolders) Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Delete failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#DeleteInfoError}")))
 		return
 	}
 	return
@@ -161,7 +161,7 @@ func (s *sTgFolders) Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (e
 // View 获取tg分组指定信息
 func (s *sTgFolders) View(ctx context.Context, in *tgin.TgFoldersViewInp) (res *tgin.TgFoldersViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "The data failed, please try it later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#GetInfoError}")))
 		return
 	}
 	return

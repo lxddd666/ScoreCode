@@ -77,6 +77,7 @@
   "GetInformationFailed": "Thất bại trong việc lấy thông tin",
   "AverageTime": "Thời gian trung bình:",
   "IncreaseTaskCreated": "Nhiệm vụ tăng trưởng kênh đã được tạo.",
-  "ExecuteIncreaseFansTask": "Thực hiện nhiệm vụ tăng phấn"
-
+  "ExecuteIncreaseFansTask": "Thực hiện nhiệm vụ tăng phấn",
+  "ExportTgGroup": "Xuất khẩu nhóm tg-",
+  "AddTgGroupError": "Nhóm tg mới thất bại, vui lòng thử lại sau！"
 }
