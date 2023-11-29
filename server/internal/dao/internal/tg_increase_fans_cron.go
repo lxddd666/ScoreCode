@@ -24,6 +24,8 @@ type TgIncreaseFansCronColumns struct {
 	OrgId         string // 组织ID
 	MemberId      string // 发起任务的用户ID
 	Channel       string // 频道地址
+	ChannelId     string // channel ID
+	ExecutedPlan  string // 每天执行计划
 	DayCount      string // 持续天数
 	FansCount     string // 涨粉数量
 	CronStatus    string // 任务状态：0执行，1完成，2终止
@@ -42,6 +44,8 @@ var tgIncreaseFansCronColumns = TgIncreaseFansCronColumns{
 	OrgId:         "org_id",
 	MemberId:      "member_id",
 	Channel:       "channel",
+	ChannelId:     "channelId",
+	ExecutedPlan:  "ExecutedPlan",
 	DayCount:      "day_count",
 	FansCount:     "fans_count",
 	CronStatus:    "cron_status",

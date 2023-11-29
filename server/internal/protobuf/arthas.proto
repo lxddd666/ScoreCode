@@ -494,7 +494,7 @@ message GetUserChatFoldersDetail{
 message ChannelReadViewDetail{
   uint64 account = 1;
   string receiver = 2;
-  repeated int32 msgIds = 3;
+  repeated int64 msgIds = 3;
 }
 
 message EditAdminDetail{

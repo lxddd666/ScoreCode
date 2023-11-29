@@ -78,6 +78,11 @@
   "AverageTime": "Average time:",
   "IncreaseTaskCreated": "Channel fan increase task has been created",
   "ExecuteIncreaseFansTask": "Execute the powder raising task",
+  "CheckChannelErr": "Obtain channel id as empty",
+  "ExecutePlanNil" : "The execution plan cannot be empty",
+  "TaskNotCreated" : "Task not created",
   "ExportTgGroup": "Export tg group-",
   "AddTgGroupError": "The new tg group fails, please try again later！"
+
+
 }

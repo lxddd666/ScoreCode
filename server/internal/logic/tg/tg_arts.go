@@ -7,6 +7,8 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gotd/td/bin"
+	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
@@ -477,7 +479,6 @@ func (s *sTgArts) TgChannelReadAddView(ctx context.Context, inp *tgin.ChannelRea
 
 // TgUpdateUserInfo 修改用户信息
 func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error) {
-	tgUser := entity.TgUser{}
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
@@ -513,16 +514,19 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 		return
 	}
 	prometheus.AccountUpdateUserInfoCount.WithLabelValues(gconv.String(inp.Account)).Inc()
-	err = gjson.DecodeTo(resp.Data, &tgUser)
+	var user tg.User
+	err = (&bin.Buffer{Buf: resp.Data}).Decode(&user)
 	if err == nil {
 		updateMap := g.Map{
-			dao.TgUser.Columns().Username:  tgUser.Username,
-			dao.TgUser.Columns().FirstName: tgUser.FirstName,
-			dao.TgUser.Columns().LastName:  tgUser.LastName,
-			dao.TgUser.Columns().Comment:   tgUser.Comment,
+			dao.TgUser.Columns().Username:  user.Username,
+			dao.TgUser.Columns().FirstName: user.FirstName,
+			dao.TgUser.Columns().LastName:  user.LastName,
 		}
-		if inp.Photo.MIME != "" {
-			updateMap[dao.TgUser.Columns().Photo] = tgUser.Phone
+		if user.Photo != nil {
+			photo, pFlag := user.Photo.AsNotEmpty()
+			if pFlag {
+				updateMap[dao.TgUser.Columns().Photo] = photo.PhotoID
+			}
 		}
 		_, err = dao.TgUser.Ctx(ctx).Data(updateMap).Where(dao.TgUser.Columns().Phone, inp.Account).Update()
 	}

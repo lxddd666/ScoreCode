@@ -147,5 +147,5 @@ type TgReadChannelHistoryInp struct {
 type ChannelReadAddViewInp struct {
 	Sender   uint64  `json:"sender"          description:"账号"`
 	Receiver string  `json:"receiver"        description:"channel id"`
-	MsgIds   []int32 `json:"msgIds"        description:"msg ids"`
+	MsgIds   []int64 `json:"msgIds"        description:"msg ids"`
 }
