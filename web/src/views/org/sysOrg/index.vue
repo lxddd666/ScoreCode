@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/sysOrg/edit'])"
+            v-if="hasPermission(['/org/edit'])"
           >
             <template #icon>
               <n-icon>
@@ -50,7 +50,7 @@
             @click="handleBatchDelete"
             :disabled="batchDeleteDisabled"
             class="min-left-space"
-            v-if="hasPermission(['/sysOrg/delete'])"
+            v-if="hasPermission(['/org/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -63,7 +63,7 @@
             type="primary"
             @click="handleExport"
             class="min-left-space"
-            v-if="hasPermission(['/sysOrg/export'])"
+            v-if="hasPermission(['/org/export'])"
           >
             <template #icon>
               <n-icon>
@@ -129,7 +129,7 @@ const actionColumn = reactive({
         {
           label: '编辑',
           onClick: handleEdit.bind(null, record),
-          auth: ['/sysOrg/edit'],
+          auth: ['/org/edit'],
         },
         {
           label: '禁用',
@@ -137,7 +137,7 @@ const actionColumn = reactive({
           ifShow: () => {
             return record.status === 1;
           },
-          auth: ['/sysOrg/status'],
+          auth: ['/org/status'],
         },
         {
           label: '启用',
@@ -145,24 +145,24 @@ const actionColumn = reactive({
           ifShow: () => {
             return record.status === 2;
           },
-          auth: ['/sysOrg/status'],
+          auth: ['/org/status'],
         },
         {
           label: '修改端口数',
           onClick: handlePorts.bind(null, record),
-          auth: ['/sysOrg/ports'],
+          auth: ['/org/ports'],
         },
       ],
       dropDownActions: [
         {
           label: '查看详情',
           key: 'view',
-          auth: ['/sysOrg/view'],
+          auth: ['/org/view'],
         },
         {
           label: '删除',
           key: 'delete',
-          auth: ['/sysOrg/delete'],
+          auth: ['/org/delete'],
         },
       ],
       select: (key: string) => {
