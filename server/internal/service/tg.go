@@ -158,14 +158,10 @@ type (
 		ChannelIncreaseFanDetail(ctx context.Context, in *tgin.ChannelIncreaseFanDetailInp) (daily []int, flag bool, days int, err error)
 		// InitIncreaseCronApplication 重启后执行定时任务
 		InitIncreaseCronApplication(ctx context.Context) (err error)
-		// SyncIncreaseFansCronTaskTableData 同步涨粉数据信息
-		SyncIncreaseFansCronTaskTableData(ctx context.Context, cron *entity.TgIncreaseFansCron) (error, int)
 		// CreateIncreaseFanTask 创建任务
 		CreateIncreaseFanTask(ctx context.Context, user *model.Identity, inp *tgin.TgIncreaseFansCronInp) (err error, cronTask entity.TgIncreaseFansCron)
 		// IncreaseFanAction 涨粉动作
 		IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error)
-		// CreateKeepTask 传教
-		CreateKeepTask(ctx context.Context, takeName string, account string, fan *entity.TgUser) (err error)
 		// IncreaseFanActionRetry 涨粉动作递归重试
 		IncreaseFanActionRetry(ctx context.Context, list []*entity.TgUser, cron entity.TgIncreaseFansCron, taskName string, channel string, channelId string) (error, bool)
 		// TgIncreaseFansToChannel 新增执行cron任务

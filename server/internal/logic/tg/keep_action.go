@@ -2,7 +2,6 @@ package tg
 
 import (
 	"context"
-	"fmt"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/go-faker/faker/v4"
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -91,12 +90,35 @@ func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			g.Log().Error(ctx, err)
 			continue
 		}
-		dialogList, err := service.TgArts().TgGetDialogs(ctx, gconv.Uint64(user.Phone))
-		if err != nil {
+		dialogList, dErr := service.TgArts().TgGetDialogs(ctx, gconv.Uint64(user.Phone))
+		if dErr != nil {
 			continue
 		}
 		for _, dialog := range dialogList {
-			fmt.Println(dialog)
+			// 频道
+			if dialog.Type == 3 {
+				account := gconv.Uint64(user.Phone)
+				channelId := gconv.String(dialog.TgId)
+				unReadCount := dialog.UnreadCount
+				topMsgId := dialog.TopMessage
+				if unReadCount != 0 {
+					// 消息已读，view +1
+					err = ChannelReadHistoryAndAddView(ctx, account, channelId, unReadCount, topMsgId, false)
+					if err != nil {
+						continue
+					}
+					seconds := grand.N(2, 6)
+					time.Sleep(time.Duration(seconds) * time.Second)
+					// 随机点赞
+					if GenerateRandomResult(1) {
+						// 百分之40概率点赞
+						err = RandMsgLikes(ctx, account, channelId, topMsgId)
+						if err != nil {
+							continue
+						}
+					}
+				}
+			}
 		}
 	}
 	return
