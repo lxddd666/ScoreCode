@@ -13,6 +13,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model"
+	"net/http"
 )
 
 // JsonExit 返回JSON数据并退出当前HTTP执行函数
@@ -69,6 +70,9 @@ func RJson(r *ghttp.Request, code int, message string, data ...interface{}) {
 		res.Data = responseData
 	} else {
 		res.Error = responseData
+		if r.Response.Status == http.StatusOK || r.Response.Status == gcode.CodeOK.Code() {
+			r.Response.Status = http.StatusBadRequest
+		}
 	}
 
 	// 清空响应

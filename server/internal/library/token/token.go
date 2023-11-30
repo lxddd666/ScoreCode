@@ -21,6 +21,7 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/model"
 	"hotgo/utility/simple"
+	"net/http"
 	"time"
 )
 
@@ -40,6 +41,7 @@ var (
 )
 
 func errorLogin(ctx context.Context) error {
+	g.RequestFromCtx(ctx).Response.Status = http.StatusUnauthorized
 	return gerror.New(g.I18n().T(ctx, "{#LoginIdentityInvalidTryAgain}"))
 }
 func errorMultiLogin(ctx context.Context) error {

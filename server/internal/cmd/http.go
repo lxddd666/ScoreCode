@@ -39,9 +39,9 @@ var (
 				r.Response.Writeln(g.I18n().T(ctx, "{#Nothing}"))
 			})
 
-			s.BindStatusHandler(403, func(r *ghttp.Request) {
-				r.Response.Writeln(g.I18n().T(ctx, "{#WebsiteRefuse}"))
-			})
+			//s.BindStatusHandler(403, func(r *ghttp.Request) {
+			//	r.Response.Writeln(g.I18n().T(ctx, "{#WebsiteRefuse}"))
+			//})
 
 			// 初始化普罗米修斯
 			prometheus.InitPrometheus(ctx, s)

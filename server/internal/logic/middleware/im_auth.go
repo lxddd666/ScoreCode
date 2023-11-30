@@ -9,6 +9,7 @@ import (
 	"hotgo/internal/library/response"
 	"hotgo/internal/service"
 	"hotgo/utility/simple"
+	"net/http"
 )
 
 // ScAuth 后台鉴权中间件
@@ -40,6 +41,7 @@ func (s *sMiddleware) ScAuth(prefix string) func(r *ghttp.Request) {
 		// 验证路由访问权限
 		if !service.AdminRole().Verify(ctx, path, r.Method) {
 			g.Log().Debugf(ctx, "AdminAuth fail path:%+v, GetRoleKey:%+v, r.Method:%+v", path, contexts.GetRoleKey(ctx), r.Method)
+			g.RequestFromCtx(ctx).Response.Status = http.StatusForbidden
 			response.JsonExit(r, gcode.CodeSecurityReason.Code(), g.I18n().T(r.Context(), "{#NoAccessPermit}"))
 			return
 		}
