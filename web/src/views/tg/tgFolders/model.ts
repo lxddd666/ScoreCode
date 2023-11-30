@@ -5,6 +5,7 @@ import { FormSchema } from '@/components/Form';
 import { defRangeShortcuts } from '@/utils/dateUtil';
 import { Options } from '@/utils/hotgo';
 import { getTgUserOption } from '@/api/tg/tgKeepTask';
+import { List } from '@/api/tg/tgFolders';
 
 export interface State {
   id: number;
@@ -41,6 +42,7 @@ export function newState(state: State | null): State {
 
 export const options = ref<Options>({
   accounts: [],
+  folders: [],
 });
 
 export const rules = {
@@ -54,11 +56,13 @@ export const rules = {
 
 export const schemas = ref<FormSchema[]>([
   {
-    field: 'id',
-    component: 'NInputNumber',
-    label: 'id',
+    field: 'folders',
+    component: 'NSelect',
+    label: '分组选择',
+    defaultValue: null,
     componentProps: {
-      placeholder: '请输入id',
+      placeholder: '请选择分组',
+      options: [],
       onUpdateValue: (e: any) => {
         console.log(e);
       },
@@ -140,7 +144,7 @@ export const columns = [
 ];
 
 async function loadOptions() {
-  const tgUser = await getTgUserOption({page: 1, pageSize: 9999});
+  const tgUser = await getTgUserOption({ page: 1, pageSize: 9999 });
   if (tgUser.list) {
     options.value.accounts = tgUser.list;
     for (let i = 0; i < tgUser.list.length; i++) {
@@ -151,15 +155,26 @@ async function loadOptions() {
   } else {
     options.value.accounts = [];
   }
-
+  const folders = await List({ page: 1, pageSize: 9999 });
+  if (folders.list) {
+    options.value.folders = folders.list;
+    for (let i = 0; i < folders.list.length; i++) {
+      folders.list[i].label = folders.list[i].folderName;
+      folders.list[i].value = folders.list[i].id;
+    }
+  } else {
+    options.value.folders = [];
+  }
   for (const item of schemas.value) {
     switch (item.field) {
       case 'accounts':
         item.componentProps.options = options.value.accounts;
-        debugger
+        break;
+      case 'folders':
+        item.componentProps.options = options.value.folders;
         break;
     }
   }
 }
 
-await loadOptions()
+await loadOptions();

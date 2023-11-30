@@ -154,6 +154,12 @@
       @handleBindMember="handleBindMember"
       :showModal="bindMemberShowModal"
     />
+    <FolderMember
+      @reloadTable="reloadTable"
+      @updateFolderMemberShowModal="updateFolderMemberShowModal"
+      @handleFolderMember="handleFolderMember"
+      :showModal="folderMemberShowModal"
+    />
     <BindProxy
       @reloadTable="reloadTable"
       @updateBindProxyShowModal="updateBindProxyShowModal"
@@ -188,12 +194,14 @@
     ExportOutlined,
     LoginOutlined,
     LogoutOutlined,
-    PlusOutlined, UploadOutlined,
+    PlusOutlined,
+    UploadOutlined,
   } from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import Edit from './edit.vue';
   import BindMember from './bindMember.vue';
   import BindProxy from './bindProxy.vue';
+  import FolderMember from './folderMember.vue';
   import { Attachment } from '@/components/FileChooser/src/model';
 
   const { hasPermission } = usePermission();
@@ -208,6 +216,7 @@
   const formParams = ref<State>();
 
   const bindMemberShowModal = ref(false);
+  const folderMemberShowModal = ref(false);
   const bindProxyShowModal = ref(false);
   const fileUploadRef = ref();
 
@@ -339,6 +348,10 @@
     bindMemberShowModal.value = value;
   }
 
+  function updateFolderMemberShowModal(value: boolean) {
+    folderMemberShowModal.value = value;
+  }
+
   function updateBindProxyShowModal(value: boolean) {
     bindProxyShowModal.value = value;
   }
@@ -347,11 +360,22 @@
     bindMemberShowModal.value = true;
   }
 
+  function folderMemberClick() {
+    folderMemberShowModal.value = true;
+  }
+
   function bindProxyClick() {
     bindProxyShowModal.value = true;
   }
 
   function handleBindMember(memberId: number) {
+    TgBindMember({ memberId: memberId, ids: checkedIds.value }).then((_res) => {
+      message.success('绑定成功');
+      reloadTable();
+    });
+  }
+
+  function handleFolderMember(memberId: number) {
     TgBindMember({ memberId: memberId, ids: checkedIds.value }).then((_res) => {
       message.success('绑定成功');
       reloadTable();

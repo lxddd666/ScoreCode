@@ -3,7 +3,7 @@
     v-model:show="isShowModal"
     :mask-closable="false"
     preset="dialog"
-    title="绑定员工"
+    title="账号分组"
     content=""
     positive-text="确认"
     negative-text="取消"
@@ -41,22 +41,16 @@
 <script lang="ts" setup>
   import { computed, onMounted, ref } from 'vue';
   import { useDialog, useMessage } from 'naive-ui';
-  import { schemas } from '@/views/org/user/model';
-  import { columns } from '@/views/org/user/columns';
+  import { schemas } from '@/views/tg/tgFolders/model';
+  import { columns } from '@/views/tg/tgUser/model';
   import { adaModalWidth } from '@/utils/hotgo';
   import { useRouter } from 'vue-router';
   import { BasicTable } from '@/components/Table';
-  import { List } from '@/api/org/user';
+  import { List } from '@/api/tg/tgUser';
   import { usePermission } from '@/hooks/web/usePermission';
   import { BasicForm, useForm } from '@/components/Form';
 
-  const emit = defineEmits([
-    'reloadTable',
-    'updateBindMemberShowModal',
-    'handleBindMember',
-    'updateFolderMemberShowModal',
-    'handleFolderMember',
-  ]);
+  const emit = defineEmits(['reloadTable', 'updateFolderMemberShowModal', 'handleFolderMember']);
 
   interface Props {
     showModal: boolean;
@@ -95,7 +89,7 @@
       return props.showModal;
     },
     set: (value) => {
-      emit('updateBindMemberShowModal', value);
+      emit('updateFolderMemberShowModal', value);
     },
   });
 
@@ -109,7 +103,7 @@
 
   function onPositiveClick() {
     if (checkedIds.value !== 0) {
-      emit('handleBindMember', checkedIds.value);
+      emit('handleFolderMember', checkedIds.value);
     }
   }
 

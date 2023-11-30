@@ -59,44 +59,50 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
+	//
+	if in.FolderId != 0 {
+		mod = mod.LeftJoin(dao.TgUserFolders.Table()+" uf", "tg_user."+dao.TgUser.Columns().Id+"=uf."+dao.TgUserFolders.Columns().TgUserId).
+			Where("uf."+dao.TgUserFolders.Columns().FolderId, in.FolderId)
+	}
+
 	// 查询账号号码
 	if in.Username != "" {
-		mod = mod.WhereLike(dao.TgUser.Columns().Username, in.Username)
+		mod = mod.WhereLike("tg_user."+dao.TgUser.Columns().Username, in.Username)
 	}
 
 	// 查询First Name
 	if in.FirstName != "" {
-		mod = mod.WhereLike(dao.TgUser.Columns().FirstName, in.FirstName)
+		mod = mod.WhereLike("tg_user."+dao.TgUser.Columns().FirstName, in.FirstName)
 	}
 
 	// 查询Last Name
 	if in.LastName != "" {
-		mod = mod.WhereLike(dao.TgUser.Columns().LastName, in.LastName)
+		mod = mod.WhereLike("tg_user."+dao.TgUser.Columns().LastName, in.LastName)
 	}
 
 	// 查询手机号
 	if in.Phone != "" {
-		mod = mod.WhereLike(dao.TgUser.Columns().Phone, in.Phone)
+		mod = mod.WhereLike("tg_user."+dao.TgUser.Columns().Phone, in.Phone)
 	}
 
 	// 查询账号状态
 	if in.AccountStatus != nil {
-		mod = mod.Where(dao.TgUser.Columns().AccountStatus, in.AccountStatus)
+		mod = mod.Where("tg_user."+dao.TgUser.Columns().AccountStatus, in.AccountStatus)
 	}
 
 	// 查询是否在线
 	if in.IsOnline > 0 {
-		mod = mod.Where(dao.TgUser.Columns().IsOnline, in.IsOnline)
+		mod = mod.Where("tg_user."+dao.TgUser.Columns().IsOnline, in.IsOnline)
 	}
 
 	// 查询代理地址
 	if in.ProxyAddress != "" {
-		mod = mod.WhereLike(dao.TgUser.Columns().ProxyAddress, in.ProxyAddress)
+		mod = mod.WhereLike("tg_user."+dao.TgUser.Columns().ProxyAddress, in.ProxyAddress)
 	}
 
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
-		mod = mod.WhereBetween(dao.TgUser.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
+		mod = mod.WhereBetween("tg_user."+dao.TgUser.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
 	totalCount, err = mod.Clone().Count()
