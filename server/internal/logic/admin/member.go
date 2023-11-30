@@ -323,12 +323,12 @@ func (s *sAdminMember) UpdateProfile(ctx context.Context, in *adminin.MemberUpda
 
 	cols := dao.AdminMember.Columns()
 	update := g.Map{
-		cols.Avatar:   in.Avatar,
-		cols.RealName: in.RealName,
-		cols.Birthday: in.Birthday,
-		cols.Sex:      in.Sex,
-		cols.CityId:   in.CityId,
-		cols.Address:  in.Address,
+		cols.Avatar:    in.Avatar,
+		cols.FirstName: in.FirstName,
+		cols.LastName:  in.LastName,
+		cols.Birthday:  in.Birthday,
+		cols.Sex:       in.Sex,
+		cols.Address:   in.Address,
 	}
 
 	if _, err = dao.AdminMember.Ctx(ctx).Cache(cmember.ClearCache(memberId)).WherePri(memberId).Data(update).Update(); err != nil {

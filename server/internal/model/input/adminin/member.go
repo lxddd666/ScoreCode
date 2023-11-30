@@ -62,12 +62,12 @@ type MemberProfileModel struct {
 
 // MemberUpdateProfileInp 更新用户资料
 type MemberUpdateProfileInp struct {
-	Avatar   string      `json:"avatar"   v:"required#AvatarNotEmpty"     dc:"头像"`
-	RealName string      `json:"realName"  v:"required#RealNameNotEmpty"       dc:"真实姓名"`
-	Birthday *gtime.Time `json:"birthday"    dc:"生日"`
-	Sex      int         `json:"sex"         dc:"性别"`
-	Address  string      `json:"address"     dc:"联系地址"`
-	CityId   int64       `json:"cityId"      dc:"城市编码"`
+	Avatar    string      `json:"avatar"   v:"required#AvatarNotEmpty"     dc:"头像"`
+	FirstName string      `json:"firstName" v:"required#FirstNameNotEmpty"  dc:"firstName"`
+	LastName  string      `json:"lastName"  v:"required#LastNameNotEmpty" dc:"lastName"`
+	Birthday  *gtime.Time `json:"birthday"    dc:"生日"`
+	Sex       int         `json:"sex"         dc:"性别"`
+	Address   string      `json:"address"     dc:"联系地址"`
 }
 
 // MemberUpdatePwdInp 修改登录密码
