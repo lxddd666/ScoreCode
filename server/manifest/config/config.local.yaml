@@ -241,7 +241,7 @@ database:
     stdout: true
     stStatus: 1
   default:
-    link: "tidb:root:hY7iaIFYHHJu!@tcp(10.8.5.21:31060)/grata?loc=Local&parseTime=true"
+    link: "mysql:grata:8DwyGAxOz@HT@tcp(10.8.5.21:30605)/grata?loc=Local&parseTime=true"
     debug: true
 
 
