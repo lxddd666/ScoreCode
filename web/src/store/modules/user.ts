@@ -28,6 +28,8 @@ export interface UserInfoState {
   permissions: string[];
   username: string;
   realName: string;
+  firstName: string;
+  lastName: string;
   avatar: string;
   balance: number;
   integral: number;

@@ -3,7 +3,6 @@ package tg
 import (
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/consts"
 	"hotgo/internal/dao"
@@ -12,8 +11,6 @@ import (
 	"hotgo/internal/library/hgrds/lock"
 	"hotgo/internal/model"
 	"hotgo/internal/model/entity"
-	"hotgo/internal/model/input/form"
-	"hotgo/internal/model/input/scriptin"
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
@@ -22,7 +19,6 @@ import (
 	"hotgo/utility/simple"
 	"math"
 	"math/rand"
-	"slices"
 	"strings"
 	"time"
 
@@ -350,32 +346,35 @@ func (s *sTgIncreaseFansCron) InitIncreaseCronApplication(ctx context.Context) (
 }
 
 // SyncIncreaseFansCronTaskTableData 同步涨粉数据信息
-func (s *sTgIncreaseFansCron) SyncIncreaseFansCronTaskTableData(ctx context.Context, cron *entity.TgIncreaseFansCron) (error, int) {
+func (s *sTgIncreaseFansCron) SyncIncreaseFansCronTaskTableData(ctx context.Context, cron entity.TgIncreaseFansCron) (error, int, []int64) {
+	dailyList := make([]int64, len(cron.ExecutedPlan))
+	copy(dailyList, cron.ExecutedPlan)
 	joinSuccessNum, err := g.Model(dao.TgIncreaseFansCronAction.Table()).Where(dao.TgIncreaseFansCronAction.Columns().CronId, cron.Id).
 		Where(dao.TgIncreaseFansCronAction.Columns().JoinStatus, 1).Count()
 	if err != nil {
-		return gerror.New(g.I18n().T(ctx, "{#QueryRecordFailed}") + err.Error()), 0
+		return gerror.New(g.I18n().T(ctx, "{#QueryRecordFailed}") + err.Error()), 0, dailyList
 	}
 	if cron.IncreasedFans != joinSuccessNum {
 		// 同步更新
 		cron.IncreasedFans = joinSuccessNum
 		_, err := g.Model(dao.TgIncreaseFansCron.Table()).WherePri(cron.Id).Data(dao.TgIncreaseFansCron.Columns().IncreasedFans, joinSuccessNum).Update()
 		if err != nil {
-			return err, 0
+			return err, 0, dailyList
 		}
 	}
+	successCount := joinSuccessNum
 	for _, n := range cron.ExecutedPlan {
 		num := int(n)
-		if joinSuccessNum > num {
-			joinSuccessNum -= num
-			cron.ExecutedPlan = cron.ExecutedPlan[1:]
+		if successCount > num {
+			successCount -= num
+			dailyList = cron.ExecutedPlan[1:]
 		} else {
-			num -= joinSuccessNum
-			cron.ExecutedPlan[0] = int64(num)
+			num -= successCount
+			dailyList[0] = int64(num)
 			break
 		}
 	}
-	return nil, joinSuccessNum
+	return nil, joinSuccessNum, dailyList
 }
 
 // CreateIncreaseFanTask 创建任务
@@ -414,12 +413,10 @@ func (s *sTgIncreaseFansCron) CreateIncreaseFanTask(ctx context.Context, user *m
 // IncreaseFanAction 涨粉动作
 func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity.TgUser, cron entity.TgIncreaseFansCron, takeName string, channel string, channelId string) (loginErr error, joinChannelErr error) {
 	n, _ := g.Model(dao.TgIncreaseFansCronAction.Table()).Where(dao.TgIncreaseFansCronAction.Columns().CronId, cron.Id).Where(dao.TgIncreaseFansCronAction.Columns().Phone, fan.Phone).Count()
-
 	if n > 0 {
 		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
 		return
 	}
-	resMap := make(map[string]interface{})
 
 	model := g.Model(dao.TgIncreaseFansCronAction.Table())
 	data := entity.TgIncreaseFansCronAction{
@@ -427,47 +424,49 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 		TgUserId: fan.TgId,
 		Phone:    fan.Phone,
 	}
-	defer func() {
-		_, _ = g.Redis().HSet(ctx, consts.TgIncreaseFansKey+takeName, resMap)
-	}()
-	// 查看有无加入频道
+	var logID int64 = 0
 
-	isJoin, _ := g.Model(dao.TgUserContacts.Table()+" tuc").LeftJoin(dao.TgContacts.Table()+" tc", "tc."+dao.TgContacts.Columns().Id+"=tuc."+dao.TgUserContacts.Columns().TgContactsId).
-		Where("tuc."+dao.TgUserContacts.Columns().TgUserId, fan.Id).Where("tc."+dao.TgContacts.Columns().Username, channel).Count()
-	if isJoin > 0 {
-		// 已经加入过了
-		data.JoinStatus = ACCOUNT_JOINED
-		data.Comment = g.I18n().T(ctx, "{#AccountAddChannel}")
-		_, _ = model.Data(data).Insert()
-		resMap[fan.Phone] = ACCOUNT_JOINED
-		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
-		return
-	}
+	defer func() {
+		_, _ = g.Redis().SAdd(ctx, consts.TgIncreaseFansKey+takeName, fan.Phone)
+		if loginErr != nil {
+			if logID != 0 {
+				model.Data(g.Map{dao.TgIncreaseFansCronAction.Columns().Comment: loginErr.Error()}).WherePri(logID).Update()
+			} else {
+				data.Comment = loginErr.Error()
+				_, _ = model.Data(data).Insert()
+			}
+		} else if joinChannelErr != nil {
+			data.Comment = joinChannelErr.Error()
+			_, _ = model.Data(data).Insert()
+		}
+	}()
 
 	// 登录
 	//_, loginErr = s.CodeLogin(ctx, gconv.Uint64(fan.Phone))
 	loginRes, loginErr := service.TgArts().SingleLogin(ctx, fan)
 
 	if loginErr != nil {
-		data.JoinStatus = ACCOUNT_ERR
-		data.Comment = "login:" + loginErr.Error()
-		_, _ = model.Data(data).Insert()
-		resMap[fan.Phone] = ACCOUNT_ERR
 		return
 	}
 	if loginRes.AccountStatus != int(protobuf.AccountStatus_SUCCESS) {
 		loginErr = gerror.New(g.I18n().T(ctx, "{#LogFailed}"))
-		data.JoinStatus = ACCOUNT_ERR
-		data.Comment = "login:" + loginErr.Error()
-		_, _ = model.Data(data).Insert()
-		resMap[fan.Phone] = ACCOUNT_ERR
 		return
 	}
-	//if fan.Username == "" {
+	// 查看列表是否有该channel
+	joinFlag, loginErr := CheckHavingAccount(ctx, gconv.Uint64(fan.Phone), gconv.Int64(channelId))
+	if loginErr != nil {
+		return
+	}
+	if joinFlag {
+		// 已经加入过了
+		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
+		return
+	}
 	// 养号
-	err := s.CreateKeepTask(ctx, takeName, fan.Phone, fan)
+	err := RandomUpdateNecessaryInfo(ctx, takeName, fan.Phone, fan)
 	if err != nil {
 		loginErr = gerror.New(g.I18n().T(ctx, "{#AddChannelSuccess}") + err.Error())
+		return
 	}
 	time.Sleep(5 * time.Second)
 	//}
@@ -478,112 +477,41 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 		loginErr = err
 		return
 	}
-	joinFlag, err := checkUserHaveChannel(ctx, gconv.Uint64(fan.Phone), channel)
-	if joinFlag {
-		// 已经加入过了
-		data.JoinStatus = ACCOUNT_JOINED
-		data.Comment = g.I18n().T(ctx, "{#AccountAddChannel}")
-		_, _ = model.Data(data).Insert()
-		resMap[fan.Phone] = ACCOUNT_JOINED
-		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
-		return
-	}
 	time.Sleep(3 * time.Second)
 
 	// 加入频道
-	fl := &tgin.TgChannelJoinByLinkInp{}
-	fl.Link = []string{cron.Channel}
-	fl.Account = gconv.Uint64(fan.Phone)
-
-	joinChannelErr = service.TgArts().TgChannelJoinByLink(ctx, fl)
+	joinChannelErr = service.TgArts().TgChannelJoinByLink(ctx, &tgin.TgChannelJoinByLinkInp{Link: []string{cron.Channel}, Account: gconv.Uint64(fan.Phone)})
 	if joinChannelErr != nil {
-		data.JoinStatus = ACCOUNT_ERR
-		data.Comment = "join channel:" + joinChannelErr.Error()
-		_, _ = model.Data(data).Insert()
-		resMap[fan.Phone] = ACCOUNT_ERR
 		return nil, joinChannelErr
+	} else {
+		data.JoinStatus = 1
+		logID, _ = model.Data(data).InsertAndGetId()
 	}
 	g.Log().Infof(ctx, "{#AddChannelSuccess}: %s", fan.Phone)
-	// 消息已读
-	_ = service.TgArts().TgReadChannelHistory(ctx, &tgin.TgReadChannelHistoryInp{Sender: gconv.Uint64(fan.Phone), Receiver: channelId})
-
-	// 点赞操作
-	err, msgFlag := emojiToChannelMessages(ctx, gconv.Uint64(fan.Phone), channelId)
-	if msgFlag == false {
-		// 没有频道消息 不再关注
-		data.Comment = "Channel message is empty, unable to generate followers"
-		data.JoinStatus = ACCOUNT_SUCCESS
-		resMap[fan.Phone] = ACCOUNT_SUCCESS
-		_, _ = model.Data(data).Insert()
+	// 获取该频道详情
+	dialog, loginErr := GetDialogByTgId(ctx, gconv.Uint64(fan.Phone), gconv.Int64(channelId))
+	if loginErr != nil {
+		return
+	}
+	// 频道没有消息，取消爆粉
+	if dialog.TopMessage == 0 {
 		joinChannelErr = gerror.New(g.I18n().T(ctx, "{#ChannelMsgIsEmpty}"))
 		return
 	}
-	if err != nil {
-		data.Comment = err.Error()
+	// 消息已读，view++
+	loginErr = ChannelReadHistoryAndAddView(ctx, gconv.Uint64(fan.Phone), channelId, dialog.UnreadCount, dialog.TopMessage, true)
+	if loginErr != nil {
+		return
 	}
-
-	data.JoinStatus = 1
-	resMap[fan.Phone] = 1
-	_, _ = model.Data(data).Insert()
+	// 随机点赞
+	if GenerateRandomResult(0.5) {
+		loginErr = RandMsgLikes(ctx, gconv.Uint64(fan.Phone), channelId, dialog.TopMessage)
+		if loginErr != nil {
+			return
+		}
+	}
 
 	return nil, nil
-}
-
-// CreateKeepTask 传教
-func (s *sTgIncreaseFansCron) CreateKeepTask(ctx context.Context, takeName string, account string, fan *entity.TgUser) (err error) {
-	en := entity.TgKeepTask{
-		TaskName: takeName + account,
-		Cron:     "0 */1 * * * *",
-		Status:   2,
-		Actions:  gjson.New("[3,2,5,4]"),
-	}
-	list, totalCount, err := service.ScriptGroup().List(ctx, &scriptin.ScriptGroupListInp{PageReq: form.PageReq{Page: 1, PerPage: 10}})
-	if err != nil {
-		return
-	}
-	if totalCount != 0 {
-		en.ScriptGroup = list[0].Id
-	}
-
-	ids := make([]int64, 0)
-	ids = append(ids, gconv.Int64(fan.Id))
-	if len(ids) == 0 {
-		err = gerror.New(g.I18n().T(ctx, "{#GetUserIdIsEmpty}"))
-		return
-	}
-	en.Accounts = gjson.New(ids)
-
-	if fan.Username == "" {
-		err = RandUsername(ctx, &en)
-		if err != nil {
-			return
-		}
-		if randomTrigger() {
-			err = RandBio(ctx, &en)
-			if err != nil {
-				return
-			}
-		}
-
-		time.Sleep(2 * time.Second)
-	}
-	if fan.FirstName == "" || fan.LastName == "" {
-		err = RandNickName(ctx, &en)
-		if err != nil {
-			return
-		}
-		time.Sleep(2 * time.Second)
-	}
-	if randomTrigger() {
-		if fan.Photo == 0 {
-			err = RandPhoto(ctx, &en)
-			if err != nil {
-				return
-			}
-		}
-	}
-
-	return
 }
 
 // IncreaseFanActionRetry 涨粉动作递归重试
@@ -678,18 +606,6 @@ func (s *sTgIncreaseFansCron) TgIncreaseFansToChannel(ctx context.Context, inp *
 	}
 
 	// 校验是否存在 channel
-	_, available, err := service.TgIncreaseFansCron().CheckChannel(ctx, &tgin.TgCheckChannelInp{inp.Channel, 0})
-	if err != nil {
-		return
-	}
-	if available == false {
-		err = gerror.New(g.I18n().T(ctx, "{#SearchChannelEmpty}"))
-		finalResult = false
-		return
-	}
-	if err != nil {
-		return err, true
-	}
 
 	_, _ = s.TgExecuteIncrease(ctx, cronTask, false)
 
@@ -702,7 +618,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 
 	key := consts.TgIncreaseFansKey + cronTask.TaskName
 	totalAccounts := cronTask.FansCount
-	totalDays := cronTask.DayCount
+	dailyList := cronTask.ExecutedPlan
 	defer func() {
 		if err != nil {
 			_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
@@ -711,13 +627,11 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 	}()
 	if cronTask.CronStatus != 0 {
 		err = gerror.New(g.I18n().T(ctx, "{#CurrentTaskState}") + gconv.String(cronTask.CronStatus) + g.I18n().T(ctx, "{#CompleteTerminate}"))
-		_, _ = g.Redis().Del(ctx, key)
-		finalResult = true
 		return
 	}
 	if firstFlag {
 		// 查看数据是否同步，防止程序突然终止后数据不同步
-		err, _ = s.SyncIncreaseFansCronTaskTableData(ctx, &cronTask)
+		err, _, dailyList = s.SyncIncreaseFansCronTaskTableData(ctx, cronTask)
 		if err != nil {
 			finalResult = true
 			return
@@ -741,10 +655,6 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 		return
 	}
 	cronTask.ExecutedDays = execDay
-	totalDays = totalDays - cronTask.ExecutedDays
-	if totalDays < 0 {
-		totalDays = cronTask.ExecutedDays
-	}
 
 	// 获取可小号列表
 	mod := service.TgUser().Model(ctx)
@@ -757,17 +667,10 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 		return
 	}
 
-	result, err := g.Redis().HGetAll(ctx, key)
-	if err != nil {
-		finalResult = true
-		return
-	}
-	resMap := result.Map()
 	// 找到所有的未操作的号
-	list = removeCtrlPhone(resMap, list)
+	list = removeCtrlPhone(ctx, key, list)
 	if len(list) < totalAccounts {
 		err = gerror.New(g.I18n().T(ctx, "{#NoEnoughAddFans}"))
-		finalResult = true
 		return
 	}
 
@@ -784,7 +687,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 			// 已经涨粉数（启动后所有天数加起来的涨粉总数）
 			var fanTotalCount int = cronTask.IncreasedFans
 
-			for _, todayFollowerTarget := range cronTask.ExecutedPlan {
+			for _, todayFollowerTarget := range dailyList {
 				if todayFollowerTarget == 0 {
 					continue
 				}
@@ -798,9 +701,8 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 				cronTask.ExecutedDays = executionDays(cronTask.StartTime, gtime.Now())
 
 				// 查看数据是否同步，防止程序突然终止后数据不同步 每天同步数据
-				err, joinSuccessNum := s.SyncIncreaseFansCronTaskTableData(ctx, &cronTask)
+				err, joinSuccessNum, _ := s.SyncIncreaseFansCronTaskTableData(ctx, cronTask)
 				if err != nil {
-					finalResult = true
 					_ = s.UpdateStatus(ctx, &tgin.TgIncreaseFansCronEditInp{entity.TgIncreaseFansCron{CronStatus: TASK_ERR, Comment: err.Error(), Id: cronTask.Id}})
 					_, _ = g.Redis().Del(ctx, key)
 					return err
@@ -845,7 +747,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 					todayFollowerCount++
 					fanTotalCount++
 
-					//添加粉丝完成后
+					//每个添加粉丝完成后
 					_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(gdb.Map{
 						dao.TgIncreaseFansCron.Columns().IncreasedFans: fanTotalCount,
 					}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
@@ -882,7 +784,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 					_, _ = g.Model(dao.TgIncreaseFansCron.Table()).Data(updateMap).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).Update()
 
 					_, _ = g.Redis().Del(ctx, key)
-					finalResult = true
+
 					break
 				}
 
@@ -896,7 +798,7 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 						}).Where(dao.TgIncreaseFansCron.Columns().Id, cronTask.Id).
 						Update()
 					_, _ = g.Redis().Del(ctx, key)
-					finalResult = true
+
 					break
 				}
 
@@ -942,7 +844,7 @@ func (s *sTgIncreaseFansCron) GetOneOnlineAccount(ctx context.Context) (uint64, 
 	return 0, gerror.New(g.I18n().T(ctx, "{#GetInformationFailed}"))
 }
 
-func removeCtrlPhone(resMap map[string]interface{}, list []*entity.TgUser) []*entity.TgUser {
+func removeCtrlPhone(ctx context.Context, key string, list []*entity.TgUser) []*entity.TgUser {
 	// 设置随机数种子
 	rand.Seed(time.Now().UnixNano())
 
@@ -951,160 +853,15 @@ func removeCtrlPhone(resMap map[string]interface{}, list []*entity.TgUser) []*en
 		list[i], list[j] = list[j], list[i]
 	})
 
-	if len(resMap) == 0 {
-		return list
-	}
 	newList := make([]*entity.TgUser, 0)
 	for _, k := range list {
-		if resMap[k.Phone] != nil {
+		i, _ := g.Redis().SIsMember(ctx, key, k.Phone)
+		if i == 1 {
 			continue
 		}
 		newList = append(newList, k)
 	}
 	return newList
-}
-
-func emojiToChannelMessages(ctx context.Context, account uint64, channelId string) (err error, msgFlag bool) {
-	msgFlag = true
-	// 加入后先获取会话列表
-	_, err = service.TgArts().TgGetDialogs(ctx, account)
-	if err != nil {
-		return
-	}
-
-	// 获取频道历史记录
-	msgList := make([]uint64, 0)
-	hList, historyErr := service.TgArts().TgGetMsgHistory(ctx, &tgin.TgGetMsgHistoryInp{Account: account, Contact: channelId, OffsetID: 0, Limit: 20})
-	if historyErr != nil {
-		err = historyErr
-		msgFlag = false
-		return
-	}
-	if len(hList) == 0 {
-		err = gerror.New(g.I18n().T(ctx, "{#GetHistoryNil}"))
-		msgFlag = false
-		return
-	}
-	i := 0
-	for _, h := range hList {
-		if h.Message != "" {
-			msgList = append(msgList, gconv.Uint64(h.MsgId))
-			i++
-		}
-		if i >= 20 {
-			break
-		}
-	}
-	//截取前20个
-	if len(msgList) == 0 {
-		err = gerror.New("")
-		msgFlag = false
-		return
-	}
-	// 50%概率执行以下操作
-	if randomTrigger() {
-
-		// 点赞
-		emojiList := []string{"❤", "👍", "👌", "👏", "🔥", "😇", "🥰", "😍", "😎", "🤯", "❤️‍🔥", "😎", "🤯", "❤️‍🔥", "🤩"}
-
-		randomMsgId := randomSelect(msgList)
-		// 随机获取 表情
-
-		// 还有一步，channel消息已读
-
-		emoji := getRandomElement(emojiList)
-		msgIds := make([]int64, 0)
-		for _, i := range randomMsgId {
-			msgIds = append(msgIds, int64(i))
-		}
-		service.TgArts().TgChannelReadAddView(ctx, &tgin.ChannelReadAddViewInp{Sender: account, Receiver: channelId, MsgIds: msgIds})
-		err = service.TgArts().TgSendReaction(ctx, &tgin.TgSendReactionInp{Account: account, ChatId: gconv.Int64(channelId), MsgIds: randomMsgId, Emoticon: emoji})
-		if err != nil {
-			return
-		}
-		return
-	}
-	return
-}
-
-func getRandomElement(list []string) string {
-	rand.Seed(time.Now().UnixNano())
-	index := rand.Intn(len(list))
-	return list[index]
-}
-
-func randomSelect(items []uint64) []uint64 {
-	count := 1 // 生成1到4之间的随机数，表示要选择的元素个数
-	if len(items) >= 10 {
-		count = rand.Intn(4) + 1 // 生成1到4之间的随机数，表示要选择的元素个数
-	} else if len(items) > 5 {
-		count = rand.Intn(3) + 1 // 生成1到3之间的随机数，表示要选择的元素个数
-	} else if len(items) >= 4 {
-		count = rand.Intn(2) + 1 // 1-2个
-	}
-
-	// 计算每个元素的权重（与位置成反比）
-	weights := make([]float64, len(items))
-	totalWeight := 0.0
-	for i := 0; i < len(items); i++ {
-		weights[i] = 1.0 / float64(i+1)
-		totalWeight += weights[i]
-	}
-
-	rand.Seed(time.Now().UnixNano())
-	rand.Shuffle(len(items), func(i, j int) {
-		items[i], items[j] = items[j], items[i] // 随机排列索引顺序
-	})
-
-	selectedItems := make([]uint64, 0, count)
-	selectedIndexes := make(map[int]bool)
-
-	for _, item := range items {
-		if len(selectedItems) == count {
-			break
-		}
-
-		index := slices.Index(items, item)
-		if !selectedIndexes[index] {
-			selectedItems = append(selectedItems, item)
-			selectedIndexes[index] = true
-		}
-	}
-
-	return selectedItems
-}
-
-func getAllEmojiList(ctx context.Context, account uint64) (err error, emojiList []string) {
-	standbyList := []string{"❤", "👍", "👌", "👏", "🔥"}
-
-	all, err := g.Redis().HGetAll(ctx, consts.TgGetEmoJiList)
-	if err != nil || all.IsEmpty() {
-		resp, redisErr := service.TgArts().TgGetEmojiGroup(ctx, &tgin.TgGetEmojiGroupInp{Account: account})
-		if redisErr != nil || len(resp) == 0 {
-			// 获取报错将备用的给他
-			err = redisErr
-			emojiList = standbyList
-			return
-		}
-		for _, emoJilTypes := range resp {
-			emojiList = append(emojiList, emoJilTypes.Emoticons...)
-		}
-		return
-	}
-
-	for _, v := range all.Map() {
-		str, ok := v.(string)
-		if ok {
-			var slice []string
-			err = gjson.DecodeTo([]byte(str), &slice)
-			if err != nil {
-				emojiList = standbyList
-				return
-			}
-			emojiList = append(emojiList, slice...)
-		}
-	}
-	return
 }
 
 func solveEquation(initialFans, targetFans, days int) float64 {
@@ -1128,20 +885,6 @@ func calculateDailyGrowth(initialFans int, days int, growthPercentage float64) (
 	total = initialFans
 
 	return
-}
-
-// 50%概率执行
-func randomTrigger() bool {
-	rand.Seed(time.Now().UnixNano())
-
-	randomNumber := rand.Float64()
-	if randomNumber < 0.5 {
-		// 执行操作
-		return true
-	} else {
-		// 不执行操作
-		return false
-	}
 }
 
 func averageSleepTime(day int, count int) float64 {
@@ -1231,33 +974,4 @@ func reverseSlice(slice []int) {
 		left++
 		right--
 	}
-}
-
-func checkUserHaveChannel(ctx context.Context, account uint64, channel string) (flag bool, err error) {
-	result, err := service.TgArts().TgGetDialogs(ctx, account)
-	if err != nil {
-		return false, nil
-	}
-
-	if channel == "" {
-		err = gerror.New(g.I18n().T(ctx, "{#SearchInfoEmpty}"))
-		return false, err
-	}
-	split := strings.Split(channel, "/")
-
-	var channelUsername string
-	if len(split) > 0 {
-		channelUsername = split[len(split)-1]
-	}
-	if channelUsername == "" {
-		err = gerror.New(g.I18n().T(ctx, "{#VerifyChannelAddressErr}"))
-		return false, err
-	}
-	for _, item := range result {
-		if item.Username == channelUsername {
-			flag = true
-			return
-		}
-	}
-	return
 }

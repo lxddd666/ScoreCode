@@ -14,7 +14,6 @@ type TgIncreaseFansCronUpdateFields struct {
 	MemberId      int64  `json:"memberId"      dc:"发起任务的用户ID"`
 	Channel       string `json:"channel"       dc:"频道地址"`
 	ChannelId     string `json:"channelId"     dc:"频道地址id"`
-	ExecutedPlan  string `json:"executedPlan"  dc:"执行计划"`
 	DayCount      int    `json:"dayCount"      dc:"持续天数"`
 	FansCount     int    `json:"fansCount"     dc:"涨粉数量"`
 	CronStatus    int    `json:"cronStatus"    dc:"任务状态：0终止，1正在执行，2完成"`

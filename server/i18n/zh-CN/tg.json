@@ -82,5 +82,7 @@
   "ExecutePlanNil" : "执行计划不能为空",
   "TaskNotCreated" : "任务未创建",
   "ExportTgGroup": "导出tg分组-",
-  "AddTgGroupError": "新增tg分组失败，请稍后重试！"
+  "AddTgGroupError": "新增tg分组失败，请稍后重试！",
+  "GetDialogEmpty" : "获取会话为空"
+
 }

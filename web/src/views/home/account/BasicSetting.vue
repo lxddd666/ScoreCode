@@ -13,7 +13,9 @@
         <n-row>
           <n-thing content-indented>
             <template #header>
-              {{ timeFix() }}，{{ formValue.realName }}，今天又是充满活力的一天！
+              {{ timeFix() }}，{{
+                formValue.firstName + formValue.lastName
+              }}，今天又是充满活力的一天！
             </template>
             <template #header-extra> </template>
             <template #description>
@@ -76,12 +78,12 @@
           <FileChooser v-model:value="formValue.avatar" file-type="image" />
         </n-form-item>
 
-        <n-form-item label="姓名" path="realName">
-          <n-input v-model:value="formValue.realName" />
+        <n-form-item label="firstName" path="firstName">
+          <n-input v-model:value="formValue.firstName" />
         </n-form-item>
 
-        <n-form-item label="QQ号码" path="qq">
-          <n-input v-model:value="formValue.qq" placeholder="请输入QQ号码" />
+        <n-form-item label="lastName" path="lastName">
+          <n-input v-model:value="formValue.lastName" />
         </n-form-item>
 
         <n-form-item label="生日" path="birthday">
@@ -96,10 +98,6 @@
               <n-radio :value="3">保密</n-radio>
             </n-space>
           </n-radio-group>
-        </n-form-item>
-
-        <n-form-item label="所在省市区" path="cityId">
-          <CitySelector v-model:value="formValue.cityId" />
         </n-form-item>
 
         <n-form-item label="联系地址" path="address">
@@ -146,38 +144,41 @@
 
   const formValue = ref<UserInfoState>({
     id: 0,
-    deptName: "",
-    roleName: "",
-    cityLabel: "",
+    deptName: '',
+    roleName: '',
+    cityLabel: '',
     permissions: [],
-    username: "",
-    realName: "",
-    avatar: "",
+    username: '',
+    realName: '',
+    firstName: '',
+    lastName: '',
+    avatar: '',
     balance: 0,
     sex: 1,
-    qq: "",
-    email: "",
-    mobile: "",
-    birthday: "",
+    qq: '',
+    email: '',
+    mobile: '',
+    birthday: '',
     cityId: 0,
-    address: "",
+    address: '',
     cash: {
-      name: "",
-      account: "",
-      payeeCode: ""
+      name: '',
+      account: '',
+      payeeCode: '',
     },
-    createdAt: "",
+    createdAt: '',
     loginCount: 0,
-    lastLoginAt: "",
-    lastLoginIp: "",
+    lastLoginAt: '',
+    lastLoginIp: '',
     integral: 0,
-    openId: "",
-    inviteCode: ""
+    openId: '',
+    inviteCode: '',
   });
 
   function formSubmit() {
     formBtnLoading.value = true;
     formRef.value.validate((errors) => {
+      debugger;
       if (!errors) {
         updateMemberProfile(formValue.value)
           .then((_res) => {
