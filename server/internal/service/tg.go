@@ -102,6 +102,8 @@ type (
 		TgCheckLogin(ctx context.Context, account uint64) (err error)
 		// TgSendMsg 发送消息
 		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
+		// TgSendMsgSingle 发送消息
+		TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp) (res string, err error)
 		// TgGetDialogs 获取chats
 		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgDialogModel, err error)
 		// TgGetMsgHistory 获取聊天历史

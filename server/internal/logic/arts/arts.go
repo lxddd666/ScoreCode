@@ -107,6 +107,36 @@ func (s *sArts) sendFileMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 	return req
 }
 
+// SendMsgSingle 单独发送消息
+func (s *sArts) SendMsgSingle(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error) {
+	if len(item.TextMsg) > 0 {
+		requestMessage := s.sendTextMessageSingle(item, imType)
+		_, err = s.Send(ctx, requestMessage)
+		if err != nil {
+			return "", err
+		} else {
+			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
+		}
+	}
+	return
+}
+
+func (s *sArts) sendTextMessageSingle(msgSingleReq *artsin.MsgSingleInp, imType string) *protobuf.RequestMessage {
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_SEND_MSG_SINGLE,
+		Type:    consts.TgSvc,
+		Account: msgSingleReq.Account,
+		ActionDetail: &protobuf.RequestMessage_SendMsgSingleDetail{
+			SendMsgSingleDetail: &protobuf.SendMsgSingleDetail{
+				Account:  msgSingleReq.Account,
+				Receiver: msgSingleReq.Receiver,
+				Msg:      msgSingleReq.TextMsg,
+			},
+		},
+	}
+	return req
+}
+
 // SyncContact 同步联系人
 func (s *sArts) SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error) {
 	var req = &protobuf.RequestMessage{

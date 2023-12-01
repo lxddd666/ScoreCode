@@ -28,6 +28,16 @@ func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string
 	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
 }
 
+// TgSendMsgSingle 单独发送消息
+func (s *sTgArts) TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp) (res string, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+
+	return service.Arts().SendMsgSingle(ctx, inp, consts.TgSvc)
+}
+
 // TgGetDialogs 获取chats
 func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgDialogModel, err error) {
 	// 检查是否登录
