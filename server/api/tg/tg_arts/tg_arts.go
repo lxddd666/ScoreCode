@@ -60,6 +60,14 @@ type TgSendMsgReq struct {
 
 type TgSendMsgRes struct{}
 
+// TgSendMsgSingleReq 单独发送文本消息
+type TgSendMsgSingleReq struct {
+	g.Meta `path:"/arts/sendMsgSingle" method:"post" tags:"tg-api" summary:"单独发送消息"`
+	*artsin.MsgSingleInp
+}
+
+type TgSendMsgSingleRes struct{}
+
 type TgSendVcardMsgReq struct {
 	g.Meta `path:"/arts/sendVcardMsg" method:"post" tags:"tg-api" summary:"发送名片"`
 	*artsin.VcardMsgInp
