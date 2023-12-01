@@ -34,6 +34,19 @@
 
           <n-grid x-gap="24" :cols="2">
             <n-gi>
+              <n-form-item label="firstName" path="firstName">
+                <n-input placeholder="请输入firstName" v-model:value="params.firstName" />
+              </n-form-item>
+            </n-gi>
+            <n-gi>
+              <n-form-item label="lastName" path="lastName">
+                <n-input placeholder="请输入登录用户名" v-model:value="params.lastName" />
+              </n-form-item>
+            </n-gi>
+          </n-grid>
+
+          <n-grid x-gap="24" :cols="2">
+            <n-gi>
               <n-form-item label="所属公司(组织)" path="orgId">
                 <n-select
                   key-field="id"

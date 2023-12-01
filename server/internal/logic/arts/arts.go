@@ -2,17 +2,23 @@ package arts
 
 import (
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/encoding/gbase64"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gotd/td/bin"
+	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/library/grpc"
 	"hotgo/internal/model/input/artsin"
+	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
+	"time"
 )
 
 type sArts struct{}
@@ -107,18 +113,108 @@ func (s *sArts) sendFileMessage(msgReq *artsin.MsgInp, imType string) *protobuf.
 	return req
 }
 
+type sendMsgSingle struct {
+	TgId      int64  `json:"tgId"          description:"tg id"`
+	ChatId    int64  `json:"chatId"  description:"chat id"`
+	ResultBuf []byte `json:"resultBuf"   description:"result buf"`
+}
+
 // SendMsgSingle 单独发送消息
 func (s *sArts) SendMsgSingle(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error) {
-	if len(item.TextMsg) > 0 {
+
+	// 一直群发同一个人
+	_, err = s.SendMsgSingleSameMsgBatch(ctx, item, imType)
+	//requestMessage := s.sendTextMessageSingle(item, imType)
+	//resp, err := s.Send(ctx, requestMessage)
+	//if err != nil {
+	//	return "", err
+	//}
+	//
+	//prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
+	//if resp != nil {
+	//	if resp.Data != nil && len(resp.Data) > 0 {
+	//		msgDetail := sendMsgSingle{}
+	//		err = gjson.DecodeTo(resp.Data, &msgDetail)
+	//		if err != nil {
+	//			return
+	//		}
+	//		list := make([]*tgin.TgMsgModel, 0)
+	//		msgModel := &tgin.TgMsgModel{
+	//			TgId:    msgDetail.TgId,
+	//			ChatId:  msgDetail.ChatId,
+	//			Date:    int(time.Now().Second()),
+	//			Message: item.TextMsg,
+	//			Out:     true,
+	//		}
+	//		var box tg.UpdateShortSentMessage
+	//		err = (&bin.Buffer{Buf: msgDetail.ResultBuf}).Decode(&box)
+	//		if err != nil {
+	//			msgModel.Out = false
+	//		}
+	//		msgModel.MsgId = box.ID
+	//		list = append(list, msgModel)
+	//		err = service.TgMsg().MsgCallback(ctx, list)
+	//	}
+	//}
+
+	return
+}
+
+func (s *sArts) SendMsgSinglePeerMsgBatch(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error) {
+
+	return
+}
+
+func (s *sArts) SendMsgSingleSameMsgBatch(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error) {
+	count := 100
+	success := 0
+	for i := 0; i < count; i++ {
+		_ = service.TgArts().TgSendMsgType(ctx, &artsin.MsgTypeInp{Sender: item.Account, Receiver: item.Receiver, FileType: "text"})
 		requestMessage := s.sendTextMessageSingle(item, imType)
-		_, err = s.Send(ctx, requestMessage)
-		if err != nil {
+		time.Sleep(1 * time.Second)
+
+		resp, sErr := s.Send(ctx, requestMessage)
+		if sErr != nil {
+			err = sErr
 			return "", err
-		} else {
-			prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
+		}
+
+		prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
+		if resp != nil {
+			if resp.RespondAccountStatus == protobuf.AccountStatus_SUCCESS {
+				if resp.Data != nil && len(resp.Data) > 0 {
+					msgDetail := sendMsgSingle{}
+					gErr := gjson.DecodeTo(resp.Data, &msgDetail)
+					if gErr != nil {
+						err = gErr
+						return
+					}
+					list := make([]*tgin.TgMsgModel, 0)
+					msgModel := &tgin.TgMsgModel{
+						TgId:    msgDetail.TgId,
+						ChatId:  msgDetail.ChatId,
+						Date:    int(time.Now().Second()),
+						Message: item.TextMsg,
+						Out:     true,
+					}
+					var box tg.UpdateShortSentMessage
+					err = (&bin.Buffer{Buf: msgDetail.ResultBuf}).Decode(&box)
+					if err != nil {
+						msgModel.Out = false
+					}
+					msgModel.MsgId = box.ID
+					list = append(list, msgModel)
+					err = service.TgMsg().MsgCallback(ctx, list)
+					success++
+				}
+			}
+
 		}
 	}
+
+	fmt.Println(success)
 	return
+
 }
 
 func (s *sArts) sendTextMessageSingle(msgSingleReq *artsin.MsgSingleInp, imType string) *protobuf.RequestMessage {
@@ -128,7 +224,7 @@ func (s *sArts) sendTextMessageSingle(msgSingleReq *artsin.MsgSingleInp, imType 
 		Account: msgSingleReq.Account,
 		ActionDetail: &protobuf.RequestMessage_SendMsgSingleDetail{
 			SendMsgSingleDetail: &protobuf.SendMsgSingleDetail{
-				Account:  msgSingleReq.Account,
+				Sender:   msgSingleReq.Account,
 				Receiver: msgSingleReq.Receiver,
 				Msg:      msgSingleReq.TextMsg,
 			},

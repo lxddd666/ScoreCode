@@ -76,6 +76,7 @@ type (
 		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
 		// TgGetUserAvatar 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
+		// TgGetSearchInfo 搜索栏搜索
 		TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 		// TgReadPeerHistory 消息已读
 		TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHistoryInp) (err error)
@@ -85,6 +86,7 @@ type (
 		TgChannelReadAddView(ctx context.Context, inp *tgin.ChannelReadAddViewInp) (err error)
 		// TgUpdateUserInfo 修改用户信息
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
+		// TgCheckUsername 校验检查username
 		TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error)
 		// SyncAccount 同步账号
 		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
@@ -102,7 +104,7 @@ type (
 		TgCheckLogin(ctx context.Context, account uint64) (err error)
 		// TgSendMsg 发送消息
 		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
-		// TgSendMsgSingle 发送消息
+		// TgSendMsgSingle 单独发送消息
 		TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp) (res string, err error)
 		// TgGetDialogs 获取chats
 		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgDialogModel, err error)
@@ -112,6 +114,9 @@ type (
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
 		// TgSendReaction 发送消息动作
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
+		//  TgSendMsgType 发送消息状态
+		TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error)
+
 		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
 	}
 	ITgIncreaseFansCronAction interface {

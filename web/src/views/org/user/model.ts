@@ -1,10 +1,10 @@
-import {cloneDeep} from 'lodash-es';
-import {ref} from 'vue';
-import {getOrgOption} from '@/api/org/dept';
-import {getRoleOption} from '@/api/system/role';
-import {FormSchema, useForm} from '@/components/Form';
-import {statusOptions} from '@/enums/optionsiEnum';
-import {defRangeShortcuts} from '@/utils/dateUtil';
+import { cloneDeep } from 'lodash-es';
+import { ref } from 'vue';
+import { getOrgOption } from '@/api/org/dept';
+import { getRoleOption } from '@/api/system/role';
+import { FormSchema, useForm } from '@/components/Form';
+import { statusOptions } from '@/enums/optionsiEnum';
+import { defRangeShortcuts } from '@/utils/dateUtil';
 
 // 增加余额/积分.
 
@@ -56,6 +56,8 @@ export const defaultState = {
   roleId: null,
   realName: '',
   username: '',
+  firstName: '',
+  lastName: '',
   password: '',
   deptId: null,
   postIds: null,
@@ -76,6 +78,8 @@ export interface State {
   roleId: number | null;
   realName: string;
   username: string;
+  firstName: string;
+  lastName: string;
   password: string;
   deptId: number | null;
   postIds: any;
@@ -101,7 +105,7 @@ export const schemas: FormSchema[] = [
         console.log(e);
       },
     },
-    rules: [{message: '请输入用户名', trigger: ['blur']}],
+    rules: [{ message: '请输入用户名', trigger: ['blur'] }],
   },
   {
     field: 'realName',
@@ -175,14 +179,14 @@ export const rules = {
 };
 
 export const [register, {}] = useForm({
-  gridProps: {cols: '1 s:1 m:2 l:3 xl:4 2xl:4'},
+  gridProps: { cols: '1 s:1 m:2 l:3 xl:4 2xl:4' },
   labelWidth: 80,
   schemas,
 });
 
 export const options = ref<any>({
   role: [],
-  roleTabs: [{id: -1, name: '全部'}],
+  roleTabs: [{ id: -1, name: '全部' }],
   org: [],
 });
 
@@ -201,7 +205,7 @@ export async function loadOptions() {
   const role = await getRoleOption();
   if (role.list) {
     options.value.role = role.list;
-    options.value.roleTabs = [{id: -1, name: '全部'}];
+    options.value.roleTabs = [{ id: -1, name: '全部' }];
     treeDataToCompressed(role.list);
   }
 }

@@ -109,6 +109,7 @@ type TgUserViewModel struct {
 // TgUserListInp 获取TG账号列表
 type TgUserListInp struct {
 	form.PageReq
+	FolderId       int64         `json:"folderId"              dc:"分组ID"`
 	MemberId       int64         `json:"memberId,string"       dc:"所属用户ID"`
 	MemberUsername string        `json:"memberUsername"        dc:"所属用户名"`
 	Username       string        `json:"username"              dc:"账号号码"`

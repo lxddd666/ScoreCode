@@ -1,19 +1,21 @@
-import {h, ref} from 'vue';
-import {NImage, NTag} from 'naive-ui';
-import {cloneDeep} from 'lodash-es';
-import {FormSchema} from '@/components/Form';
-import {Dicts} from '@/api/dict/dict';
+import { h, ref } from 'vue';
+import { NImage, NTag } from 'naive-ui';
+import { cloneDeep } from 'lodash-es';
+import { FormSchema } from '@/components/Form';
+import { Dicts } from '@/api/dict/dict';
 
-import {isNullObject} from '@/utils/is';
-import {defRangeShortcuts} from '@/utils/dateUtil';
-import {errorImg, getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
-import {getPhoto} from "@/utils/tgUtils";
+import { isNullObject } from '@/utils/is';
+import { defRangeShortcuts } from '@/utils/dateUtil';
+import { errorImg, getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
+import { getPhoto } from '@/utils/tgUtils';
+import { List } from '@/api/tg/tgFolders';
 
 export interface State {
   id: number;
   tgId: number;
   username: string;
   firstName: string;
+  folders: number;
   lastName: string;
   phone: string;
   photo: number;
@@ -35,6 +37,7 @@ export const defaultState = {
   username: '',
   firstName: '',
   lastName: '',
+  folders: 0,
   phone: '',
   photo: 0,
   bio: '',
@@ -59,6 +62,7 @@ export function newState(state: State | null): State {
 export const options = ref<Options>({
   account_status: [],
   login_status: [],
+  folderId: [],
 });
 
 export const rules = {};
@@ -81,6 +85,19 @@ export const schemas = ref<FormSchema[]>([
     label: '名字',
     componentProps: {
       placeholder: '请输入First Name',
+      onUpdateValue: (e: any) => {
+        console.log(e);
+      },
+    },
+  },
+  {
+    field: 'folderId',
+    component: 'NSelect',
+    label: '分组选择',
+    defaultValue: null,
+    componentProps: {
+      placeholder: '请选择分组',
+      options: [],
       onUpdateValue: (e: any) => {
         console.log(e);
       },
@@ -266,7 +283,6 @@ export const columns = [
   },
 ];
 
-
 export const uploadColumns = [
   {
     title: '代理地址',
@@ -288,17 +304,23 @@ export const uploadColumns = [
     title: '备注',
     key: 'comment',
   },
-
-
 ];
 
 async function loadOptions() {
   options.value = await Dicts({
-    types: [
-      'account_status',
-      'login_status',
-    ],
+    types: ['account_status', 'login_status'],
   });
+  const folderId = await List({ page: 1, pageSize: 9999 });
+  if (folderId.list) {
+    options.value.folderId = folderId.list;
+    for (let i = 0; i < folderId.list.length; i++) {
+      folderId.list[i].label = folderId.list[i].folderName;
+      folderId.list[i].value = folderId.list[i].id;
+    }
+  } else {
+    options.value.folderId = [];
+  }
+  debugger;
   for (const item of schemas.value) {
     switch (item.field) {
       case 'accountStatus':
@@ -306,6 +328,9 @@ async function loadOptions() {
         break;
       case 'isOnline':
         item.componentProps.options = options.value.login_status;
+        break;
+      case 'folderId':
+        item.componentProps.options = options.value.folderId;
         break;
     }
   }

@@ -66,7 +66,12 @@ func (c *cTgArts) SendMsg(ctx context.Context, req *tgarts.TgSendMsgReq) (res *t
 // SendMsgSingle 单独发送消息
 func (c *cTgArts) SendMsgSingle(ctx context.Context, req *tgarts.TgSendMsgSingleReq) (res *tgarts.TgSendMsgSingleRes, err error) {
 	_, err = service.TgArts().TgSendMsgSingle(ctx, req.MsgSingleInp)
+	return
+}
 
+// SendMsgType 发送状态
+func (c *cTgArts) SendMsgType(ctx context.Context, req *tgarts.TgSendMsgTypeReq) (res *tgarts.TgSendMsgTypeRes, err error) {
+	err = service.TgArts().TgSendMsgType(ctx, req.MsgTypeInp)
 	return
 }
 

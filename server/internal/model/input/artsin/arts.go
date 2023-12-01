@@ -47,6 +47,16 @@ func (in *MsgSingleInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+type MsgTypeInp struct {
+	Sender   uint64 `json:"sender" v:"required#SenderNotEmpty" dc:"发送人号码"`
+	Receiver string `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收人"`
+	FileType string `json:"fileType"  dc:"消息类型，text,image,video等"`
+}
+
+func (in *MsgTypeInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
 type VcardMsgInp struct {
 	Account      uint64        `json:"account" v:"required#SenderNotEmpty" dc:"发送信息账号"`
 	Receiver     uint64        `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收信息账号"`

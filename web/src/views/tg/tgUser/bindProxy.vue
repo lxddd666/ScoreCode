@@ -10,8 +10,8 @@
     @positive-click="onPositiveClick"
     @negative-click="onNegativeClick"
     :style="{
-          width: dialogWidth,
-        }"
+      width: dialogWidth,
+    }"
   >
     <BasicForm
       @register="register"
@@ -21,12 +21,11 @@
       ref="searchFormRef"
     >
       <template #statusSlot="{ model, field }">
-        <n-input v-model:value="model[field]"/>
+        <n-input v-model:value="model[field]" />
       </template>
     </BasicForm>
 
     <BasicTable
-
       :columns="columnList"
       :request="loadDataTable"
       :row-key="(row) => row.id"
@@ -35,98 +34,89 @@
       :scroll-x="1090"
       :resizeHeightOffset="-10000"
       size="small"
-    >
-    </BasicTable>
+    />
   </n-modal>
 </template>
 
 <script lang="ts" setup>
-import {computed, onMounted, ref} from 'vue';
-import {useDialog, useMessage} from 'naive-ui'
-import {schemas,columns} from '@/views/org/sysProxy/model';
-import {adaModalWidth} from "@/utils/hotgo";
-import {useRouter} from "vue-router";
-import {BasicTable} from "@/components/Table";
-import {List} from "@/api/org/sysProxy";
-import {usePermission} from "@/hooks/web/usePermission";
-import {BasicForm, useForm} from "@/components/Form";
+  import { computed, onMounted, ref } from 'vue';
+  import { useDialog, useMessage } from 'naive-ui';
+  import { schemas, columns } from '@/views/org/sysProxy/model';
+  import { adaModalWidth } from '@/utils/hotgo';
+  import { useRouter } from 'vue-router';
+  import { BasicTable } from '@/components/Table';
+  import { List } from '@/api/org/sysProxy';
+  import { usePermission } from '@/hooks/web/usePermission';
+  import { BasicForm, useForm } from '@/components/Form';
 
-const emit = defineEmits(['reloadTable', 'updateBindProxyShowModal', 'handleBindProxy']);
+  const emit = defineEmits(['reloadTable', 'updateBindProxyShowModal', 'handleBindProxy']);
 
-interface Props {
-  showModal: boolean;
-}
-
-const message = useMessage();
-const dialogWidth = ref('75%');
-const router = useRouter();
-const {hasPermission} = usePermission();
-const searchFormRef = ref<any>({});
-const checkedIds = ref(0);
-const dialog = useDialog();
-const actionRef = ref();
-const loadDataTable = async (res) => {
-  return await List({
-      ...{status: 1},
-      ...searchFormRef.value?.formModel, ...res
-    }
-  );
-};
-let thisColumns = [{
-  type: 'selection',
-  multiple: false,
-}];
-
-
-const columnList = thisColumns.concat(columns)
-
-
-const props = withDefaults(defineProps<Props>(), {
-  showModal: false,
-});
-
-const isShowModal = computed({
-  get: () => {
-    return props.showModal;
-  },
-  set: (value) => {
-    emit('updateBindProxyShowModal', value);
-  },
-});
-
-const [register, {}] = useForm({
-  gridProps: {cols: '1 s:1 m:2 l:3 xl:4 2xl:4'},
-  labelWidth: 80,
-  schemas,
-});
-
-function onNegativeClick() {
-
-}
-
-function onPositiveClick() {
-  if (checkedIds.value !== 0) {
-    emit('handleBindProxy', checkedIds.value);
+  interface Props {
+    showModal: boolean;
   }
 
-}
+  const message = useMessage();
+  const dialogWidth = ref('75%');
+  const router = useRouter();
+  const { hasPermission } = usePermission();
+  const searchFormRef = ref<any>({});
+  const checkedIds = ref(0);
+  const dialog = useDialog();
+  const actionRef = ref();
+  const loadDataTable = async (res) => {
+    return await List({
+      ...{ status: 1 },
+      ...searchFormRef.value?.formModel,
+      ...res,
+    });
+  };
+  let thisColumns = [
+    {
+      type: 'selection',
+      multiple: false,
+    },
+  ];
 
+  const columnList = thisColumns.concat(columns);
 
-onMounted(async () => {
-  adaModalWidth(dialogWidth);
-});
+  const props = withDefaults(defineProps<Props>(), {
+    showModal: false,
+  });
 
+  const isShowModal = computed({
+    get: () => {
+      return props.showModal;
+    },
+    set: (value) => {
+      emit('updateBindProxyShowModal', value);
+    },
+  });
 
-function onCheckedRow(rowKeys) {
-  checkedIds.value = rowKeys[0];
-}
+  const [register, {}] = useForm({
+    gridProps: { cols: '1 s:1 m:2 l:3 xl:4 2xl:4' },
+    labelWidth: 80,
+    schemas,
+  });
 
-function reloadTable() {
-  actionRef.value.reload();
-}
+  function onNegativeClick() {}
 
+  function onPositiveClick() {
+    if (checkedIds.value !== 0) {
+      emit('handleBindProxy', checkedIds.value);
+    }
+  }
+
+  onMounted(async () => {
+    adaModalWidth(dialogWidth);
+  });
+
+  function onCheckedRow(rowKeys) {
+    checkedIds.value = rowKeys[0];
+  }
+
+  function reloadTable() {
+    actionRef.value.reload();
+  }
 </script>
 
-<style scoped lang="less">
-
-</style>
+<style scoped lang="less"></style>

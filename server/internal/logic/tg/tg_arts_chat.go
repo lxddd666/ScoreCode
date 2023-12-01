@@ -197,3 +197,21 @@ func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionIn
 	_, err = service.Arts().Send(ctx, req)
 	return
 }
+
+// TgSendMsgType 发送消息时候的状态
+func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error) {
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_SET_TYPE_ACTION,
+		Type:    "telegram",
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_SetTypeActionDetail{
+			SetTypeActionDetail: &protobuf.SetTypeActionDetail{
+				Sender:   inp.Sender,
+				Receiver: inp.Receiver,
+				FileType: inp.FileType,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	return
+}

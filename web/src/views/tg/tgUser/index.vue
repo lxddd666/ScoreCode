@@ -139,6 +139,19 @@
             </n-icon>
             批量导入session
           </n-button>
+          <n-button
+            type="error"
+            @click="handleBatchLogout"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogout'])"
+          >
+            <template #icon>
+              <n-icon>
+                <LogoutOutlined />
+              </n-icon>
+            </template>
+            手机验证码登录
+          </n-button>
         </template>
       </BasicTable>
     </n-card>
@@ -153,6 +166,12 @@
       @updateBindMemberShowModal="updateBindMemberShowModal"
       @handleBindMember="handleBindMember"
       :showModal="bindMemberShowModal"
+    />
+    <FolderMember
+      @reloadTable="reloadTable"
+      @updateFolderMemberShowModal="updateFolderMemberShowModal"
+      @handleFolderMember="handleFolderMember"
+      :showModal="folderMemberShowModal"
     />
     <BindProxy
       @reloadTable="reloadTable"
@@ -188,12 +207,14 @@
     ExportOutlined,
     LoginOutlined,
     LogoutOutlined,
-    PlusOutlined, UploadOutlined,
+    PlusOutlined,
+    UploadOutlined,
   } from '@vicons/antd';
   import { useRouter } from 'vue-router';
   import Edit from './edit.vue';
   import BindMember from './bindMember.vue';
   import BindProxy from './bindProxy.vue';
+  import FolderMember from './folderMember.vue';
   import { Attachment } from '@/components/FileChooser/src/model';
 
   const { hasPermission } = usePermission();
@@ -208,6 +229,7 @@
   const formParams = ref<State>();
 
   const bindMemberShowModal = ref(false);
+  const folderMemberShowModal = ref(false);
   const bindProxyShowModal = ref(false);
   const fileUploadRef = ref();
 
@@ -339,6 +361,10 @@
     bindMemberShowModal.value = value;
   }
 
+  function updateFolderMemberShowModal(value: boolean) {
+    folderMemberShowModal.value = value;
+  }
+
   function updateBindProxyShowModal(value: boolean) {
     bindProxyShowModal.value = value;
   }
@@ -352,6 +378,13 @@
   }
 
   function handleBindMember(memberId: number) {
+    TgBindMember({ memberId: memberId, ids: checkedIds.value }).then((_res) => {
+      message.success('绑定成功');
+      reloadTable();
+    });
+  }
+
+  function handleFolderMember(memberId: number) {
     TgBindMember({ memberId: memberId, ids: checkedIds.value }).then((_res) => {
       message.success('绑定成功');
       reloadTable();

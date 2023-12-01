@@ -68,6 +68,13 @@ type TgSendMsgSingleReq struct {
 
 type TgSendMsgSingleRes struct{}
 
+type TgSendMsgTypeReq struct {
+	g.Meta `path:"/arts/sendMsgType" method:"post" tags:"tg-api" summary:"单独发送消息"`
+	*artsin.MsgTypeInp
+}
+
+type TgSendMsgTypeRes struct{}
+
 type TgSendVcardMsgReq struct {
 	g.Meta `path:"/arts/sendVcardMsg" method:"post" tags:"tg-api" summary:"发送名片"`
 	*artsin.VcardMsgInp

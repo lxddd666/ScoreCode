@@ -42,7 +42,7 @@ User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (
 }
 
 func TestTxt(t *testing.T) {
-	test := gfile.GetContents("/Users/macos/Downloads/test.txt")
+	test := gfile.GetContents("new30.txt")
 	fmt.Println(test)
 	sList := gstr.Split(test, "\r\n")
 	fmt.Println(sList)
