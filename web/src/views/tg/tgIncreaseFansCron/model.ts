@@ -24,6 +24,7 @@ export interface State {
   executedDays: number;
   increasedFans: number;
   channelMemberCount: number;
+  folderId: number;
   recommendedDays: number;
   taskName: string;
   executedPlan: any;
@@ -36,6 +37,7 @@ export const defaultState = {
   memberId: 0,
   channel: '',
   channelId: '',
+  folderId: 0,
   dayCount: 0,
   fansCount: 0,
   cronStatus: 0,
