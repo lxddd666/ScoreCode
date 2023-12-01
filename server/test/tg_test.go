@@ -18,6 +18,7 @@ import (
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"testing"
+	"time"
 )
 
 func TestTgLoginLocal(t *testing.T) {
@@ -54,10 +55,10 @@ func TestTxt(t *testing.T) {
 	}
 }
 
-func TestTgSendMsg(t *testing.T) {
+func TestTgSendSingelMsg(t *testing.T) {
 	var (
-		url    = "http://localhost:4887/tg/arts/sendMsg"
-		token  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwib3JnSWQiOjEsInBpZCI6MCwicm9sZUlkIjoxLCJyb2xlS2V5Ijoic3VwZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwicmVhbE5hbWUiOiLkuI3kv6EiLCJhdmF0YXIiOiJodHRwOi8vZ3JhdGEuZ2VuLWNvZGUudG9wL2dyYXRhL2F0dGFjaG1lbnQvMjAyMy0xMC0yNC9jd2dqczB2NHNuMHdsb2NlamIuZ2lmIiwiZW1haWwiOiIxMzM4MTQyNTBAcXEuY29tIiwibW9iaWxlIjoiMTUzMDM4MzA1NzEiLCJhcHAiOiJhZG1pbiIsImxvZ2luQXQiOiIyMDIzLTEwLTI1IDE0OjA4OjEzIn0.RWlj1s2f-T7NTHsY5sTd13l0zDmfqKuVpXlX9-rK15E"
+		url    = "http://localhost:4887/tg/arts/sendMsgSingle"
+		token  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwib3JnSWQiOjEsInBpZCI6MCwicm9sZUlkIjoxLCJyb2xlS2V5Ijoic3VwZXIiLCJ1c2VybmFtZSI6ImFkbWluIiwicmVhbE5hbWUiOiLkuI3kv6EiLCJhdmF0YXIiOiJodHRwOi8vZ3JhdGEuZ2VuLWNvZGUudG9wL2dyYXRhL2F0dGFjaG1lbnQvMjAyMy0xMC0yNC9jd2dqczB2NHNuMHdsb2NlamIuZ2lmIiwiZW1haWwiOiIxMzk4Mjg0Njk5QHFxLmNvbSIsIm1vYmlsZSI6IjE1MDc3NzMxNTQ3IiwiYXBwIjoiYWRtaW4iLCJsb2dpbkF0IjoiMjAyMy0xMS0zMCAxNToyMjozNiJ9.regiKH3NkkzV8LSyqItWIwNnwCSHYQ_zkJfy3ibnURw"
 		header = `Accept: application/json
 Accept-Encoding: gzip, deflate
 Accept-Language: zh-CN,zh;q=0.9
@@ -66,17 +67,25 @@ Content-Length: 19
 Content-Type: application/json
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36`
 	)
-	test := gfile.GetContents("/Users/macos/Downloads/test.txt")
+	test := gfile.GetContents("new30.txt")
+	i := 150
 	sList := gstr.Split(test, "\r\n")
-	strArray := garray.NewStrArrayFrom(sList)
-	fmt.Println(strArray)
-	resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
-		"account": 84788551082,
-		//"receiver": strArray.Range(1, 101),
-		"receiver": []string{"it00021hot"},
-		"textMsg":  g.Array{"whatsapp filter ,make sales easier, contact:https://t.me/whatsbro1"},
-	})
-	fmt.Println(resp)
+	for _, s := range sList {
+		strArray := garray.NewStrArrayFrom(sList)
+		fmt.Println(strArray)
+		resp := g.Client().HeaderRaw(fmt.Sprintf(header, token)).PostContent(ctx, url, g.Map{
+			"account": 16892473797,
+			//"receiver": strArray.Range(1, 101),
+			"receiver": s,
+			"textMsg":  g.Array{"whatsapp filter ,make sales easier, contact:https://t.me/whatsbro1"},
+		})
+		fmt.Println(resp)
+		i--
+		if i <= 0 {
+			break
+		}
+		time.Sleep(500 * time.Millisecond)
+	}
 
 }
 

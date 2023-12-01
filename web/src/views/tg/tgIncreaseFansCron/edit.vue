@@ -39,6 +39,9 @@
               v-model:value="params.channelMemberCount"
             />
           </n-form-item>
+          <n-form-item label="选择分组" path="folderId">
+            <n-input-number placeholder="选择分组" v-model:value="params.folderId" />
+          </n-form-item>
           <n-form-item label="频道Id" path="channelId">
             <n-input :disabled="true" placeholder="频道Id" v-model:value="params.channelId" />
           </n-form-item>
