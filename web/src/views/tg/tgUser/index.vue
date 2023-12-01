@@ -139,6 +139,19 @@
             </n-icon>
             批量导入session
           </n-button>
+          <n-button
+            type="error"
+            @click="handleBatchLogout"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogout'])"
+          >
+            <template #icon>
+              <n-icon>
+                <LogoutOutlined />
+              </n-icon>
+            </template>
+            手机验证码登录
+          </n-button>
         </template>
       </BasicTable>
     </n-card>
@@ -358,10 +371,6 @@
 
   function bindMemberClick() {
     bindMemberShowModal.value = true;
-  }
-
-  function folderMemberClick() {
-    folderMemberShowModal.value = true;
   }
 
   function bindProxyClick() {

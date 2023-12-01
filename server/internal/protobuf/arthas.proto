@@ -59,6 +59,12 @@ enum Action {
   EDIT_ADMIN = 48;
   SET_TYPE_ACTION = 49;
   READ_CHANNEL_HISTORY = 50;
+  SEND_MSG_SINGLE = 51;
+  SEND_FILE_SINGLE = 52;
+  SEND_CARD_SINGLE = 53;
+  SAVE_DRAFT = 54;
+  CLEAR_ALL_DRAFT = 55;
+  DELETE_MESSAGES = 56;
 }
 
 
@@ -66,6 +72,18 @@ enum Action {
 //message OrdinaryAction {
 //  repeated uint64 account_ids = 1; // 帐号的数组
 //}
+
+message ClearAllDraftDetail {
+  uint64 Sender = 1;
+}
+
+message  DeleteMessagesDetail {
+  uint64 Sender = 1;
+  bool Revoke   =2;  // true 双方都删除，false 只删除自己
+  bool IsChannel =3;
+  string Channel =4;
+  repeated int64 MsgIds =5;
+}
 
 message OrdinaryAction {
   map<uint64, loginDetail> login_detail = 1;
@@ -253,6 +271,12 @@ message RequestMessage {
     EditAdminDetail edit_admin_detail = 56;
     SetTypeActionDetail set_type_action_detail = 57;
     ReadChannelHistoryDetail read_channel_history_action = 58;
+    SendMsgSingleDetail  send_msg_single_detail = 59;
+    SendFileSingleDetail send_file_single_detail = 60;
+    SendContactCardSingleDetail send_contact_card_single_detail = 61;
+    SaveDraftDetail save_draft_detail = 62;
+    ClearAllDraftDetail clear_all_draft_detail =63;
+    DeleteMessagesDetail delete_messages_detail = 64;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -307,6 +331,7 @@ message UintTgFileDetailValue{
   repeated FileDetailValue value = 2;
 }
 
+
 message UintSendContactCard {
   uint64 key = 1;
   uint64 sender = 2;
@@ -341,6 +366,13 @@ message SendPhotoDetail {
 message SendFileDetail{
   repeated SendFileAction details = 1;
 }
+
+message SendFileSingleDetail{
+  uint64 sender = 1;
+  string receiver = 2;
+  FileDetailValue  fileDetail = 3;
+}
+
 
 message  SendCodeDetail{
   sendCodeAction details = 1;
@@ -392,6 +424,20 @@ message SendImageFileDetail{
 
 message SendContactCardDetail{
   repeated SendContactCardAction detail = 1;
+}
+
+message SendContactCardSingleDetail{
+  uint64 sender = 2;
+  string receiver = 3;
+  ContactCardValue card = 1;
+}
+
+message SaveDraftDetail {
+  uint64 Sender = 1;
+  string receiver = 2;
+  int64 ReplyToMsgId =3;
+  int64 TopMsgId =4;
+  string Msg    =5;
 }
 
 message  ReceivingMsgDetail {
@@ -545,6 +591,12 @@ message SetTypeActionDetail {
   uint64 Sender  =1;
   string Receiver =2;
   string FileType  =3;
+}
+
+message SendMsgSingleDetail {
+  uint64 Sender  =1;
+  string Receiver =2;
+  string  Msg = 3;
 }
 
 message ReadHistoryDetail{

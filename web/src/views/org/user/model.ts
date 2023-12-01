@@ -56,6 +56,8 @@ export const defaultState = {
   roleId: null,
   realName: '',
   username: '',
+  firstName: '',
+  lastName: '',
   password: '',
   deptId: null,
   postIds: null,
@@ -76,6 +78,8 @@ export interface State {
   roleId: number | null;
   realName: string;
   username: string;
+  firstName: string;
+  lastName: string;
   password: string;
   deptId: number | null;
   postIds: any;
