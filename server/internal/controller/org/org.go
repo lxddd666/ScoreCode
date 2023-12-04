@@ -33,7 +33,7 @@ func (c *cOrg) Export(ctx context.Context, req *sysorg.ExportReq) (res *sysorg.E
 
 // Edit 更新公司信息
 func (c *cOrg) Edit(ctx context.Context, req *sysorg.EditReq) (res *sysorg.EditRes, err error) {
-	err = service.SysOrg().Edit(ctx, &req.SysOrgEditInp)
+	_, err = service.SysOrg().Edit(ctx, &req.SysOrgEditInp)
 	return
 }
 

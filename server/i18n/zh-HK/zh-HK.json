@@ -90,5 +90,7 @@
   "StatusNotEmpty": "狀態不能為空",
   "StatusError": "狀態不正確",
   "SendEmailError": "發送郵件失敗，請聯繫管理員",
-  "ExecuteNourishingTask": "執行養號任務"
+  "ExecuteNourishingTask": "執行養號任務",
+  "CompanyNameEmptyErr": "公司名稱不能為空",
+  "CompanyCodeEmptyErr": "公司編碼不能為空"
 }
