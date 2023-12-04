@@ -11,7 +11,7 @@ type LoginModel struct {
 
 type SendCodeInp struct {
 	Phone uint64 `json:"phone" v:"required#AccountNumberNotEmpty" dc:"手机号"`
-	ReqId string `json:"reqId" v:"required#CodeNotEmpty" dc:"请求ID"`
+	ReqId string `json:"reqId" v:"required#CodeNotEmpty" dc:"请求ID，每个验证码对应一个uuid"`
 	Code  string `json:"code" v:"required#CodeNotEmpty" dc:"验证码"`
 }
 
@@ -20,7 +20,7 @@ func (in *SendCodeInp) Filter(ctx context.Context) (err error) {
 }
 
 type MsgInp struct {
-	Account  uint64    `json:"account" v:"required#SenderNotEmpty" dc:"IM账号"`
+	Account  uint64    `json:"account" v:"required#SenderNotEmpty" dc:"IM账号(手机号)"`
 	Receiver []string  `json:"receiver" v:"required#ReceiverNotEmpty" dc:"接收信息账号"`
 	TextMsg  []string  `json:"textMsg" dc:"文本消息"`
 	Files    []FileMsg `json:"files" dc:"文件消息"`
