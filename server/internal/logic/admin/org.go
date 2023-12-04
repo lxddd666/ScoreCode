@@ -129,18 +129,18 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 }
 
 // Edit 修改/新增公司信息
-func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) {
+func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (orgId int64, err error) {
 	// 修改
 	if in.Id > 0 {
+		orgId = in.Id
 		count, gErr := s.Model(ctx).Where(dao.SysOrg.Columns().Code, in.Code).WhereNot(dao.SysOrg.Columns().Id, in.Id).Count()
 		if gErr != nil {
 			err = gErr
 			return
 		}
+		// code唯一
 		if count > 0 {
-
 			err = gerror.New(g.I18n().T(ctx, "{#CompanyCodeExists}"))
-
 			return
 		}
 		if _, err = s.Model(ctx).
@@ -161,9 +161,9 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) 
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#CompanyCodeExists}"))
 		return
 	}
-	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+	if orgId, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.SysOrgInsertFields{}).
-		Data(in).Insert(); err != nil {
+		Data(in).InsertAndGetId(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
 	}
 	return

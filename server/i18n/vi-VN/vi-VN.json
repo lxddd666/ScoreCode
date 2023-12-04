@@ -89,5 +89,7 @@
   "GetInfoError": "Lấy dữ liệu không thành công, vui lòng thử lại sau!",
   "StatusNotEmpty": "Nhà nước không thể trống",
   "StatusError": "Trạng thái không chính xác",
-  "SendEmailError": "Gửi email thất bại, vui lòng liên hệ với quản trị viên"
+  "SendEmailError": "Gửi email thất bại, vui lòng liên hệ với quản trị viên",
+  "CompanyNameEmptyErr": "Tên công ty không được để trống",
+  "CompanyCodeEmptyErr": "Mã công ty không được để trống"
 }

@@ -15,10 +15,10 @@ import (
 	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/token"
 	"hotgo/internal/model"
-	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/adminin"
 	"hotgo/internal/model/input/sysin"
+	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 	"hotgo/utility/simple"
 )
@@ -65,11 +65,16 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		data.Pid = pmb.Id
 	} else {
 		// 否则新增公司
-		id, err := dao.SysOrg.Ctx(ctx).Data(do.SysOrg{
-			Name:   grand.S(5),
-			Code:   grand.S(5),
-			Status: 1,
-		}).InsertAndGetId()
+		id, err := service.SysOrg().Edit(ctx, &tgin.SysOrgEditInp{
+			SysOrg: entity.SysOrg{
+				Name:   in.OrgInfo.Name,
+				Phone:  in.OrgInfo.Phone,
+				Code:   in.OrgInfo.Code,
+				Leader: in.OrgInfo.Leader,
+				Email:  in.OrgInfo.Email,
+				Status: 1,
+			},
+		})
 		if err != nil {
 			return nil, err
 		}

@@ -139,7 +139,7 @@ type (
 		// Export 导出公司信息
 		Export(ctx context.Context, in *tgin.SysOrgListInp) (err error)
 		// Edit 修改/新增公司信息
-		Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error)
+		Edit(ctx context.Context, in *tgin.SysOrgEditInp) (orgId int64, err error)
 		// Delete 删除公司信息
 		Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error)
 		// MaxSort 获取公司信息最大排序

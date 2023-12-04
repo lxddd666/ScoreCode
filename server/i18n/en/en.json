@@ -91,5 +91,7 @@
   "GetInfoError": "The data failed, please try it later!",
   "StatusNotEmpty": "The state cannot be empty",
   "StatusError": "Incorrect state",
-  "SendEmailError": "Send the email failure, please contact the administrator."
+  "SendEmailError": "Send the email failure, please contact the administrator.",
+  "CompanyNameEmptyErr": "Company name cannot be empty",
+  "CompanyCodeEmptyErr": "Company code cannot be empty"
 }

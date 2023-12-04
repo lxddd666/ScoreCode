@@ -4,19 +4,21 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"hotgo/internal/model/entity"
 	"hotgo/utility/simple"
 )
 
 // RegisterInp 账号注册
 type RegisterInp struct {
-	Username   string `json:"username" dc:"用户名"`
-	FirstName  string `json:"firstName" v:"required#FirstNameNotEmpty" dc:"First Name"`
-	LastName   string `json:"lastName"  v:"required#LastNameNotEmpty"  dc:"Last Name"`
-	Password   string `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
-	Mobile     string `json:"mobile"  dc:"手机号"`
-	Email      string `json:"email" v:"required|email#EmailNotEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
-	Code       string `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
-	InviteCode string `json:"inviteCode" dc:"邀请码"`
+	Username   string        `json:"username" dc:"用户名"`
+	FirstName  string        `json:"firstName" v:"required#FirstNameNotEmpty" dc:"First Name"`
+	LastName   string        `json:"lastName"  v:"required#LastNameNotEmpty"  dc:"Last Name"`
+	Password   string        `json:"password" v:"required#PasswordNotEmpty" dc:"密码，ASE算法 ECB模式，padding使用PKCS7，再base64编码转字符"`
+	Mobile     string        `json:"mobile"  dc:"手机号"`
+	Email      string        `json:"email" v:"required|email#EmailNotEmpty|EmailFormat"  dc:"邮箱,手机号为空时必填"`
+	Code       string        `json:"code" v:"required#CodeNotEmpty"  dc:"验证码"`
+	InviteCode string        `json:"inviteCode" dc:"邀请码"`
+	OrgInfo    entity.SysOrg `json:"orgInfo" dc:"公司信息，如果InviteCode邀请码为空，则进行公司信息填写"`
 }
 
 func (in *RegisterInp) Filter(ctx context.Context) (err error) {
