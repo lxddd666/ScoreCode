@@ -132,6 +132,17 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) {
 	// 修改
 	if in.Id > 0 {
+		count, gErr := s.Model(ctx).Where(dao.SysOrg.Columns().Code, in.Code).WhereNot(dao.SysOrg.Columns().Id, in.Id).Count()
+		if gErr != nil {
+			err = gErr
+			return
+		}
+		if count > 0 {
+
+			err = gerror.New(g.I18n().T(ctx, "{#CompanyCodeExists}"))
+
+			return
+		}
 		if _, err = s.Model(ctx).
 			Fields(tgin.SysOrgUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
@@ -141,6 +152,15 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (err error) 
 	}
 
 	// 新增
+	// 公司编码要唯一
+	count, err := s.Model(ctx).Where(dao.SysOrg.Columns().Code, in.Code).Count()
+	if err != nil {
+		return
+	}
+	if count > 0 {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#CompanyCodeExists}"))
+		return
+	}
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(tgin.SysOrgInsertFields{}).
 		Data(in).Insert(); err != nil {
