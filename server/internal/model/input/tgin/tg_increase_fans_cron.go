@@ -29,6 +29,7 @@ type TgIncreaseFansCronInsertFields struct {
 	TaskName      string  `json:"taskName"      dc:"任务名称"`
 	Channel       string  `json:"channel"       dc:"频道地址"`
 	ChannelId     string  `json:"channelId"     dc:"频道地址id"`
+	FolderId      int64   `json:"folderId"      dc:"分组ID"`
 	ExecutedPlan  []int64 `json:"executedPlan"  dc:"执行计划"`
 	DayCount      int     `json:"dayCount"      dc:"持续天数"`
 	FansCount     int     `json:"fansCount"     dc:"涨粉数量"`
@@ -149,4 +150,5 @@ type TgIncreaseFansCronInp struct {
 	CronId       int64   `json:"cronId"     dc:"任务ID"`
 	ChannelId    string  `json:"channelId"  dc:"channelID"`
 	ExecutedPlan []int64 `json:"executedPlan"  dc:"执行计划"`
+	FolderId     int64   `json:"folderId"      description:"分组ID"`
 }

@@ -90,5 +90,7 @@
   "GetInfoError": "获取数据失败，请稍后重试！",
   "StatusNotEmpty": "状态不能为空",
   "StatusError": "状态不正确",
-  "SendEmailError": "发送邮件失败，请联系管理员"
+  "SendEmailError": "发送邮件失败，请联系管理员",
+  "CompanyNameEmptyErr": "公司名称不能为空",
+  "CompanyCodeEmptyErr": "公司编码不能为空"
 }

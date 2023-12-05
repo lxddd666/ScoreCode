@@ -122,40 +122,42 @@ type sendMsgSingle struct {
 // SendMsgSingle 单独发送消息
 func (s *sArts) SendMsgSingle(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error) {
 
-	// 一直群发同一个人
-	_, err = s.SendMsgSingleSameMsgBatch(ctx, item, imType)
-	//requestMessage := s.sendTextMessageSingle(item, imType)
-	//resp, err := s.Send(ctx, requestMessage)
-	//if err != nil {
-	//	return "", err
-	//}
-	//
-	//prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
-	//if resp != nil {
-	//	if resp.Data != nil && len(resp.Data) > 0 {
-	//		msgDetail := sendMsgSingle{}
-	//		err = gjson.DecodeTo(resp.Data, &msgDetail)
-	//		if err != nil {
-	//			return
-	//		}
-	//		list := make([]*tgin.TgMsgModel, 0)
-	//		msgModel := &tgin.TgMsgModel{
-	//			TgId:    msgDetail.TgId,
-	//			ChatId:  msgDetail.ChatId,
-	//			Date:    int(time.Now().Second()),
-	//			Message: item.TextMsg,
-	//			Out:     true,
-	//		}
-	//		var box tg.UpdateShortSentMessage
-	//		err = (&bin.Buffer{Buf: msgDetail.ResultBuf}).Decode(&box)
-	//		if err != nil {
-	//			msgModel.Out = false
-	//		}
-	//		msgModel.MsgId = box.ID
-	//		list = append(list, msgModel)
-	//		err = service.TgMsg().MsgCallback(ctx, list)
-	//	}
-	//}
+	requestMessage := s.sendTextMessageSingle(item, imType)
+	////删
+	//_ = service.TgArts().TgSendMsgType(ctx, &artsin.MsgTypeInp{Sender: item.Account, Receiver: item.Receiver, FileType: "text"})
+	//time.Sleep(1 * time.Second)
+
+	resp, err := s.Send(ctx, requestMessage)
+	if err != nil {
+		return "", err
+	}
+
+	prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.TextMsg)))
+	if resp != nil {
+		if resp.Data != nil && len(resp.Data) > 0 {
+			msgDetail := sendMsgSingle{}
+			err = gjson.DecodeTo(resp.Data, &msgDetail)
+			if err != nil {
+				return
+			}
+			list := make([]*tgin.TgMsgModel, 0)
+			msgModel := &tgin.TgMsgModel{
+				TgId:    msgDetail.TgId,
+				ChatId:  msgDetail.ChatId,
+				Date:    int(time.Now().Second()),
+				Message: item.TextMsg,
+				Out:     true,
+			}
+			var box tg.UpdateShortSentMessage
+			err = (&bin.Buffer{Buf: msgDetail.ResultBuf}).Decode(&box)
+			if err != nil {
+				msgModel.Out = false
+			}
+			msgModel.MsgId = box.ID
+			list = append(list, msgModel)
+			err = service.TgMsg().MsgCallback(ctx, list)
+		}
+	}
 
 	return
 }

@@ -11,8 +11,8 @@ type TgGetMsgHistoryInp struct {
 	Limit      int    `json:"limit" dc:"查询条数"`
 	OffsetDate int    `json:"offsetDate" dc:"时间戳(查询该时间前的聊天记录)"`
 	OffsetID   int    `json:"offsetId" dc:"消息ID(查询该ID之前的聊天记录)"`
-	MaxID      int    `json:"maxID" dc:"最大ID"`
-	MinID      int    `json:"minID" dc:"最小ID"`
+	MaxID      int    `json:"maxID" dc:"最大ID，最大消息ID"`
+	MinID      int    `json:"minID" dc:"最小ID，最小消息ID"`
 }
 
 type TgCreateGroupInp struct {
@@ -66,7 +66,7 @@ type TgChannelAddMembersInp struct {
 
 type TgChannelJoinByLinkInp struct {
 	Account uint64   `json:"account" dc:"账号"`
-	Link    []string `json:"link" dc:"链接"`
+	Link    []string `json:"link" dc:"链接,频道链接"`
 }
 
 type TgGetEmojiGroupInp struct {
@@ -82,8 +82,8 @@ type TgGetEmojiGroupModel struct {
 type TgSendReactionInp struct {
 	Account  uint64   `json:"account" dc:"账号"`
 	ChatId   int64    `json:"chatId" dc:"会话ID"`
-	MsgIds   []uint64 `json:"msgIds" dc:"msgId"`
-	Emoticon string   `json:"emoticon" dc:"emoji"`
+	MsgIds   []uint64 `json:"msgIds" dc:"msgId，消息ID"`
+	Emoticon string   `json:"emoticon" dc:"emoji，发送的表情"`
 }
 
 type TgUpdateUserInfoInp struct {
@@ -91,8 +91,8 @@ type TgUpdateUserInfoInp struct {
 	Username  *string        `json:"username"    dc:"用户名"`
 	FirstName *string        `json:"firstName"   dc:"firstName"`
 	LastName  *string        `json:"lastName"    dc:"lastName"`
-	Bio       *string        `json:"bio"      dc:"个性签名"`
-	Photo     artsin.FileMsg `json:"photo"      dc:"photo"`
+	Bio       *string        `json:"bio"         dc:"个性签名"`
+	Photo     artsin.FileMsg `json:"photo"       dc:"photo"`
 }
 
 type TgCheckUsernameInp struct {
@@ -103,11 +103,11 @@ type TgCheckUsernameInp struct {
 type TgGetUserAvatarInp struct {
 	Account uint64 `json:"account"     dc:"电话"`
 	GetUser uint64 `json:"getUser"     dc:"获取头像的用户"`
-	PhotoId int64  `json:"photoId" dc:"photoId"`
+	PhotoId int64  `json:"photoId"      dc:"photoId，图片Id"`
 }
 
 type OnlineAccountInp struct {
-	TgId      int64  `json:"tgId"          description:"tg id"`
+	TgId      int64  `json:"tgId"          description:"tg id,TG号的id"`
 	Username  string `json:"username"      description:"账号号码"`
 	FirstName string `json:"firstName"     description:"First Name"`
 	LastName  string `json:"lastName"      description:"Last Name"`
@@ -120,7 +120,7 @@ type TgGetSearchInfoInp struct {
 }
 
 type TgGetSearchInfoModel struct {
-	TgId               int64  `json:"tgId"                    description:"tg id"`
+	TgId               int64  `json:"tgId"                    description:"tg id,TG的id"`
 	Username           string `json:"username"                description:"用户名称"`
 	FirstName          string `json:"firstName"               description:"firsName"`
 	LastName           string `json:"lastName"                description:"lastName"`
@@ -146,6 +146,6 @@ type TgReadChannelHistoryInp struct {
 
 type ChannelReadAddViewInp struct {
 	Sender   uint64  `json:"sender"          description:"账号"`
-	Receiver string  `json:"receiver"        description:"channel id"`
-	MsgIds   []int64 `json:"msgIds"        description:"msg ids"`
+	Receiver string  `json:"receiver"        description:"channel id，频道ID"`
+	MsgIds   []int64 `json:"msgIds"        description:"msg ids，消息ID"`
 }

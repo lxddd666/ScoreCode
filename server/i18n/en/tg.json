@@ -83,5 +83,5 @@
   "TaskNotCreated" : "Task not created",
   "ExportTgGroup": "Export tg group-",
   "AddTgGroupError": "The new tg group fails, please try again later！",
-  "GetDialogEmpty" : "Get dialog empty"
+  "GetDialogEmpty" : "Get dialog empty",
 }

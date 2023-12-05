@@ -147,6 +147,7 @@ func (s *sTgIncreaseFansCron) Edit(ctx context.Context, in *tgin.TgIncreaseFansC
 			FansCount:    in.FansCount,
 			DayCount:     in.DayCount,
 			CronId:       cronID,
+			FolderId:     in.FolderId,
 			ChannelId:    in.ChannelId,
 			ExecutedPlan: in.ExecutedPlan,
 		})
@@ -483,10 +484,10 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 	joinChannelErr = service.TgArts().TgChannelJoinByLink(ctx, &tgin.TgChannelJoinByLinkInp{Link: []string{cron.Channel}, Account: gconv.Uint64(fan.Phone)})
 	if joinChannelErr != nil {
 		return nil, joinChannelErr
-	} else {
-		data.JoinStatus = 1
-		logID, _ = model.Data(data).InsertAndGetId()
 	}
+	data.JoinStatus = 1
+	logID, _ = model.Data(data).InsertAndGetId()
+
 	g.Log().Infof(ctx, "{#AddChannelSuccess}: %s", fan.Phone)
 	// 获取该频道详情
 	dialog, loginErr := GetDialogByTgId(ctx, gconv.Uint64(fan.Phone), gconv.Int64(channelId))
@@ -657,11 +658,14 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 	cronTask.ExecutedDays = execDay
 
 	// 获取可小号列表
-	mod := service.TgUser().Model(ctx)
-	mod = mod.Where(dao.TgUser.Columns().AccountStatus, 0).Where(dao.TgUser.Columns().OrgId, cronTask.OrgId)
-
 	list := make([]*entity.TgUser, 0)
-	if err = mod.Fields(tgin.TgUserListModel{}).OrderAsc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
+	mod := service.TgUser().Model(ctx)
+	mod = mod.Where(dao.TgUser.Columns().AccountStatus, 0).Where(dao.TgUser.Table()+"."+dao.TgUser.Columns().OrgId, cronTask.OrgId)
+	if cronTask.FolderId != 0 {
+		mod = mod.LeftJoin(dao.TgUserFolders.Table()+" uf", dao.TgUser.Table()+"."+dao.TgUser.Columns().Id+"=uf."+dao.TgUserFolders.Columns().TgUserId).
+			Where("uf."+dao.TgUserFolders.Columns().FolderId, cronTask.FolderId)
+	}
+	if err = mod.Fields(tgin.TgUserListModel{}).OrderAsc(dao.TgUser.Table() + "." + dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.New(g.I18n().T(ctx, "{#GetTgAccountListFailed}") + err.Error())
 		finalResult = true
 		return

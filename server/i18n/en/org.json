@@ -14,5 +14,7 @@
   "AddTgChannelTask": "The new TG channel increases the pink mission failed, please try it later",
   "ExportTgChannelTask": "Export the TG Channel Raise Mission Execution-",
   "ModifyTgChannelRisingTaskFailed": "Modify the execution of the TG channel rising task, please try it later",
-  "AddTgChannelRisingTaskFailed": "New TG channel rising task failure failed, please try it later"
+  "AddTgChannelRisingTaskFailed": "New TG channel rising task failure failed, please try it later",
+  "CompanyCodeExists": "The company code already exists. Please fill in the new registered company code again"
+
 }

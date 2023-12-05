@@ -14,5 +14,7 @@
   "AddTgChannelTask": "新增TG頻道漲粉任務失敗，請稍後重試",
   "ExportTgChannelTask": "導出TG頻道漲粉任務執行情況-",
   "ModifyTgChannelRisingTaskFailed": "修改TG頻道漲粉任務執行情況失敗，請稍後重試",
-  "AddTgChannelRisingTaskFailed": "新增TG頻道漲粉任務執行情況失敗，請稍後重試"
+  "AddTgChannelRisingTaskFailed": "新增TG頻道漲粉任務執行情況失敗，請稍後重試",
+  "CompanyCodeExists": "公司編碼已存在，請重新填過新注册的公司編碼"
+
 }

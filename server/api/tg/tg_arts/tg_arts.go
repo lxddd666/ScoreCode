@@ -10,7 +10,7 @@ import (
 // TgLoginReq tg登录
 type TgLoginReq struct {
 	g.Meta `path:"/arts/login" method:"post" tags:"tg-api" summary:"tg登录(已有session)"`
-	Id     int64 `json:"id" v:"required#SelectLoginAccount" dc:"id"`
+	Id     int64 `json:"id" v:"required#SelectLoginAccount" dc:"id，数据库中user的id(主键)"`
 }
 
 type TgLoginRes struct {
@@ -30,8 +30,8 @@ type TgCodeLoginRes struct {
 
 // TgBatchLoginReq 批量登录
 type TgBatchLoginReq struct {
-	g.Meta `path:"/arts/batchLogin" method:"post" tags:"tg-api" summary:"session批量登录"`
-	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"ids"`
+	g.Meta `path:"/arts/batchLogin" method:"post" tags:"tg-api" summary:"批量登录"`
+	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"ids，数据库中user的id(主键)"`
 }
 
 type TgBatchLoginRes struct{}
@@ -39,7 +39,7 @@ type TgBatchLoginRes struct{}
 // TgBatchLogoutReq 批量登录
 type TgBatchLogoutReq struct {
 	g.Meta `path:"/arts/batchLogout" method:"post" tags:"tg-api" summary:"批量下线"`
-	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"勾选账号列表id数组"`
+	Ids    []int64 `json:"ids" v:"required#SelectLoginAccount" dc:"ids，数据库中user的id(主键)勾选账号列表id数组"`
 }
 
 type TgBatchLogoutRes struct{}
@@ -126,7 +126,7 @@ type TgGetUserHeadImageRes struct{}
 // TgGetDialogsReq 获取chats
 type TgGetDialogsReq struct {
 	g.Meta  `path:"/arts/getDialogs" method:"post" tags:"tg-api" summary:"获取chats"`
-	Account uint64 `json:"account" dc:"IM账号"`
+	Account uint64 `json:"account" dc:"IM账号(手机号)"`
 }
 
 type TgGetDialogsRes struct {

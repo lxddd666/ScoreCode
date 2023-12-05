@@ -42,6 +42,15 @@ func (in *SysOrgEditInp) Filter(ctx context.Context) (err error) {
 	if err := g.Validator().Rules("email").Data(in.Email).Messages(g.I18n().T(ctx, "{#EmailFormat}")).Run(ctx); err != nil {
 		return err.Current()
 	}
+	//
+	if in.Code == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#CompanyCodeEmptyErr}"))
+		return
+	}
+	if in.Name == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#CompanyNameEmptyErr}"))
+		return
+	}
 
 	return
 }
