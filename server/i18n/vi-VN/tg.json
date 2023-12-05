@@ -83,6 +83,6 @@
   "TaskNotCreated" : "Tác vụ chưa được tạo",
   "ExportTgGroup": "Xuất khẩu nhóm tg-",
   "AddTgGroupError": "Nhóm tg mới thất bại, vui lòng thử lại sau！",
-  "GetDialogEmpty" : "Phiên chạy trống",
+  "GetDialogEmpty" : "Phiên chạy trống"
 
 }

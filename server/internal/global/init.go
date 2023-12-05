@@ -69,6 +69,9 @@ func Init(ctx context.Context) {
 	// 加载tg养号任务
 	service.TgKeepTask().InitTask(ctx)
 
+	// 加载tg批量操作任务
+	_ = service.TgBatchExecutionTask().InitBatchExec(ctx)
+
 	// 加载tg涨粉任务
 	_ = service.TgIncreaseFansCron().InitIncreaseCronApplication(ctx)
 }

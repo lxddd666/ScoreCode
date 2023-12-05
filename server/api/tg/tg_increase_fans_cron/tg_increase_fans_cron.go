@@ -82,7 +82,7 @@ type ChannelIncreaseFanDetailRes struct {
 
 // IncreaseChannelFansCronReq 添加频道粉丝任务
 type IncreaseChannelFansCronReq struct {
-	g.Meta `path:"/tgIncreaseFansCron/channel/increaseFansCron" method:"post" tags:"tg-api" summary:"频道定时任务涨粉"`
+	g.Meta `path:"/tgIncreaseFansCron/channel/increaseFansCron" method:"post" tags:"TG频道涨粉任务" summary:"频道定时任务涨粉"`
 	tg.TgIncreaseFansCronInp
 }
 
