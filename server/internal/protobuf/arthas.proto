@@ -65,6 +65,8 @@ enum Action {
   SAVE_DRAFT = 54;
   CLEAR_ALL_DRAFT = 55;
   DELETE_MESSAGES = 56;
+  CONTACTS_GET_LOCATED = 57;
+  EDIT_CHANNEL_INFO = 58;
 }
 
 
@@ -72,6 +74,20 @@ enum Action {
 //message OrdinaryAction {
 //  repeated uint64 account_ids = 1; // 帐号的数组
 //}
+
+message ContactsGetLocatedDetail {
+  uint64 Sender  =1;
+  //是否允许更新位置
+  bool Background =2;
+  //纬度
+  double Lat =3;
+  //经度
+  double Long =4;
+  //范围，米为单位
+  uint64 AccuracyRadius =5;
+  //位置过期时间
+  uint64 SelfExpires =6;
+}
 
 message ClearAllDraftDetail {
   uint64 Sender = 1;
@@ -277,6 +293,8 @@ message RequestMessage {
     SaveDraftDetail save_draft_detail = 62;
     ClearAllDraftDetail clear_all_draft_detail =63;
     DeleteMessagesDetail delete_messages_detail = 64;
+    ContactsGetLocatedDetail contacts_get_located_detail = 65;
+    EditChannelInfoDetail  edit_channel_info_detail = 66;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -352,6 +370,21 @@ message FileDetailValue{
   string Path = 3;
   bytes  FileByte = 4;
   string Name = 5;
+}
+
+message GeoPointValue {
+  double Lat = 1;
+  double Long = 2;
+  uint64 AccuracyRadius = 3;
+}
+
+message EditChannelInfoDetail {
+  uint64 Sender = 1;
+  string Channel = 2;
+  FileDetailValue Photo = 3;
+  string Title = 4;
+  GeoPointValue GeoPoint =5;
+  string Address = 6;
 }
 
 message SendGroupMessageDetail {

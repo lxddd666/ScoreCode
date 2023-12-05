@@ -75,6 +75,15 @@ type TgSendMsgTypeReq struct {
 
 type TgSendMsgTypeRes struct{}
 
+// TgSendFileReq 单独发送文件
+type TgSendFileSingleReq struct {
+	g.Meta `path:"/arts/sendFileSingle" method:"post" tags:"tg-api" summary:"单独发送文件"`
+	*artsin.FileSingleInp
+}
+
+type TgSendFileSingleRes struct{}
+
+// TgSendVcardMsgReq 发送名片
 type TgSendVcardMsgReq struct {
 	g.Meta `path:"/arts/sendVcardMsg" method:"post" tags:"tg-api" summary:"发送名片"`
 	*artsin.VcardMsgInp
@@ -82,7 +91,7 @@ type TgSendVcardMsgReq struct {
 
 type TgSendVcardMsgRes struct{}
 
-// TgSendFileReq whats发送文件
+// TgSendFileReq 发送文件
 type TgSendFileReq struct {
 	g.Meta `path:"/arts/sendFile" method:"post" tags:"tg-api" summary:"发送文件"`
 	*artsin.MsgInp
