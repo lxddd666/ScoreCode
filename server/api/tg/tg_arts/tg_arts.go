@@ -276,3 +276,21 @@ type ChannelAddViewReq struct {
 }
 
 type ChannelAddViewRes struct{}
+
+// LeaveGroupReq 退群
+type LeaveGroupReq struct {
+	g.Meta `path:"/tgUser/leaveGroup" method:"post" tags:"tg-api" summary:"退出群聊"`
+	*tgin.TgUserLeaveInp
+}
+
+type LeaveGroupRes struct {
+}
+
+// BatchLeaveGroupReq 批量退群
+type BatchLeaveGroupReq struct {
+	g.Meta `path:"/tgUser/batchLeaveGroup" method:"post" tags:"tg-api" summary:"批量退出"`
+	tgin.TgUserBatchLeaveInp
+}
+
+type BatchLeaveGroupRes struct {
+}

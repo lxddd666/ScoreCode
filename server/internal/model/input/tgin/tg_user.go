@@ -237,3 +237,20 @@ type TgUserUnBindProxyInp struct {
 }
 
 type TgUserUnBindProxyModel struct{}
+
+// TgUserBatchLeaveInp 批量退出
+type TgUserBatchLeaveInp struct {
+	Id   uint64 `json:"id" v:"required#IdNotEmpty" dc:"tg账号ID"`
+	Name string `json:"name" dc:"名称（例如如果想退名字上带有‘考公’的群，那么该参数只需要写上‘考公’即可）"`
+	Type int    `json:"type" dc:"删除类型，2群，3频道"`
+}
+
+type TgUserBatchLeaveModel struct{}
+
+// TgUserLeaveInp 批量退出
+type TgUserLeaveInp struct {
+	Account uint64 `json:"id" v:"required#accountNotEmpty" dc:"tg账号"`
+	TgId    string `json:"tgId" dc:"tg Id"`
+}
+
+type TgUserLeaveModel struct{}
