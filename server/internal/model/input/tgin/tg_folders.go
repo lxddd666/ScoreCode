@@ -40,7 +40,7 @@ type TgFoldersEditModel struct{}
 
 // TgFoldersDeleteInp 删除tg分组
 type TgFoldersDeleteInp struct {
-	Id interface{} `json:"id" v:"required#IdNotEmpty" dc:"id"`
+	Id int64 `json:"id" v:"required#IdNotEmpty" dc:"id"`
 }
 
 func (in *TgFoldersDeleteInp) Filter(ctx context.Context) (err error) {

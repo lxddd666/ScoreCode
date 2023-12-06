@@ -17,6 +17,7 @@ type TgBatchExecutionTaskLog struct {
 	OrgId     interface{} // 组织ID
 	TaskId    interface{} // 任务ID
 	Action    interface{} // 操作动作
+	Account   interface{} // 账号
 	Content   *gjson.Json // 动作内容
 	Comment   interface{} // 备注
 	Status    interface{} // 执行状态，1成功，2失败

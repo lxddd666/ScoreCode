@@ -151,10 +151,18 @@ func (s *sTgFolders) Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err e
 
 // Delete 删除tg分组
 func (s *sTgFolders) Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (err error) {
-	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#DeleteInfoError}")))
+	s.Model(ctx).Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
+		_, err = s.Model(ctx).WherePri(in.Id).Delete()
+		if err != nil {
+			err = gerror.Wrap(err, g.I18n().T(ctx, g.I18n().T(ctx, "{#DeleteInfoError}")))
+			return
+		}
+		// 删除关联表上的数据
+		_, err = dao.TgUserFolders.Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, in.Id).Delete()
+
 		return
-	}
+	})
+
 	return
 }
 

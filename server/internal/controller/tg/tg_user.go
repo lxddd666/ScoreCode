@@ -85,8 +85,8 @@ func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionRe
 		return
 	}
 
-	data, err := service.TgUser().ImportSession(ctx, req.File)
-	res = (*tguser.ImportSessionRes)(&data)
+	data, err := service.TgUser().ImportSession(ctx, &req.ImportSessionInp)
+	res.ImportSessionModel = data
 	return
 }
 

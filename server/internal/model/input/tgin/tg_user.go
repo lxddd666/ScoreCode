@@ -2,6 +2,7 @@ package tgin
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 
@@ -10,29 +11,31 @@ import (
 
 // TgUserUpdateFields 修改TG账号字段过滤
 type TgUserUpdateFields struct {
-	Username     string `json:"username"      dc:"账号号码"`
-	FirstName    string `json:"firstName"     dc:"First Name"`
-	LastName     string `json:"lastName"      dc:"Last Name"`
-	Phone        string `json:"phone"         dc:"手机号"`
-	Photo        int64  `json:"photo,string"  dc:"账号头像"`
-	Bio          string `json:"bio"           dc:"个性签名"`
-	ProxyAddress string `json:"proxyAddress"  dc:"代理地址"`
-	Comment      string `json:"comment"       dc:"备注"`
+	Username      string `json:"username"      dc:"账号号码"`
+	FirstName     string `json:"firstName"     dc:"First Name"`
+	LastName      string `json:"lastName"      dc:"Last Name"`
+	AccountStatus int    `json:"accountStatus" dc:"accountStatus"`
+	Phone         string `json:"phone"         dc:"手机号"`
+	Photo         int64  `json:"photo,string"  dc:"账号头像"`
+	Bio           string `json:"bio"           dc:"个性签名"`
+	ProxyAddress  string `json:"proxyAddress"  dc:"代理地址"`
+	Comment       string `json:"comment"       dc:"备注"`
 }
 
 // TgUserInsertFields 新增TG账号字段过滤
 type TgUserInsertFields struct {
-	Username     string `json:"username"             dc:"账号号码"`
-	FirstName    string `json:"firstName"            dc:"First Name"`
-	LastName     string `json:"lastName"             dc:"Last Name"`
-	Phone        string `json:"phone"                dc:"手机号"`
-	Photo        int64  `json:"photo,string"         dc:"账号头像"`
-	Bio          string `json:"bio"                  dc:"个性签名"`
-	ProxyAddress string `json:"proxyAddress"         dc:"代理地址"`
-	Comment      string `json:"comment"              dc:"备注"`
-	TgId         uint64 `json:"tg_id,string"         dc:"tgId"`
-	OrgId        int64  `json:"org_id,string"        dc:"组织ID"`
-	MemberId     int64  `json:"member_id,string"     dc:"用户Id"`
+	Username      string `json:"username"             dc:"账号号码"`
+	FirstName     string `json:"firstName"            dc:"First Name"`
+	LastName      string `json:"lastName"             dc:"Last Name"`
+	Phone         string `json:"phone"                dc:"手机号"`
+	Photo         int64  `json:"photo,string"         dc:"账号头像"`
+	Bio           string `json:"bio"                  dc:"个性签名"`
+	AccountStatus int    `json:"accountStatus"        dc:"accountStatus"`
+	ProxyAddress  string `json:"proxyAddress"         dc:"代理地址"`
+	Comment       string `json:"comment"              dc:"备注"`
+	TgId          uint64 `json:"tg_id,string"         dc:"tgId"`
+	OrgId         int64  `json:"org_id,string"        dc:"组织ID"`
+	MemberId      int64  `json:"member_id,string"     dc:"用户Id"`
 }
 
 // TgUserLoginFields 新增TG账号字段过滤
@@ -207,6 +210,7 @@ type TgImportSessionModel struct {
 	SessionAuthKey *TgImportSessionAuthKeyMsg `json:"SessionAuthKey"  dc:"导入session的key"`
 	OrgId          int64                      `json:"org_id"           description:"组织ID"`
 	MemberId       int64                      `json:"member_id"        description:"用户Id"`
+	AccountStatus  int                        `json:"accountStatus"        dc:"accountStatus"`
 }
 
 type TgImportSessionAuthKeyMsg struct {
@@ -230,6 +234,21 @@ func (in *TgUserBindProxyInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgUserBindProxyModel struct{}
+
+// ImportSessionInp 导入Session
+type ImportSessionInp struct {
+	File     *ghttp.UploadFile `json:"file" type:"file" dc:"zip文件"`
+	FolderId int64             `json:"folderId" dc:"分组ID"`
+}
+
+func (in *ImportSessionInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type ImportSessionModel struct {
+	Count  int   `json:"count"  dc:"导入数量" `
+	TaskId int64 `json:"taskId" dc:"执行校验任务的ID"`
+}
 
 // TgUserUnBindProxyInp 解绑代理
 type TgUserUnBindProxyInp struct {
