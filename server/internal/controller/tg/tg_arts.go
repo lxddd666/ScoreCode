@@ -75,6 +75,12 @@ func (c *cTgArts) SendMsgType(ctx context.Context, req *tgarts.TgSendMsgTypeReq)
 	return
 }
 
+// SendFileSingle 单独发送文件
+func (c *cTgArts) SendFileSingle(ctx context.Context, req *tgarts.TgSendFileSingleReq) (res *tgarts.TgSendFileSingleRes, err error) {
+	_, err = service.TgArts().TgSendFileSingle(ctx, req.FileSingleInp)
+	return
+}
+
 // SyncContact 同步联系人
 func (c *cTgArts) SyncContact(ctx context.Context, req *tgarts.TgSyncContactReq) (res *tgarts.TgSyncContactRes, err error) {
 	_, err = service.TgArts().TgSyncContact(ctx, req.SyncContactInp)

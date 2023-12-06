@@ -114,6 +114,8 @@ type (
 		TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error)
 		// TgSendMsgSingle 单独发送消息
 		TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp) (res string, err error)
+		// TgSendFileSingle 单独发送文件
+		TgSendFileSingle(ctx context.Context, inp *artsin.FileSingleInp) (res string, err error)
 		// TgGetDialogs 获取chats
 		TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgDialogModel, err error)
 		// TgGetMsgHistory 获取聊天历史

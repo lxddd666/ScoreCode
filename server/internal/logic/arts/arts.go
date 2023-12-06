@@ -235,6 +235,121 @@ func (s *sArts) sendTextMessageSingle(msgSingleReq *artsin.MsgSingleInp, imType 
 	return req
 }
 
+// SendFileSingle 单独发送文件
+func (s *sArts) SendFileSingle(ctx context.Context, item *artsin.FileSingleInp, imType string) (res string, err error) {
+
+	requestMessage := s.sendFileMessageSingle(item, imType)
+	resp, err := s.Send(ctx, requestMessage)
+	if err != nil {
+		return "", err
+	}
+	prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.Files)))
+	if resp != nil {
+		if resp.Data != nil && len(resp.Data) > 0 {
+			msgDetail := sendMsgSingle{}
+			err = gjson.DecodeTo(resp.Data, &msgDetail)
+			if err != nil {
+				return
+			}
+			list := make([]*tgin.TgMsgModel, 0)
+			msgModel := &tgin.TgMsgModel{
+				TgId:    msgDetail.TgId,
+				ChatId:  msgDetail.ChatId,
+				Date:    int(time.Now().Second()),
+				Message: item.Files,
+				Out:     true,
+			}
+			var box tg.UpdateShortSentMessage
+			err = (&bin.Buffer{Buf: msgDetail.ResultBuf}).Decode(&box)
+			if err != nil {
+				msgModel.Out = false
+			}
+			msgModel.MsgId = box.ID
+			list = append(list, msgModel)
+			err = service.TgMsg().MsgCallback(ctx, list)
+		}
+	}
+	return
+}
+func (s *sArts) SendFileSinglePeerMsgBatch(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error) {
+
+	return
+}
+
+func (s *sArts) SendFileSingleSameMsgBatch(ctx context.Context, item *artsin.FileSingleInp, imType string) (res string, err error) {
+	count := 100
+	success := 0
+	for i := 0; i < count; i++ {
+		_ = service.TgArts().TgSendMsgType(ctx, &artsin.MsgTypeInp{Sender: item.Account, Receiver: item.Receiver, FileType: "file"})
+		requestMessage := s.sendFileMessageSingle(item, imType)
+		time.Sleep(1 * time.Second)
+
+		resp, sErr := s.Send(ctx, requestMessage)
+		if sErr != nil {
+			err = sErr
+			return "", err
+		}
+
+		prometheus.SendPrivateChatMsgCount.WithLabelValues(gconv.String(item.Account)).Add(gconv.Float64(len(item.Files)))
+		if resp != nil {
+			if resp.RespondAccountStatus == protobuf.AccountStatus_SUCCESS {
+				if resp.Data != nil && len(resp.Data) > 0 {
+					msgDetail := sendMsgSingle{}
+					gErr := gjson.DecodeTo(resp.Data, &msgDetail)
+					if gErr != nil {
+						err = gErr
+						return
+					}
+					list := make([]*tgin.TgMsgModel, 0)
+					msgModel := &tgin.TgMsgModel{
+						TgId:    msgDetail.TgId,
+						ChatId:  msgDetail.ChatId,
+						Date:    int(time.Now().Second()),
+						Message: item.Files,
+						Out:     true,
+					}
+					var box tg.UpdateShortSentMessage
+					err = (&bin.Buffer{Buf: msgDetail.ResultBuf}).Decode(&box)
+					if err != nil {
+						msgModel.Out = false
+					}
+					msgModel.MsgId = box.ID
+					list = append(list, msgModel)
+					err = service.TgMsg().MsgCallback(ctx, list)
+					success++
+				}
+			}
+
+		}
+	}
+
+	fmt.Println(success)
+	return
+
+}
+
+// SendFileSingle 单独发送文件
+func (s *sArts) sendFileMessageSingle(fileSingleReq *artsin.FileSingleInp, imType string) *protobuf.RequestMessage {
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_SEND_FILE_SINGLE,
+		Type:    consts.TgSvc,
+		Account: fileSingleReq.Account,
+		ActionDetail: &protobuf.RequestMessage_SendFileSingleDetail{
+			SendFileSingleDetail: &protobuf.SendFileSingleDetail{
+				Sender:   fileSingleReq.Account,
+				Receiver: fileSingleReq.Receiver,
+				FileDetail: &protobuf.FileDetailValue{
+					FileType: fileSingleReq.FileType,
+					SendType: fileSingleReq.SendType,
+					FileByte: fileSingleReq.FileBytes,
+					Name:     fileSingleReq.Name,
+				},
+			},
+		},
+	}
+	return req
+}
+
 // SyncContact 同步联系人
 func (s *sArts) SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error) {
 	var req = &protobuf.RequestMessage{
