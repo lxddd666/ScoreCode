@@ -563,3 +563,31 @@ func (s *sTgArts) TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsername
 	}
 	return
 }
+
+func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	detail := &protobuf.UintkeyStringvalue{}
+	detail.Key = inp.Account
+
+	detail.Values = append(detail.Values, inp.TgId)
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_LEAVE,
+		Type:    "telegram",
+		Account: detail.Key,
+		ActionDetail: &protobuf.RequestMessage_LeaveDetail{
+			LeaveDetail: &protobuf.LeaveDetail{
+				Detail: detail,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+
+	return
+}

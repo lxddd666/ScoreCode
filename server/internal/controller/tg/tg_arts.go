@@ -244,3 +244,11 @@ func (c *cTgArts) ChannelAddView(ctx context.Context, req *tgarts.ChannelAddView
 	err = service.TgArts().TgChannelReadAddView(ctx, req.ChannelReadAddViewInp)
 	return
 }
+
+// LeaveGroup 退群
+func (c *cTgUser) LeaveGroup(ctx context.Context, req *tgarts.LeaveGroupReq) (res *tgarts.LeaveGroupRes, err error) {
+	err = service.TgArts().TgLeaveGroup(ctx, req.TgUserLeaveInp)
+	return
+}
+
+// 退出频道

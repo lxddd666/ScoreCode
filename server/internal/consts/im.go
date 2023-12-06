@@ -51,3 +51,12 @@ const (
 const (
 	TG_NOT_LOGGED_IN = "未登录"
 )
+
+const (
+	TG_BATCH_CHECK_LOGIN          = 1 // 批量操作-校验登录（session导入后校验）
+	TG_BATCH_DELETE_GROUP_BY_NAME = 2 //批量删除，删除名字中带有该name的群
+
+	TG_BATCH_RUN     = 1
+	TG_BATCH_SUCCESS = 2
+	TG_BATCH_FAIL    = 3
+)
