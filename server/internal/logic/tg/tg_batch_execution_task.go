@@ -167,6 +167,7 @@ func (s *sTgBatchExecutionTask) Status(ctx context.Context, in *tgin.TgBatchExec
 
 func (s *sTgBatchExecutionTask) ImportSessionVerifyLog(ctx context.Context, inp *tgin.TgBatchExecutionTaskImportSessionLogInp) (res *tgin.TgBatchExecutionTaskImportSessionLogModel, err error) {
 	task := entity.TgBatchExecutionTask{}
+	res = &tgin.TgBatchExecutionTaskImportSessionLogModel{}
 	err = s.Model(ctx).WherePri(inp.Id).Scan(&task)
 	if err != nil {
 		return
@@ -194,6 +195,7 @@ func (s *sTgBatchExecutionTask) ImportSessionVerifyLog(ctx context.Context, inp 
 					user.AccountStatus = 0
 				} else if log.Status == 2 {
 					user.AccountStatus = 1
+					user.Comment = log.Comment
 				}
 				break
 			}
@@ -208,10 +210,12 @@ func (s *sTgBatchExecutionTask) ImportSessionVerifyLog(ctx context.Context, inp 
 			failCount++
 		}
 	}
+	res.Total = gconv.Int64(len(batchLogin))
 	res.List = batchLogin
 	res.Status = task.Status
 	res.SuccessCount = gconv.Int64(successCount)
 	res.FailCount = gconv.Int64(failCount)
+	res.NotVerifiedCount = res.Total - res.SuccessCount - res.FailCount
 	return
 }
 

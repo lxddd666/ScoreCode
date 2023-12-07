@@ -5,6 +5,7 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
+	"hotgo/internal/protobuf"
 
 	"github.com/gogf/gf/v2/os/gtime"
 )
@@ -273,3 +274,18 @@ type TgUserLeaveInp struct {
 }
 
 type TgUserLeaveModel struct{}
+
+type TgGetNearbyPeopleInp struct {
+	Sender uint64 `json:"id" v:"required#sendNotEmpty" dc:"tg账号"`
+	//是否允许更新位置
+	Background bool `json:"background"   dc:"是否允许更新位置"`
+	//纬度
+	Lat float64 `json:"lat"   dc:"纬度"`
+	//经度
+	Long float64 `json:"long"  dc:"经度"`
+	//范围，米为单位
+	AccuracyRadius int
+	//位置过期时间
+	SelfExpires int
+	ResChan     chan *protobuf.ResponseMessage
+}

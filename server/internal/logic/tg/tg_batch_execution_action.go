@@ -109,6 +109,7 @@ func BatchLogin(ctx context.Context, list []*entity.TgUser, task entity.TgBatchE
 				taskLog.Account = gconv.Uint64(user.Phone)
 				if err != nil {
 					taskLog.Status = 2
+					taskLog.Comment = err.Error()
 					_, _ = g.Model(dao.TgBatchExecutionTaskLog.Table()).Data(taskLog).Insert()
 					continue
 				}

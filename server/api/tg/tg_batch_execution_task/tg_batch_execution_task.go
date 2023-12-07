@@ -62,7 +62,7 @@ type StatusRes struct{}
 
 // LoginLogReq 导入账号批量登录校验
 type LoginLogReq struct {
-	g.Meta `path:"/tgBatchExecutionTask/loginLog" method:"post" tags:"批量操作任务" summary:"导入账号批量登录校验"`
+	g.Meta `path:"/tgBatchExecutionTask/loginLog" method:"get" tags:"批量操作任务" summary:"导入账号批量登录校验"`
 	tgin.TgBatchExecutionTaskImportSessionLogInp
 }
 

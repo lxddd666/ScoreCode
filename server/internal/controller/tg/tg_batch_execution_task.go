@@ -63,6 +63,8 @@ func (c *cTgBatchExecutionTask) Status(ctx context.Context, req *tgbatchexecutio
 
 // BatchExecImportSessionLog 查询批量导入校验登录日志
 func (c *cTgBatchExecutionTask) BatchExecImportSessionLog(ctx context.Context, req *tgbatchexecutiontask.LoginLogReq) (res *tgbatchexecutiontask.LoginLogRes, err error) {
-	_, err = service.TgBatchExecutionTask().ImportSessionVerifyLog(ctx, &req.TgBatchExecutionTaskImportSessionLogInp)
+	result, err := service.TgBatchExecutionTask().ImportSessionVerifyLog(ctx, &req.TgBatchExecutionTaskImportSessionLogInp)
+	res = new(tgbatchexecutiontask.LoginLogRes)
+	res.TgBatchExecutionTaskImportSessionLogModel = result
 	return
 }

@@ -157,8 +157,10 @@ func (in *TgBatchExecutionTaskImportSessionLogInp) Filter(ctx context.Context) (
 
 // TgBatchExecutionTaskImportSessionLogModel 批量导入session校验日志
 type TgBatchExecutionTaskImportSessionLogModel struct {
-	List         []*entity.TgUser `json:"list"          dc:"导入的tg user"`
-	SuccessCount int64            `json:"successCount"  dc:"成功数量"`
-	FailCount    int64            `json:"failCount"     dc:"失败数量"`
-	Status       int              `json:"status"        dc:"状态"`
+	List             []*entity.TgUser `json:"list"                     dc:"导入的tg user"`
+	SuccessCount     int64            `json:"successCount"            dc:"成功数量"`
+	FailCount        int64            `json:"failCount"               dc:"失败数量"`
+	Status           int              `json:"status"                  dc:"状态"`
+	Total            int64            `json:"total"                   dc:"总数"`
+	NotVerifiedCount int64            `json:"notVerifiedCount"        dc:"总数"`
 }
