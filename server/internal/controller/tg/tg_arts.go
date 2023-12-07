@@ -251,4 +251,6 @@ func (c *cTgUser) LeaveGroup(ctx context.Context, req *tgarts.LeaveGroupReq) (re
 	return
 }
 
-// 退出频道
+//func (c *cTgUser) NearbyPeople(ctx context.Context, req *tgarts.NearbyPeopleReq) (err error) {
+//	return
+//}

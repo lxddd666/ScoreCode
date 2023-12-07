@@ -2,13 +2,32 @@ package test
 
 import (
 	"fmt"
-	"hotgo/utility/simple"
 	"testing"
 )
 
 func TestD(t *testing.T) {
-	// 解密密码
-	password, err := simple.DecryptText("uYEv63aUDuW3fkG/n9GCIQ==")
-	fmt.Println(err)
-	fmt.Println(password)
+	list := make([]int, 0)
+	for i := 1; i <= 900; i++ {
+		list = append(list, i)
+	}
+	slist := splitSlice(list, 1000)
+
+	num := 0
+	for _, i := range slist {
+		num += len(i)
+	}
+	fmt.Println(num)
+}
+
+func splitSlice(slice []int, chunkSize int) [][]int {
+	var result [][]int
+	length := len(slice)
+	for i := 0; i < length; i += chunkSize {
+		end := i + chunkSize
+		if end > length {
+			end = length
+		}
+		result = append(result, slice[i:end])
+	}
+	return result
 }

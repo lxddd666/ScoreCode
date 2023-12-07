@@ -33,7 +33,7 @@ func (c *cTgBatchExecutionTask) Export(ctx context.Context, req *tgbatchexecutio
 
 // Edit 更新批量操作任务
 func (c *cTgBatchExecutionTask) Edit(ctx context.Context, req *tgbatchexecutiontask.EditReq) (res *tgbatchexecutiontask.EditRes, err error) {
-	err = service.TgBatchExecutionTask().Edit(ctx, &req.TgBatchExecutionTaskEditInp)
+	_, err = service.TgBatchExecutionTask().Edit(ctx, &req.TgBatchExecutionTaskEditInp)
 	return
 }
 
@@ -58,5 +58,13 @@ func (c *cTgBatchExecutionTask) Delete(ctx context.Context, req *tgbatchexecutio
 // Status 更新批量操作任务状态
 func (c *cTgBatchExecutionTask) Status(ctx context.Context, req *tgbatchexecutiontask.StatusReq) (res *tgbatchexecutiontask.StatusRes, err error) {
 	err = service.TgBatchExecutionTask().Status(ctx, &req.TgBatchExecutionTaskStatusInp)
+	return
+}
+
+// BatchExecImportSessionLog 查询批量导入校验登录日志
+func (c *cTgBatchExecutionTask) BatchExecImportSessionLog(ctx context.Context, req *tgbatchexecutiontask.LoginLogReq) (res *tgbatchexecutiontask.LoginLogRes, err error) {
+	result, err := service.TgBatchExecutionTask().ImportSessionVerifyLog(ctx, &req.TgBatchExecutionTaskImportSessionLogInp)
+	res = new(tgbatchexecutiontask.LoginLogRes)
+	res.TgBatchExecutionTaskImportSessionLogModel = result
 	return
 }

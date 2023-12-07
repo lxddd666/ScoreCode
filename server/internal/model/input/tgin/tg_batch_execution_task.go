@@ -145,3 +145,22 @@ func (in *TgBatchExecutionTaskStatusInp) Filter(ctx context.Context) (err error)
 }
 
 type TgBatchExecutionTaskStatusModel struct{}
+
+// TgBatchExecutionTaskImportSessionLogInp 批量导入session校验日志
+type TgBatchExecutionTaskImportSessionLogInp struct {
+	Id int64 `json:"id" v:"required#ID不能为空" dc:"task ID"`
+}
+
+func (in *TgBatchExecutionTaskImportSessionLogInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+// TgBatchExecutionTaskImportSessionLogModel 批量导入session校验日志
+type TgBatchExecutionTaskImportSessionLogModel struct {
+	List             []*entity.TgUser `json:"list"                     dc:"导入的tg user"`
+	SuccessCount     int64            `json:"successCount"            dc:"成功数量"`
+	FailCount        int64            `json:"failCount"               dc:"失败数量"`
+	Status           int              `json:"status"                  dc:"状态"`
+	Total            int64            `json:"total"                   dc:"总数"`
+	NotVerifiedCount int64            `json:"notVerifiedCount"        dc:"总数"`
+}

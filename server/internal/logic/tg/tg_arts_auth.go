@@ -359,7 +359,6 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 	if resp != nil {
 		_ = gjson.DecodeTo(resp.Data, &result)
 	}
-	fmt.Println(resp)
 	return
 }
 

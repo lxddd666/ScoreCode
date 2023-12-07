@@ -102,10 +102,11 @@ func (s *sTgBatchExecutionTask) Export(ctx context.Context, in *tgin.TgBatchExec
 }
 
 // Edit 修改/新增批量操作任务
-func (s *sTgBatchExecutionTask) Edit(ctx context.Context, in *tgin.TgBatchExecutionTaskEditInp) (err error) {
+func (s *sTgBatchExecutionTask) Edit(ctx context.Context, in *tgin.TgBatchExecutionTaskEditInp) (taskId int64, err error) {
 	user := contexts.GetUser(ctx)
 	// 修改
 	if in.Id > 0 {
+		taskId = in.Id
 		if _, err = s.Model(ctx).
 			Fields(tgin.TgBatchExecutionTaskUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
@@ -130,6 +131,7 @@ func (s *sTgBatchExecutionTask) Edit(ctx context.Context, in *tgin.TgBatchExecut
 		Parameters: in.Parameters,
 		Status:     in.Status,
 	}
+	taskId = id
 	_ = s.Run(ctx, taskEntity)
 	return
 }
@@ -163,6 +165,60 @@ func (s *sTgBatchExecutionTask) Status(ctx context.Context, in *tgin.TgBatchExec
 	return
 }
 
+func (s *sTgBatchExecutionTask) ImportSessionVerifyLog(ctx context.Context, inp *tgin.TgBatchExecutionTaskImportSessionLogInp) (res *tgin.TgBatchExecutionTaskImportSessionLogModel, err error) {
+	task := entity.TgBatchExecutionTask{}
+	res = &tgin.TgBatchExecutionTaskImportSessionLogModel{}
+	err = s.Model(ctx).WherePri(inp.Id).Scan(&task)
+	if err != nil {
+		return
+	}
+	batchLogin := make([]*entity.TgUser, 0)
+	tBytes, err := task.Parameters.MarshalJSON()
+	if err != nil {
+		return
+	}
+	err = json.Unmarshal(tBytes, &batchLogin)
+	if err != nil {
+		return
+	}
+
+	// 查询日志
+	logList := make([]entity.TgBatchExecutionTaskLog, 0)
+	err = g.Model(dao.TgBatchExecutionTaskLog.Table()).Where(dao.TgBatchExecutionTaskLog.Columns().TaskId, inp.Id).Scan(&logList)
+	if err != nil {
+		return
+	}
+	for _, user := range batchLogin {
+		for _, log := range logList {
+			if user.Phone == gconv.String(log.Account) {
+				if log.Status == 1 {
+					user.AccountStatus = 0
+				} else if log.Status == 2 {
+					user.AccountStatus = 1
+					user.Comment = log.Comment
+				}
+				break
+			}
+		}
+	}
+	successCount := 0
+	failCount := 0
+	for _, log := range logList {
+		if log.Status == consts.TG_BATCH_LOG_SUCCESS {
+			successCount++
+		} else {
+			failCount++
+		}
+	}
+	res.Total = gconv.Int64(len(batchLogin))
+	res.List = batchLogin
+	res.Status = task.Status
+	res.SuccessCount = gconv.Int64(successCount)
+	res.FailCount = gconv.Int64(failCount)
+	res.NotVerifiedCount = res.Total - res.SuccessCount - res.FailCount
+	return
+}
+
 // InitBatchExec 初始化批量操作
 func (s *sTgBatchExecutionTask) InitBatchExec(ctx context.Context) (err error) {
 	var taskList []entity.TgBatchExecutionTask
@@ -182,27 +238,32 @@ func (s *sTgBatchExecutionTask) Run(ctx context.Context, task entity.TgBatchExec
 	mutex := lock.Mutex(fmt.Sprintf("%s:%s:%s", "lock", "tgBatchExecutionTask", task.Id))
 	// 尝试获取锁，获取不到说明已有节点再执行任务，此时当前节点不执行
 	if err = mutex.TryLockFunc(ctx, func() error {
+		tBytes, tErr := task.Parameters.MarshalJSON()
+		if tErr != nil {
+			err = tErr
+		}
 		switch task.Action {
 		case consts.TG_BATCH_CHECK_LOGIN:
-
-		case consts.TG_BATCH_DELETE_GROUP_BY_NAME:
-			tBytes, tErr := task.Parameters.MarshalJSON()
-			if tErr != nil {
-				err = tErr
+			batchLogin := make([]*entity.TgUser, 0)
+			err = json.Unmarshal(tBytes, &batchLogin)
+			if err != nil {
+				return err
 			}
+			_, err = BatchLogin(ctx, batchLogin, task)
+		case consts.TG_BATCH_DELETE_GROUP_BY_NAME:
 			batchLeave := &tgin.TgUserBatchLeaveInp{}
 			err = json.Unmarshal(tBytes, batchLeave)
 			if err != nil {
 				return err
 			}
-			_, err = BatchLeaveGroup(ctx, batchLeave, task.Id)
+			_, err = BatchLeaveGroup(ctx, batchLeave, task)
 		}
 		return nil
 	}); err != nil {
 		g.Log().Error(ctx, err)
 		task.Status = consts.TG_BATCH_FAIL
 		task.Comment = err.Error()
-		_ = s.Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{task})
+		_, _ = s.Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{task})
 	}
 	return
 }

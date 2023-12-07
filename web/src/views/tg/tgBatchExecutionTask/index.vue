@@ -1,11 +1,11 @@
 <template>
   <div>
     <n-card :bordered="false" class="proCard">
-         <div class="n-layout-page-header">
-           <n-card :bordered="false" title="批量操作任务">
-             <!--  这是由系统生成的CURD表格，你可以将此行注释改为表格的描述 -->
-           </n-card>
-         </div>
+      <div class="n-layout-page-header">
+        <n-card :bordered="false" title="批量操作任务">
+          <!--  这是由系统生成的CURD表格，你可以将此行注释改为表格的描述 -->
+        </n-card>
+      </div>
 
       <BasicForm
         @register="register"

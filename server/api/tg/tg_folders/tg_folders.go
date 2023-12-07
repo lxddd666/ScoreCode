@@ -53,7 +53,7 @@ type DeleteReq struct {
 type DeleteRes struct{}
 
 type EditeUserFolderReq struct {
-	g.Meta `path:"/tgFolders/editeUserFolder" method:"post" tags:"tg分组" summary:"删除tg分组"`
+	g.Meta `path:"/tgFolders/editeUserFolder" method:"post" tags:"tg分组" summary:"添加/修改tg user的关联"`
 	tgin.TgEditeUserFolderInp
 }
 

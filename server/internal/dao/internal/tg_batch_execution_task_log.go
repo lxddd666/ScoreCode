@@ -23,6 +23,7 @@ type TgBatchExecutionTaskLogColumns struct {
 	Id        string // ID
 	OrgId     string // 组织ID
 	TaskId    string // 任务ID
+	Account   string // 账号
 	Action    string // 操作动作
 	Content   string // 动作内容
 	Comment   string // 备注
@@ -37,6 +38,7 @@ var tgBatchExecutionTaskLogColumns = TgBatchExecutionTaskLogColumns{
 	OrgId:     "org_id",
 	TaskId:    "task_id",
 	Action:    "action",
+	Account:   "account",
 	Content:   "content",
 	Comment:   "comment",
 	Status:    "status",

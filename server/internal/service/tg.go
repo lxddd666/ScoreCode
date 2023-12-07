@@ -16,7 +16,6 @@ import (
 
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/database/gredis"
-	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gotd/td/tg"
 )
 
@@ -83,6 +82,7 @@ type (
 		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
 		// TgGetUserAvatar 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
+		// TgGetSearchInfo 查询
 		TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 		// TgReadPeerHistory 消息已读
 		TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHistoryInp) (err error)
@@ -227,7 +227,7 @@ type (
 		// Export 导出批量操作任务
 		Export(ctx context.Context, in *tgin.TgBatchExecutionTaskListInp) (err error)
 		// Edit 修改/新增批量操作任务
-		Edit(ctx context.Context, in *tgin.TgBatchExecutionTaskEditInp) (err error)
+		Edit(ctx context.Context, in *tgin.TgBatchExecutionTaskEditInp) (taskId int64, err error)
 		// Delete 删除批量操作任务
 		Delete(ctx context.Context, in *tgin.TgBatchExecutionTaskDeleteInp) (err error)
 		// View 获取批量操作任务指定信息
@@ -238,6 +238,8 @@ type (
 		InitBatchExec(ctx context.Context) (err error)
 		// Run 执行任务
 		Run(ctx context.Context, task entity.TgBatchExecutionTask) (err error)
+		// ImportSessionVerifyLog 校验导入session日志
+		ImportSessionVerifyLog(ctx context.Context, t *tgin.TgBatchExecutionTaskImportSessionLogInp) (res *tgin.TgBatchExecutionTaskImportSessionLogModel, err error)
 	}
 	ITgFolders interface {
 		// Model tg分组ORM模型
@@ -277,11 +279,7 @@ type (
 		// LogoutCallback 登退回调
 		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
 		// ImportSession 导入session文件
-		ImportSession(ctx context.Context, file *ghttp.UploadFile) (msg string, err error)
-		// TgSaveSessionMsg 保存session数据到数据库中
-		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel) (err error)
-		// TgImportSessionToGrpc 导入session
-		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (msg string, err error)
+		ImportSession(ctx context.Context, inp *tgin.ImportSessionInp) (res *tgin.ImportSessionModel, err error)
 		// UnBindProxy 解绑代理
 		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
 		// BindProxy 绑定代理

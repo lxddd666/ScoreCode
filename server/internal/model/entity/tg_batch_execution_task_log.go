@@ -14,6 +14,7 @@ type TgBatchExecutionTaskLog struct {
 	Id        int64       `json:"id"        description:"ID"`
 	OrgId     int64       `json:"orgId"     description:"组织ID"`
 	TaskId    int64       `json:"taskId"    description:"任务ID"`
+	Account   uint64      `json:"account"   description:"账号"`
 	Action    string      `json:"action"    description:"操作动作"`
 	Content   *gjson.Json `json:"content"   description:"动作内容"`
 	Comment   string      `json:"comment"   description:"备注"`
