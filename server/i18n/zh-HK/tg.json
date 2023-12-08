@@ -87,5 +87,6 @@
   "ExecutionNotEmpty": "執行任務參數不能為空",
   "ExportBatchTask": "匯出批次操作任務-",
   "ModifyBatchTaskFailed": "修改批次操作任務失敗，請稍後重試!",
-  "AddBatchTaskFailed": "新增批次作業任務失敗，請稍後重試！"
+  "AddBatchTaskFailed": "新增批次作業任務失敗，請稍後重試！",
+  "MemberAccountCountErr": "用戶帳號不足"
 }

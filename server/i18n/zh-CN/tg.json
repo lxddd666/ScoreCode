@@ -88,5 +88,6 @@
   "ExecutionNotEmpty": "执行任务参数不能为空",
   "ExportBatchTask": "导出批量操作任务-",
   "ModifyBatchTaskFailed": "修改批量操作任务失败，请稍后重试!",
-  "AddBatchTaskFailed": "新增批量操作任务失败，请稍后重试！"
+  "AddBatchTaskFailed": "新增批量操作任务失败，请稍后重试！",
+  "MemberAccountCountErr": "用户账号不足"
 }

@@ -47,6 +47,9 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 
 	var data adminin.MemberAddInp
 
+	// 权限ID
+	roleId := config.RoleId
+
 	// 默认上级
 	data.Pid = 1
 	var orgId int64 = 0
@@ -78,6 +81,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		if err != nil {
 			return nil, err
 		}
+		roleId = config.ManagerRoleId
 		orgId = id
 	}
 
@@ -86,7 +90,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		return
 	}
 
-	if config.RoleId < 1 {
+	if roleId < 1 {
 		err = gerror.New(g.I18n().T(ctx, "{#AdministratorNotConfiguredDefaultRole}"))
 		return
 	}
@@ -131,7 +135,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 	data.MemberEditInp = &adminin.MemberEditInp{
 		Id:        0,
 		OrgId:     orgId,
-		RoleId:    config.RoleId,
+		RoleId:    roleId,
 		FirstName: in.FirstName,
 		LastName:  in.LastName,
 		Username:  in.Username,

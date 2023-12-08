@@ -251,6 +251,9 @@ func (c *cTgUser) LeaveGroup(ctx context.Context, req *tgarts.LeaveGroupReq) (re
 	return
 }
 
-//func (c *cTgUser) NearbyPeople(ctx context.Context, req *tgarts.NearbyPeopleReq) (err error) {
-//	return
-//}
+func (c *cTgArts) GetUserChannel(ctx context.Context, req *tgarts.GetUserChannelsReq) (res *tgarts.GetUserChannelsRes, err error) {
+	data, err := service.TgArts().GetUserChannels(ctx, req.GetUserChannelsInp)
+	res = new(tgarts.GetUserChannelsRes)
+	res.List = data
+	return
+}

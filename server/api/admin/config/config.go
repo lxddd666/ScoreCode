@@ -21,9 +21,9 @@ type GetRes struct {
 	*sysin.GetConfigModel
 }
 
-// UpdateReq 获取指定分组的配置
+// UpdateReq 修改指定分组的配置
 type UpdateReq struct {
-	g.Meta `path:"/config/update" method:"post" tags:"配置" summary:"获取指定分组的配置"`
+	g.Meta `path:"/config/update" method:"post" tags:"配置" summary:"修改指定分组的配置"`
 	sysin.UpdateConfigInp
 }
 

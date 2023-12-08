@@ -3,11 +3,9 @@ package tgin
 import (
 	"context"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/os/gtime"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
-	"hotgo/internal/protobuf"
-
-	"github.com/gogf/gf/v2/os/gtime"
 )
 
 // TgUserUpdateFields 修改TG账号字段过滤
@@ -179,6 +177,16 @@ func (in *TgUserBindMemberInp) Filter(ctx context.Context) (err error) {
 	return
 }
 
+// TgUserBatchBindMemberInp 批量绑定用户
+type TgUserBatchBindMemberInp struct {
+	MemberId int64 `json:"memberId" v:"required#UserIDNotEmpty" dc:"用户ID"`
+	Count    int   `json:"count" dc:"绑定数量"`
+}
+
+func (in *TgUserBatchBindMemberInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
 // TgUserUnBindMemberInp 解绑用户
 type TgUserUnBindMemberInp struct {
 	Ids []int64 `json:"ids" v:"required#IdNotEmpty" dc:"id"`
@@ -276,16 +284,10 @@ type TgUserLeaveInp struct {
 type TgUserLeaveModel struct{}
 
 type TgGetNearbyPeopleInp struct {
-	Sender uint64 `json:"id" v:"required#sendNotEmpty" dc:"tg账号"`
-	//是否允许更新位置
-	Background bool `json:"background"   dc:"是否允许更新位置"`
-	//纬度
-	Lat float64 `json:"lat"   dc:"纬度"`
-	//经度
-	Long float64 `json:"long"  dc:"经度"`
-	//范围，米为单位
-	AccuracyRadius int
-	//位置过期时间
-	SelfExpires int
-	ResChan     chan *protobuf.ResponseMessage
+	Sender         uint64  `json:"id" v:"required#sendNotEmpty" dc:"tg账号"`
+	Background     bool    `json:"background"   dc:"是否允许更新位置"`
+	Lat            float64 `json:"lat"   dc:"纬度"`
+	Long           float64 `json:"long"  dc:"经度"`
+	AccuracyRadius int     `json:"accuracyRadius"  dc:"范围，米为单位"`
+	SelfExpires    int     `json:"selfExpires"  dc:"位置过期时间"`
 }

@@ -152,3 +152,22 @@ type TgIncreaseFansCronInp struct {
 	ExecutedPlan []int64 `json:"executedPlan"  dc:"执行计划"`
 	FolderId     int64   `json:"folderId"      description:"分组ID"`
 }
+
+// BatchAddTaskReqInp 批量创建涨粉任务
+type BatchAddTaskReqInp struct {
+	Account   uint64   `json:"account"   dc:"tg账号"`
+	Links     []string `json:"links"     dc:"频道链接"`
+	TaskName  string   `json:"taskName"  dc:"任务名称"`
+	FansCount int      `json:"fansCount" dc:"涨粉数量"`
+	DayCount  int      `json:"dayCount"  dc:"持续天数"`
+	FolderId  int64    `json:"folderId"  dc:"分组ID"`
+}
+
+func (in *BatchAddTaskReqInp) Filter(ctx context.Context) (err error) {
+	return
+}
+
+type BatchAddTaskModel struct {
+	FailChannel string `json:"FailChannel" dc:"失败的channel"`
+	Comment     string `json:"comment"     dc:"原因"`
+}

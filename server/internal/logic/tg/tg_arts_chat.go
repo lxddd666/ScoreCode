@@ -38,7 +38,7 @@ func (s *sTgArts) TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp)
 	return service.Arts().SendMsgSingle(ctx, inp, consts.TgSvc)
 }
 
-// TgSendMsgSingle 单独发送文件
+// TgSendFileSingle 单独发送文件
 func (s *sTgArts) TgSendFileSingle(ctx context.Context, inp *artsin.FileSingleInp) (res string, err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {

@@ -72,6 +72,13 @@ func (c *cTgIncreaseFansCron) CheckChannel(ctx context.Context, req *tgincreasef
 	return
 }
 
+func (c *cTgIncreaseFansCron) BatchAddTask(ctx context.Context, req *tgincreasefanscron.BatchAddTaskReq) (res *tgincreasefanscron.BatchAddTaskRes, err error) {
+	data, err := service.TgIncreaseFansCron().BatchAddTask(ctx, &req.BatchAddTaskReqInp)
+	res = new(tgincreasefanscron.BatchAddTaskRes)
+	res.List = data
+	return
+}
+
 func (c *cTgIncreaseFansCron) ChannelIncreaseFanDetail(ctx context.Context, req *tgincreasefanscron.ChannelIncreaseFanDetailReq) (res *tgincreasefanscron.ChannelIncreaseFanDetailRes, err error) {
 	resp, flag, totalDay, err := service.TgIncreaseFansCron().ChannelIncreaseFanDetail(ctx, &req.ChannelIncreaseFanDetailInp)
 	if err != nil {

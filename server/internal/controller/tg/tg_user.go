@@ -64,6 +64,12 @@ func (c *cTgUser) BindMember(ctx context.Context, req *tguser.BindMemberReq) (re
 	return
 }
 
+// BatchBindMember 批量绑定用户
+func (c *cTgUser) BatchBindMember(ctx context.Context, req *tguser.BatchBindMemberReq) (res *tguser.BindMemberRes, err error) {
+	err = service.TgUser().BatchBindMember(ctx, req.TgUserBatchBindMemberInp)
+	return
+}
+
 // UnBindMember 接触绑定用户
 func (c *cTgUser) UnBindMember(ctx context.Context, req *tguser.UnBindMemberReq) (res *tguser.UnBindMemberRes, err error) {
 	err = service.TgUser().UnBindMember(ctx, &req.TgUserUnBindMemberInp)

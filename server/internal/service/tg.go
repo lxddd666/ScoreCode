@@ -127,6 +127,8 @@ type (
 		// TgSendMsgType 发送消息时候的状态
 		TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error)
 		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
+		// GetUserChannels 获取用户群频道
+		GetUserChannels(ctx context.Context, inp *tgin.GetUserChannelsInp) (res []*tgin.TgDialogModel, err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -181,6 +183,8 @@ type (
 		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
 		// GetOneOnlineAccount 获取一个在线账号
 		GetOneOnlineAccount(ctx context.Context) (uint64, error)
+		// BatchAddTask 批量创建涨粉任务
+		BatchAddTask(ctx context.Context, inp *tgin.BatchAddTaskReqInp) (res []*tgin.BatchAddTaskModel, err error)
 	}
 	ITgIncreaseFansCronAction interface {
 		// Model TG频道涨粉任务执行情况ORM模型
@@ -284,6 +288,8 @@ type (
 		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
 		// BindProxy 绑定代理
 		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
+		// BatchBindMember 批量绑定用户
+		BatchBindMember(ctx context.Context, inp tgin.TgUserBatchBindMemberInp) (err error)
 	}
 )
 

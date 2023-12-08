@@ -1,11 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>验证码邮件</title>
+    <title>SocGo IP One Time OTP</title>
     <style>
         html,
         body {
@@ -55,13 +55,15 @@
         cellspacing="0"
         height="100%"
         width="100%"
-        style="border-spacing: 0;
-				border-collapse: collapse;
-				vertical-align: top;
-				padding: 0;
-				margin: 0;
-				width: 100%;
-				text-align: center;"
+        style="
+                border-spacing: 0;
+                border-collapse: collapse;
+                vertical-align: top;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                text-align: center;
+            "
 >
     <tr>
         <td align="center" valign="top">
@@ -71,19 +73,21 @@
                     border="0"
                     cellpadding="0"
                     cellspacing="0"
-                    width="600"
+                    width="800"
                     bgcolor="#ffffff"
-                    style="max-width: 600px;
-							border-spacing: 0;
-							border-collapse: collapse;
-							vertical-align: top;
-							padding: 0;
-							margin: 0;
-							width: 100%;
-							background: #ffffff;"
+                    style="
+                            max-width: 600px;
+                            border-spacing: 0;
+                            border-collapse: collapse;
+                            vertical-align: top;
+                            padding: 0;
+                            margin: 0;
+                            width: 100%;
+                            background: #ffffff;
+                        "
             >
                 <tr>
-                    <td height=40" style="height:40px"></td>
+                    <td height="40" style="height: 40px"></td>
                 </tr>
                 <tr>
                     <td align="center" valign="top">
@@ -93,15 +97,15 @@
                                 border="0"
                                 cellpadding="0"
                                 cellspacing="0"
-                                width="440"
-                                style="max-width: 440px;
-										border-spacing: 0;
-										border-collapse: collapse;
-										vertical-align: top;
-										padding: 0;
-										margin: 0;
-										width: 100%;
-										text-align: center;"
+                                width="800"
+                                style="
+                                        border-spacing: 0;
+                                        border-collapse: collapse;
+                                        vertical-align: top;
+                                        padding: 0;
+                                        margin: 0;
+                                        text-align: center;
+                                    "
                         >
                             <tr>
                                 <td align="center">
@@ -109,105 +113,117 @@
                                             src="@{.logo}"
                                             width="170"
                                             style="border: none; display: block; max-width: 170px; width: 100%"
-                                     alt="logo">
+                                            alt="logo">
                                 </td>
                             </tr>
                             <tr>
-                                <td height="40" style="height:40px"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <h1
-                                            style="font-family: Arial, Helvetica, sans-serif;
-													font-size: 24px;
-													color: #010E28;
-													font-weight: bold;
-													margin: 0 0 5px;
-													padding: 0"
-                                    >
-                                        这是你发送的验证码吗？
-                                    </h1>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td height="15" style="height: 15px"></td>
+                                <td height="40" style="height: 40px"></td>
                             </tr>
                             <tr>
                                 <td>
                                     <p
-                                            style="font-family: Arial, Helvetica, sans-serif;
-													font-size: 15px;
-													color: #5B6987;
-													margin: 0;
-													padding: 0;
-													line-height: 20px;"
+                                            style="
+                                                    font-family: 'Microsoft Yahei', 'Roboto', sans-serif;
+                                                    font-size: 16px;
+                                                    color: #010e28;
+                                                    margin: 0 0 5px;
+                                                    padding: 0;
+                                                "
                                     >
-                                        @{.os} <br />
-                                        @{.cityLabel} (estimated) <br />
-                                        IP 地址: @{.ip}
+                                        Hi,
+                                    </p>
+                                    <p
+                                            style="
+                                                    font-family: 'Microsoft Yahei', 'Roboto', sans-serif;
+                                                    font-size: 16px;
+                                                    color: #010e28;
+                                                    margin: 0 0 5px;
+                                                    padding: 0;
+                                                "
+                                    >
+                                        Thank you for choosing <b>SocGo IP</b>
+                                    </p>
+                                    <p
+                                            style="
+                                                    font-family: 'Microsoft Yahei', 'Roboto', sans-serif;
+                                                    font-size: 16px;
+                                                    color: #010e28;
+                                                    margin: 0 0 5px;
+                                                    padding: 0;
+                                                "
+                                    >
+                                        Please use the following OTP to complete your account registration.
                                     </p>
                                 </td>
                             </tr>
                             <tr>
-                                <td height="30" style="height: 30px"></td>
+                                <td height="70px"></td>
                             </tr>
+
                             <tr>
                                 <td>
                                     <p
-                                            style="font-family: Arial, Helvetica, sans-serif;
-													font-size: 15px;
-													color: #5B6987;
-													margin: 0;
-													padding: 0;
-													line-height: 20px;
-													font-weight: bold;"
-                                    >
-                                        如果是，请输入验证码:
-                                    </p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td height="20" style="height: 20px"></td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <p
-                                            style="font-family: Arial, Helvetica, sans-serif;
-													font-size: 35px;
-													color: #010E28;
-													margin: 0;
-													padding: 0;
-													line-height: 20px;
-													font-weight: bold;"
+                                            style="
+                                                    font-family: Arial, Helvetica, sans-serif;
+                                                    font-size: 70px;
+                                                    color: #010e28;
+                                                    margin: 0;
+                                                    padding: 0;
+                                                    line-height: 20px;
+                                                    font-weight: bold;
+                                                "
                                     >
                                         @{.code}
                                     </p>
                                 </td>
                             </tr>
                             <tr>
-                                <td height="20" style="height: 20px">	</td>
+                                <td height="70px"></td>
                             </tr>
+
                             <tr>
                                 <td>
                                     <p
-                                            style="font-family: Arial, Helvetica, sans-serif;
-													font-size: 15px;
-													color: #5B6987;
-													margin: 0;
-													padding: 0;
-													line-height: 20px;
-													font-weight: bold;"
+                                            style="
+                                                    font-family: 'Microsoft Yahei', 'Roboto', sans-serif;
+                                                    font-size: 16px;
+                                                    color: #010e28;
+                                                    margin: 0 0 5px;
+                                                    padding: 0;
+                                                "
                                     >
-                                        该验证码@{.expires}分钟内有效，请不要告诉于他人！
+                                        This code is only valid for 10 minutes. Do not share this OTP code with anyone.
+                                    </p>
+                                    <p
+                                            style="
+                                                    font-family: 'Microsoft Yahei', 'Roboto', sans-serif;
+                                                    font-size: 16px;
+                                                    color: #010e28;
+                                                    margin: 0 0 5px;
+                                                    padding: 0;
+                                                "
+                                    >
+                                        Thank You!
+                                    </p>
+                                    <p
+                                            style="
+                                                    font-family: 'Microsoft Yahei', 'Roboto', sans-serif;
+                                                    font-size: 16px;
+                                                    color: #010e28;
+                                                    font-weight: bold;
+                                                    margin: 0 0 5px;
+                                                    padding: 0;
+                                                "
+                                    >
+                                        SocGo IP Team
                                     </p>
                                 </td>
                             </tr>
                         </table>
-
                     </td>
                 </tr>
                 <tr>
-                    <td height="40" style="height:40px"></td>
+                    <td height="40" style="height: 40px"></td>
                 </tr>
             </table>
         </td>
