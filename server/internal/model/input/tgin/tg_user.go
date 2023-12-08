@@ -39,18 +39,19 @@ type TgUserInsertFields struct {
 
 // TgUserLoginFields 新增TG账号字段过滤
 type TgUserLoginFields struct {
-	Username      string      `json:"username"      dc:"账号号码"`
-	FirstName     string      `json:"firstName"     dc:"First Name"`
-	LastName      string      `json:"lastName"      dc:"Last Name"`
-	Phone         string      `json:"phone"         dc:"手机号"`
-	Photo         string      `json:"photo"         dc:"账号头像"`
-	Bio           string      `json:"bio"           dc:"个性签名"`
-	AccountStatus int         `json:"accountStatus" dc:"账号状态"`
-	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
-	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
-	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
-	Comment       string      `json:"comment"       dc:"备注"`
-	TgId          uint64      `json:"tg_id"         dc:"tgId"`
+	Username       string      `json:"username"      dc:"账号号码"`
+	FirstName      string      `json:"firstName"     dc:"First Name"`
+	LastName       string      `json:"lastName"      dc:"Last Name"`
+	Phone          string      `json:"phone"         dc:"手机号"`
+	Photo          string      `json:"photo"         dc:"账号头像"`
+	Bio            string      `json:"bio"           dc:"个性签名"`
+	AccountStatus  int         `json:"accountStatus" dc:"账号状态"`
+	IsOnline       int         `json:"isOnline"      dc:"是否在线"`
+	ProxyAddress   string      `json:"proxyAddress"  dc:"代理地址"`
+	LastLoginTime  *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
+	FirstLoginTime *gtime.Time `json:"firstLoginTime" dc:"首次登录时间"`
+	Comment        string      `json:"comment"       dc:"备注"`
+	TgId           uint64      `json:"tg_id"         dc:"tgId"`
 }
 
 // TgUserEditInp 修改/新增TG账号
@@ -86,26 +87,27 @@ func (in *TgUserViewInp) Filter(ctx context.Context) (err error) {
 }
 
 type TgUserViewModel struct {
-	Id            uint64      `json:"id,string"            description:""`
-	OrgId         int64       `json:"orgId,string"         description:"组织ID"`
-	MemberId      int64       `json:"memberId,string"      description:"用户ID"`
-	TgId          int64       `json:"tgId,string"          description:"tg id"`
-	Username      string      `json:"username"             description:"账号号码"`
-	FirstName     string      `json:"firstName"            description:"First Name"`
-	LastName      string      `json:"lastName"             description:"Last Name"`
-	Phone         string      `json:"phone"                description:"手机号"`
-	Photo         int64       `json:"photo,string"         description:"账号头像"`
-	Bio           string      `json:"bio"                  description:"个性签名"`
-	AccountStatus int         `json:"accountStatus"        description:"账号状态"`
-	IsOnline      int         `json:"isOnline"             description:"是否在线"`
-	ProxyAddress  string      `json:"proxyAddress"         description:"代理地址"`
-	PublicProxy   int         `json:"publicProxy"          description:"公共代理"`
-	LastLoginTime *gtime.Time `json:"lastLoginTime"        description:"上次登录时间"`
-	Comment       string      `json:"comment"              description:"备注"`
-	Session       []byte      `json:"session"              description:"session"`
-	DeletedAt     *gtime.Time `json:"deletedAt"            description:"删除时间"`
-	CreatedAt     *gtime.Time `json:"createdAt"            description:"创建时间"`
-	UpdatedAt     *gtime.Time `json:"updatedAt"            description:"更新时间"`
+	Id             uint64      `json:"id,string"            description:""`
+	OrgId          int64       `json:"orgId,string"         description:"组织ID"`
+	MemberId       int64       `json:"memberId,string"      description:"用户ID"`
+	TgId           int64       `json:"tgId,string"          description:"tg id"`
+	Username       string      `json:"username"             description:"账号号码"`
+	FirstName      string      `json:"firstName"            description:"First Name"`
+	LastName       string      `json:"lastName"             description:"Last Name"`
+	Phone          string      `json:"phone"                description:"手机号"`
+	Photo          int64       `json:"photo,string"         description:"账号头像"`
+	Bio            string      `json:"bio"                  description:"个性签名"`
+	AccountStatus  int         `json:"accountStatus"        description:"账号状态"`
+	IsOnline       int         `json:"isOnline"             description:"是否在线"`
+	ProxyAddress   string      `json:"proxyAddress"         description:"代理地址"`
+	PublicProxy    int         `json:"publicProxy"          description:"公共代理"`
+	LastLoginTime  *gtime.Time `json:"lastLoginTime"        description:"上次登录时间"`
+	FirstLoginTime *gtime.Time `json:"firstLoginTime"        description:"首次登录时间"`
+	Comment        string      `json:"comment"              description:"备注"`
+	Session        []byte      `json:"session"              description:"session"`
+	DeletedAt      *gtime.Time `json:"deletedAt"            description:"删除时间"`
+	CreatedAt      *gtime.Time `json:"createdAt"            description:"创建时间"`
+	UpdatedAt      *gtime.Time `json:"updatedAt"            description:"更新时间"`
 }
 
 // TgUserListInp 获取TG账号列表

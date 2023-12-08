@@ -20,50 +20,52 @@ type TgUserDao struct {
 
 // TgUserColumns defines and stores column names for table tg_user.
 type TgUserColumns struct {
-	Id            string //
-	OrgId         string // 组织ID
-	MemberId      string // 用户ID
-	TgId          string // tg id
-	Username      string // 账号号码
-	FirstName     string // First Name
-	LastName      string // Last Name
-	Phone         string // 手机号
-	Photo         string // 账号头像
-	Bio           string // 个性签名
-	AccountStatus string // 账号状态
-	IsOnline      string // 是否在线
-	ProxyAddress  string // 代理地址
-	PublicProxy   string // 公共代理
-	LastLoginTime string // 上次登录时间
-	Comment       string // 备注
-	Session       string // session
-	DeletedAt     string // 删除时间
-	CreatedAt     string // 创建时间
-	UpdatedAt     string // 更新时间
+	Id             string //
+	OrgId          string // 组织ID
+	MemberId       string // 用户ID
+	TgId           string // tg id
+	Username       string // 账号号码
+	FirstName      string // First Name
+	LastName       string // Last Name
+	Phone          string // 手机号
+	Photo          string // 账号头像
+	Bio            string // 个性签名
+	AccountStatus  string // 账号状态
+	IsOnline       string // 是否在线
+	ProxyAddress   string // 代理地址
+	PublicProxy    string // 公共代理
+	LastLoginTime  string // 上次登录时间
+	FirstLoginTime string // 首次登录时间
+	Comment        string // 备注
+	Session        string // session
+	DeletedAt      string // 删除时间
+	CreatedAt      string // 创建时间
+	UpdatedAt      string // 更新时间
 }
 
 // tgUserColumns holds the columns for table tg_user.
 var tgUserColumns = TgUserColumns{
-	Id:            "id",
-	OrgId:         "org_id",
-	MemberId:      "member_id",
-	TgId:          "tg_id",
-	Username:      "username",
-	FirstName:     "first_name",
-	LastName:      "last_name",
-	Phone:         "phone",
-	Photo:         "photo",
-	Bio:           "bio",
-	AccountStatus: "account_status",
-	IsOnline:      "is_online",
-	ProxyAddress:  "proxy_address",
-	PublicProxy:   "public_proxy",
-	LastLoginTime: "last_login_time",
-	Comment:       "comment",
-	Session:       "session",
-	DeletedAt:     "deleted_at",
-	CreatedAt:     "created_at",
-	UpdatedAt:     "updated_at",
+	Id:             "id",
+	OrgId:          "org_id",
+	MemberId:       "member_id",
+	TgId:           "tg_id",
+	Username:       "username",
+	FirstName:      "first_name",
+	LastName:       "last_name",
+	Phone:          "phone",
+	Photo:          "photo",
+	Bio:            "bio",
+	AccountStatus:  "account_status",
+	IsOnline:       "is_online",
+	ProxyAddress:   "proxy_address",
+	PublicProxy:    "public_proxy",
+	LastLoginTime:  "last_login_time",
+	FirstLoginTime: "first_login_time",
+	Comment:        "comment",
+	Session:        "session",
+	DeletedAt:      "deleted_at",
+	CreatedAt:      "created_at",
+	UpdatedAt:      "updated_at",
 }
 
 // NewTgUserDao creates and returns a new DAO object for table data access.

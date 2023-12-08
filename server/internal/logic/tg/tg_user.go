@@ -281,10 +281,17 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
+			user := entity.TgUser{}
+			err = s.Model(ctx).Fields(dao.TgUser.Columns().FirstLoginTime).Where(dao.TgUser.Columns().Phone, item.Phone).Scan(&user)
+			if err == nil {
+				if user.FirstLoginTime == nil {
+					item.FirstLoginTime = gtime.Now()
+				}
+			}
 		}
 		//更新登录状态
 		_, _ = s.Model(ctx).
-			Fields(tgin.TgUserLoginFields{}).OmitNil().Update(item)
+			Fields(tgin.TgUserLoginFields{}).OmitNil().Where(dao.TgUser.Columns().Phone, item.Phone).Update(item)
 		item.Session = nil
 		// 删除登录过程的redis
 		key := fmt.Sprintf("%s:%s", consts.TgActionLoginAccounts, item.Phone)
