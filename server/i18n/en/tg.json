@@ -84,6 +84,11 @@
   "ExportTgGroup": "Export tg group-",
   "AddTgGroupError": "The new tg group fails, please try again later！",
   "GetDialogEmpty" : "Get dialog empty",
+  "ActionNotEmpty": "The action cannot be empty",
+  "ExecutionNotEmpty": "Execution task parameters cannot be empty",
+  "ExportBatchTask": "Export batch operation task-",
+  "ModifyBatchTaskFailed": "Failed to modify the batch operation task, please try again later!",
+  "AddBatchTaskFailed": "Add batch operation task failed, please try again later!",
   "MemberAccountCountErr": "Insufficient user account"
 
 }
