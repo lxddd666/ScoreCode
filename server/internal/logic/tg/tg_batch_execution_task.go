@@ -59,7 +59,7 @@ func (s *sTgBatchExecutionTask) List(ctx context.Context, in *tgin.TgBatchExecut
 
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Obtaining the data line failed, please try it later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCountError}"))
 		return
 	}
 
@@ -68,7 +68,7 @@ func (s *sTgBatchExecutionTask) List(ctx context.Context, in *tgin.TgBatchExecut
 	}
 
 	if err = mod.Fields(tgin.TgBatchExecutionTaskListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgBatchExecutionTask.Columns().Id).Scan(&list); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Get the list failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
 	return
@@ -88,7 +88,7 @@ func (s *sTgBatchExecutionTask) Export(ctx context.Context, in *tgin.TgBatchExec
 	}
 
 	var (
-		fileName = "导出批量操作任务-" + gctx.CtxId(ctx) + ".xlsx"
+		fileName = g.I18n().T(ctx, "{#ExportBatchTask}") + gctx.CtxId(ctx) + ".xlsx"
 		//sheetName = g.I18n().Tf(ctx, "{#ExportSheetName}", totalCount, form.CalPageCount(totalCount, in.PerPage), in.Page, len(list))
 		exports []tgin.TgBatchExecutionTaskExportModel
 	)
@@ -110,7 +110,7 @@ func (s *sTgBatchExecutionTask) Edit(ctx context.Context, in *tgin.TgBatchExecut
 		if _, err = s.Model(ctx).
 			Fields(tgin.TgBatchExecutionTaskUpdateFields{}).
 			WherePri(in.Id).Data(in).Update(); err != nil {
-			err = gerror.Wrap(err, "修改批量操作任务失败，请稍后重试！")
+			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyBatchTaskFailed}"))
 		}
 		return
 	}
@@ -122,7 +122,7 @@ func (s *sTgBatchExecutionTask) Edit(ctx context.Context, in *tgin.TgBatchExecut
 		Fields(tgin.TgBatchExecutionTaskInsertFields{}).
 		Data(in).InsertAndGetId()
 	if err != nil {
-		err = gerror.Wrap(err, "新增批量操作任务失败，请稍后重试！")
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddBatchTaskFailed}"))
 	}
 	taskEntity := entity.TgBatchExecutionTask{
 		Id:         id,
@@ -139,7 +139,7 @@ func (s *sTgBatchExecutionTask) Edit(ctx context.Context, in *tgin.TgBatchExecut
 // Delete 删除批量操作任务
 func (s *sTgBatchExecutionTask) Delete(ctx context.Context, in *tgin.TgBatchExecutionTaskDeleteInp) (err error) {
 	if _, err = s.Model(ctx).WherePri(in.Id).Delete(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Delete failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#DeleteInfoError}"))
 		return
 	}
 	return
@@ -148,7 +148,7 @@ func (s *sTgBatchExecutionTask) Delete(ctx context.Context, in *tgin.TgBatchExec
 // View 获取批量操作任务指定信息
 func (s *sTgBatchExecutionTask) View(ctx context.Context, in *tgin.TgBatchExecutionTaskViewInp) (res *tgin.TgBatchExecutionTaskViewModel, err error) {
 	if err = s.Model(ctx).WherePri(in.Id).Scan(&res); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "The data failed, please try it later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetInfoError}"))
 		return
 	}
 	return
@@ -159,7 +159,7 @@ func (s *sTgBatchExecutionTask) Status(ctx context.Context, in *tgin.TgBatchExec
 	if _, err = s.Model(ctx).WherePri(in.Id).Data(g.Map{
 		dao.TgBatchExecutionTask.Columns().Status: in.Status,
 	}).Update(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "Modify failed, please try again later!"))
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		return
 	}
 	return
