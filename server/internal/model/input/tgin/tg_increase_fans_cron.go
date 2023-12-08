@@ -114,6 +114,7 @@ type TgIncreaseFansCronListModel struct {
 	ExecutedPlan  []int64     `json:"executedPlan"  dc:"执行计划"`
 	DayCount      int         `json:"dayCount"      dc:"持续天数"`
 	FansCount     int         `json:"fansCount"     dc:"涨粉数量"`
+	FolderId      int64       `json:"folderId"      dc:"分组ID"`
 	CronStatus    int         `json:"cronStatus"    dc:"任务状态：0终止，1正在执行，2完成"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`
