@@ -232,6 +232,9 @@ func (s *sTgIncreaseFansCron) BatchAddTask(ctx context.Context, inp *tgin.BatchA
 			ExecutedPlan: gconv.Int64s(daily),
 		}
 		err = service.TgIncreaseFansCron().Edit(ctx, &tgin.TgIncreaseFansCronEditInp{task})
+		if err != nil {
+			res = append(res, &tgin.BatchAddTaskModel{FailChannel: link, Comment: err.Error()})
+		}
 	}
 	return
 }
@@ -388,7 +391,7 @@ func (s *sTgIncreaseFansCron) SyncIncreaseFansCronTaskTableData(ctx context.Cont
 	joinSuccessNum, err := g.Model(dao.TgIncreaseFansCronAction.Table()).Where(dao.TgIncreaseFansCronAction.Columns().CronId, cron.Id).
 		Where(dao.TgIncreaseFansCronAction.Columns().JoinStatus, 1).Count()
 	if err != nil {
-		return gerror.New(g.I18n().T(ctx, "{#QueryRecordFailed}") + err.Error()), 0, dailyList
+		return gerror.New(g.I18n().T(ctx, "{#QueryRecordFailed}")), 0, dailyList
 	}
 	if cron.IncreasedFans != joinSuccessNum {
 		// 同步更新
@@ -501,7 +504,7 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 	// 养号
 	err := RandomUpdateNecessaryInfo(ctx, takeName, fan.Phone, fan)
 	if err != nil {
-		loginErr = gerror.New(g.I18n().T(ctx, "{#AddChannelSuccess}") + err.Error())
+		loginErr = gerror.New(g.I18n().T(ctx, "{#AddChannelSuccess}"))
 		return
 	}
 	time.Sleep(5 * time.Second)
@@ -700,8 +703,8 @@ func (s *sTgIncreaseFansCron) TgExecuteIncrease(ctx context.Context, cronTask en
 		mod = mod.LeftJoin(dao.TgUserFolders.Table()+" uf", dao.TgUser.Table()+"."+dao.TgUser.Columns().Id+"=uf."+dao.TgUserFolders.Columns().TgUserId).
 			Where("uf."+dao.TgUserFolders.Columns().FolderId, cronTask.FolderId)
 	}
-	if err = mod.Fields(tgin.TgUserListModel{}).OrderAsc(dao.TgUser.Table() + "." + dao.TgUser.Columns().Id).Scan(&list); err != nil {
-		err = gerror.New(g.I18n().T(ctx, "{#GetTgAccountListFailed}") + err.Error())
+	if err = mod.Fields(dao.TgUser.Table() + ".*").OrderAsc(dao.TgUser.Table() + "." + dao.TgUser.Columns().Id).Scan(&list); err != nil {
+		err = gerror.New(g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
 		finalResult = true
 		return
 	}
