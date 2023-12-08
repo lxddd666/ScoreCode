@@ -294,6 +294,9 @@ func convertDialogChannel(dialog tg.DialogClass, dialogs tg.ModifiedMessagesDial
 			Creator:    channel.Creator,
 			Date:       channel.Date,
 		}
+		if channel.Username != "" {
+			item.Link = "https://t.me/" + channel.Username
+		}
 		if channel.Photo != nil {
 			photo, photoFlag := channel.Photo.AsNotEmpty()
 			if photoFlag {

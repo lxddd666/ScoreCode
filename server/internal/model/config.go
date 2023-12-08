@@ -170,6 +170,7 @@ type LoginConfig struct {
 	CaptchaSwitch  int    `json:"loginCaptchaSwitch"`
 	Avatar         string `json:"loginAvatar"`
 	RoleId         int64  `json:"loginRoleId"`
+	ManagerRoleId  int64  `json:"managerRoleId"`
 	Protocol       string `json:"loginProtocol"`
 	Policy         string `json:"loginPolicy"`
 	AutoOpenId     int    `json:"loginAutoOpenId"`

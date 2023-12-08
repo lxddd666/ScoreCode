@@ -304,9 +304,19 @@ type BatchLeaveGroupReq struct {
 type BatchLeaveGroupRes struct {
 }
 
-// NearbyPeopleReq 附近的人
+// GetUserChannelsReq 获取user的频道
+type GetUserChannelsReq struct {
+	g.Meta `path:"/tgUser/getUserChannels" method:"post" tags:"tg-api" summary:"获取用户所有频道"`
+	*tgin.GetUserChannelsInp
+}
+
+type GetUserChannelsRes struct {
+	List []*tgin.TgDialogModel `json:"list" dc:"channel 列表"`
+}
+
+//// NearbyPeopleReq 附近的人
 //type NearbyPeopleReq struct {
-//	g.Meta `path:"/tgUser/nearbyPeople" method:"post" tags:"tg-api" summary:"批量退出"`
+//	g.Meta `path:"/arts/nearbyPeople" method:"post" tags:"tg-api" summary:"附近的人、群"`
 //	tgin.TgGetNearbyPeopleInp
 //}
 //

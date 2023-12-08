@@ -201,6 +201,41 @@ func (s *sTgIncreaseFansCron) UpdateStatus(ctx context.Context, in *tgin.TgIncre
 
 }
 
+// BatchAddTask 批量创建涨粉任务
+func (s *sTgIncreaseFansCron) BatchAddTask(ctx context.Context, inp *tgin.BatchAddTaskReqInp) (res []*tgin.BatchAddTaskModel, err error) {
+	res = make([]*tgin.BatchAddTaskModel, 0)
+	for _, link := range inp.Links {
+		// 校验频道
+		channelDetail, _, gErr := s.CheckChannel(ctx, &tgin.TgCheckChannelInp{
+			Channel: link,
+			Account: inp.Account,
+		})
+		if gErr != nil {
+			err = gErr
+			res = append(res, &tgin.BatchAddTaskModel{FailChannel: link, Comment: err.Error()})
+			continue
+		}
+		daily, _, _, sErr := s.ChannelIncreaseFanDetail(ctx, &tgin.ChannelIncreaseFanDetailInp{FansCount: inp.FansCount, DayCount: inp.DayCount, ChannelMemberCount: channelDetail.ChannelMemberCount})
+		if sErr != nil {
+			err = sErr
+			res = append(res, &tgin.BatchAddTaskModel{FailChannel: link, Comment: err.Error()})
+			continue
+		}
+
+		task := entity.TgIncreaseFansCron{
+			Channel:      link,
+			TaskName:     inp.TaskName + "_task:" + link,
+			FansCount:    inp.FansCount,
+			DayCount:     inp.DayCount,
+			FolderId:     inp.FolderId,
+			ChannelId:    gconv.String(channelDetail.ChannelId),
+			ExecutedPlan: gconv.Int64s(daily),
+		}
+		err = service.TgIncreaseFansCron().Edit(ctx, &tgin.TgIncreaseFansCronEditInp{task})
+	}
+	return
+}
+
 // CheckChannel 获取TG频道涨粉是否可用
 func (s *sTgIncreaseFansCron) CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error) {
 	if in.Channel == "" {

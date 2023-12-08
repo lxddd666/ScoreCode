@@ -82,7 +82,7 @@
   "TaskNotCreated" : "任務未創建",
   "ExportTgGroup": "導出tg分組-",
   "AddTgGroupError": "新增tg分組失敗，請稍後重試！",
-  "GetDialogEmpty" : "獲取會話為空"
-
+  "GetDialogEmpty" : "獲取會話為空",
+  "MemberAccountCountErr": "用戶帳號不足"
 
 }

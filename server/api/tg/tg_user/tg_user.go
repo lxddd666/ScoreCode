@@ -60,6 +60,14 @@ type BindMemberReq struct {
 
 type BindMemberRes struct{}
 
+// BatchBindMemberReq 绑定用户
+type BatchBindMemberReq struct {
+	g.Meta `path:"/tgUser/batchBindMember" method:"post" tags:"tg-账号管理" summary:"批量绑定绑定用户(输入数量自动绑定)"`
+	tgin.TgUserBatchBindMemberInp
+}
+
+type BatchBindMemberRes struct{}
+
 // UnBindMemberReq 解绑用户
 type UnBindMemberReq struct {
 	g.Meta `path:"/tgUser/unBindMember" method:"post" tags:"tg-账号管理" summary:"解绑用户"`

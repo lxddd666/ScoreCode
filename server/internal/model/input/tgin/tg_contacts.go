@@ -143,5 +143,6 @@ type TgDialogModel struct {
 	// Position up to which all incoming messages are read.
 	ReadInboxMaxID int `json:"readInboxMaxID"`
 	// Position up to which all outgoing messages are read.
-	ReadOutboxMaxID int `json:"readOutboxMaxID"`
+	ReadOutboxMaxID int    `json:"readOutboxMaxID"`
+	Link            string `json:"link" dc:"地址"`
 }

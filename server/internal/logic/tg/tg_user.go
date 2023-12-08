@@ -228,6 +228,35 @@ func (s *sTgUser) BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) 
 	return
 }
 
+// BatchBindMember 根据数量绑定用户
+func (s *sTgUser) BatchBindMember(ctx context.Context, inp tgin.TgUserBatchBindMemberInp) (err error) {
+	// 根据用户获取数量
+	user := contexts.GetUser(ctx)
+	list := make([]entity.TgUser, 0)
+	err = s.Model(ctx).Where(dao.TgUser.Columns().MemberId, user.Id).Scan(&list)
+	if err != nil {
+		return
+	}
+	if len(list) < inp.Count {
+		err = gerror.New(g.I18n().T(ctx, "{#MemberAccountCountErr}"))
+		return
+	}
+	// 获取
+	userList := list[:inp.Count]
+	ids := make([]int64, 0)
+	for _, u := range userList {
+		ids = append(ids, gconv.Int64(u.Id))
+	}
+	if _, err = s.Model(ctx).
+		WhereIn(dao.TgUser.Columns().Id, ids).
+		Data(do.TgUser{MemberId: inp.MemberId}).
+		Update(); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#BindUserFailed}"))
+		return
+	}
+	return
+}
+
 // UnBindMember 解除绑定用户
 func (s *sTgUser) UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error) {
 	if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).

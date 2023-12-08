@@ -88,3 +88,13 @@ type IncreaseChannelFansCronReq struct {
 
 type IncreaseChannelFansCronRes struct {
 }
+
+// BatchAddTaskReq 批量创建涨粉任务
+type BatchAddTaskReq struct {
+	g.Meta `path:"/tgIncreaseFansCron/channel/batchIncreaseFansTask" method:"post" tags:"TG频道涨粉任务" summary:"批量涨粉任务"`
+	tg.BatchAddTaskReqInp
+}
+
+type BatchAddTaskRes struct {
+	List []*tg.BatchAddTaskModel
+}

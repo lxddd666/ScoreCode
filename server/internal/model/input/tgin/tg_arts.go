@@ -149,3 +149,7 @@ type ChannelReadAddViewInp struct {
 	Receiver string  `json:"receiver"        description:"channel id，频道ID"`
 	MsgIds   []int64 `json:"msgIds"        description:"msg ids，消息ID"`
 }
+
+type GetUserChannelsInp struct {
+	Account uint64 `json:"account" v:"required#sendNotEmpty" dc:"tg账号"`
+}
