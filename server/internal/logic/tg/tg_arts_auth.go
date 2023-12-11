@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
 	"hotgo/internal/library/contexts"
@@ -245,6 +246,7 @@ func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err er
 		},
 	}
 	_, err = service.Arts().Send(ctx, grpcReq)
+	prometheus.LogoutCount.WithLabelValues(gconv.String(req.Phone)).Inc()
 	return
 }
 
@@ -391,6 +393,11 @@ func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 		},
 	}
 	_, err = service.Arts().Send(ctx, req)
+	if err == nil {
+		for _, u := range tgUserList {
+			prometheus.LogoutCount.WithLabelValues(gconv.String(u.Phone)).Inc()
+		}
+	}
 	return
 }
 

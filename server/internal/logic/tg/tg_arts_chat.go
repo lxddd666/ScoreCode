@@ -9,6 +9,7 @@ import (
 	"github.com/gotd/td/bin"
 	"github.com/gotd/td/tg"
 	"hotgo/internal/consts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
@@ -25,7 +26,14 @@ func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
-	return service.Arts().SendMsg(ctx, inp, consts.TgSvc)
+	res, err = service.Arts().SendMsg(ctx, inp, consts.TgSvc)
+	if err == nil {
+		prometheus.AccountSendMsg.WithLabelValues(gconv.String(inp.Account)).Add(gconv.Float64(len(inp.Receiver)))
+		for _, receiver := range inp.Receiver {
+			prometheus.AccountPassiveSendMsg.WithLabelValues(gconv.String(receiver)).Inc()
+		}
+	}
+	return
 }
 
 // TgSendMsgSingle 单独发送消息
@@ -35,7 +43,12 @@ func (s *sTgArts) TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp)
 		return
 	}
 
-	return service.Arts().SendMsgSingle(ctx, inp, consts.TgSvc)
+	res, err = service.Arts().SendMsgSingle(ctx, inp, consts.TgSvc)
+	if err == nil {
+		prometheus.AccountSendMsg.WithLabelValues(gconv.String(inp.Account)).Inc()
+		prometheus.AccountPassiveSendMsg.WithLabelValues(gconv.String(inp.Receiver)).Inc()
+	}
+	return
 }
 
 // TgSendFileSingle 单独发送文件
@@ -45,7 +58,12 @@ func (s *sTgArts) TgSendFileSingle(ctx context.Context, inp *artsin.FileSingleIn
 		return
 	}
 
-	return service.Arts().SendFileSingle(ctx, inp, consts.TgSvc)
+	res, err = service.Arts().SendFileSingle(ctx, inp, consts.TgSvc)
+	if err == nil {
+		prometheus.AccountSendFile.WithLabelValues(gconv.String(inp.Account)).Inc()
+		prometheus.AccountPassiveSendFile.WithLabelValues(gconv.String(inp.Receiver)).Inc()
+	}
+	return
 }
 
 // TgGetDialogs 获取chats
@@ -68,6 +86,7 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgi
 	if err != nil {
 		return
 	}
+	prometheus.AccountGetDialogList.WithLabelValues(gconv.String(account)).Inc()
 	var box tg.MessagesDialogsBox
 	err = (&bin.Buffer{Buf: resp.Data}).Decode(&box)
 	if err != nil {
@@ -123,6 +142,7 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 	if err != nil {
 		return
 	}
+
 	var box tg.MessagesMessagesBox
 	err = (&bin.Buffer{Buf: resp.Data}).Decode(&box)
 	if err != nil {
