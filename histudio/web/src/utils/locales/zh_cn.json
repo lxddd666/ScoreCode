@@ -669,6 +669,7 @@
 	"setting.cron.no-of-executions" : "执行次数",
 	"setting.cron.timed-expression" : "定时表达",
 	"setting.cron.syntax-reference" : "表达式语法参考",
+	"setting.cron.teleg-tg" : "TG 账号",
 	"setting.crongroup.superior-id" : "上级ID",
 	"setting.crongroup.group-name" : "分组名称",
 	"setting.crongroup.is-default" : "是否默认",
