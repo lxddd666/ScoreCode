@@ -38,7 +38,7 @@ type ViewRes struct {
 
 // EditReq 修改/新增批量操作任务
 type EditReq struct {
-	g.Meta `path:"/tgBatchExecutionTask/edit" method:"post" tags:"批量操作任务" summary:"修改/新增批量操作任务"`
+	g.Meta `path:"/tgBatchExecutionTask/edit" method:"post" tags:"批量操作任务" summary:"修改/新增批量操作任务(批量退群，批量登陆)"`
 	tgin.TgBatchExecutionTaskEditInp
 }
 

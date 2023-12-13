@@ -3,7 +3,6 @@ module hotgo
 go 1.21
 
 require (
-	github.com/DanPlayer/randomname v1.0.1
 	github.com/IBM/sarama v1.42.1
 	github.com/alibabacloud-go/darabonba-openapi/v2 v2.0.4
 	github.com/alibabacloud-go/dysmsapi-20170525/v3 v3.0.6
@@ -12,9 +11,7 @@ require (
 	github.com/aliyun/aliyun-oss-go-sdk v3.0.1+incompatible
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/blastrain/vitess-sqlparser v0.0.0-20201030050434-a139afbb1aba
-	github.com/briandowns/spinner v1.23.0
 	github.com/casbin/casbin/v2 v2.77.2
-	github.com/fatih/color v1.16.0
 	github.com/forgoer/openssl v1.6.0
 	github.com/gabriel-vasile/mimetype v1.4.3
 	github.com/go-faker/faker/v4 v4.2.0
@@ -76,6 +73,7 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
@@ -160,7 +158,6 @@ require (
 	golang.org/x/oauth2 v0.13.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/term v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.4.0 // indirect
 	google.golang.org/genproto v0.0.0-20231106174013-bbf56f31fb17 // indirect
