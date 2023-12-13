@@ -100,7 +100,30 @@ func (s *sAdminRole) List(ctx context.Context, in *adminin.RoleListInp) (res *ad
 	}
 
 	res = new(adminin.RoleListModel)
-	res.List = s.treeList(pid, models)
+	roleTree := s.treeList(pid, models)
+	roleFlag := false
+	if len(roleTree) > 0 {
+		if roleTree[0].AdminRole.Id == user.RoleId {
+			roleFlag = true
+		}
+	}
+	if !roleFlag {
+		myRole := entity.AdminRole{}
+		err = dao.AdminRole.Ctx(ctx).WherePri(user.RoleId).Scan(&myRole)
+		if err != nil {
+			return
+		}
+		newRoleTree := &adminin.RoleTree{
+			AdminRole: myRole,
+			Label:     myRole.Name,
+			Value:     user.RoleId,
+			Children:  roleTree,
+		}
+		res.List = append(res.List, newRoleTree)
+	} else {
+		res.List = roleTree
+	}
+
 	return
 }
 
