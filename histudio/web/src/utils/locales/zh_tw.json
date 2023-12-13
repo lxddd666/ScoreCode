@@ -670,6 +670,7 @@
 	"setting.cron.no-of-executions" : "執行次數",
 	"setting.cron.timed-expression" : "定時表達",
 	"setting.cron.syntax-reference" : "表達式語法參考",
+	"setting.cron.teleg-tg" : "TG 賬號",
 	"setting.crongroup.superior-id" : "上級ID",
 	"setting.crongroup.group-name" : "分組名稱",
 	"setting.crongroup.is-default" : "是否預設",
