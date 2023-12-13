@@ -669,6 +669,7 @@
 	"setting.cron.no-of-executions" : "Number of executions",
 	"setting.cron.timed-expression" : "Timed expression",
 	"setting.cron.syntax-reference" : "Expression syntax reference",
+	"setting.cron.teleg-tg" : "TG Account",
 	"setting.crongroup.superior-id" : "Superior ID",
 	"setting.crongroup.group-name" : "Group Name",
 	"setting.crongroup.is-default" : "Default",
