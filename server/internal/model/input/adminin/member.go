@@ -216,6 +216,9 @@ type MemberListInp struct {
 	Mobile    int     `json:"mobile"     dc:"手机号"`
 	Username  string  `json:"username"   dc:"用户名"`
 	RealName  string  `json:"realName"   dc:"真实姓名"`
+	FirstName string  `json:"firstName"  dc:"First Name"`
+	LastName  string  `json:"lastName"   dc:"Last Name"`
+	Email     string  `json:"email"      dc:"邮箱"`
 	Name      string  `json:"name"       dc:"岗位名称"`
 	Code      string  `json:"code"       dc:"岗位编码"`
 	CreatedAt []int64 `json:"createdAt"  dc:"创建时间"`
