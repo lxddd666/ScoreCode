@@ -373,6 +373,8 @@ func (s *sAdminRole) VerifyRoleId(ctx context.Context, id int64) (err error) {
 		err = gerror.New(g.I18n().T(ctx, "{#VerifyRoleInformationFailed}"))
 		return
 	}
+	// 加上当前用户的roleID
+	ids = append(ids, mb.RoleId)
 
 	if !validate.InSlice(ids, id) {
 		err = gerror.New(g.I18n().T(ctx, "{#RoleIdInvalid}"))

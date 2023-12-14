@@ -71,6 +71,7 @@ func (s *sTgArts) TgGetContacts(ctx context.Context, account uint64) (list []*tg
 		return
 	}
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
+		prometheus.AccountGetContactsCount.WithLabelValues(gconv.String(account)).Inc()
 		err = gjson.DecodeTo(resp.Data, &list)
 		if err == nil {
 			s.handlerSaveContacts(ctx, account, list)
@@ -111,6 +112,7 @@ func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp
 	if err != nil {
 		return
 	}
+	prometheus.AccountDownloadFileCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 	var data callback.MsgCallbackRes
 	err = gjson.DecodeTo(resp.Data, &data)
 	if err != nil {
@@ -214,6 +216,8 @@ func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMem
 		},
 	}
 	resp, err := service.Arts().Send(ctx, req)
+	prometheus.AccountGetGroupMsgCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+
 	if err != nil {
 		return
 	}
@@ -346,6 +350,7 @@ func (s *sTgArts) TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatar
 	if err != nil {
 		return
 	}
+	prometheus.AccountGetUserHeadImageCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 	mime := mimetype.Detect(resp.Data)
 	var meta = &storager.FileMeta{
 		Filename: gconv.String(inp.PhotoId) + mime.Extension(),
@@ -396,6 +401,7 @@ func (s *sTgArts) TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfo
 	if err != nil {
 		return
 	}
+	prometheus.AccountSearchInfoCount.WithLabelValues(gconv.String(inp.Sender)).Inc()
 	err = gjson.DecodeTo(resp.Data, &res)
 	if err != nil {
 		return
@@ -424,6 +430,8 @@ func (s *sTgArts) TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHis
 	if err != nil {
 		return
 	}
+	prometheus.AccountReadMsgHistoryCount.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	prometheus.AccountMsgPassiveReadHistoryCount.WithLabelValues(gconv.String(inp.Receiver)).Inc()
 	return
 }
 
@@ -448,6 +456,9 @@ func (s *sTgArts) TgReadChannelHistory(ctx context.Context, inp *tgin.TgReadChan
 	if err != nil {
 		return
 	}
+	prometheus.AccountReadMsgHistoryCount.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	prometheus.AccountChannelReadHistoryCount.WithLabelValues(gconv.String(inp.Receiver)).Inc()
+
 	return
 }
 
@@ -588,6 +599,7 @@ func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (e
 	if err != nil {
 		return
 	}
-
+	prometheus.AccountLeaveGroupCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.GroupLeaveGroupCount.WithLabelValues(gconv.String(inp.TgId)).Inc()
 	return
 }

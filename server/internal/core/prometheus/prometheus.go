@@ -150,6 +150,7 @@ var (
 		},
 		[]string{"group"})
 
+	// 主动加入群聊
 	AccountJoinGroupCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_user_join_group",
@@ -157,6 +158,7 @@ var (
 		},
 		[]string{"group"})
 
+	// 发送群聊消息
 	AccountSendGroupMsgCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_user_send_group_message",
@@ -196,10 +198,155 @@ var (
 		},
 		[]string{"account"})
 
+	// 修改用户信息
 	AccountUpdateUserInfoCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_account_update_user_info_success",
 			Help: "Total number of user update user info success",
+		},
+		[]string{"account"})
+
+	// AccountGetContactsCount 获取成员列表
+	AccountGetContactsCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_contact_list",
+			Help: "Total number of user get contact list",
+		},
+		[]string{"account"})
+
+	// AccountDownloadFileCount 下载文件
+	AccountDownloadFileCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_download_file",
+			Help: "Total number of user download file",
+		},
+		[]string{"account"})
+
+	// AccountGetGroupMsgCount 群获取群成员
+	AccountGetGroupMsgCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_group_count",
+			Help: "Total number of user get group count",
+		},
+		[]string{"account"})
+
+	// AccountGetUserHeadImageCount  获取用户头像
+	AccountGetUserHeadImageCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_user_image_count",
+			Help: "Total number of user get user head image count",
+		},
+		[]string{"account"})
+
+	// AccountSearchInfoCount  搜索
+	AccountSearchInfoCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_search_info_count",
+			Help: "Total number of user search info count",
+		},
+		[]string{"account"})
+
+	// AccountReadMsgHistoryCount 消息已读
+	AccountReadMsgHistoryCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_read_message_history",
+			Help: "Total number of user read message history",
+		},
+		[]string{"account"})
+
+	// AccountMsgPassiveReadHistoryCount 消息被已读
+	AccountMsgPassiveReadHistoryCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_passive_read_message_history",
+			Help: "Total number of user read message history",
+		},
+		[]string{"account"})
+
+	// AccountChannelReadHistoryCount 频道消息已读
+	AccountChannelReadHistoryCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_read_channel_history",
+			Help: "Total number of user read message history",
+		},
+		[]string{"account"})
+
+	// ChannelMsgPassiveReadHistoryCount 频道消息被读
+	ChannelMsgPassiveReadHistoryCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_channel_read_history",
+			Help: "Total number of channel read message history",
+		},
+		[]string{"channel"})
+
+	// AccountLeaveGroupCount 用户退群
+	AccountLeaveGroupCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_leave_group",
+			Help: "Total number of group leave group",
+		},
+		[]string{"account"})
+
+	// GroupLeaveGroupCount 该群退出的用户
+	GroupLeaveGroupCount = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_group_account_hava_exited",
+			Help: "Total number of users who have exited the group",
+		},
+		[]string{"group"})
+
+	// AccountSendCodeLogin 验证码登录
+	AccountSendCodeLogin = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_send_code_login",
+			Help: "Total number of account send code login",
+		},
+		[]string{"account"})
+
+	// AccountSendMsg 用户发送消息给用户
+	AccountSendMsg = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_send_message_to_account",
+			Help: "Total number of account send message",
+		},
+		[]string{"account"})
+
+	// AccountPassiveSendMsg 用户被发送消息
+	AccountPassiveSendMsg = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_passive_send_message_to_account",
+			Help: "Total number of account passive send message",
+		},
+		[]string{"account"})
+
+	// AccountSendFile 用户发送消息文件给用户
+	AccountSendFile = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_send_file_to_account",
+			Help: "Total number of account send file",
+		},
+		[]string{"account"})
+
+	// AccountPassiveSendFile 用户被发送消息文件
+	AccountPassiveSendFile = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_passive_send_file_to_account",
+			Help: "Total number of account passive send file",
+		},
+		[]string{"account"})
+
+	// 获取会话列表
+	AccountGetDialogList = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_dialog_list",
+			Help: "Total number of account get dialog list",
+		},
+		[]string{"account"})
+
+	// 获取聊天记录
+	AccountGetHistoryList = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_history_list",
+			Help: "Total number of account get history list",
 		},
 		[]string{"account"})
 )
@@ -225,13 +372,27 @@ func init() {
 	prometheus.MustRegister(CreateChannelCount)
 	prometheus.MustRegister(SendMsgToChannelCount)
 	prometheus.MustRegister(AddMemberToChannelCount)
-
 	prometheus.MustRegister(AccountJoinGroupCount)
 	prometheus.MustRegister(AccountSendGroupMsgCount)
 	prometheus.MustRegister(AccountJoinChannelCount)
-
 	prometheus.MustRegister(AccountUpdateUserInfoCount)
-
+	prometheus.MustRegister(AccountGetContactsCount)
+	prometheus.MustRegister(AccountDownloadFileCount)
+	prometheus.MustRegister(AccountGetGroupMsgCount)
+	prometheus.MustRegister(AccountGetUserHeadImageCount)
+	prometheus.MustRegister(AccountSearchInfoCount)
+	prometheus.MustRegister(AccountReadMsgHistoryCount)
+	prometheus.MustRegister(AccountMsgPassiveReadHistoryCount)
+	prometheus.MustRegister(ChannelMsgPassiveReadHistoryCount)
+	prometheus.MustRegister(AccountChannelReadHistoryCount)
+	prometheus.MustRegister(AccountLeaveGroupCount)
+	prometheus.MustRegister(GroupLeaveGroupCount)
+	prometheus.MustRegister(AccountSendCodeLogin)
+	prometheus.MustRegister(AccountSendMsg)
+	prometheus.MustRegister(AccountPassiveSendMsg)
+	prometheus.MustRegister(AccountSendFile)
+	prometheus.MustRegister(AccountPassiveSendFile)
+	prometheus.MustRegister(AccountGetDialogList)
 }
 
 // InitPrometheus 初始化普罗米修斯
