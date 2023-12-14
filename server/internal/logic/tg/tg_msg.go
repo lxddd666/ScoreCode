@@ -44,6 +44,20 @@ func (s *sTgMsg) Model(ctx context.Context, option ...*handler.Option) *gdb.Mode
 func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.TgMsgListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
+	tgUserList, count, err := service.TgUser().List(ctx, &tgin.TgUserListInp{})
+
+	if err != nil {
+		return
+	}
+
+	if count == 0 {
+		return
+	}
+
+	tgIds := make([]int64, 0)
+	for _, u := range tgUserList {
+		tgIds = append(tgIds, u.TgId)
+	}
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
 		mod = mod.WhereBetween(dao.TgMsg.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
@@ -69,6 +83,7 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 		mod = mod.Where(dao.TgMsg.Columns().SendStatus, in.SendStatus)
 	}
 
+	mod = mod.WhereIn(dao.TgMsg.Columns().TgId, tgIds)
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetMessageRecordFailed}"))

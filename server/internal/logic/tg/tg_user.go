@@ -115,10 +115,14 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		return
 	}
 
+	if in.Page != 0 && in.PerPage != 0 {
+		mod = mod.Page(in.Page, in.PerPage)
+	}
+
 	if err = mod.
 		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
 		Fields("tg_user.*", "ham.member_username").
-		Page(in.Page, in.PerPage).OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
+		OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
 		return
 	}
