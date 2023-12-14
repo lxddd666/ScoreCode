@@ -841,7 +841,7 @@ func (s *sAdminMember) ClusterSyncSuperAdmin(ctx context.Context, message *gredi
 }
 
 // FilterAuthModel 过滤用户操作权限
-// 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置
+// 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置 (现在可获取自己同级权限)
 func (s *sAdminMember) FilterAuthModel(ctx context.Context, memberId int64) *gdb.Model {
 	m := dao.AdminMember.Ctx(ctx)
 	// 超管
@@ -877,6 +877,8 @@ func (s *sAdminMember) FilterAuthModel(ctx context.Context, memberId int64) *gdb
 	}
 
 	roleIds, err := service.AdminRole().GetSubRoleIds(ctx, roleId, false)
+	// 包括自己权限
+	roleIds = append(roleIds, user.RoleId)
 	if err != nil {
 		g.Log().Panicf(ctx, "get the subordinate role permission exception, err:%+v", err)
 		return nil
