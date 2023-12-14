@@ -597,6 +597,18 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
 		mod = mod.WhereLike(cols.Username, "%"+in.Username+"%")
 	}
 
+	if in.FirstName != "" {
+		mod = mod.WhereLike(cols.FirstName, "%"+in.FirstName+"%")
+	}
+
+	if in.LastName != "" {
+		mod = mod.WhereLike(cols.LastName, "%"+in.LastName+"%")
+	}
+
+	if in.Email != "" {
+		mod = mod.WhereLike(cols.Email, "%"+in.Email+"%")
+	}
+
 	if in.Mobile > 0 {
 		mod = mod.Where(cols.Mobile, in.Mobile)
 	}

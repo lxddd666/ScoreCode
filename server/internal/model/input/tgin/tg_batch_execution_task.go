@@ -42,9 +42,6 @@ type TgBatchExecutionTaskEditInp struct {
 
 func (in *TgBatchExecutionTaskEditInp) Filter(ctx context.Context) (err error) {
 	// 验证组织ID
-	if err := g.Validator().Rules("required").Data(in.OrgId).Messages(g.I18n().T(ctx, "{#OrganizerIdNotEmpty}")).Run(ctx); err != nil {
-		return err.Current()
-	}
 
 	// 验证操作动作
 	if err := g.Validator().Rules("required").Data(in.Action).Messages(g.I18n().T(ctx, "{#ActionNotEmpty}")).Run(ctx); err != nil {
