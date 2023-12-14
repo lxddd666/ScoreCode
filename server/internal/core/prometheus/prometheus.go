@@ -150,6 +150,7 @@ var (
 		},
 		[]string{"group"})
 
+	// 主动加入群聊
 	AccountJoinGroupCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_user_join_group",
@@ -157,6 +158,7 @@ var (
 		},
 		[]string{"group"})
 
+	// 发送群聊消息
 	AccountSendGroupMsgCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_user_send_group_message",
@@ -196,6 +198,7 @@ var (
 		},
 		[]string{"account"})
 
+	// 修改用户信息
 	AccountUpdateUserInfoCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_account_update_user_info_success",
