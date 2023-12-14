@@ -586,7 +586,7 @@ func (s *sAdminMember) View(ctx context.Context, in *adminin.MemberViewInp) (res
 
 // List 获取用户列表
 func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (list []*adminin.MemberListModel, totalCount int, err error) {
-	mod := s.FilterAuthModel(ctx, contexts.GetUserId(ctx))
+	mod := s.FilterSelfAuthModel(ctx, contexts.GetUserId(ctx))
 	cols := dao.AdminMember.Columns()
 
 	if in.RealName != "" {
@@ -849,7 +849,7 @@ func (s *sAdminMember) ClusterSyncSuperAdmin(ctx context.Context, message *gredi
 }
 
 // FilterAuthModel 过滤用户操作权限
-// 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置
+// 非超管用户只能操作自己的下级角色用户，并且需要满足自身角色的数据权限设置 (现在可获取自己同级权限)
 func (s *sAdminMember) FilterAuthModel(ctx context.Context, memberId int64) *gdb.Model {
 	m := dao.AdminMember.Ctx(ctx)
 	// 超管
@@ -885,6 +885,52 @@ func (s *sAdminMember) FilterAuthModel(ctx context.Context, memberId int64) *gdb
 	}
 
 	roleIds, err := service.AdminRole().GetSubRoleIds(ctx, roleId, false)
+	if err != nil {
+		g.Log().Panicf(ctx, "get the subordinate role permission exception, err:%+v", err)
+		return nil
+	}
+	return m.Where("id <> ?", memberId).WhereIn("role_id", roleIds).Handler(handler.FilterAuthWithField("id"))
+}
+
+// FilterSelfAuthModel 过滤用户操作权限
+// 非超管用户只能操作自己同级和下级角色用户，并且需要满足自身角色的数据权限设置
+func (s *sAdminMember) FilterSelfAuthModel(ctx context.Context, memberId int64) *gdb.Model {
+	m := dao.AdminMember.Ctx(ctx)
+	// 超管
+	if s.VerifySuperId(ctx, memberId) {
+		return m
+	}
+	user := contexts.GetUser(ctx)
+	var roleId int64
+	var orgId int64
+	if user.Id == memberId {
+		// 当前登录用户直接从上下文中取角色ID
+		roleId = user.RoleId
+		orgId = user.OrgId
+	} else {
+		var thatUser entity.AdminMember
+		err := dao.AdminMember.Ctx(ctx).Fields(dao.AdminMember.Columns().RoleId, dao.AdminMember.Columns().OrgId).Where("id", memberId).Scan(&thatUser)
+		if err != nil {
+			g.Log().Panicf(ctx, "failed to get role information, err:%+v", err)
+			return nil
+		}
+		roleId = thatUser.RoleId
+		orgId = thatUser.OrgId
+	}
+	// 组织管理员
+	var role entity.AdminRole
+	err := dao.AdminRole.Ctx(ctx).Cache(crole.GetRoleCache(roleId)).WherePri(roleId).Scan(&role)
+	if err != nil {
+		g.Log().Panicf(ctx, "failed to get role information, err:%+v", err)
+		return nil
+	}
+	if role.OrgAdmin == consts.StatusEnabled {
+		return m.Where("id <> ?", memberId).Where(dao.AdminMember.Columns().OrgId, orgId)
+	}
+
+	roleIds, err := service.AdminRole().GetSubRoleIds(ctx, roleId, false)
+	// 包括自己权限
+	roleIds = append(roleIds, user.RoleId)
 	if err != nil {
 		g.Log().Panicf(ctx, "get the subordinate role permission exception, err:%+v", err)
 		return nil
