@@ -1,0 +1,60 @@
+.context {
+    width: 100%;
+    height: 100%;
+    padding: 0 20px;
+
+    .other {
+        width: 100%;
+        text-align: left;
+        min-height: 80px;
+        // background-color: antiquewhite;
+        margin: 10px 0;
+
+
+
+        .otherBody {
+            display: flex;
+            flex-direction: row;
+
+            .lineFont {
+                width: 60%;
+                min-height: 100px;
+                background-color: #EDE7F6;
+                overflow-wrap: break-word;
+                margin-left: 10px;
+                border-radius: 20px;
+                padding: 10px;
+            }
+        }
+
+    }
+
+    .me {
+        width: 100%;
+        // text-align: right;
+        min-height: 80px;
+        // background-color: antiquewhite;
+        margin: 10px 0;
+
+
+
+        .meBody {
+            display: flex;
+            flex-direction: row;
+            white-space: nowrap;
+            justify-content: flex-end;
+
+            .lineFont {
+                margin-right: 10px;
+                width: 60%;
+                min-height: 100px;
+                background-color: #E3F2FD;
+                overflow-wrap: break-word;
+                white-space: normal;
+                border-radius: 20px;
+                padding: 10px;
+            }
+        }
+
+    }
+}

@@ -1,65 +1,240 @@
-import React,{ memo, useState } from 'react';
-import { Button } from '@mui/material';
-// import { useNavigate } from 'react-router-dom';
+import { memo, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
-import AlignVerticalBottomIcon from '@mui/icons-material/AlignVerticalBottom';
-import ContactlessIcon from '@mui/icons-material/Contactless';
-import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
-// import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-// import PropTypes from 'prop-types';
 import { FormattedMessage } from 'react-intl';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Chip, Pagination } from '@mui/material';
+import { useDispatch, useSelector } from 'store';
+import { useHeightComponent } from 'utils/tools';
 import styles from './index.module.scss';
+import SearchForm from './searchFrom';
 
-import TabPanel01 from './children/TabPanel01';
-import TabPanel02 from './children/TabPanel02';
+import { getTgUserListAction } from 'store/slices/tg';
+import axios from 'utils/axios';
+import { columns, accountStatus, isOnline } from './conig';
 
 const TgUser = () => {
-    // const navigate = useNavigate();
-    const [value, setValue] = useState(0);
+    const [selected, setSelected] = useState<any>([]); // 多选
+    const [rows, setrows] = useState([]); // table rows 数据
+    const [paramsPayload, setParamsPayload] = useState({
+        page: 1,
+        pageSize: 10,
+        folderId: undefined
+    }); // 分页
+    const [searchForm, setSearchForm] = useState([]); // search Form
+    const [pagetionTotle, setPagetionTotle] = useState(0);
+    const boxRef: any = useRef();
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+    const { tgUserList } = useSelector((state) => state.tg);
 
-    const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
+    let { height: boxHeight } = useHeightComponent(boxRef);
+
+    useEffect(() => {
+        getTgUserListActionFN();
+
+        console.log('tgUserList', tgUserList?.data?.list);
+    }, [dispatch, paramsPayload]);
+    // 数据赋值
+    useEffect(() => {
+        // getTgSearchParams();
+        setrows(tgUserList?.data?.list || []);
+        setPagetionTotle(tgUserList?.data?.totalCount);
+    }, [tgUserList]);
+    // 网络请求
+    useEffect(() => {
+        getTgSearchParams();
+    }, []);
+
+    // tgUser 表格数据
+    const getTgUserListActionFN = async () => {
+        await dispatch(getTgUserListAction(paramsPayload));
+    };
+    // 分组选择请求
+    const getTgSearchParams = async () => {
+        try {
+            const res = await axios.get(`/tg/tgFolders/list`);
+            console.log('tg分组选择请求', res);
+            let arr: any = [];
+            res?.data?.data?.list.map((item: any) => {
+                arr.push({
+                    // title:item.folderName,
+                    title: String(item.id),
+                    value: item.id
+                });
+            });
+            setSearchForm(arr);
+        } catch (error) {
+            console.log('分组数据请求失败');
+        }
+    };
+    // table多选all操作
+    const handleSelectAllClick = (event: any) => {
+        if (event.target.checked) {
+            const newSelecteds = rows.map((n: any) => n.id);
+            setSelected(newSelecteds);
+            return;
+        }
+        setSelected([]);
+    };
+    // table多选点击操作
+    const handleClick = (event: any, id: any) => {
+        const selectedIndex = selected.indexOf(id);
+        let newSelected: any = [];
+
+        if (selectedIndex === -1) {
+            newSelected = newSelected.concat(selected, id);
+        } else if (selectedIndex === 0) {
+            newSelected = newSelected.concat(selected.slice(1));
+        } else if (selectedIndex === selected.length - 1) {
+            // } else if (selectedIndex === selected.length) {
+            newSelected = newSelected.concat(selected.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1));
+        }
+
+        setSelected(newSelected);
+    };
+    // id筛选
+    const isSelected = (id: any) => selected.indexOf(id) !== -1;
+
+    const renderTable = (value: any, key: any) => {
+        let temp: any = '';
+        if (key === 'accountStatus') {
+            temp = <Chip label={accountStatus(value)} color="primary" />;
+        } else if (key === 'isOnline') {
+            temp = <Chip label={isOnline(value)} color="primary" />;
+        } else {
+            temp = value;
+        }
+        return temp;
     };
 
-    // const chatRoomToNavica = () => {
-    //     navigate('/tg/chat/index?id=1');
-    // };
+    // 分页事件
+    const pageRef = useRef(1);
+    const onPaginationChange = (event: object, page: number) => {
+        pageRef.current = page;
 
+        setParamsPayload({ ...paramsPayload, page: pageRef.current });
+    };
+
+    // 子传父 searchForm
+    const handleSearchFormData = (obj: any) => {
+        setParamsPayload({ ...paramsPayload, folderId: obj?.value, page: 1 });
+    };
+
+    const chatRoomToNavica = (rows:any) => {
+        // console.log(rows);
+        navigate(`/tg/chat/index?id=${rows.id}`);
+    };
+    // const handleToggleActive = (id: any, isActive: any) => {
+    //     console.log('Toggling active status for:', id);
+    //     // 这里可以调用API来更新状态
+    // };
     return (
         <MainCard title={<FormattedMessageTitle />} content={true}>
-            {/* <Button variant="outlined" onClick={chatRoomToNavica}>
-                聊天室跳转测试
-            </Button> */}
-            <Box sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', height: '100%' }}>
-                <Tabs
-                    orientation="vertical"
-                    variant="scrollable"
-                    value={value}
-                    onChange={handleChange}
-                    aria-label="Vertical tabs example"
-                    sx={{ borderRight: 1, borderColor: 'divider' }}
+            <div className={styles.box} ref={boxRef}>
+                <div className={styles.searchTop}>
+                    <SearchForm top100Films={searchForm} handleSearchFormData={handleSearchFormData} />
+                </div>
+                <div className={styles.btnList}>
+                    <Stack direction="row" spacing={2}>
+                        <Button size="small" variant="contained">
+                            导入
+                        </Button>
+                        <Button size="small" variant="contained">
+                            导入
+                        </Button>
+                    </Stack>
+                </div>
+                <TableContainer
+                    component={Paper}
+                    style={{ maxHeight: `calc(${boxHeight - 170}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
                 >
-                    <Tab label="Item One" icon={<AccountBalanceIcon />} {...a11yProps(0)} />
-                    <Tab label="Item One" icon={<AccountBoxIcon />} {...a11yProps(1)} />
-                    <Tab label="Item One" icon={<HeadsetMicIcon />} {...a11yProps(2)} />
-                    <Tab label="Item One" icon={<ContactlessIcon />} {...a11yProps(2)} />
-                    <Tab label="Item One" icon={<AlignVerticalBottomIcon />} {...a11yProps(2)} />
-                </Tabs>
-                <TabPanel01 value={value} index={0}>
-                    Item One
-                </TabPanel01>
-                <TabPanel02 value={value} index={1}>
-                    Item Two
-                </TabPanel02>
-                <TabPanel01 value={value} index={2}>
-                    Item Three
-                </TabPanel01>
-            </Box>
+                    <Table aria-label="simple table" sx={{ border: 1, borderColor: 'divider' }} stickyHeader={true}>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell padding="checkbox">
+                                    <Checkbox
+                                        indeterminate={selected.length > 0 && selected.length < rows.length}
+                                        checked={rows.length > 0 && selected.length === rows.length}
+                                        onChange={handleSelectAllClick}
+                                        inputProps={{ 'aria-label': 'select all desserts' }}
+                                    />
+                                </TableCell>
+                                {columns.map((item) => {
+                                    return (
+                                        <TableCell align="center" key={item.title}>
+                                            {item.title}
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rows.map((row: any) => (
+                                <TableRow
+                                    key={row.id}
+                                    hover
+                                    onClick={(event) => handleClick(event, row.id)}
+                                    role="checkbox"
+                                    aria-checked={isSelected(row.id)}
+                                    tabIndex={-1}
+                                    selected={isSelected(row.id)}
+                                >
+                                    <TableCell padding="checkbox">
+                                        <Checkbox
+                                            checked={isSelected(row.id)}
+                                            inputProps={{ 'aria-labelledby': `enhanced-table-checkbox-${row.id}` }}
+                                        />
+                                    </TableCell>
+                                    {columns.map((item) => {
+                                        return (
+                                            <TableCell align="center" key={item.key}>
+                                                {renderTable(row[item.key], item.key)}
+
+                                                {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
+                                                {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
+                                                {item.key === 'active' ? (
+                                                    <Button size="small" variant="contained" onClick={e => chatRoomToNavica(row)}>
+                                                        聊天室
+                                                    </Button>
+                                                ) : (
+                                                    ''
+                                                )}
+                                            </TableCell>
+                                        );
+                                    })}
+                                    {/* <TableCell align="center">{row.memberUsername}</TableCell>
+                                    <TableCell align="center">{row.username}</TableCell>
+                                    <TableCell align="center">{row.firstName}</TableCell>
+                                    <TableCell align="center">{row.phone}</TableCell>
+                                    <TableCell align="center">{row.folderId}</TableCell>
+                                    <TableCell align="center">{row.lastName}</TableCell>
+                                    <TableCell align="center">{row.accountStatus}</TableCell>
+                                    <TableCell align="center">{row.isOnline}</TableCell>
+                                    <TableCell align="center">{row.proxyAddress}</TableCell>
+                                    <TableCell align="center">{row.lastLoginTime}</TableCell>
+                                    <TableCell align="center">{row.comment}</TableCell>
+                                    <TableCell align="center">{row.createdAt}</TableCell>
+                                    <TableCell align="center">{row.updatedAt}</TableCell> */}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                {pagetionTotle !== 0 ? (
+                    <>
+                        <div className={styles.paginations}>
+                            <div>共 {pagetionTotle} 条</div>
+                            <Pagination count={10} color="primary" onChange={onPaginationChange} />
+                        </div>
+                    </>
+                ) : (
+                    ''
+                )}
+            </div>
         </MainCard>
     );
 };
@@ -68,29 +243,9 @@ const FormattedMessageTitle = () => {
         <div className={styles.FormattedMessageTitle}>
             <FormattedMessage id="setting.cron.teleg-tg" />
             <div>
-                <Button className={styles.btn} variant="outlined">
-                    首页
-                </Button>
-                <Button className={styles.btn} variant="outlined">
-                    注册
-                </Button>
                 <Button variant="outlined">登录</Button>
             </div>
         </div>
     );
 };
-
-// TabPanel01.propTypes = {
-//     children: PropTypes.node,
-//     index: PropTypes.number.isRequired,
-//     value: PropTypes.number.isRequired
-// };
-
-function a11yProps(index: any) {
-    return {
-        id: `vertical-tab-${index}`,
-        'aria-controls': `vertical-tabpanel-${index}`
-    };
-}
-
 export default memo(TgUser);

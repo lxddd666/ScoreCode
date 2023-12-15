@@ -17,6 +17,7 @@ import { LoginlogStateProps } from './loginlog';
 import { ServelogStateProps } from './servelog';
 import { SmslogStateProps } from './smslog';
 import { WhatsStateProps } from './whats';
+import { TgStateProps } from './tg';
 
 export type ArrangementOrder = 'asc' | 'desc' | undefined;
 
@@ -118,6 +119,7 @@ export interface DefaultRootStateProps {
     blacklist: blacklistStateProps;
     cron: CronStateProps;
     subcron: SubcronStateProps;
+    tg:TgStateProps
 }
 
 export interface ColorProps {
