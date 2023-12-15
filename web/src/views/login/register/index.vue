@@ -390,7 +390,7 @@
     if (formInline.value.email !== '') {
       validate.email(rules.email, formInline.value.email, function (error?: Error) {
         if (error === undefined) {
-          activateSend(SendEms({ email: formInline.value.email, event: 'register' }));
+          activateSend(SendEms({ email: formInline.value.email, event: 'register' }),undefined);
           return;
         }
         message.error(error.message);
@@ -398,7 +398,7 @@
     } else {
       validate.phone(rules.mobile, formInline.value.mobile, function (error?: Error) {
         if (error === undefined) {
-          activateSend(SendSms({ mobile: formInline.value.mobile, event: 'register' }));
+          activateSend(SendSms({ mobile: formInline.value.mobile, event: 'register' }),undefined);
           return;
         }
         message.error(error.message);

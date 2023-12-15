@@ -1,14 +1,14 @@
-import { h, ref } from 'vue';
-import { NImage, NTag } from 'naive-ui';
-import { cloneDeep } from 'lodash-es';
-import { FormSchema } from '@/components/Form';
-import { Dicts } from '@/api/dict/dict';
+import {h, ref} from 'vue';
+import {NAvatar, NTag} from 'naive-ui';
+import {cloneDeep} from 'lodash-es';
+import {FormSchema} from '@/components/Form';
+import {Dicts} from '@/api/dict/dict';
 
-import { isNullObject } from '@/utils/is';
-import { defRangeShortcuts } from '@/utils/dateUtil';
-import { errorImg, getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
-import { getPhoto } from '@/utils/tgUtils';
-import { List } from '@/api/tg/tgFolders';
+import {isNullObject} from '@/utils/is';
+import {defRangeShortcuts} from '@/utils/dateUtil';
+import {getOptionLabel, getOptionTag, Options} from '@/utils/hotgo';
+import {getPhoto} from '@/utils/tgUtils';
+import {List} from '@/api/tg/tgFolders';
 
 export interface State {
   id: number;
@@ -203,17 +203,10 @@ export const columns = [
     key: 'photo',
     render(row) {
       // @ts-ignore
-      return h(NImage, {
-        width: 40,
-        height: 40,
+      return h(NAvatar, {
+        circle: true,
+        size: 'large',
         src: getPhoto(row.phone, row.tgId, row.photo),
-        fallbackSrc: errorImg,
-        style: {
-          width: '40px',
-          height: '40px',
-          'max-width': '100%',
-          'max-height': '100%',
-        },
       });
     },
   },
@@ -320,7 +313,6 @@ async function loadOptions() {
   } else {
     options.value.folderId = [];
   }
-  debugger;
   for (const item of schemas.value) {
     switch (item.field) {
       case 'accountStatus':

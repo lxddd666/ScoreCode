@@ -50,9 +50,6 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (reqId string, er
 		tgUser entity.TgUser
 		sysOrg entity.SysOrg
 	)
-	if count, err := service.TgUser().Model(ctx).Where(dao.TgUser.Columns().Phone, phone).Count(); err != nil || count > 0 {
-		return "", gerror.New(g.I18n().T(ctx, "{#PhoneExist}"))
-	}
 	user := contexts.GetUser(ctx)
 	_, err = service.TgUser().Model(ctx).Save(do.TgUser{
 		OrgId:         user.OrgId,
