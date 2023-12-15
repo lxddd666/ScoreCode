@@ -722,6 +722,14 @@ func (s *sAdminMember) LoginMemberInfo(ctx context.Context) (res *adminin.LoginM
 		return
 	}
 
+	// 更新最后活跃时间
+	_, err = dao.AdminMember.Ctx(ctx).Data(g.Map{
+		dao.AdminMember.Columns().LastActiveAt: gtime.Now()}).WherePri(memberId).Update()
+	if err != nil {
+		// 如果更新失败，你可以选择记录这个错误或者返回它
+		g.Log().Error(ctx, "Error updating last active time:", err)
+	}
+
 	// 细粒度权限
 	permissions, err := service.AdminMenu().LoginPermissions(ctx, memberId)
 	if err != nil {
