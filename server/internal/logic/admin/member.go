@@ -648,6 +648,8 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
        integral,
        balance,
        avatar,
+       first_name,
+       last_name,
        sex,
        email,
        mobile,
