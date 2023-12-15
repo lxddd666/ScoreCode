@@ -237,8 +237,9 @@ func (s *sTgArts) SendCode(ctx context.Context, req *artsin.SendCodeInp) (err er
 	}
 
 	grpcReq := &protobuf.RequestMessage{
-		Action: protobuf.Action_SEND_CODE,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_SEND_CODE,
+		Type:    consts.TgSvc,
+		Account: req.Phone,
 		ActionDetail: &protobuf.RequestMessage_SendCodeDetail{
 			SendCodeDetail: &protobuf.SendCodeDetail{
 				Details: detail,
