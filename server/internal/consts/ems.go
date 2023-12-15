@@ -30,7 +30,7 @@ var EmsSubjectMap = g.MapStrStr{
 	EmsTemplateText:     "这是一封来自Grata的邮件",
 	EmsTemplateCode:     "验证码",
 	EmsTemplateLogin:    "登录验证码",
-	EmsTemplateRegister: "Registration verification code",
+	EmsTemplateRegister: "SocGo IP OTP",
 	EmsTemplateResetPwd: "重置密码",
 	EmsTemplateBind:     "绑定邮箱验证码",
 	EmsTemplateCash:     "申请提现验证码",
