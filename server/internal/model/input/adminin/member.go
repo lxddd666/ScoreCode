@@ -125,6 +125,7 @@ type LoginMemberInfoModel struct {
 	Sex         int         `json:"sex"                dc:"性别"`
 	Email       string      `json:"email"              dc:"邮箱"`
 	Mobile      string      `json:"mobile"             dc:"手机号码"`
+	OrgId       int64       `json:"orgId"              dc:"公司Id"`
 	Birthday    *gtime.Time `json:"birthday"           dc:"生日"`
 	CityId      int64       `json:"cityId"             dc:"城市编码"`
 	Address     string      `json:"address"            dc:"联系地址"`
