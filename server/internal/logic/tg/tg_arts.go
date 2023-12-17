@@ -153,7 +153,6 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_AddGroupMemberDetail{
 			AddGroupMemberDetail: &protobuf.AddGroupMemberDetail{
-				GroupName: inp.GroupId,
 				Detail: &protobuf.UintkeyStringvalue{
 					Key:    inp.Account,
 					Values: inp.AddMembers,

@@ -342,11 +342,19 @@ var (
 		},
 		[]string{"account"})
 
-	// 获取聊天记录
+	// AccountGetHistoryList 获取聊天记录
 	AccountGetHistoryList = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_account_get_history_list",
 			Help: "Total number of account get history list",
+		},
+		[]string{"account"})
+
+	// AccountSaveMsgDraft 消息同步草稿
+	AccountSaveMsgDraft = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_save_message_draft",
+			Help: "Total number of account save message draft",
 		},
 		[]string{"account"})
 )
@@ -393,6 +401,8 @@ func init() {
 	prometheus.MustRegister(AccountSendFile)
 	prometheus.MustRegister(AccountPassiveSendFile)
 	prometheus.MustRegister(AccountGetDialogList)
+	prometheus.MustRegister(AccountSaveMsgDraft)
+
 }
 
 // InitPrometheus 初始化普罗米修斯

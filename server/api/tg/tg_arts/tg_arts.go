@@ -314,11 +314,11 @@ type GetUserChannelsRes struct {
 	List []*tgin.TgDialogModel `json:"list" dc:"channel 列表"`
 }
 
-//// NearbyPeopleReq 附近的人
-//type NearbyPeopleReq struct {
-//	g.Meta `path:"/arts/nearbyPeople" method:"post" tags:"tg-api" summary:"附近的人、群"`
-//	tgin.TgGetNearbyPeopleInp
-//}
-//
-//type NearbyPeopleRes struct {
-//}
+// SaveMsgDraftReq 消息同步草稿功能
+type SaveMsgDraftReq struct {
+	g.Meta `path:"/arts/msg/saveMsgDraft" method:"post" tags:"tg-api" summary:"消息同步草稿功能"`
+	*tgin.MsgSaveDraftInp
+}
+
+type SaveMsgDraftRes struct {
+}

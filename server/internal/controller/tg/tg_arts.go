@@ -257,3 +257,9 @@ func (c *cTgArts) GetUserChannel(ctx context.Context, req *tgarts.GetUserChannel
 	res.List = data
 	return
 }
+
+// 消息同步草稿功能
+func (c *cTgArts) SaveMsgDraft(ctx context.Context, req *tgarts.SaveMsgDraftReq) (res *tgarts.SaveMsgDraftRes, err error) {
+	err = service.TgArts().SaveMsgDraft(ctx, req.MsgSaveDraftInp)
+	return
+}

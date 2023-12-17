@@ -7,6 +7,7 @@ package admin
 
 import (
 	"context"
+
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/database/gredis"
@@ -578,6 +579,7 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 
 // View 获取用户信息
 func (s *sAdminMember) View(ctx context.Context, in *adminin.MemberViewInp) (res *adminin.MemberViewModel, err error) {
+
 	if err = s.FilterAuthModel(ctx, contexts.GetUserId(ctx)).Cache(cmember.ClearCache(in.Id)).Hook(hook.MemberInfo).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserInformationFailureTryAgain}"))
 	}

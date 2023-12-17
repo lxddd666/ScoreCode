@@ -129,6 +129,8 @@ type (
 		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
 		// GetUserChannels 获取用户群频道
 		GetUserChannels(ctx context.Context, inp *tgin.GetUserChannelsInp) (res []*tgin.TgDialogModel, err error)
+		// SaveMsgDraft 消息草稿同步
+		SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型

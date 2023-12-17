@@ -232,7 +232,7 @@ func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionIn
 func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error) {
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SET_TYPE_ACTION,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: inp.Sender,
 		ActionDetail: &protobuf.RequestMessage_SetTypeActionDetail{
 			SetTypeActionDetail: &protobuf.SetTypeActionDetail{
@@ -243,5 +243,34 @@ func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (er
 		},
 	}
 	_, err = service.Arts().Send(ctx, req)
+	return
+}
+
+// SaveMsgDraft 获取chats
+func (s *sTgArts) SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_SAVE_DRAFT,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_SaveDraftDetail{
+			SaveDraftDetail: &protobuf.SaveDraftDetail{
+				Sender:       inp.Sender,
+				Receiver:     inp.Receiver,
+				ReplyToMsgId: inp.ReplyToMsgId,
+				TopMsgId:     inp.TopMsgId,
+				Msg:          inp.Msg,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountSaveMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+
 	return
 }

@@ -153,3 +153,11 @@ type ChannelReadAddViewInp struct {
 type GetUserChannelsInp struct {
 	Account uint64 `json:"account" v:"required#sendNotEmpty" dc:"tg账号"`
 }
+
+type MsgSaveDraftInp struct {
+	Sender       uint64 `json:"sender"  dc:"tg账号"`
+	Receiver     string `json:"receiver"  dc:"消息人"`
+	ReplyToMsgId int64  `json:"replyToMsgId" dc:"回复消息ID"`
+	TopMsgId     int64  `json:"topMsgId" dc:"最大消息Id"`
+	Msg          string `json:"msg" dc:"消息内容"`
+}
