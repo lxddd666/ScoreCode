@@ -141,6 +141,8 @@ type (
 		EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error)
 		// EditChannelBannedRight 修改频道/群/超级群 禁止权限
 		EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error)
+		// GetManageChannels 获取自己管理的群和频道
+		GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型

@@ -370,3 +370,12 @@ type EditChannelBannedRightsReq struct {
 
 type EditChannelBannedRightsRes struct {
 }
+
+// GetManageChannelsReq 修改频道/超级群/基础群的禁止权限
+type GetManageChannelsReq struct {
+	g.Meta `path:"/arts/getManageChannels" method:"post" tags:"tg-api" summary:"获取自己管理的群和频道"`
+	*tgin.GetManageChannelsInp
+}
+
+type GetManageChannelsRes struct {
+}

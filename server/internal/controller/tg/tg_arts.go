@@ -300,3 +300,9 @@ func (c *cTgArts) EditChannelBannedRight(ctx context.Context, req *tgarts.EditCh
 	err = service.TgArts().EditChannelBannedRight(ctx, req.EditChannelBannedRightsInp)
 	return
 }
+
+// GetManageChannels 获取自己管理的群和频道
+func (c *cTgArts) GetManageChannels(ctx context.Context, req *tgarts.GetManageChannelsReq) (res *tgarts.GetManageChannelsRes, err error) {
+	err = service.TgArts().GetManageChannels(ctx, req.GetManageChannelsInp)
+	return
+}

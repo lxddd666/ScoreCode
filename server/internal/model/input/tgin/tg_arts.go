@@ -241,3 +241,8 @@ type BannedRights struct {
 	SendVoices      bool  `json:"sendVoices"     dc:"vices权限"`
 	UntilDate       int64 `json:"untilDate"     dc:"限时规则"`
 }
+
+type GetManageChannelsInp struct {
+	Sender     uint64 `json:"sender"     dc:"tg账号"`
+	ByLocation bool   `json:"byLocation" dc:"true只显示频道"`
+}

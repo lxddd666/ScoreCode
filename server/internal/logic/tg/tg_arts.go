@@ -724,3 +724,29 @@ func (s *sTgArts) EditChannelBannedRight(ctx context.Context, inp *tgin.EditChan
 	_, err = service.Arts().Send(ctx, req)
 	return
 }
+
+// GetManageChannels 获取自己管理的频道和群
+func (s *sTgArts) GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_GET_MANAGED_CHANNELS,
+		Type:    "telegram",
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_GetManageChannelsDetail{
+			GetManageChannelsDetail: &protobuf.GetManageChannelsDetail{
+				Sender:     inp.Sender,
+				ByLocation: inp.ByLocation,
+				CheckLimit: false, // 默认为false就行了
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+
+	return
+}
