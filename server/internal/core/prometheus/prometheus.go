@@ -365,6 +365,14 @@ var (
 			Help: "Total number of account clear message draft",
 		},
 		[]string{"account"})
+
+	// AccountDeleteMsg 删除消息
+	AccountDeleteMsg = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_delete_message",
+			Help: "Total number of account delete message",
+		},
+		[]string{"account"})
 )
 
 func init() {
@@ -410,6 +418,8 @@ func init() {
 	prometheus.MustRegister(AccountPassiveSendFile)
 	prometheus.MustRegister(AccountGetDialogList)
 	prometheus.MustRegister(AccountSaveMsgDraft)
+	prometheus.MustRegister(AccountClearMsgDraft)
+	prometheus.MustRegister(AccountDeleteMsg)
 
 }
 

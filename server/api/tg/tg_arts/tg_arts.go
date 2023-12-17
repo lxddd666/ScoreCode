@@ -332,3 +332,13 @@ type ClearMsgDraftReq struct {
 type ClearMsgDraftRes struct {
 	*tgin.ClearMsgDraftResultModel
 }
+
+// DeleteMsgReq 删除消息
+type DeleteMsgReq struct {
+	g.Meta `path:"/arts/msg/deleteMsg" method:"post" tags:"tg-api" summary:"删除消息(私聊、群聊、频道、超级群，支持双向删除)"`
+	*tgin.DeleteMsgInp
+}
+
+type DeleteMsgRes struct {
+	*tgin.DeleteMsgModel
+}

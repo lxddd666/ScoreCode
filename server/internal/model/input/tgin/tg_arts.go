@@ -167,6 +167,19 @@ type ClearMsgDraftInp struct {
 }
 
 type ClearMsgDraftResultModel struct {
-	TgId      int64 `json:"tgId"          description:"tg id"`
-	IsSuccess bool  `json:"isSuccess"  description:"is success"`
+	TgId      int64 `json:"tgId"          dc:"tg id"`
+	IsSuccess bool  `json:"isSuccess"     dc:"is success"`
+}
+
+type DeleteMsgInp struct {
+	Sender    uint64  `json:"sender"     dc:"tg账号"`
+	Revoke    bool    `json:"revoke"     dc:"true 双方都删除，false 只删除自己"`
+	IsChannel bool    `json:"isChannel"  dc:"是否为频道"`
+	Channel   string  `json:"channel"    dc:"删除对象"`
+	MsgIds    []int64 `json:"msgIds"     dc:"消息ID"`
+}
+
+type DeleteMsgModel struct {
+	TgId   int64 `json:"tgId"          dc:"tg id"`
+	ChatId int64 `json:"chatId"  description:"chat id"`
 }

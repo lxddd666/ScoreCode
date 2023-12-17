@@ -272,3 +272,11 @@ func (c *cTgArts) ClearMsgDraft(ctx context.Context, req *tgarts.ClearMsgDraftRe
 	res.ClearMsgDraftResultModel = resp
 	return
 }
+
+// DeleteMsg 删除消息
+func (c *cTgArts) DeleteMsg(ctx context.Context, req *tgarts.DeleteMsgReq) (res *tgarts.DeleteMsgRes, err error) {
+	resp, err := service.TgArts().DeleteMsg(ctx, req.DeleteMsgInp)
+	res = new(tgarts.DeleteMsgRes)
+	res.DeleteMsgModel = resp
+	return
+}

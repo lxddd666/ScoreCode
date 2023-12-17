@@ -306,3 +306,35 @@ func (s *sTgArts) ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp)
 	}
 	return
 }
+
+// DeleteMsg 删除消息
+func (s *sTgArts) DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_DELETE_MESSAGES,
+		Type:    "telegram",
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_DeleteMessagesDetail{
+			DeleteMessagesDetail: &protobuf.DeleteMessagesDetail{
+				Sender:    inp.Sender,
+				Revoke:    inp.Revoke,
+				IsChannel: inp.IsChannel,
+				Channel:   inp.Channel,
+				MsgIds:    inp.MsgIds,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	err = gjson.DecodeTo(resp.Data, &res)
+	if err != nil {
+		return
+	}
+	return
+}

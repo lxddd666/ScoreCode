@@ -131,8 +131,10 @@ type (
 		GetUserChannels(ctx context.Context, inp *tgin.GetUserChannelsInp) (res []*tgin.TgDialogModel, err error)
 		// SaveMsgDraft 消息草稿同步
 		SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error)
-		// 清除消息草稿
+		// ClearMsgDraft 清除消息草稿
 		ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error)
+		// DeleteMsg 删除消息
+		DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
