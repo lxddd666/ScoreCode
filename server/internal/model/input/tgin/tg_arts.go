@@ -211,3 +211,33 @@ type GeoPointType struct {
 	//范围，米为单位
 	AccuracyRadius int `json:"accuracyRadius"     dc:"范围，米为单位"`
 }
+
+type EditChannelBannedRightsInp struct {
+	Sender       uint64       `json:"sender"     dc:"tg账号"`
+	Channel      string       `json:"channel"    dc:"频道/群/超级群ID"`
+	BannedRights BannedRights `json:"bannedRights"    dc:"禁止的权限内容"`
+}
+
+type BannedRights struct {
+	ViewMessages    bool  `json:"viewMessages"     dc:"view权限"`
+	SendMessages    bool  `json:"sendMessages"     dc:"发消息权限"`
+	SendMedia       bool  `json:"sendMedia"     dc:"发文件权限"`
+	SendStickers    bool  `json:"sendStickers"     dc:"表情权限"`
+	SendGifs        bool  `json:"sendGifs"     dc:"gif权限"`
+	SendGames       bool  `json:"sendGames"     dc:"games权限"`
+	SendInline      bool  `json:"sendInline"     dc:"Inline 权限(例如@xxx)"`
+	EmbedLinks      bool  `json:"embedLinks"     dc:"嵌入链接权限"`
+	SendPolls       bool  `json:"sendPolls"     dc:"投票权限"`
+	ChangeInfo      bool  `json:"changeInfo"     dc:"频道信息权限"`
+	InviteUsers     bool  `json:"inviteUsers"     dc:"邀请权限"`
+	PinMessages     bool  `json:"pinMessages"     dc:"特定消息固定顶部权限"`
+	ManageTopics    bool  `json:"manageTopics"     dc:"话题分类权限"`
+	SendPhotos      bool  `json:"SendPhotos"     dc:"发图片权限"`
+	SendVideos      bool  `json:"SendVideos"     dc:"video权限"`
+	SendRoundVideos bool  `json:"sendRoundVideos"     dc:"RoundVideos权限"`
+	SendAudios      bool  `json:"sendAudios"     dc:"音频权限"`
+	SendPlain       bool  `json:"sendPlain"     dc:"Plain权限"`
+	SendDocs        bool  `json:"sendDocs"     dc:"Docs权限"`
+	SendVoices      bool  `json:"sendVoices"     dc:"vices权限"`
+	UntilDate       int64 `json:"untilDate"     dc:"限时规则"`
+}

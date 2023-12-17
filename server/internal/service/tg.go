@@ -135,10 +135,12 @@ type (
 		ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error)
 		// DeleteMsg 删除消息
 		DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error)
-		// 获取附近的人
+		// ContactsGetLocated 获取附近的人
 		ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error)
-		// 修改频道消息
+		// EditChannelInfo 修改频道消息
 		EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error)
+		// EditChannelBannedRight 修改频道/群/超级群 禁止权限
+		EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型

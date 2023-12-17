@@ -381,6 +381,21 @@ var (
 			Help: "Total number of get locate contacts",
 		},
 		[]string{"account"})
+
+	// AccountEditChannelInfo 修改频道信息
+	AccountEditChannelInfo = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_edit_channel_info",
+			Help: "Total number of account edit channel info",
+		},
+		[]string{"account"})
+
+	ChannelEditInfo = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_channel_edit_info",
+			Help: "Total number of channel edit  info",
+		},
+		[]string{"channel"})
 )
 
 func init() {
@@ -430,6 +445,9 @@ func init() {
 	prometheus.MustRegister(AccountDeleteMsg)
 
 	prometheus.MustRegister(AccountGetContactsLocated)
+	prometheus.MustRegister(AccountEditChannelInfo)
+	prometheus.MustRegister(ChannelEditInfo)
+
 }
 
 // InitPrometheus 初始化普罗米修斯

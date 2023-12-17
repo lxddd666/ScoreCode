@@ -637,7 +637,7 @@ func (s *sTgArts) ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetL
 	return
 }
 
-// EditChannelInfo 获取附近的人
+// EditChannelInfo 修改频道信息
 func (s *sTgArts) EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error) {
 	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
 		return
@@ -668,6 +668,56 @@ func (s *sTgArts) EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfo
 				GeoPoint: geo,
 				Address:  inp.Address,
 				Describe: inp.Describe,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountEditChannelInfo.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	prometheus.ChannelEditInfo.WithLabelValues(gconv.String(inp.Channel)).Inc()
+
+	return
+}
+
+// EditChannelInfo 获取附近的人
+func (s *sTgArts) EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_EDIT_CHAT_BANNED_RIGHTS,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_EditChatBannedRightsDetail{
+			EditChatBannedRightsDetail: &protobuf.EditChatBannedRightsDetail{
+				Sender:  inp.Sender,
+				Channel: inp.Channel,
+				ChatBannedRights: &protobuf.ChatBannedRightsType{
+					ViewMessages:    inp.BannedRights.ViewMessages,
+					SendMessages:    inp.BannedRights.SendMessages,
+					SendMedia:       inp.BannedRights.SendMedia,
+					SendStickers:    inp.BannedRights.SendStickers,
+					SendGifs:        inp.BannedRights.SendGifs,
+					SendGames:       inp.BannedRights.SendGames,
+					SendInline:      inp.BannedRights.SendInline,
+					EmbedLinks:      inp.BannedRights.EmbedLinks,
+					SendPolls:       inp.BannedRights.SendPolls,
+					ChangeInfo:      inp.BannedRights.ChangeInfo,
+					InviteUsers:     inp.BannedRights.InviteUsers,
+					PinMessages:     inp.BannedRights.PinMessages,
+					ManageTopics:    inp.BannedRights.ManageTopics,
+					SendPhotos:      inp.BannedRights.SendPhotos,
+					SendVideos:      inp.BannedRights.SendVideos,
+					SendRoundVideos: inp.BannedRights.SendStickers,
+					SendAudios:      inp.BannedRights.SendAudios,
+					SendVoices:      inp.BannedRights.SendVoices,
+					SendDocs:        inp.BannedRights.SendDocs,
+					SendPlain:       inp.BannedRights.SendPlain,
+					UntilDate:       int64(inp.BannedRights.UntilDate),
+				},
 			},
 		},
 	}

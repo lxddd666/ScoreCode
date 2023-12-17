@@ -294,3 +294,9 @@ func (c *cTgArts) EditChannelInfo(ctx context.Context, req *tgarts.EditChannelIn
 	err = service.TgArts().EditChannelInfo(ctx, req.EditChannelInfoInp)
 	return
 }
+
+// EditChannelBannedRight 新增修改频道/超级群/基础群的禁止权限
+func (c *cTgArts) EditChannelBannedRight(ctx context.Context, req *tgarts.EditChannelBannedRightsReq) (res *tgarts.EditChannelBannedRightsRes, err error) {
+	err = service.TgArts().EditChannelBannedRight(ctx, req.EditChannelBannedRightsInp)
+	return
+}

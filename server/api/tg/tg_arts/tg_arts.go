@@ -361,3 +361,12 @@ type EditChannelInfoReq struct {
 
 type EditChannelInfoRes struct {
 }
+
+// EditChannelBannedRightsReq 修改频道/超级群/基础群的禁止权限
+type EditChannelBannedRightsReq struct {
+	g.Meta `path:"/arts/editChannelRights" method:"post" tags:"tg-api" summary:"修改频道/超级群/基础群的禁止权限"`
+	*tgin.EditChannelBannedRightsInp
+}
+
+type EditChannelBannedRightsRes struct {
+}
