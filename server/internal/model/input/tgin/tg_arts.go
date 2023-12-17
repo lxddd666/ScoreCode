@@ -183,3 +183,31 @@ type DeleteMsgModel struct {
 	TgId   int64 `json:"tgId"          dc:"tg id"`
 	ChatId int64 `json:"chatId"  description:"chat id"`
 }
+
+type ContactsGetLocatedInp struct {
+	Sender         uint64  `json:"sender"     dc:"tg账号"`
+	Background     bool    `json:"backgroud"  dc:"是否允许更新位置"`
+	Lat            float64 `json:"lat"        dc:"纬度"`
+	Long           float64 `json:"long"       dc:"经度"`
+	AccuracyRadius int     `json:"accuracyRadius" dc:"范围，米为单位"`
+	SelfExpires    int     `json:"selfExpires" dc:"位置过期时间"`
+}
+
+type EditChannelInfoInp struct {
+	Sender       uint64         `json:"sender"     dc:"tg账号"`
+	Channel      string         `json:"channel"    dc:"频道ID"`
+	Title        string         `json:"title"      dc:"频道标题"`
+	GeoPointType GeoPointType   `json:"geoPointType" dc:"频道地理位置"`
+	Address      string         `json:"address"    dc:"位置"`
+	Describe     string         `json:"describe"    dc:"描述"`
+	Photo        artsin.FileMsg `json:"photo"       dc:"频道图片"`
+}
+
+type GeoPointType struct {
+	//纬度
+	Lat float64 `json:"lat"     dc:"纬度"`
+	//经度
+	Long float64 `json:"long"     dc:"经度"`
+	//范围，米为单位
+	AccuracyRadius int `json:"accuracyRadius"     dc:"范围，米为单位"`
+}

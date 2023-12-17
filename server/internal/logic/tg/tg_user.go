@@ -565,7 +565,7 @@ func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImpor
 
 		req := &protobuf.RequestMessage{
 			Action: protobuf.Action_IMPORT_TG_SESSION,
-			Type:   "telegram",
+			Type:   consts.TgSvc,
 			ActionDetail: &protobuf.RequestMessage_ImportTgSession{
 				ImportTgSession: &protobuf.ImportTgSessionDetail{
 					SendData: sessionMap,

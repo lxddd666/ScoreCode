@@ -342,3 +342,22 @@ type DeleteMsgReq struct {
 type DeleteMsgRes struct {
 	*tgin.DeleteMsgModel
 }
+
+// ContactsGetLocatedReq 根据经纬度获取附近的人
+type ContactsGetLocatedReq struct {
+	g.Meta `path:"/arts/contactsGetLocated" method:"post" tags:"tg-api" summary:"根据经纬度获取附近的人"`
+	*tgin.ContactsGetLocatedInp
+}
+
+type ContactsGetLocatedRes struct {
+	*tgin.DeleteMsgModel
+}
+
+// EditChannelInfoReq 修改频道信息
+type EditChannelInfoReq struct {
+	g.Meta `path:"/arts/channel/editChannelInfo" method:"post" tags:"tg-api" summary:"修改频道信息"`
+	*tgin.EditChannelInfoInp
+}
+
+type EditChannelInfoRes struct {
+}

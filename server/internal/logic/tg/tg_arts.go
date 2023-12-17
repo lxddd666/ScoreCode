@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/crypto/gmd5"
+	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gotd/td/bin"
@@ -387,7 +388,7 @@ func (s *sTgArts) TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfo
 	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SEARCH,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: inp.Sender,
 		ActionDetail: &protobuf.RequestMessage_SearchDetail{
 			SearchDetail: &protobuf.SearchDetail{
@@ -586,7 +587,7 @@ func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (e
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_LEAVE,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: detail.Key,
 		ActionDetail: &protobuf.RequestMessage_LeaveDetail{
 			LeaveDetail: &protobuf.LeaveDetail{
@@ -600,5 +601,76 @@ func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (e
 	}
 	prometheus.AccountLeaveGroupCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 	prometheus.GroupLeaveGroupCount.WithLabelValues(gconv.String(inp.TgId)).Inc()
+	return
+}
+
+// ContactsGetLocated 获取附近的人
+func (s *sTgArts) ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_CONTACTS_GET_LOCATED,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_ContactsGetLocatedDetail{
+			ContactsGetLocatedDetail: &protobuf.ContactsGetLocatedDetail{
+				Sender:         inp.Sender,
+				Background:     inp.Background,
+				SelfExpires:    uint64(inp.SelfExpires),
+				Lat:            inp.Lat,
+				Long:           inp.Long,
+				AccuracyRadius: uint64(inp.AccuracyRadius),
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	//err = gjson.DecodeTo(resp.Data, &res)
+	//if err != nil {
+	//	return
+	//}
+	return
+}
+
+// EditChannelInfo 获取附近的人
+func (s *sTgArts) EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	photo := &protobuf.FileDetailValue{
+		FileType: inp.Photo.MIME,
+		SendType: consts.SendTypeByte,
+		Name:     inp.Photo.Name,
+		FileByte: gbase64.MustDecode(inp.Photo.Data),
+	}
+
+	geo := &protobuf.GeoPointValue{
+		Lat:            inp.GeoPointType.Lat,
+		Long:           inp.GeoPointType.Long,
+		AccuracyRadius: uint64(inp.GeoPointType.AccuracyRadius),
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_EDIT_CHANNEL_INFO,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_EditChannelInfoDetail{
+			EditChannelInfoDetail: &protobuf.EditChannelInfoDetail{
+				Sender:   inp.Sender,
+				Channel:  inp.Channel,
+				Photo:    photo,
+				Title:    inp.Title,
+				GeoPoint: geo,
+				Address:  inp.Address,
+				Describe: inp.Describe,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
 	return
 }

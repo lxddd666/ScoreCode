@@ -373,6 +373,14 @@ var (
 			Help: "Total number of account delete message",
 		},
 		[]string{"account"})
+
+	// AccountGetContactsLocated 获取附近的人
+	AccountGetContactsLocated = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_contacts_located",
+			Help: "Total number of get locate contacts",
+		},
+		[]string{"account"})
 )
 
 func init() {
@@ -421,6 +429,7 @@ func init() {
 	prometheus.MustRegister(AccountClearMsgDraft)
 	prometheus.MustRegister(AccountDeleteMsg)
 
+	prometheus.MustRegister(AccountGetContactsLocated)
 }
 
 // InitPrometheus 初始化普罗米修斯

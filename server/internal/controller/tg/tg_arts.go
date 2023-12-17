@@ -280,3 +280,17 @@ func (c *cTgArts) DeleteMsg(ctx context.Context, req *tgarts.DeleteMsgReq) (res 
 	res.DeleteMsgModel = resp
 	return
 }
+
+// ContactsGetLocated 根据经纬度获取附近人
+func (c *cTgArts) ContactsGetLocated(ctx context.Context, req *tgarts.ContactsGetLocatedReq) (res *tgarts.ContactsGetLocatedRes, err error) {
+	err = service.TgArts().ContactsGetLocated(ctx, req.ContactsGetLocatedInp)
+	//res = new(tgarts.ContactsGetLocatedRes)
+	//res.DeleteMsgModel = resp
+	return
+}
+
+// EditChannelInfo 修改频道消息
+func (c *cTgArts) EditChannelInfo(ctx context.Context, req *tgarts.EditChannelInfoReq) (res *tgarts.EditChannelInfoRes, err error) {
+	err = service.TgArts().EditChannelInfo(ctx, req.EditChannelInfoInp)
+	return
+}
