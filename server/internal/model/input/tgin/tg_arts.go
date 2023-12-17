@@ -161,3 +161,12 @@ type MsgSaveDraftInp struct {
 	TopMsgId     int64  `json:"topMsgId" dc:"最大消息Id"`
 	Msg          string `json:"msg" dc:"消息内容"`
 }
+
+type ClearMsgDraftInp struct {
+	Account uint64 `json:"sender"     dc:"tg账号"`
+}
+
+type ClearMsgDraftResultModel struct {
+	TgId      int64 `json:"tgId"          description:"tg id"`
+	IsSuccess bool  `json:"isSuccess"  description:"is success"`
+}

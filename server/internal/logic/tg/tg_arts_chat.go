@@ -3,6 +3,7 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -246,7 +247,7 @@ func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (er
 	return
 }
 
-// SaveMsgDraft 获取chats
+// SaveMsgDraft 消息草稿同步
 func (s *sTgArts) SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
@@ -271,6 +272,37 @@ func (s *sTgArts) SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (
 		return
 	}
 	prometheus.AccountSaveMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	return
+}
 
+// ClearMsgDraft 清除消息草稿同步
+func (s *sTgArts) ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_CLEAR_ALL_DRAFT,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_ClearAllDraftDetail{
+			ClearAllDraftDetail: &protobuf.ClearAllDraftDetail{
+				Sender: inp.Account,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Account)).Inc()
+	err = gjson.DecodeTo(resp.Data, &res)
+	if err != nil {
+		return
+	}
+	if res.IsSuccess == false {
+		gerror.New(g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
+
+	}
 	return
 }

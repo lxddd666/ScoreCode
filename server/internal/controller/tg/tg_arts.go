@@ -251,6 +251,7 @@ func (c *cTgUser) LeaveGroup(ctx context.Context, req *tgarts.LeaveGroupReq) (re
 	return
 }
 
+// GetUserChannel 获取用户所有channel
 func (c *cTgArts) GetUserChannel(ctx context.Context, req *tgarts.GetUserChannelsReq) (res *tgarts.GetUserChannelsRes, err error) {
 	data, err := service.TgArts().GetUserChannels(ctx, req.GetUserChannelsInp)
 	res = new(tgarts.GetUserChannelsRes)
@@ -258,8 +259,16 @@ func (c *cTgArts) GetUserChannel(ctx context.Context, req *tgarts.GetUserChannel
 	return
 }
 
-// 消息同步草稿功能
+// SaveMsgDraft 消息同步草稿功能
 func (c *cTgArts) SaveMsgDraft(ctx context.Context, req *tgarts.SaveMsgDraftReq) (res *tgarts.SaveMsgDraftRes, err error) {
 	err = service.TgArts().SaveMsgDraft(ctx, req.MsgSaveDraftInp)
+	return
+}
+
+// ClearMsgDraft 清除消息同步草稿
+func (c *cTgArts) ClearMsgDraft(ctx context.Context, req *tgarts.ClearMsgDraftReq) (res *tgarts.ClearMsgDraftRes, err error) {
+	resp, err := service.TgArts().ClearMsgDraft(ctx, req.ClearMsgDraftInp)
+	res = new(tgarts.ClearMsgDraftRes)
+	res.ClearMsgDraftResultModel = resp
 	return
 }

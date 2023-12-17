@@ -322,3 +322,13 @@ type SaveMsgDraftReq struct {
 
 type SaveMsgDraftRes struct {
 }
+
+// ClearMsgDraftReq 清除消息同步草稿功能
+type ClearMsgDraftReq struct {
+	g.Meta `path:"/arts/msg/clearMsgDraft" method:"post" tags:"tg-api" summary:"清除消息同步草稿功能"`
+	*tgin.ClearMsgDraftInp
+}
+
+type ClearMsgDraftRes struct {
+	*tgin.ClearMsgDraftResultModel
+}

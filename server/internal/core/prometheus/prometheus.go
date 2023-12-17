@@ -357,6 +357,14 @@ var (
 			Help: "Total number of account save message draft",
 		},
 		[]string{"account"})
+
+	// AccountClearMsgDraft 清除消息同步草稿
+	AccountClearMsgDraft = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_clear_message_draft",
+			Help: "Total number of account clear message draft",
+		},
+		[]string{"account"})
 )
 
 func init() {
