@@ -354,6 +354,7 @@ func (s *sTgUser) ImportSession(ctx context.Context, inp *tgin.ImportSessionInp)
 	if err != nil {
 		return
 	}
+	res = &tgin.ImportSessionModel{}
 	res.Count = len(sessionDetails)
 	res.TaskId = taskId
 

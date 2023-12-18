@@ -210,5 +210,7 @@
   "AuthorizationEndTimeNotEmpty": "Thời gian cuối của ủy quyền không thể trống",
   "SuperiorMenuNoCurrentMenu": "Menu trên không thể là menu hiện tại",
   "NoSupportAddFromFrontDesk": "Không hỗ trợ thêm các biến từ máy chủ, trước tiên vui lòng định cấu hình các biến trong bảng cơ sở dữ liệu [%v]",
-  "MobileBindFail": "Điện thoại di động đã bị ràng buộc với các tài khoản khác"
+  "MobileBindFail": "Điện thoại di động đã bị ràng buộc với các tài khoản khác",
+  "FolderNameEmpty": "Tên nhóm không được để trống"
+
 }

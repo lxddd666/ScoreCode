@@ -210,5 +210,6 @@
   "AuthorizationEndTimeNotEmpty": "The end time of the authorization cannot be empty",
   "SuperiorMenuNoCurrentMenu": "The upper menu cannot be the current menu",
   "NoSupportAddFromFrontDesk": "Do not support adding variables from the front desk, please first configure variables in the database table [%v]",
-  "MobileBindFail": "Mobile phone has been bound to other accounts"
+  "MobileBindFail": "Mobile phone has been bound to other accounts",
+  "FolderNameEmpty": "Group name cannot be empty"
 }
