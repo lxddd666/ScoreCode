@@ -346,17 +346,18 @@ func (s *sTgUser) ImportSession(ctx context.Context, inp *tgin.ImportSessionInp)
 	if err != nil {
 		return
 	}
+	fmt.Println(userList)
 	// 校验
-	taskId, err := service.TgBatchExecutionTask().Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{entity.TgBatchExecutionTask{
-		Action:     consts.TG_BATCH_CHECK_LOGIN,
-		Parameters: gjson.New(userList),
-	}})
-	if err != nil {
-		return
-	}
-	res = &tgin.ImportSessionModel{}
-	res.Count = len(sessionDetails)
-	res.TaskId = taskId
+	//taskId, err := service.TgBatchExecutionTask().Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{entity.TgBatchExecutionTask{
+	//	Action:     consts.TG_BATCH_CHECK_LOGIN,
+	//	Parameters: gjson.New(userList),
+	//}})
+	//if err != nil {
+	//	return
+	//}
+	//res = &tgin.ImportSessionModel{}
+	//res.Count = len(sessionDetails)
+	//res.TaskId = taskId
 
 	return
 }
