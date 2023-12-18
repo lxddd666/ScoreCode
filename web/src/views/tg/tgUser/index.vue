@@ -8,11 +8,11 @@
       </div>
 
       <BasicForm
-          @register="register"
-          @submit="reloadTable"
-          @reset="reloadTable"
-          @keyup.enter="reloadTable"
-          ref="searchFormRef"
+        @register="register"
+        @submit="reloadTable"
+        @reset="reloadTable"
+        @keyup.enter="reloadTable"
+        ref="searchFormRef"
       >
         <template #statusSlot="{ model, field }">
           <n-input v-model:value="model[field]"/>
@@ -20,24 +20,24 @@
       </BasicForm>
 
       <BasicTable
-          :openChecked="true"
-          :columns="columns"
-          :request="loadDataTable"
-          :row-key="(row) => row.id"
-          ref="actionRef"
-          :actionColumn="actionColumn"
-          @update:checked-row-keys="onCheckedRow"
-          :scroll-x="1090"
-          :resizeHeightOffset="-10000"
-          size="small"
+        :openChecked="true"
+        :columns="columns"
+        :request="loadDataTable"
+        :row-key="(row) => row.id"
+        ref="actionRef"
+        :actionColumn="actionColumn"
+        @update:checked-row-keys="onCheckedRow"
+        :scroll-x="1090"
+        :resizeHeightOffset="-10000"
+        size="small"
       >
         <template #tableTitle>
           <n-button
-              type="error"
-              @click="handleBatchDelete"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/tgUser/delete'])"
+            type="error"
+            @click="handleBatchDelete"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/delete'])"
           >
             <template #icon>
               <n-icon>
@@ -47,10 +47,10 @@
             批量删除
           </n-button>
           <n-button
-              type="primary"
-              @click="handleExport"
-              class="min-left-space"
-              v-if="hasPermission(['/tgUser/export'])"
+            type="primary"
+            @click="handleExport"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/export'])"
           >
             <template #icon>
               <n-icon>
@@ -60,50 +60,50 @@
             导出
           </n-button>
           <n-button
-              type="success"
-              @click="bindMemberClick"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/tgUser/bindMember'])"
+            type="success"
+            @click="bindMemberClick"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/bindMember'])"
           >
             绑定员工
           </n-button>
           <n-button
-              type="warning"
-              @click="handleUnBindMember"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/tgUser/unBindMember'])"
+            type="warning"
+            @click="handleUnBindMember"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/unBindMember'])"
           >
             解绑员工
           </n-button>
 
           <n-button
-              type="success"
-              @click="bindProxyClick"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/tgUser/bindProxy'])"
+            type="success"
+            @click="bindProxyClick"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/bindProxy'])"
           >
             绑定代理
           </n-button>
 
           <n-button
-              type="warning"
-              @click="handleUnBindProxy"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/tgUser/unBindProxy'])"
+            type="warning"
+            @click="handleUnBindProxy"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/tgUser/unBindProxy'])"
           >
             解绑代理
           </n-button>
 
           <n-button
-              type="success"
-              @click="handleBatchLogin"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/arts/batchLogin'])"
+            type="success"
+            @click="handleBatchLogin"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogin'])"
           >
             <template #icon>
               <n-icon>
@@ -114,11 +114,11 @@
           </n-button>
 
           <n-button
-              type="error"
-              @click="handleBatchLogout"
-              :disabled="batchSelectDisabled"
-              class="min-left-space"
-              v-if="hasPermission(['/arts/batchLogout'])"
+            type="error"
+            @click="handleBatchLogout"
+            :disabled="batchSelectDisabled"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogout'])"
           >
             <template #icon>
               <n-icon>
@@ -129,10 +129,10 @@
           </n-button>
 
           <n-button
-              type="error"
-              @click="handleUpload"
-              class="min-left-space"
-              v-if="hasPermission(['/arts/batchLogout'])"
+            type="error"
+            @click="handleUpload"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/batchLogout'])"
           >
             <n-icon>
               <UploadOutlined/>
@@ -140,10 +140,10 @@
             批量导入session
           </n-button>
           <n-button
-              type="info"
-              @click="handleCodeLogin"
-              class="min-left-space"
-              v-if="hasPermission(['/arts/codeLogin'])"
+            type="info"
+            @click="handleCodeLogin"
+            class="min-left-space"
+            v-if="hasPermission(['/arts/codeLogin'])"
           >
             <template #icon>
               <n-icon>
@@ -156,34 +156,34 @@
       </BasicTable>
     </n-card>
     <Edit
-        @reloadTable="reloadTable"
-        @updateShowModal="updateShowModal"
-        :showModal="showModal"
-        :formParams="formParams"
+      @reloadTable="reloadTable"
+      @updateShowModal="updateShowModal"
+      :showModal="showModal"
+      :formParams="formParams"
     />
     <BindMember
-        @reloadTable="reloadTable"
-        @updateBindMemberShowModal="updateBindMemberShowModal"
-        @handleBindMember="handleBindMember"
-        :showModal="bindMemberShowModal"
+      @reloadTable="reloadTable"
+      @updateBindMemberShowModal="updateBindMemberShowModal"
+      @handleBindMember="handleBindMember"
+      :showModal="bindMemberShowModal"
     />
     <FolderMember
-        @reloadTable="reloadTable"
-        @updateFolderMemberShowModal="updateFolderMemberShowModal"
-        @handleFolderMember="handleFolderMember"
-        :showModal="folderMemberShowModal"
+      @reloadTable="reloadTable"
+      @updateFolderMemberShowModal="updateFolderMemberShowModal"
+      @handleFolderMember="handleFolderMember"
+      :showModal="folderMemberShowModal"
     />
     <BindProxy
-        @reloadTable="reloadTable"
-        @updateBindProxyShowModal="updateBindProxyShowModal"
-        @handleBindProxy="handleBindProxy"
-        :showModal="bindProxyShowModal"
+      @reloadTable="reloadTable"
+      @updateBindProxyShowModal="updateBindProxyShowModal"
+      @handleBindProxy="handleBindProxy"
+      :showModal="bindProxyShowModal"
     />
     <FileUpload @reloadTable="reloadTable" ref="fileUploadRef" :finish-call="handleFinishCall"/>
     <Login
-        @reloadTable="reloadTable"
-        @updateShowModal="updateLoginShowModal"
-        :showModal="loginShowModal"
+      @reloadTable="reloadTable"
+      @updateShowModal="updateLoginShowModal"
+      :showModal="loginShowModal"
     />
 
   </div>

@@ -2,6 +2,8 @@ package tgin
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/form"
 
@@ -32,7 +34,10 @@ type TgFoldersEditInp struct {
 }
 
 func (in *TgFoldersEditInp) Filter(ctx context.Context) (err error) {
-
+	if in.FolderName == "" {
+		err = gerror.New(g.I18n().T(ctx, "{#IdNotEmpty}"))
+		return
+	}
 	return
 }
 

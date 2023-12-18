@@ -89,6 +89,7 @@
   "ExportBatchTask": "Xuất tác vụ vận hành hàng loạt-",
   "ModifyBatchTaskFailed": "Không thể sửa đổi tác vụ thao tác hàng loạt, vui lòng thử lại sau!",
   "AddBatchTaskFailed": "Thêm tác vụ thao tác hàng loạt không thành công, vui lòng thử lại sau!",
-  "MemberAccountCountErr": "Không đủ tài khoản người dùng"
+  "MemberAccountCountErr": "Không đủ tài khoản người dùng",
+  "DraftMsgClearErr": "Thông điệp nháp Xóa lỗi"
 
 }

@@ -251,9 +251,58 @@ func (c *cTgUser) LeaveGroup(ctx context.Context, req *tgarts.LeaveGroupReq) (re
 	return
 }
 
+// GetUserChannel 获取用户所有channel
 func (c *cTgArts) GetUserChannel(ctx context.Context, req *tgarts.GetUserChannelsReq) (res *tgarts.GetUserChannelsRes, err error) {
 	data, err := service.TgArts().GetUserChannels(ctx, req.GetUserChannelsInp)
 	res = new(tgarts.GetUserChannelsRes)
 	res.List = data
+	return
+}
+
+// SaveMsgDraft 消息同步草稿功能
+func (c *cTgArts) SaveMsgDraft(ctx context.Context, req *tgarts.SaveMsgDraftReq) (res *tgarts.SaveMsgDraftRes, err error) {
+	err = service.TgArts().SaveMsgDraft(ctx, req.MsgSaveDraftInp)
+	return
+}
+
+// ClearMsgDraft 清除消息同步草稿
+func (c *cTgArts) ClearMsgDraft(ctx context.Context, req *tgarts.ClearMsgDraftReq) (res *tgarts.ClearMsgDraftRes, err error) {
+	resp, err := service.TgArts().ClearMsgDraft(ctx, req.ClearMsgDraftInp)
+	res = new(tgarts.ClearMsgDraftRes)
+	res.ClearMsgDraftResultModel = resp
+	return
+}
+
+// DeleteMsg 删除消息
+func (c *cTgArts) DeleteMsg(ctx context.Context, req *tgarts.DeleteMsgReq) (res *tgarts.DeleteMsgRes, err error) {
+	resp, err := service.TgArts().DeleteMsg(ctx, req.DeleteMsgInp)
+	res = new(tgarts.DeleteMsgRes)
+	res.DeleteMsgModel = resp
+	return
+}
+
+// ContactsGetLocated 根据经纬度获取附近人
+func (c *cTgArts) ContactsGetLocated(ctx context.Context, req *tgarts.ContactsGetLocatedReq) (res *tgarts.ContactsGetLocatedRes, err error) {
+	err = service.TgArts().ContactsGetLocated(ctx, req.ContactsGetLocatedInp)
+	//res = new(tgarts.ContactsGetLocatedRes)
+	//res.DeleteMsgModel = resp
+	return
+}
+
+// EditChannelInfo 修改频道消息
+func (c *cTgArts) EditChannelInfo(ctx context.Context, req *tgarts.EditChannelInfoReq) (res *tgarts.EditChannelInfoRes, err error) {
+	err = service.TgArts().EditChannelInfo(ctx, req.EditChannelInfoInp)
+	return
+}
+
+// EditChannelBannedRight 新增修改频道/超级群/基础群的禁止权限
+func (c *cTgArts) EditChannelBannedRight(ctx context.Context, req *tgarts.EditChannelBannedRightsReq) (res *tgarts.EditChannelBannedRightsRes, err error) {
+	err = service.TgArts().EditChannelBannedRight(ctx, req.EditChannelBannedRightsInp)
+	return
+}
+
+// GetManageChannels 获取自己管理的群和频道
+func (c *cTgArts) GetManageChannels(ctx context.Context, req *tgarts.GetManageChannelsReq) (res *tgarts.GetManageChannelsRes, err error) {
+	err = service.TgArts().GetManageChannels(ctx, req.GetManageChannelsInp)
 	return
 }

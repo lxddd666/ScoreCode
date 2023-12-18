@@ -346,16 +346,18 @@ func (s *sTgUser) ImportSession(ctx context.Context, inp *tgin.ImportSessionInp)
 	if err != nil {
 		return
 	}
+	fmt.Println(userList)
 	// 校验
-	taskId, err := service.TgBatchExecutionTask().Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{entity.TgBatchExecutionTask{
-		Action:     consts.TG_BATCH_CHECK_LOGIN,
-		Parameters: gjson.New(userList),
-	}})
-	if err != nil {
-		return
-	}
-	res.Count = len(sessionDetails)
-	res.TaskId = taskId
+	//taskId, err := service.TgBatchExecutionTask().Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{entity.TgBatchExecutionTask{
+	//	Action:     consts.TG_BATCH_CHECK_LOGIN,
+	//	Parameters: gjson.New(userList),
+	//}})
+	//if err != nil {
+	//	return
+	//}
+	//res = &tgin.ImportSessionModel{}
+	//res.Count = len(sessionDetails)
+	//res.TaskId = taskId
 
 	return
 }
@@ -392,7 +394,7 @@ func (s *sTgUser) TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImport
 			for _, u := range userList {
 				list = append(list, entity.TgUserFolders{FolderId: gconv.Uint64(folderId), TgUserId: gconv.Int64(u.Id)})
 			}
-			_, err = g.Model(dao.TgFolders.Table()).Ctx(ctx).Data(list).Insert()
+			_, err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Data(list).Insert()
 		}
 	}
 	return
@@ -565,7 +567,7 @@ func (s *sTgUser) TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImpor
 
 		req := &protobuf.RequestMessage{
 			Action: protobuf.Action_IMPORT_TG_SESSION,
-			Type:   "telegram",
+			Type:   consts.TgSvc,
 			ActionDetail: &protobuf.RequestMessage_ImportTgSession{
 				ImportTgSession: &protobuf.ImportTgSessionDetail{
 					SendData: sessionMap,

@@ -210,5 +210,7 @@
   "AuthorizationEndTimeNotEmpty": "授权结束时间不能为空",
   "SuperiorMenuNoCurrentMenu": "上级菜单不能是当前菜单",
   "NoSupportAddFromFrontDesk": "暂不支持从前台添加变量，请先在数据库表[%v]中配置变量：%v",
-  "MobileBindFail": "邮箱已绑定其他账号"
+  "MobileBindFail": "邮箱已绑定其他账号",
+  "FolderNameEmpty": "分组名称不能为空"
+
 }

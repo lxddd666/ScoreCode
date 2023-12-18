@@ -17,6 +17,7 @@ type TgKeepTaskUpdateFields struct {
 	OrgId       int64   `json:"orgId"    dc:"组织ID"`
 	TaskName    string  `json:"taskName" dc:"任务名称"`
 	Cron        string  `json:"cron"     dc:"表达式"`
+	FolderId    int64   `json:"folderId" dc:"folderId"`
 	Actions     []int64 `json:"actions"  dc:"养号动作"`
 	Accounts    []int64 `json:"accounts" dc:"账号"`
 	Status      int     `json:"status"   dc:"任务状态"`
@@ -28,6 +29,7 @@ type TgKeepTaskInsertFields struct {
 	OrgId       int64   `json:"orgId"    dc:"组织ID"`
 	TaskName    string  `json:"taskName" dc:"任务名称"`
 	Cron        string  `json:"cron"     dc:"表达式"`
+	FolderId    int64   `json:"folderId" dc:"folderId"`
 	Actions     []int64 `json:"actions"  dc:"养号动作"`
 	Accounts    []int64 `json:"accounts" dc:"账号"`
 	Status      int     `json:"status"   dc:"任务状态"`
@@ -89,6 +91,7 @@ type TgKeepTaskListInp struct {
 	Actions   []int64       `json:"actions"   dc:"养号动作"`
 	Accounts  []int64       `json:"accounts"  dc:"账号"`
 	Status    int           `json:"status"    dc:"任务状态"`
+	FolderId  int64         `json:"folderId"  dc:"分组ID"`
 	CreatedAt []*gtime.Time `json:"createdAt" dc:"创建时间"`
 }
 

@@ -36,7 +36,7 @@
             type="primary"
             @click="addTable"
             class="min-left-space"
-            v-if="hasPermission(['/org/edit'])"
+            v-if="hasPermission(['/org/add'])"
           >
             <template #icon>
               <n-icon>

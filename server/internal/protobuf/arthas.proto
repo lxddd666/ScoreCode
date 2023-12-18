@@ -67,6 +67,19 @@ enum Action {
   DELETE_MESSAGES = 56;
   CONTACTS_GET_LOCATED = 57;
   EDIT_CHANNEL_INFO = 58;
+  GET_MANAGED_CHANNELS = 59;
+  EDIT_CHAT_BANNED_RIGHTS = 60;
+  GET_CHATS_INFO = 61;
+  GET_USER_INFO = 62;
+  SET_HISTORY_TTL =63;
+  GET_COMMON_CHATS = 64;
+  EDIT_PARTICIPANT_BANNED=65;
+  DELETE_PRIVATE_CHAT = 66;
+  PIN_DIALOG = 67;
+  GET_PINNED_DIALOGS = 68;
+  SEND_STORIES = 69;
+  DELETE_STORIES = 70;
+  EDIT_STORIES = 71;
 }
 
 
@@ -74,6 +87,111 @@ enum Action {
 //message OrdinaryAction {
 //  repeated uint64 account_ids = 1; // 帐号的数组
 //}
+
+message EditChatBannedRightsDetail {
+  uint64  Sender =1;
+  string  Channel =2;
+  ChatBannedRightsType ChatBannedRights =3;
+}
+
+message EditParticipantBannedDetail {
+  uint64  Sender =1;
+  string  Channel =2;
+  string  User =3;
+  ChatBannedRightsType ChatBannedRights =4;
+}
+
+message ChatBannedRightsType {
+  // If set, does not allow a user to view messages in a supergroup/channel/chat¹
+  bool ViewMessages  =1;
+  // If set, does not allow a user to send messages in a supergroup/chat¹
+  bool SendMessages  =2;
+  // If set, does not allow a user to send any media in a supergroup/chat¹
+  bool SendMedia  =3;
+  // If set, does not allow a user to send stickers in a supergroup/chat¹
+  bool SendStickers =4;
+  // If set, does not allow a user to send gifs in a supergroup/chat¹
+  bool SendGifs  =5;
+  // If set, does not allow a user to send games in a supergroup/chat¹
+  bool SendGames  =6;
+  // If set, does not allow a user to use inline bots in a supergroup/chat¹.
+  bool SendInline  =7;
+  // If set, does not allow a user to embed links in the messages of a supergroup/chat¹
+  bool EmbedLinks  =8;
+  // If set, does not allow a user to send polls in a supergroup/chat¹
+  bool SendPolls  =9;
+  // If set, does not allow any user to change the description of a supergroup/chat¹
+  bool ChangeInfo  =10;
+  // If set, does not allow any user to invite users in a supergroup/chat¹
+  bool InviteUsers  =11;
+  // If set, does not allow any user to pin messages in a supergroup/chat¹
+  bool PinMessages  =12;
+  // If set, does not allow any user to create, delete or modify forum topics »¹.
+  bool ManageTopics  =13;
+  // If set, does not allow a user to send photos in a supergroup/chat¹.
+  bool SendPhotos  =14;
+  // If set, does not allow a user to send videos in a supergroup/chat¹.
+  bool SendVideos  =15;
+  // If set, does not allow a user to send round videos in a supergroup/chat¹.
+  bool SendRoundVideos  =16;
+  // If set, does not allow a user to send audio files in a supergroup/chat¹.
+  bool SendAudios  =17;
+  // If set, does not allow a user to send voice messages in a supergroup/chat¹.
+  bool SendVoices  =18;
+  // If set, does not allow a user to send documents in a supergroup/chat¹.
+  bool SendDocs   =19;
+  // If set, does not allow a user to send text messages in a supergroup/chat¹.
+  bool SendPlain   =20;
+  // Validity of said permissions (it is considered forever any value less then 30 seconds
+  // or more then 366 days).
+  int64 UntilDate =21;
+}
+
+message GetManageChannelsDetail {
+  uint64 Sender =1;
+  bool  ByLocation = 2;
+  bool  CheckLimit =3;
+}
+
+message SendStoriesDetail {
+  uint64 Sender =1;
+  repeated string Chat =2;
+  bool  Pinned=3;
+  bool NoForwards=4;
+  string Caption =5;
+  uint64 Period =6;
+  string From =7;
+  int64 FromId = 8;
+  FileDetailValue FileType = 9;
+}
+
+message GetCommonChatsDetail {
+  uint64 Sender = 1;
+  string User =2;
+  int64 MaxId =3;
+  int64 Limit =4;
+}
+
+message SetHistoryTTLDetail {
+  uint64 Sender = 1;
+  string Chat =2;
+  int64 Period =3;
+}
+
+message GetChatsInfoDetail {
+  uint64 Sender = 1;
+  string Channel = 2;
+  string Chat  =3;
+}
+
+message GetUserInfoDetail {
+  uint64 Sender = 1;
+  string User = 2;
+}
+
+message GetPinnedDialogs {
+  uint64 Sender = 1;
+}
 
 message ContactsGetLocatedDetail {
   uint64 Sender  =1;
@@ -87,6 +205,14 @@ message ContactsGetLocatedDetail {
   uint64 AccuracyRadius =5;
   //位置过期时间
   uint64 SelfExpires =6;
+}
+
+message PinDialogDetail{
+  uint64 Sender =1;
+  string Channel = 2;
+  string User =3;
+  string Chat =4;
+  bool Pinned=5;
 }
 
 message ClearAllDraftDetail {
@@ -111,6 +237,12 @@ message OrdinarySingleAction {
   string Type = 2;
   uint64 account = 3;
 
+}
+
+message DeletePrivateChatDetail {
+  uint64  Sender = 1;
+  string   User  = 2;
+  bool Revoke =3;
 }
 
 message ForwardMessageDetail {
@@ -229,7 +361,18 @@ message SyncAppInfoAction {
   map<uint64, appData> app_data = 1;
 }
 
+message DeleteStoriesDetail {
+  uint64 Sender = 1;
+  repeated int64 StoryIds =2;
+}
 
+message EditStoriesDetail {
+  uint64 Sender =1;
+  repeated string Chat =2;
+  string Caption =3;
+  FileDetailValue FileType = 4;
+  int64 StoryId  =5;
+}
 
 // 定义总的消息
 message RequestMessage {
@@ -295,6 +438,19 @@ message RequestMessage {
     DeleteMessagesDetail delete_messages_detail = 64;
     ContactsGetLocatedDetail contacts_get_located_detail = 65;
     EditChannelInfoDetail  edit_channel_info_detail = 66;
+    GetManageChannelsDetail get_manage_channels_detail =67;
+    EditChatBannedRightsDetail edit_chat_banned_rights_detail = 68;
+    GetChatsInfoDetail get_chats_info_detail = 69;
+    GetUserInfoDetail get_user_info_detail  = 70;
+    SetHistoryTTLDetail set_history_ttl_detail = 71;
+    GetCommonChatsDetail get_common_chats_detail = 72;
+    EditParticipantBannedDetail edit_participant_banned_detail =73;
+    DeletePrivateChatDetail  delete_private_chat_detail = 74;
+    PinDialogDetail  pin_dialog_detail =75;
+    GetPinnedDialogs get_pinned_dialogs = 76;
+    SendStoriesDetail send_stories_detail = 77;
+    DeleteStoriesDetail delete_stories_detail = 78;
+    EditStoriesDetail edit_stories_detail = 79;
   }
   string type = 18;
   uint64 account = 35; //账号
@@ -385,7 +541,10 @@ message EditChannelInfoDetail {
   string Title = 4;
   GeoPointValue GeoPoint =5;
   string Address = 6;
+  string Describe =7;
 }
+
+
 
 message SendGroupMessageDetail {
   repeated SendGroupMessageAction details = 1;
@@ -492,7 +651,7 @@ message CreateChannelDetail {
 }
 
 message  AddGroupMemberDetail {
-  string GroupName = 1;
+  string Chat = 1;
   UintkeyStringvalue detail = 2;
 }
 

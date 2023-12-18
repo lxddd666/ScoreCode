@@ -387,3 +387,64 @@ func getPeerId(peer tg.PeerClass) int64 {
 	}
 	return 0
 }
+
+func handleSearch(search tg.ContactsFound) (list []*tgin.TgPeerModel) {
+	list = make([]*tgin.TgPeerModel, 0)
+	for _, peer := range search.GetChats() {
+		switch peer.(type) {
+		case *tg.Channel:
+			list = append(list, coverSearchChannel(peer.(*tg.Channel)))
+
+		}
+	}
+	for _, peer := range search.GetUsers() {
+		switch peer.(type) {
+		case *tg.User:
+			list = append(list, covertSearchUser(peer.(*tg.User)))
+		}
+	}
+	return
+}
+
+func coverSearchChannel(channel *tg.Channel) (item *tgin.TgPeerModel) {
+	item = &tgin.TgPeerModel{
+		TgId:       channel.ID,
+		AccessHash: channel.AccessHash,
+		Title:      channel.Title,
+		Username:   channel.Username,
+		Type:       3,
+		Last:       tgin.TgMsgModel{},
+		Creator:    channel.Creator,
+		Date:       channel.Date,
+	}
+	if channel.Username != "" {
+		item.Link = "https://t.me/" + channel.Username
+	}
+	if channel.Photo != nil {
+		photo, photoFlag := channel.Photo.AsNotEmpty()
+		if photoFlag {
+			item.Avatar = photo.PhotoID
+		}
+	}
+	return
+}
+
+func covertSearchUser(user *tg.User) (item *tgin.TgPeerModel) {
+	item = &tgin.TgPeerModel{
+		TgId:       user.ID,
+		AccessHash: user.AccessHash,
+		Username:   user.Username,
+		FirstName:  user.FirstName,
+		LastName:   user.LastName,
+		Phone:      user.Phone,
+		Type:       1,
+		Deleted:    user.Deleted,
+	}
+	if user.Photo != nil {
+		photo, photoFlag := user.Photo.AsNotEmpty()
+		if photoFlag {
+			item.Avatar = photo.PhotoID
+		}
+	}
+	return
+}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/gogf/gf/v2/crypto/gmd5"
+	"github.com/gogf/gf/v2/encoding/gbase64"
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gotd/td/bin"
@@ -153,7 +154,6 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 		Account: inp.Account,
 		ActionDetail: &protobuf.RequestMessage_AddGroupMemberDetail{
 			AddGroupMemberDetail: &protobuf.AddGroupMemberDetail{
-				GroupName: inp.GroupId,
 				Detail: &protobuf.UintkeyStringvalue{
 					Key:    inp.Account,
 					Values: inp.AddMembers,
@@ -388,7 +388,7 @@ func (s *sTgArts) TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfo
 	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SEARCH,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: inp.Sender,
 		ActionDetail: &protobuf.RequestMessage_SearchDetail{
 			SearchDetail: &protobuf.SearchDetail{
@@ -587,7 +587,7 @@ func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (e
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_LEAVE,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: detail.Key,
 		ActionDetail: &protobuf.RequestMessage_LeaveDetail{
 			LeaveDetail: &protobuf.LeaveDetail{
@@ -601,5 +601,164 @@ func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (e
 	}
 	prometheus.AccountLeaveGroupCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 	prometheus.GroupLeaveGroupCount.WithLabelValues(gconv.String(inp.TgId)).Inc()
+	return
+}
+
+// ContactsGetLocated 获取附近的人
+func (s *sTgArts) ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_CONTACTS_GET_LOCATED,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_ContactsGetLocatedDetail{
+			ContactsGetLocatedDetail: &protobuf.ContactsGetLocatedDetail{
+				Sender:         inp.Sender,
+				Background:     inp.Background,
+				SelfExpires:    uint64(inp.SelfExpires),
+				Lat:            inp.Lat,
+				Long:           inp.Long,
+				AccuracyRadius: uint64(inp.AccuracyRadius),
+			},
+		},
+	}
+	res, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	//err = gjson.DecodeTo(resp.Data, &res)
+	//if err != nil {
+	//	return
+	//}
+	model := tgin.TgContactsGetLocatedModel{}
+	err = gjson.DecodeTo(res.Data, &model)
+	if err != nil {
+		return
+	}
+	var box tg.Updates
+	err = (&bin.Buffer{Buf: model.ResultBuf}).Decode(&box)
+	handlerLocateContact(box)
+	return
+}
+
+func handlerLocateContact(box tg.Updates) (list []tgin.TgPeerModel) {
+	return
+}
+
+// EditChannelInfo 修改频道信息
+func (s *sTgArts) EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	photo := &protobuf.FileDetailValue{
+		FileType: inp.Photo.MIME,
+		SendType: consts.SendTypeByte,
+		Name:     inp.Photo.Name,
+		FileByte: gbase64.MustDecode(inp.Photo.Data),
+	}
+
+	geo := &protobuf.GeoPointValue{
+		Lat:            inp.GeoPointType.Lat,
+		Long:           inp.GeoPointType.Long,
+		AccuracyRadius: uint64(inp.GeoPointType.AccuracyRadius),
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_EDIT_CHANNEL_INFO,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_EditChannelInfoDetail{
+			EditChannelInfoDetail: &protobuf.EditChannelInfoDetail{
+				Sender:   inp.Sender,
+				Channel:  inp.Channel,
+				Photo:    photo,
+				Title:    inp.Title,
+				GeoPoint: geo,
+				Address:  inp.Address,
+				Describe: inp.Describe,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountEditChannelInfo.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	prometheus.ChannelEditInfo.WithLabelValues(gconv.String(inp.Channel)).Inc()
+
+	return
+}
+
+// EditChannelInfo 获取附近的人
+func (s *sTgArts) EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_EDIT_CHAT_BANNED_RIGHTS,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_EditChatBannedRightsDetail{
+			EditChatBannedRightsDetail: &protobuf.EditChatBannedRightsDetail{
+				Sender:  inp.Sender,
+				Channel: inp.Channel,
+				ChatBannedRights: &protobuf.ChatBannedRightsType{
+					ViewMessages:    inp.BannedRights.ViewMessages,
+					SendMessages:    inp.BannedRights.SendMessages,
+					SendMedia:       inp.BannedRights.SendMedia,
+					SendStickers:    inp.BannedRights.SendStickers,
+					SendGifs:        inp.BannedRights.SendGifs,
+					SendGames:       inp.BannedRights.SendGames,
+					SendInline:      inp.BannedRights.SendInline,
+					EmbedLinks:      inp.BannedRights.EmbedLinks,
+					SendPolls:       inp.BannedRights.SendPolls,
+					ChangeInfo:      inp.BannedRights.ChangeInfo,
+					InviteUsers:     inp.BannedRights.InviteUsers,
+					PinMessages:     inp.BannedRights.PinMessages,
+					ManageTopics:    inp.BannedRights.ManageTopics,
+					SendPhotos:      inp.BannedRights.SendPhotos,
+					SendVideos:      inp.BannedRights.SendVideos,
+					SendRoundVideos: inp.BannedRights.SendStickers,
+					SendAudios:      inp.BannedRights.SendAudios,
+					SendVoices:      inp.BannedRights.SendVoices,
+					SendDocs:        inp.BannedRights.SendDocs,
+					SendPlain:       inp.BannedRights.SendPlain,
+					UntilDate:       int64(inp.BannedRights.UntilDate),
+				},
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	return
+}
+
+// GetManageChannels 获取自己管理的频道和群
+func (s *sTgArts) GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_GET_MANAGED_CHANNELS,
+		Type:    "telegram",
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_GetManageChannelsDetail{
+			GetManageChannelsDetail: &protobuf.GetManageChannelsDetail{
+				Sender:     inp.Sender,
+				ByLocation: inp.ByLocation,
+				CheckLimit: false, // 默认为false就行了
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+
 	return
 }

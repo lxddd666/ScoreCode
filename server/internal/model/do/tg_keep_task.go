@@ -19,6 +19,7 @@ type TgKeepTask struct {
 	Cron        interface{} // 表达式
 	Actions     *gjson.Json // 养号动作
 	Accounts    *gjson.Json // 账号
+	FolderId    interface{} // 分组ID
 	ScriptGroup interface{} // 话术分组
 	Status      interface{} // 任务状态
 	CreatedAt   *gtime.Time // 创建时间

@@ -89,6 +89,7 @@
   "ExportBatchTask": "Export batch operation task-",
   "ModifyBatchTaskFailed": "Failed to modify the batch operation task, please try again later!",
   "AddBatchTaskFailed": "Add batch operation task failed, please try again later!",
-  "MemberAccountCountErr": "Insufficient user account"
+  "MemberAccountCountErr": "Insufficient user account",
+  "DraftMsgClearErr": "Draft message clear error"
 
 }

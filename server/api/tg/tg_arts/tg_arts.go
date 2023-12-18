@@ -314,11 +314,68 @@ type GetUserChannelsRes struct {
 	List []*tgin.TgDialogModel `json:"list" dc:"channel 列表"`
 }
 
-//// NearbyPeopleReq 附近的人
-//type NearbyPeopleReq struct {
-//	g.Meta `path:"/arts/nearbyPeople" method:"post" tags:"tg-api" summary:"附近的人、群"`
-//	tgin.TgGetNearbyPeopleInp
-//}
-//
-//type NearbyPeopleRes struct {
-//}
+// SaveMsgDraftReq 消息同步草稿功能
+type SaveMsgDraftReq struct {
+	g.Meta `path:"/arts/msg/saveMsgDraft" method:"post" tags:"tg-api" summary:"消息同步草稿功能"`
+	*tgin.MsgSaveDraftInp
+}
+
+type SaveMsgDraftRes struct {
+}
+
+// ClearMsgDraftReq 清除消息同步草稿功能
+type ClearMsgDraftReq struct {
+	g.Meta `path:"/arts/msg/clearMsgDraft" method:"post" tags:"tg-api" summary:"清除消息同步草稿功能"`
+	*tgin.ClearMsgDraftInp
+}
+
+type ClearMsgDraftRes struct {
+	*tgin.ClearMsgDraftResultModel
+}
+
+// DeleteMsgReq 删除消息
+type DeleteMsgReq struct {
+	g.Meta `path:"/arts/msg/deleteMsg" method:"post" tags:"tg-api" summary:"删除消息(私聊、群聊、频道、超级群，支持双向删除)"`
+	*tgin.DeleteMsgInp
+}
+
+type DeleteMsgRes struct {
+	*tgin.DeleteMsgModel
+}
+
+// ContactsGetLocatedReq 根据经纬度获取附近的人
+type ContactsGetLocatedReq struct {
+	g.Meta `path:"/arts/contactsGetLocated" method:"post" tags:"tg-api" summary:"根据经纬度获取附近的人"`
+	*tgin.ContactsGetLocatedInp
+}
+
+type ContactsGetLocatedRes struct {
+	*tgin.DeleteMsgModel
+}
+
+// EditChannelInfoReq 修改频道信息
+type EditChannelInfoReq struct {
+	g.Meta `path:"/arts/channel/editChannelInfo" method:"post" tags:"tg-api" summary:"修改频道信息"`
+	*tgin.EditChannelInfoInp
+}
+
+type EditChannelInfoRes struct {
+}
+
+// EditChannelBannedRightsReq 修改频道/超级群/基础群的禁止权限
+type EditChannelBannedRightsReq struct {
+	g.Meta `path:"/arts/editChannelRights" method:"post" tags:"tg-api" summary:"修改频道/超级群/基础群的禁止权限"`
+	*tgin.EditChannelBannedRightsInp
+}
+
+type EditChannelBannedRightsRes struct {
+}
+
+// GetManageChannelsReq 修改频道/超级群/基础群的禁止权限
+type GetManageChannelsReq struct {
+	g.Meta `path:"/arts/getManageChannels" method:"post" tags:"tg-api" summary:"获取自己管理的群和频道"`
+	*tgin.GetManageChannelsInp
+}
+
+type GetManageChannelsRes struct {
+}

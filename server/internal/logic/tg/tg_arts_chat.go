@@ -3,6 +3,7 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/encoding/gjson"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -232,7 +233,7 @@ func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionIn
 func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error) {
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SET_TYPE_ACTION,
-		Type:    "telegram",
+		Type:    consts.TgSvc,
 		Account: inp.Sender,
 		ActionDetail: &protobuf.RequestMessage_SetTypeActionDetail{
 			SetTypeActionDetail: &protobuf.SetTypeActionDetail{
@@ -243,5 +244,97 @@ func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (er
 		},
 	}
 	_, err = service.Arts().Send(ctx, req)
+	return
+}
+
+// SaveMsgDraft 消息草稿同步
+func (s *sTgArts) SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_SAVE_DRAFT,
+		Type:    consts.TgSvc,
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_SaveDraftDetail{
+			SaveDraftDetail: &protobuf.SaveDraftDetail{
+				Sender:       inp.Sender,
+				Receiver:     inp.Receiver,
+				ReplyToMsgId: inp.ReplyToMsgId,
+				TopMsgId:     inp.TopMsgId,
+				Msg:          inp.Msg,
+			},
+		},
+	}
+	_, err = service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountSaveMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	return
+}
+
+// ClearMsgDraft 清除消息草稿同步
+func (s *sTgArts) ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error) {
+	// 检查是否登录
+	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
+		return
+	}
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_CLEAR_ALL_DRAFT,
+		Type:    consts.TgSvc,
+		Account: inp.Account,
+		ActionDetail: &protobuf.RequestMessage_ClearAllDraftDetail{
+			ClearAllDraftDetail: &protobuf.ClearAllDraftDetail{
+				Sender: inp.Account,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Account)).Inc()
+	err = gjson.DecodeTo(resp.Data, &res)
+	if err != nil {
+		return
+	}
+	if res.IsSuccess == false {
+		gerror.New(g.I18n().T(ctx, "{#GetTgAccountInformationFailed}"))
+
+	}
+	return
+}
+
+// DeleteMsg 删除消息
+func (s *sTgArts) DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error) {
+	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
+		return
+	}
+
+	req := &protobuf.RequestMessage{
+		Action:  protobuf.Action_DELETE_MESSAGES,
+		Type:    "telegram",
+		Account: inp.Sender,
+		ActionDetail: &protobuf.RequestMessage_DeleteMessagesDetail{
+			DeleteMessagesDetail: &protobuf.DeleteMessagesDetail{
+				Sender:    inp.Sender,
+				Revoke:    inp.Revoke,
+				IsChannel: inp.IsChannel,
+				Channel:   inp.Channel,
+				MsgIds:    inp.MsgIds,
+			},
+		},
+	}
+	resp, err := service.Arts().Send(ctx, req)
+	if err != nil {
+		return
+	}
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Sender)).Inc()
+	err = gjson.DecodeTo(resp.Data, &res)
+	if err != nil {
+		return
+	}
 	return
 }

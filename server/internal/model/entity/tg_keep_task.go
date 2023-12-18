@@ -17,6 +17,7 @@ type TgKeepTask struct {
 	Cron        string      `json:"cron"        description:"表达式"`
 	Actions     *gjson.Json `json:"actions"     description:"养号动作"`
 	Accounts    *gjson.Json `json:"accounts"    description:"账号"`
+	FolderId    int64       `json:"folderId"    description:"分组ID"`
 	ScriptGroup int64       `json:"scriptGroup" description:"话术分组"`
 	Status      int         `json:"status"      description:"任务状态"`
 	CreatedAt   *gtime.Time `json:"createdAt"   description:"创建时间"`

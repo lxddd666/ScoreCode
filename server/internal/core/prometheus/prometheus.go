@@ -342,13 +342,60 @@ var (
 		},
 		[]string{"account"})
 
-	// 获取聊天记录
+	// AccountGetHistoryList 获取聊天记录
 	AccountGetHistoryList = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "tg_account_get_history_list",
 			Help: "Total number of account get history list",
 		},
 		[]string{"account"})
+
+	// AccountSaveMsgDraft 消息同步草稿
+	AccountSaveMsgDraft = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_save_message_draft",
+			Help: "Total number of account save message draft",
+		},
+		[]string{"account"})
+
+	// AccountClearMsgDraft 清除消息同步草稿
+	AccountClearMsgDraft = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_clear_message_draft",
+			Help: "Total number of account clear message draft",
+		},
+		[]string{"account"})
+
+	// AccountDeleteMsg 删除消息
+	AccountDeleteMsg = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_delete_message",
+			Help: "Total number of account delete message",
+		},
+		[]string{"account"})
+
+	// AccountGetContactsLocated 获取附近的人
+	AccountGetContactsLocated = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_get_contacts_located",
+			Help: "Total number of get locate contacts",
+		},
+		[]string{"account"})
+
+	// AccountEditChannelInfo 修改频道信息
+	AccountEditChannelInfo = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_account_edit_channel_info",
+			Help: "Total number of account edit channel info",
+		},
+		[]string{"account"})
+
+	ChannelEditInfo = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_channel_edit_info",
+			Help: "Total number of channel edit  info",
+		},
+		[]string{"channel"})
 )
 
 func init() {
@@ -393,6 +440,14 @@ func init() {
 	prometheus.MustRegister(AccountSendFile)
 	prometheus.MustRegister(AccountPassiveSendFile)
 	prometheus.MustRegister(AccountGetDialogList)
+	prometheus.MustRegister(AccountSaveMsgDraft)
+	prometheus.MustRegister(AccountClearMsgDraft)
+	prometheus.MustRegister(AccountDeleteMsg)
+
+	prometheus.MustRegister(AccountGetContactsLocated)
+	prometheus.MustRegister(AccountEditChannelInfo)
+	prometheus.MustRegister(ChannelEditInfo)
+
 }
 
 // InitPrometheus 初始化普罗米修斯

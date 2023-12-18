@@ -129,6 +129,20 @@ type (
 		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
 		// GetUserChannels 获取用户群频道
 		GetUserChannels(ctx context.Context, inp *tgin.GetUserChannelsInp) (res []*tgin.TgDialogModel, err error)
+		// SaveMsgDraft 消息草稿同步
+		SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error)
+		// ClearMsgDraft 清除消息草稿
+		ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error)
+		// DeleteMsg 删除消息
+		DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error)
+		// ContactsGetLocated 获取附近的人
+		ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error)
+		// EditChannelInfo 修改频道消息
+		EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error)
+		// EditChannelBannedRight 修改频道/群/超级群 禁止权限
+		EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error)
+		// GetManageChannels 获取自己管理的群和频道
+		GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
