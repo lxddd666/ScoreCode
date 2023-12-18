@@ -1,26 +1,32 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import Button from '@mui/material/Button';
+import axios from 'axios'
 
-export default function FileUpload() {
+const FileUpload = (props:any)=> {
+  const {selectedFileChange} = props
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleFileChange = (event:any) => {
+  const handleFileChange = (event: any) => {
     const file = event.target.files[0];
     // if(file.size / 1024 / 1024 > 2){
     //     alert('文件大小不能大于 2MB');
     //     return
     // }
-    if (file && file.name.endsWith('.xlsx')) {
+
+    if (file && file.name.endsWith('.zip')) {
+      selectedFileChange(file)
       setSelectedFile(file);
     } else {
-      alert('Please select an .xlsx file.');
+      alert('只能上传zip格式的文件，请重新上传');
       setSelectedFile(null);
     }
+    setSelectedFile(file);
   };
 
-  const handleUpload = () => {
+  const handleUpload = (e: any) => {
+    console.log('1', e)
     if (!selectedFile) {
-      alert('Please select a file to upload.');
+      alert('只能上传zip格式的文件，请重新上传');
       return;
     }
 
@@ -29,12 +35,22 @@ export default function FileUpload() {
 
     // 在这里你可以发送一个请求到后端来上传文件
     // 例如，使用 fetch 或 axios：
-    // fetch('YOUR_BACKEND_ENDPOINT', {
-    //   method: 'POST',
-    //   body: formData,
-    // }).then(response => {
-    //   // 处理响应
-    // });
+    axios('http://10.8.12.88:8001/tg/tgUser/importSession', {
+      method: 'POST',
+      transformRequest: [function (data, headers:any) {
+        // 去除post请求默认的Content-Type
+        // console.log(data, headers);
+        // delete headers.post['Content-Type']
+        return data
+      }],
+      data: formData,
+    }).then(res => {
+      // 处理响应
+      console.log('res上传成功', res);
+
+    }).catch(err => {
+      console.log('res上传失败', err);
+    })
 
     // alert('File uploaded successfully.'); // 模拟上传成功
   };
@@ -42,20 +58,23 @@ export default function FileUpload() {
   return (
     <div>
       <input
-        accept=".xlsx"
         style={{ display: 'none' }}
+        accept=".zip,"
         id="raised-button-file"
         type="file"
         onChange={handleFileChange}
       />
       <label htmlFor="raised-button-file">
         <Button variant="contained" component="span">
-          Select .xlsx File
+          选择文件
         </Button>
       </label>
       <Button variant="contained" color="primary" onClick={handleUpload} disabled={!selectedFile}>
-        Upload
+        {/* Upload */}
+        {selectedFile ? '已上传':'请上传文件'}
       </Button>
     </div>
   );
 }
+
+export default FileUpload
