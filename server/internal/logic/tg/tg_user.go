@@ -393,7 +393,7 @@ func (s *sTgUser) TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImport
 			for _, u := range userList {
 				list = append(list, entity.TgUserFolders{FolderId: gconv.Uint64(folderId), TgUserId: gconv.Int64(u.Id)})
 			}
-			_, err = g.Model(dao.TgFolders.Table()).Ctx(ctx).Data(list).Insert()
+			_, err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Data(list).Insert()
 		}
 	}
 	return
