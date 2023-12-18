@@ -4,11 +4,30 @@ import MainCard from 'ui-component/cards/MainCard';
 import { FormattedMessage } from 'react-intl';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Checkbox, Chip, Pagination } from '@mui/material';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Checkbox,
+    Chip,
+    Pagination,
+    Autocomplete
+} from '@mui/material';
 import { useDispatch, useSelector } from 'store';
 import { useHeightComponent } from 'utils/tools';
+import { createFilterOptions } from '@mui/material/Autocomplete';
 import styles from './index.module.scss';
 import SearchForm from './searchFrom';
+import  FileUpload from './upload'
 
 import { getTgUserListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
@@ -23,17 +42,17 @@ const TgUser = () => {
         folderId: undefined
     }); // 分页
     const [searchForm, setSearchForm] = useState([]); // search Form
-    const [pagetionTotle, setPagetionTotle] = useState(0);
+    const [pagetionTotle, setPagetionTotle] = useState(0); // total
+    const [importOpenDialog, setImportOpenDialog] = useState(false);
     const boxRef: any = useRef();
     const dispatch = useDispatch();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
     const { tgUserList } = useSelector((state) => state.tg);
 
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
         getTgUserListActionFN();
-
         console.log('tgUserList', tgUserList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
@@ -60,7 +79,7 @@ const TgUser = () => {
             res?.data?.data?.list.map((item: any) => {
                 arr.push({
                     // title:item.folderName,
-                    title: String(item.id),
+                    title: item.folderName,
                     value: item.id
                 });
             });
@@ -123,15 +142,25 @@ const TgUser = () => {
     const handleSearchFormData = (obj: any) => {
         setParamsPayload({ ...paramsPayload, folderId: obj?.value, page: 1 });
     };
+    const handleSetImportOpenDialog = (value: any) => {
+        setImportOpenDialog(value);
+    };
 
-    const chatRoomToNavica = (rows:any) => {
+    // 聊天室跳转
+    const chatRoomToNavica = (rows: any) => {
         // console.log(rows);
         navigate(`/tg/chat/index?id=${rows.id}`);
     };
-    // const handleToggleActive = (id: any, isActive: any) => {
-    //     console.log('Toggling active status for:', id);
-    //     // 这里可以调用API来更新状态
-    // };
+    const onBtnList = (active: String) => {
+        switch (active) {
+            case 'import':
+                setImportOpenDialog(true);
+                break;
+            default:
+                break;
+        }
+    };
+
     return (
         <MainCard title={<FormattedMessageTitle />} content={true}>
             <div className={styles.box} ref={boxRef}>
@@ -140,11 +169,11 @@ const TgUser = () => {
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
-                        <Button size="small" variant="contained">
+                        <Button size="small" variant="contained" onClick={(e) => onBtnList('import')}>
                             导入
                         </Button>
                         <Button size="small" variant="contained">
-                            导入
+                            导出
                         </Button>
                     </Stack>
                 </div>
@@ -197,7 +226,7 @@ const TgUser = () => {
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <Button size="small" variant="contained" onClick={e => chatRoomToNavica(row)}>
+                                                    <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
                                                         聊天室
                                                     </Button>
                                                 ) : (
@@ -235,9 +264,12 @@ const TgUser = () => {
                     ''
                 )}
             </div>
+
+            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} />
         </MainCard>
     );
 };
+// 标题 tg
 const FormattedMessageTitle = () => {
     return (
         <div className={styles.FormattedMessageTitle}>
@@ -246,6 +278,166 @@ const FormattedMessageTitle = () => {
                 <Button variant="outlined">登录</Button>
             </div>
         </div>
+    );
+};
+// 导入弹窗
+const filter = createFilterOptions();
+const ImportOpenDialog = (props: any) => {
+    const { importOpenDialog, setImportOpenDialog, data } = props;
+
+    const [value, setValue] = useState(null);
+    const [open, toggleOpen] = useState(false);
+    const [dialogValue, setDialogValue] = useState({
+        title: '',
+        year: ''
+    });
+
+    // dialog 弹出关闭
+    const handleImportClose = () => {
+        setImportOpenDialog(false);
+    };
+    // dialog 提交
+    const handleImportSubmit = (event: any) => {
+        event.preventDefault();
+        setImportOpenDialog(false);
+    };
+
+    const handleClose = () => {
+        setDialogValue({
+            title: '',
+            year: ''
+        });
+
+        toggleOpen(false);
+    };
+
+    const onAutocompleteChange = (event: any, newValue: any) => {
+        console.log('Autocomplete', event.currentTarget, newValue);
+
+        if (typeof newValue === 'string') {
+            // timeout to avoid instant validation of the dialog's form.
+            setTimeout(() => {
+                toggleOpen(true);
+                setDialogValue({
+                    title: newValue,
+                    year: ''
+                });
+            });
+        } else if (newValue && newValue.inputValue) {
+            toggleOpen(true);
+            setDialogValue({
+                title: newValue.inputValue,
+                year: ''
+            });
+        } else {
+            setValue(newValue);
+        }
+    };
+
+    const handleSubmit = (event: any) => {
+        event.preventDefault();
+        let obj: any = {
+            title: dialogValue.title,
+            year: parseInt(dialogValue.year, 10)
+        };
+        setValue(obj);
+
+        handleClose();
+    };
+    return (
+        <>
+            <Dialog
+                open={importOpenDialog}
+                onClose={(event: any, reason: any) => {
+                    if (reason !== 'backdropClick' && reason !== 'escapeKeyDown') {
+                        handleImportClose();
+                    }
+                }}
+                disableEscapeKeyDown={true}
+            >
+                <DialogTitle>导入</DialogTitle>
+                <DialogContent>
+                    <div className={styles.dialog}>
+                       <div className={styles.formBox}>
+                        <p className={styles.formTitle}>分组选择：</p>
+                       <Autocomplete
+                            value={value}
+                            onChange={onAutocompleteChange}
+                            filterOptions={(options, params) => {
+                                const filtered = filter(options, params);
+
+                                if (params.inputValue !== '') {
+                                    filtered.push({
+                                        inputValue: params.inputValue,
+                                        title: `Add "${params.inputValue}"`
+                                    });
+                                }
+
+                                return filtered;
+                            }}
+                            // id="free-solo-dialog-demo"
+                            id="controllable-states-demo"
+                            options={data}
+                            getOptionLabel={(option: any) => {
+                                // e.g value selected with enter, right from the input
+                                if (typeof option === 'string') {
+                                    return option;
+                                }
+                                if (option?.inputValue) {
+                                    return option.inputValue;
+                                }
+                                return option.title;
+                            }}
+                            selectOnFocus
+                            clearOnBlur
+                            handleHomeEndKeys
+                            renderOption={(props, option) => <li {...props}>{option.title}</li>}
+                            sx={{ width: 300 }}
+                            freeSolo
+                            renderInput={(params) => <TextField {...params} label="分组选择" />}
+                            style={{ width: '100%', margin: '10px 0' }}
+                        />
+                       </div>
+                       <div className={styles.formBox}>
+                        <p className={styles.formTitle}>分组选择：</p>
+                        <FileUpload />
+                       </div>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleImportClose}>取消</Button>
+                    <Button onClick={handleImportSubmit}>提交</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={open} onClose={handleClose}>
+                <form onSubmit={handleSubmit}>
+                    <DialogTitle>添加分组名称</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            autoFocus
+                            margin="dense"
+                            id="outlined-basic"
+                            value={dialogValue.title}
+                            onChange={(event) =>
+                                setDialogValue({
+                                    ...dialogValue,
+                                    title: event.target.value
+                                })
+                            }
+                            label="分组名称"
+                            type="text"
+                            variant="outlined"
+                            style={{width:'100%'}}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>Cancel</Button>
+                        <Button type="submit">Add</Button>
+                    </DialogActions>
+                </form>
+            </Dialog>
+        </>
     );
 };
 export default memo(TgUser);
