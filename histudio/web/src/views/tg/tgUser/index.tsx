@@ -25,9 +25,11 @@ import {
 import { useDispatch, useSelector } from 'store';
 import { useHeightComponent } from 'utils/tools';
 import { createFilterOptions } from '@mui/material/Autocomplete';
+import { openSnackbar } from 'store/slices/snackbar';
 import styles from './index.module.scss';
 import SearchForm from './searchFrom';
-import  FileUpload from './upload'
+import FileUpload from './upload'
+import SubmitDialog from './submitDialog'
 
 import { getTgUserListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
@@ -44,6 +46,10 @@ const TgUser = () => {
     const [searchForm, setSearchForm] = useState([]); // search Form
     const [pagetionTotle, setPagetionTotle] = useState(0); // total
     const [importOpenDialog, setImportOpenDialog] = useState(false);
+    const [handleSubmitOpen, setHandleSubmitOpen] = useState(false) // 弹窗控制
+    const [handleSubmitOpenConfig, setHandleSubmitOpenConfig] = useState({
+        title: ''
+    })
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -142,8 +148,9 @@ const TgUser = () => {
     const handleSearchFormData = (obj: any) => {
         setParamsPayload({ ...paramsPayload, folderId: obj?.value, page: 1 });
     };
-    const handleSetImportOpenDialog = (value: any) => {
-        setImportOpenDialog(value);
+    const handleSetImportOpenDialog = (type: String, value: any) => {
+        // setImportOpenDialog(value);
+        onBtnCloseList(type, value)
     };
 
     // 聊天室跳转
@@ -151,15 +158,36 @@ const TgUser = () => {
         // console.log(rows);
         navigate(`/tg/chat/index?id=${rows.id}`);
     };
-    const onBtnList = (active: String) => {
+    // 弹窗开启
+    const onBtnOpenList = (active: String) => {
         switch (active) {
             case 'import':
                 setImportOpenDialog(true);
+                break;
+            case 'iphone':
+                setHandleSubmitOpen(true);
+                setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' })
                 break;
             default:
                 break;
         }
     };
+    // 弹窗关闭
+    const onBtnCloseList = (type: String, value: any) => {
+        console.log(type, value);
+
+        switch (type) {
+            case 'import':
+                setImportOpenDialog(value);
+                break;
+            case 'iphone':
+                setHandleSubmitOpen(value);
+                break;
+            default:
+                break;
+        }
+    };
+
 
     return (
         <MainCard title={<FormattedMessageTitle />} content={true}>
@@ -169,11 +197,11 @@ const TgUser = () => {
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
-                        <Button size="small" variant="contained" onClick={(e) => onBtnList('import')}>
+                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('import')}>
                             导入
                         </Button>
-                        <Button size="small" variant="contained">
-                            导出
+                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('iphone')}>
+                            手机验证码登录
                         </Button>
                     </Stack>
                 </div>
@@ -265,7 +293,9 @@ const TgUser = () => {
                 )}
             </div>
 
-            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} />
+            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTgUserListActionFN} />
+
+            <SubmitDialog open={handleSubmitOpen} config={handleSubmitOpenConfig} setOpenChangeDialog={handleSetImportOpenDialog} />
         </MainCard>
     );
 };
@@ -274,43 +304,90 @@ const FormattedMessageTitle = () => {
     return (
         <div className={styles.FormattedMessageTitle}>
             <FormattedMessage id="setting.cron.teleg-tg" />
-            <div>
+            {/* <div>
                 <Button variant="outlined">登录</Button>
-            </div>
+            </div> */}
         </div>
     );
 };
 // 导入弹窗
 const filter = createFilterOptions();
 const ImportOpenDialog = (props: any) => {
-    const { importOpenDialog, setImportOpenDialog, data } = props;
+    const { importOpenDialog, setImportOpenDialog, data, getTgUserListActionFN } = props;
 
-    const [value, setValue] = useState(null);
+    const [value, setValue] = useState<any>(undefined);
     const [open, toggleOpen] = useState(false);
     const [dialogValue, setDialogValue] = useState({
-        title: '',
-        year: ''
+        title: ''
     });
+    const [selectedFile, setSelectedFile] = useState(null);
+    const dispatch = useDispatch();
 
     // dialog 弹出关闭
     const handleImportClose = () => {
-        setImportOpenDialog(false);
+        setImportOpenDialog('import', false);
+        setValue(undefined)
     };
     // dialog 提交
     const handleImportSubmit = (event: any) => {
         event.preventDefault();
-        setImportOpenDialog(false);
+        // setImportOpenDialog(false);
+
+        if (!selectedFile) {
+            alert('只能上传zip格式的文件，请重新上传');
+            return;
+        }
+        console.log('value提交', value);
+
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        formData.append('folderId', value?.value);
+        axios('http://10.8.12.88:8001/tg/tgUser/importSession', {
+            method: 'POST',
+            transformRequest: [function (data, headers: any) {
+                // 去除post请求默认的Content-Type
+                // console.log(data, headers);
+                // delete headers.post['Content-Type']
+                return data
+            }],
+            data: formData,
+        }).then(res => {
+            // 处理响应
+            console.log('res上传成功', res);
+            setImportOpenDialog('import', false);
+            setValue(undefined)
+            getTgUserListActionFN()
+        }).catch(err => {
+            console.log('res上传失败', err);
+            dispatch(openSnackbar({
+                open: true,
+                message: err.message || '上传失败',
+                variant: 'alert',
+                alert: {
+                    color: 'error'
+                },
+                close: false,
+                anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center'
+                }
+            }))
+        })
     };
+
+    const selectedFileChange = (file: any) => {
+        setSelectedFile(file)
+    }
 
     const handleClose = () => {
         setDialogValue({
-            title: '',
-            year: ''
+            title: ''
         });
 
         toggleOpen(false);
     };
 
+    // 导入分组选择
     const onAutocompleteChange = (event: any, newValue: any) => {
         console.log('Autocomplete', event.currentTarget, newValue);
 
@@ -319,31 +396,40 @@ const ImportOpenDialog = (props: any) => {
             setTimeout(() => {
                 toggleOpen(true);
                 setDialogValue({
-                    title: newValue,
-                    year: ''
+                    title: newValue
                 });
             });
         } else if (newValue && newValue.inputValue) {
             toggleOpen(true);
             setDialogValue({
-                title: newValue.inputValue,
-                year: ''
+                title: newValue.inputValue
             });
         } else {
             setValue(newValue);
         }
     };
 
+    // 添加分组名称
     const handleSubmit = (event: any) => {
         event.preventDefault();
         let obj: any = {
-            title: dialogValue.title,
-            year: parseInt(dialogValue.year, 10)
+            title: dialogValue.title
         };
         setValue(obj);
 
         handleClose();
     };
+    // 下载模板
+    const handleDownload = () => {
+        let a = document.createElement("a");
+        a.href = "./static/session.zip";
+        a.download = "session.zip";
+        a.style.display = "none";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+    }
     return (
         <>
             <Dialog
@@ -355,53 +441,53 @@ const ImportOpenDialog = (props: any) => {
                 }}
                 disableEscapeKeyDown={true}
             >
-                <DialogTitle>导入</DialogTitle>
+                <DialogTitle>导入 <Button onClick={handleDownload}>下载模板</Button></DialogTitle>
                 <DialogContent>
                     <div className={styles.dialog}>
-                       <div className={styles.formBox}>
-                        <p className={styles.formTitle}>分组选择：</p>
-                       <Autocomplete
-                            value={value}
-                            onChange={onAutocompleteChange}
-                            filterOptions={(options, params) => {
-                                const filtered = filter(options, params);
+                        <div className={styles.formBox}>
+                            <p className={styles.formTitle}>分组选择：</p>
+                            <Autocomplete
+                                value={value}
+                                onChange={onAutocompleteChange}
+                                filterOptions={(options, params) => {
+                                    const filtered = filter(options, params);
 
-                                if (params.inputValue !== '') {
-                                    filtered.push({
-                                        inputValue: params.inputValue,
-                                        title: `Add "${params.inputValue}"`
-                                    });
-                                }
+                                    if (params.inputValue !== '') {
+                                        filtered.push({
+                                            inputValue: params.inputValue,
+                                            title: `Add "${params.inputValue}"`
+                                        });
+                                    }
 
-                                return filtered;
-                            }}
-                            // id="free-solo-dialog-demo"
-                            id="controllable-states-demo"
-                            options={data}
-                            getOptionLabel={(option: any) => {
-                                // e.g value selected with enter, right from the input
-                                if (typeof option === 'string') {
-                                    return option;
-                                }
-                                if (option?.inputValue) {
-                                    return option.inputValue;
-                                }
-                                return option.title;
-                            }}
-                            selectOnFocus
-                            clearOnBlur
-                            handleHomeEndKeys
-                            renderOption={(props, option) => <li {...props}>{option.title}</li>}
-                            sx={{ width: 300 }}
-                            freeSolo
-                            renderInput={(params) => <TextField {...params} label="分组选择" />}
-                            style={{ width: '100%', margin: '10px 0' }}
-                        />
-                       </div>
-                       <div className={styles.formBox}>
-                        <p className={styles.formTitle}>分组选择：</p>
-                        <FileUpload />
-                       </div>
+                                    return filtered;
+                                }}
+                                // id="free-solo-dialog-demo"
+                                id="controllable-states-demo"
+                                options={data}
+                                getOptionLabel={(option: any) => {
+                                    // e.g value selected with enter, right from the input
+                                    if (typeof option === 'string') {
+                                        return option;
+                                    }
+                                    if (option?.inputValue) {
+                                        return option.inputValue;
+                                    }
+                                    return option.title;
+                                }}
+                                selectOnFocus
+                                clearOnBlur
+                                handleHomeEndKeys
+                                renderOption={(props, option) => <li {...props}>{option.title}</li>}
+                                sx={{ width: 300 }}
+                                freeSolo
+                                renderInput={(params) => <TextField {...params} label="分组选择" />}
+                                style={{ width: '100%', margin: '10px 0' }}
+                            />
+                        </div>
+                        <div className={styles.formBox}>
+                            <p className={styles.formTitle}>上传文件：</p>
+                            <FileUpload selectedFileChange={selectedFileChange} />
+                        </div>
                     </div>
                 </DialogContent>
                 <DialogActions>
@@ -428,7 +514,7 @@ const ImportOpenDialog = (props: any) => {
                             label="分组名称"
                             type="text"
                             variant="outlined"
-                            style={{width:'100%'}}
+                            style={{ width: '100%' }}
                         />
                     </DialogContent>
                     <DialogActions>
