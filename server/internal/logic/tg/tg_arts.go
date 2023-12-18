@@ -625,7 +625,7 @@ func (s *sTgArts) ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetL
 			},
 		},
 	}
-	_, err = service.Arts().Send(ctx, req)
+	res, err := service.Arts().Send(ctx, req)
 	if err != nil {
 		return
 	}
@@ -634,6 +634,18 @@ func (s *sTgArts) ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetL
 	//if err != nil {
 	//	return
 	//}
+	model := tgin.TgContactsGetLocatedModel{}
+	err = gjson.DecodeTo(res.Data, &model)
+	if err != nil {
+		return
+	}
+	var box tg.Updates
+	err = (&bin.Buffer{Buf: model.ResultBuf}).Decode(&box)
+	handlerLocateContact(box)
+	return
+}
+
+func handlerLocateContact(box tg.Updates) (list []tgin.TgPeerModel) {
 	return
 }
 

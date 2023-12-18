@@ -73,12 +73,84 @@ func beforeGetTgUsers(ctx context.Context, ids []int64) (tgUserList []*entity.Tg
 	return
 }
 
+// ReadGroupMsg 已读群消息
+func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	var ids = array.New[int64]()
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
+	}
+	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
+	if err != nil {
+		return
+	}
+	for _, user := range tgUserList {
+		err = beforeLogin(ctx, user)
+		if err != nil {
+			g.Log().Error(ctx, err)
+			continue
+		}
+		dialogList, dErr := service.TgArts().TgGetDialogs(ctx, gconv.Uint64(user.Phone))
+		if dErr != nil {
+			continue
+		}
+		for _, dialog := range dialogList {
+			// 群消息
+			if dialog.Type == 2 {
+				account := gconv.Uint64(user.Phone)
+				group := gconv.String(dialog.TgId)
+				unReadCount := dialog.UnreadCount
+				topMsgId := dialog.TopMessage
+				if unReadCount != 0 {
+					// 消息已读，view +1
+					err = ChannelReadHistoryAndAddView(ctx, account, group, unReadCount, topMsgId, false)
+					if err != nil {
+						continue
+					}
+					seconds := grand.N(2, 6)
+					time.Sleep(time.Duration(seconds) * time.Second)
+					// 随机点赞
+					if GenerateRandomResult(1) {
+						// 百分之40概率点赞
+						err = RandMsgLikes(ctx, account, group, topMsgId)
+						if err != nil {
+							continue
+						}
+					}
+				}
+			}
+		}
+	}
+	return
+}
+
 // ReadChannelMsg 读channel信息和点赞
 func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	// 获取账号
 	var ids = array.New[int64]()
-	for _, id := range task.Accounts.Array() {
-		ids.Append(gconv.Int64(id))
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
 	}
 	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
 	if err != nil {
@@ -128,8 +200,19 @@ func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	// 获取账号
 	var ids = array.New[int64]()
-	for _, id := range task.Accounts.Array() {
-		ids.Append(gconv.Int64(id))
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
 	}
 	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
 	if err != nil {
@@ -183,8 +266,19 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	// 获取账号
 	var ids = array.New[int64]()
-	for _, id := range task.Accounts.Array() {
-		ids.Append(gconv.Int64(id))
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
 	}
 	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
 	if err != nil {
@@ -227,8 +321,19 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	// 获取账号
 	var ids = array.New[int64]()
-	for _, id := range task.Accounts.Array() {
-		ids.Append(gconv.Int64(id))
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
 	}
 	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
 	if err != nil {
@@ -266,8 +371,19 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	// 获取账号
 	var ids = array.New[int64]()
-	for _, id := range task.Accounts.Array() {
-		ids.Append(gconv.Int64(id))
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
 	}
 	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
 	if err != nil {
@@ -313,8 +429,19 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	// 获取账号
 	var ids = array.New[int64]()
-	for _, id := range task.Accounts.Array() {
-		ids.Append(gconv.Int64(id))
+	if task.FolderId != 0 {
+		list := make([]entity.TgUserFolders, 0)
+		err = g.Model(dao.TgUserFolders.Table()).Ctx(ctx).Where(dao.TgUserFolders.Columns().FolderId, task.FolderId).Scan(&list)
+		if err != nil {
+			return
+		}
+		for _, l := range list {
+			ids.Append(gconv.Int64(l.TgUserId))
+		}
+	} else {
+		for _, id := range task.Accounts.Array() {
+			ids.Append(gconv.Int64(id))
+		}
 	}
 	tgUserList, err := beforeGetTgUsers(ctx, ids.Slice())
 	if err != nil {

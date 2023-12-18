@@ -246,3 +246,8 @@ type GetManageChannelsInp struct {
 	Sender     uint64 `json:"sender"     dc:"tg账号"`
 	ByLocation bool   `json:"byLocation" dc:"true只显示频道"`
 }
+
+type TgContactsGetLocatedModel struct {
+	TgId      int64  `json:"tgId"          description:"tg id"`
+	ResultBuf []byte `json:"resultBuf"   description:"result buf"`
+}

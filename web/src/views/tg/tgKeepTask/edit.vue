@@ -30,6 +30,10 @@
             <n-select multiple v-model:value="params.actions" :options="options.keep_action" />
           </n-form-item>
 
+          <n-form-item label="分组" path="folderId">
+            <n-select  v-model:value="params.folderId" :options="options.folderId" />
+          </n-form-item>
+
           <n-form-item label="账号" path="accounts">
             <n-select multiple v-model:value="params.accounts" :options="options.accounts" />
           </n-form-item>

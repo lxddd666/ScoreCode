@@ -12,6 +12,7 @@ export interface State {
   orgId: number;
   memberId: number;
   folderName: string;
+  folderId: number;
   accounts: any;
   memberCount: number;
   comment: string;
@@ -25,6 +26,7 @@ export const defaultState = {
   orgId: 0,
   memberId: 0,
   folderName: '',
+  folderId: 0,
   memberCount: 0,
   comment: '',
   deletedAt: '',

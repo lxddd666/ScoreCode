@@ -7,14 +7,17 @@ import { getOptionLabel, getOptionTag, Options } from '@/utils/hotgo';
 import { getScriptGroupOption, getTgUserOption } from '@/api/tg/tgKeepTask';
 import { isNullObject } from '@/utils/is';
 import { NTag } from 'naive-ui';
+import {List} from "@/api/tg/tgFolders";
 
 export interface State {
   id: number;
   orgId: number;
   taskName: string;
+  folderId: number;
   cron: string;
   actions: any;
   accounts: any;
+  folders: any;
   scriptGroup: any;
   status: number;
   createdAt: string;
@@ -25,6 +28,7 @@ export const defaultState = {
   id: 0,
   orgId: 0,
   taskName: '',
+  folderId:0,
   cron: '',
   actions: null,
   accounts: null,
@@ -46,6 +50,7 @@ export const options = ref<Options>({
   sys_job_status: [],
   accounts: [],
   scriptGroup: [],
+  folderId: []
 });
 
 export const rules = {
@@ -215,6 +220,18 @@ async function loadOptions() {
     options.value.scriptGroup = [];
   }
 
+  const folderId = await List({ page: 1, pageSize: 9999 });
+  if (folderId.list) {
+    options.value.folderId = folderId.list;
+    for (let i = 0; i < folderId.list.length; i++) {
+      folderId.list[i].label = folderId.list[i].folderName;
+      folderId.list[i].value = folderId.list[i].id;
+    }
+  } else {
+    options.value.folderId = [];
+  }
+  debugger
+
   for (const item of schemas.value) {
     switch (item.field) {
       case 'actions':
@@ -228,6 +245,9 @@ async function loadOptions() {
         break;
       case 'scriptGroup':
         item.componentProps.options = options.value.scriptGroup;
+        break;
+      case `folderId`:
+        item.componentProps.options = options.value.folderId;
         break;
     }
   }

@@ -78,6 +78,7 @@ func (c *cTgUser) UnBindMember(ctx context.Context, req *tguser.UnBindMemberReq)
 
 // ImportSession 导入用户session
 func (c *cTgUser) ImportSession(ctx context.Context, req *tguser.ImportSessionReq) (res *tguser.ImportSessionRes, err error) {
+	res = new(tguser.ImportSessionRes)
 	if req.File == nil {
 		err = gerror.New(g.I18n().T(ctx, "{#NoFindUploadFiles}"))
 		return

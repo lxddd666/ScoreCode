@@ -26,6 +26,7 @@ type TgKeepTaskColumns struct {
 	Cron        string // 表达式
 	Actions     string // 养号动作
 	Accounts    string // 账号
+	FolderId    string // 分组ID
 	ScriptGroup string // 话术分组
 	Status      string // 任务状态
 	CreatedAt   string // 创建时间
@@ -40,6 +41,7 @@ var tgKeepTaskColumns = TgKeepTaskColumns{
 	Cron:        "cron",
 	Actions:     "actions",
 	Accounts:    "accounts",
+	FolderId:    "folder_id",
 	ScriptGroup: "script_group",
 	Status:      "status",
 	CreatedAt:   "created_at",
