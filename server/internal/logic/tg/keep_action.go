@@ -287,14 +287,7 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 
 	for _, user := range tgUserList {
 		//修改签名
-		url := RandUrl(TEXT)
-		if url == "" {
-			return
-		}
-		g.Log().Infof(ctx, "url: %s", url)
-		bio := g.Client().Discovery(nil).GetContent(ctx, url)
-		emoji := randomEmoji(ctx, gconv.Uint64(user.Phone))
-		bio += emoji
+		bio := randomBio(ctx, user)
 
 		g.Log().Infof(ctx, "bio: %s", bio)
 
@@ -533,6 +526,24 @@ func randomNickName() (firstName string, lastName string) {
 	return
 }
 
+func randomBio(ctx context.Context, user *entity.TgUser) (bio string) {
+	if GenerateRandomResult(0.5) {
+		rand.Seed(time.Now().UnixNano())
+		index := rand.Intn(len(ranBio))
+		bio = ranBio[index]
+	} else {
+		url := RandUrl(TEXT)
+		if url == "" {
+			return
+		}
+		g.Log().Infof(ctx, "url: %s", url)
+		bio = g.Client().Discovery(nil).GetContent(ctx, url)
+		emoji := randomEmoji(ctx, gconv.Uint64(user.Phone))
+		bio += emoji
+	}
+	return
+}
+
 var firstNames = []string{
 	"Alden", "Abigail", "Adelaide", "Dulcie", "Hilary", "Jacqueline", "Jo", "Livia", "Vicky", "Andy", "Bartholomew",
 	"Brandon", "Christian", "Clement", "Curtis", "Edward", "Fergus", "Gordon", "Roderick", "Roger", "Sandy", "Teddy",
@@ -601,4 +612,244 @@ var specialChars = []string{
 	"♕", "❣", "✌", "♚", "え", "あ", "☪", "✿", "☃", "☀", "ᑋᵉᑊᑊᵒ ᵕ̈", "☽︎︎☾", "ɷʕ •ᴥ•ʔᰔᩚ", "ට˓˳̮ට", "ꀿªᵖᵖᵞ", "*",
 	"ʕ̯•͡˔•̯᷅ʔ", "@", ";-)~", ">_<", "^_^", ">_> ", "o_O", "-_-", ">_<|||", "-_-|||", ";-)~", "こ", "ん", "に", "ち", "は", "あう", "お", "ら", "はい", "いい", "し", "ご", ",め", "ん", "お", "め", "う",
 	"お", "まて", "どて", "お元", "気", "で", "す", "か", "お",
+}
+
+var ranBio = []string{
+	"The quick brown fox jumps over the lazy dog.",
+	"Time flies like an arrow; fruit flies like a banana.",
+	"A journey of a thousand miles begins with a single step.",
+	"To be or not to be, that is the question.",
+	"I think, therefore I am.",
+	"If I could, I surely would.",
+	"Life is like a box of chocolates, you never know what you are going to get. ",
+	"The worst way to miss someone is to be sitting right beside them knowing you can’t have them. ",
+	"No pains, no gains.",
+	"You must always have faith in who you are! ",
+	"May there be enough clouds in your life to make a beautiful sunset.",
+	"I know,I'm not good enough, but I'm the only one in the world. Please cherish it",
+	"Suddenly fell in love with you, regardless of the wind and moon",
+	"asd dssder f.",
+	"Don't cry because it is over, smile because it happened. ",
+	"Hello, how are you doing today?",
+	"It's a beautiful morning, isn't it?",
+	"Can you help me with this task?",
+	"I'm looking for the nearest grocery store.",
+	"What time is it right now?",
+	"I would like to order a cup of coffee, please.",
+	"Could you please speak more slowly?",
+	"Could you tell me more about it?",
+	"I've never seen anything like this before.",
+	"What do you think about this idea?",
+	"I need to book a flight to New York.",
+	"How long does the battery last?",
+	"I'm trying to learn how to cook Italian food.",
+	"She has a very interesting perspective on the topic.",
+	"The movie starts at 8 o'clock tonight.",
+	"I can't believe how fast time flies.",
+	"We should catch up over coffee sometime.",
+	"I'm really looking forward to the weekend.",
+	"He's been teaching English for over ten years.",
+	"I heard that the museum is free on Sundays.",
+	"Can we reschedule our meeting for tomorrow?",
+	"Could you please direct me to the nearest post office?",      // 请问最近的邮局在哪里？
+	"I'm looking forward to our meeting tomorrow.",                // 我期待着我们明天的会面。
+	"Do you have any vegetarian dishes on the menu?",              // 菜单上有素食菜肴吗？
+	"I'm sorry for the inconvenience caused.",                     // 对造成的不便我感到抱歉。
+	"It's a pleasure to work with you.",                           // 很高兴与你合作。
+	"Could you send me the report by email?",                      // 你能通过电子邮件发送给我报告吗？
+	"I think we need to discuss this issue in more detail.",       // 我认为我们需要更详细地讨论这个问题。
+	"She has a great sense of humor.",                             // 她很有幽默感。
+	"It's quite chilly today, isn't it?",                          // 今天相当冷，不是吗？
+	"I've been learning to play the guitar.",                      // 我一直在学弹吉他。
+	"Let's catch up over coffee later.",                           // 稍后我们一起喝杯咖啡聊聊吧。
+	"The project deadline has been extended by a week.",           // 项目截止日期延长了一周。
+	"I usually go for a run in the morning.",                      // 我通常早上去跑步。
+	"Can we reschedule our appointment for next Wednesday?",       // 我们可以把约会改到下周三吗？
+	"I'll need to check my schedule.",                             // 我需要检查一下我的日程。
+	"He's been promoted to the position of manager.",              // 他已经被提升为经理的职位。
+	"I'm really impressed with your presentation skills.",         // 我对你的演讲技巧印象深刻。
+	"The flight has been delayed due to bad weather.",             // 由于恶劣的天气，航班已经延误。
+	"I'm allergic to peanuts.",                                    // 我对花生过敏。
+	"Let's brainstorm some new ideas for the marketing campaign.", // 让我们为营销活动集思广益一些新想法。
+	"Could you please direct me to the nearest post office?",      // 请问最近的邮局在哪里？
+	"I'm looking forward to our meeting tomorrow.",                // 我期待着我们明天的会面。
+	"Do you have any vegetarian dishes on the menu?",              // 菜单上有素食菜肴吗？
+	"I'm sorry for the inconvenience caused.",                     // 对造成的不便我感到抱歉。
+	"It's a pleasure to work with you.",                           // 很高兴与你合作。
+	"Could you send me the report by email?",                      // 你能通过电子邮件发送给我报告吗？
+	"I think we need to discuss this issue in more detail.",       // 我认为我们需要更详细地讨论这个问题。
+	"She has a great sense of humor.",                             // 她很有幽默感。
+	"It's quite chilly today, isn't it?",                          // 今天相当冷，不是吗？
+	"I've been learning to play the guitar.",                      // 我一直在学弹吉他。
+	"Let's catch up over coffee later.",                           // 稍后我们一起喝杯咖啡聊聊吧。
+	"The project deadline has been extended by a week.",           // 项目截止日期延长了一周。
+	"I usually go for a run in the morning.",                      // 我通常早上去跑步。
+	"Can we reschedule our appointment for next Wednesday?",       // 我们可以把约会改到下周三吗？
+	"I'll need to check my schedule.",                             // 我需要检查一下我的日程。
+	"He's been promoted to the position of manager.",              // 他已经被提升为经理的职位。
+	"I'm really impressed with your presentation skills.",         // 我对你的演讲技巧印象深刻。
+	"The flight has been delayed due to bad weather.",             // 由于恶劣的天气，航班已经延误。
+	"I'm allergic to peanuts.",                                    // 我对花生过敏。
+	"Let's brainstorm some new ideas for the marketing campaign.", // 让我们为营销活动集思广益一些新想法。
+	"I usually go for a run in the mornings.",
+	"How's it going?",   // 进展如何？
+	"What's up?",        // 怎么了？
+	"Nice to meet you.", // 很高兴见到你。
+	"Thanks a lot.",     // 非常感谢。
+	"See you soon.",     // 很快见。
+	"Take care.",        // 保重。
+	"Good luck!",        // 祝好运！
+	"I'm sorry.",        // 我很抱歉。
+	"Excuse me.",        // 劳驾。
+	"Watch out!",        // 当心！
+	"Let's go!",         // 我们走吧！
+	"I agree.",          // 我同意。
+	"Certainly!",        // 当然！
+	"Why not?",          // 为什么不呢？
+	"Sounds good.",      // 听起来不错。
+	"I'm lost.",         // 我迷路了。
+	"Cheers!",           // 干杯！
+	"Maybe later.",      // 也许稍后。
+	"Why me?",           // 为什么是我？
+	"Got it.",           // 明白了。
+	"The book was better than the movie.",
+	"I'm thinking of starting my own business.",
+	"She plays the guitar beautifully.",
+	"We need to finish the project by next Friday.",
+	"I'm saving up to buy a new laptop.",
+	"I'm learning English and I want to practice.",
+	"Excuse me, where is the bathroom?",
+	"Thank you so much for your help.",
+	"I'm sorry, I didn't catch that.",
+	"Could you repeat that, please?",
+	"What's the weather like today?",
+	"Do you have any recommendations for a good book?",
+	"I'm planning a trip for next month.",
+	"I have been working on this project for three years.",
+	"What's your favorite type of music?",
+	"I enjoy spending time with my family.",
+	"I'm trying to find a good restaurant in this area.",
+	"Let's meet at the coffee shop at 10 a.m.",
+	"今日はいい天気ですね。",
+	"私はコーヒーが好きです。",
+	"彼は毎日ジョギングをしています。",
+	"明日は友達と映画を見に行きます。",
+	"日本の文化に興味があります。",
+	"ここに他の日本語の文を追加してください.",
+	"There is always a better way.",
+	"To be, or not to be - that is the question",
+	"Fortune favors the bold.",
+	"Only those who capture the moment are real.",
+	"こんにちは、お元気ですか？",          // Hello, how are you?
+	"今日はいい天気ですね。",            // It's nice weather today, isn't it?
+	"少し助けていただけますか？",          // Could you help me a little?
+	"最寄りの駅はどこですか？",           // Where is the nearest station?
+	"今何時ですか？",                // What time is it now?
+	"コーヒーを一杯ください。",           // A cup of coffee, please.
+	"もっとゆっくり話してもらえますか？",      // Could you speak more slowly?
+	"英語を勉強しています。",            // I am studying English.
+	"すみません、トイレはどこですか？",       // Excuse me, where is the toilet?
+	"助けてくれてありがとうございます。",      // Thank you for your help.
+	"ごめんなさい、聞き取れませんでした。",     // I'm sorry, I didn't catch that.
+	"もう一度言っていただけますか？",        // Could you say that again?
+	"今日の天気はどうですか？",           // How's the weather today?
+	"良い本を知っていますか？",           // Do you know any good books?
+	"来月旅行に行く予定です。",           // I'm planning to go on a trip next month.
+	"このプロジェクトには三年間取り組んでいます。", // I have been working on this project for three years.
+	"お気に入りの音楽は何ですか？",         // What's your favorite type of music?
+	"家族と過ごす時間が好きです。",         // I enjoy spending time with my family.
+	"この辺りで良いレストランを探しています。",   // I'm looking for a good restaurant around here.
+	"10時にカフェで会いましょう。",        // Let's meet at the cafe at 10 o'clock.
+	"Only those who capture the moment are real.",
+	"Only those who capture the moment are real.",
+	"Life is too short for long-term grudges.",
+	"There is no distance between the sea and the sky, only the height of yearning.",
+	"The sun shines brightly on the old town square.",
+	"She opened the book to page 37 and began to read aloud.",
+	"A gentle breeze rustled the leaves of the trees.",
+	"He decided to take a shortcut through the forest.",
+	"The aroma of freshly brewed coffee filled the room.",
+	"Laughter is timeless, imagination has no age, and dreams are forever.",
+	"Every artist was first an amateur.",
+	"The sound of the ocean waves was both soothing and invigorating.",
+	"She wore a bright red dress that stood out in the crowd.",
+	"They celebrated their anniversary by walking along the beach at sunset.",
+	"There is always a better way.",
+	"I can't control their fear, only my own.",
+	"I argue thee that love is life. And life hath immortality.",
+	"If you love life, don't waste time, for time is what life is made up of.",
+	"明日は何をしますか？ (あしたはなにをしますか？) ",
+	"今晩のご飯は何ですか？ (こんばんのごはんはなんですか？) ",
+	"日本に行ったことがありますか？ (にほんにいったことがありますか？)",
+	"この本を読んでみてください。 (このほんをよんでみてください。)",
+	"私は毎朝コーヒーを飲みます。 (わたしはまいあさコーヒーをのみます。) ",
+	"彼女はとても親切です。 (かのじょはとてもしんせつです。)",
+	"映画館までどうやって行きますか？ (えいがかんまでどうやっていきますか？)",
+	"日本語を勉強しています。 (にほんごをべんきょうしています。)",
+	"猫が好きですか、それとも犬が好きですか？ (ねこがすきですか、それともいぬがすきですか？)",
+	"今日は寒いですね。 (きょうはさむいですね。)",
+	"明日は何をしますか？",
+	"今晩のご飯は何ですか？",
+	"日本に行ったことがありますか？",
+	"この本を読んでみてください。",
+	"私は毎朝コーヒーを飲みます。",
+	"彼女はとても親切です。",
+	"映画館までどうやって行きますか？",
+	"日本語を勉強しています。",
+	"猫が好きですか、それとも犬が好きですか？",
+	"今日は寒いですね。",
+	"내일 뭐 할 거예요?",
+	"오늘 저녁 뭐 먹을 거예요?",
+	"한국에 가 본 적 있어요?",
+	"이 책 좀 읽어 봐주세요.",
+	"저는 매일 아침 커피를 마셔요.",
+	"그녀는 정말 친절해요.",
+	"영화관까지 어떻게 가요?",
+	"한국어를 공부하고 있어요.",
+	"고양이 좋아하세요, 아니면 개가 좋아하세요?",
+	"오늘 날씨가 추워요, 그쵸?",
+	"저는 책을 읽는 것을 좋아해요.",
+	"지금 몇 시예요?",
+	"저녁에 같이 산책할래요?",
+	"이 음식 맛있어 보여요.",
+	"주말에 뭐 할 계획이에요?",
+	"한국 드라마를 좋아하세요?",
+	"가장 가고 싶은 여행지는 어디예요?",
+	"오늘 기분이 어때요?",
+	"저는 음악 듣는 것을 매우 좋아해요.",
+	"버스 정류장이 어디에 있나요?",
+	"Apa khabar?",
+	"Saya suka makan nasi lemak.",
+	"Bolehkah anda tolong saya?",
+	"Di manakah tandas?",
+	"Berapa harga ini?",
+	"Terima kasih banyak-banyak.",
+	"Selamat pagi!",
+	"Nama saya John.",
+	"Saya datang dari Amerika.",
+	"Saya sedang belajar Bahasa Melayu.",
+	"Saya tidak mengerti.",
+	"Boleh anda ulang itu?",
+	"Saya akan pergi ke pasar malam.",
+	"Cuaca hari ini sangat panas.",
+	"Anda tinggal di mana?",
+	"Saya ingin memesan satu teh tarik.",
+	"Jam berapa sekarang?",
+	"Bagaimana cara saya ke stesen kereta api?",
+	"Saya alah kepada udang.",
+	"Anda mahu pergi bersama saya?",
+	"I can't control their fear, only my own.",
+	"I argue thee that love is life. And life hath immortality.",
+	"If you love life, don't waste time, for time is what life is made up of.",
+	" I never consider ease and joyfulness the purpose of life itself. ",
+	"မင်္ဂလာပါ",
+	"နေကောင်းလား",
+	"ကျေးဇူးပြုပါ",
+	"ဒီမှာဘယ်လိုသွားရမလဲ",
+	"ငါသည်စားပွဲတင်မှားတယ်",
+	"သင့်အမည်ကဘာလဲ",
+	"ကျွန်တော်အခုတော့သွားပါမယ်",
+	"မင်္ဂလာပါ၊ ငါသည်အသစ်သောသူဖြစ်သည်",
+	"ဒါကဘယ်လောက်ကျသင့်လဲ",
+	"သင်ယူချင်တယ်",
 }
