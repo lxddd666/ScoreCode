@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
 import { FormattedMessage } from 'react-intl';
@@ -146,7 +146,7 @@ const TgUser = () => {
 
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
-        setParamsPayload({ ...paramsPayload, folderId: obj?.value, page: 1 });
+        setParamsPayload({ ...paramsPayload, ...obj, page: 1 });
     };
     const handleSetImportOpenDialog = (type: String, value: any) => {
         // setImportOpenDialog(value);
@@ -159,20 +159,26 @@ const TgUser = () => {
         navigate(`/tg/chat/index?id=${rows.id}`);
     };
     // 弹窗开启
+    const handleSubmitOpenCallback = useCallback(() => {
+        setHandleSubmitOpen(true);
+        setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' })
+    }, []);
     const onBtnOpenList = (active: String) => {
         switch (active) {
             case 'import':
                 setImportOpenDialog(true);
                 break;
             case 'iphone':
-                setHandleSubmitOpen(true);
-                setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' })
+                handleSubmitOpenCallback()
                 break;
             default:
                 break;
         }
     };
     // 弹窗关闭
+    const handleSubmitCloseCallback = useCallback((value: any) => {
+        setHandleSubmitOpen(value);
+    }, []);
     const onBtnCloseList = (type: String, value: any) => {
         console.log(type, value);
 
@@ -181,7 +187,7 @@ const TgUser = () => {
                 setImportOpenDialog(value);
                 break;
             case 'iphone':
-                setHandleSubmitOpen(value);
+                handleSubmitCloseCallback(value)
                 break;
             default:
                 break;
@@ -197,6 +203,30 @@ const TgUser = () => {
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
+                        <Button size="small" variant="contained" disabled={true}>
+                            批量删除
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            导出
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            绑定员工
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            解绑员工
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            绑定代理
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            解绑代理
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            批量上线
+                        </Button>
+                        <Button size="small" variant="contained" disabled={true}>
+                            批量下线
+                        </Button>
                         <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('import')}>
                             导入
                         </Button>
@@ -207,7 +237,7 @@ const TgUser = () => {
                 </div>
                 <TableContainer
                     component={Paper}
-                    style={{ maxHeight: `calc(${boxHeight - 170}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
+                    style={{ maxHeight: `calc(${boxHeight - 270}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
                 >
                     <Table aria-label="simple table" sx={{ border: 1, borderColor: 'divider' }} stickyHeader={true}>
                         <TableHead>
@@ -254,9 +284,17 @@ const TgUser = () => {
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
-                                                        聊天室
-                                                    </Button>
+                                                    <>
+                                                        <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
+                                                            聊天室
+                                                        </Button>
+                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
+                                                            编辑
+                                                        </Button>
+                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
+                                                            删除
+                                                        </Button>
+                                                    </>
                                                 ) : (
                                                     ''
                                                 )}
