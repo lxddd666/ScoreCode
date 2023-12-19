@@ -80,12 +80,13 @@ func RandMsgLikes(ctx context.Context, account uint64, tgId string, topMsg int) 
 	// 随机获取需要点赞的消息ID
 	randomMsgId := randomSelect(msgList)
 	// 随机获取 表情
-	emoji := getRandomElement(emojiList)
-	msgIds := make([]int64, 0)
+	seconds := grand.N(2, 5)
+
 	for _, i := range randomMsgId {
-		msgIds = append(msgIds, int64(i))
+		emoji := getRandomElement(emojiList)
+		err = service.TgArts().TgSendReaction(ctx, &tgin.TgSendReactionInp{Account: account, ChatId: gconv.Int64(tgId), MsgIds: []uint64{i}, Emoticon: emoji})
+		time.Sleep(time.Duration(seconds) * time.Second)
 	}
-	err = service.TgArts().TgSendReaction(ctx, &tgin.TgSendReactionInp{Account: account, ChatId: gconv.Int64(tgId), MsgIds: randomMsgId, Emoticon: emoji})
 	if err != nil {
 		return
 	}
