@@ -1,44 +1,40 @@
 // table 表格
 export const columns = [
     {
-        title: '所属用户',
-        key: 'memberUsername'
+        title: 'Id',
+        key: 'id'
     },
     {
-        title: '用户名',
-        key: 'username'
+        title: '聊天发起人',
+        key: 'initiator'
     },
     {
-        title: '名字',
-        key: 'firstName'
+        title: '发送人',
+        key: 'sender'
     },
     {
-        title: '姓氏',
-        key: 'lastName'
+        title: '接收人',
+        key: 'receiver'
     },
     {
-        title: '手机号',
-        key: 'phone'
+        title: '请求id',
+        key: 'reqId'
     },
     {
-        title: '账号头像',
-        key: 'photo'
+        title: '消息类型',
+        key: 'msgType'
     },
     {
-        title: '账号状态',
-        key: 'accountStatus'
+        title: '发送时间',
+        key: 'sendTime'
     },
     {
-        title: '是否在线',
-        key: 'isOnline'
+        title: '是否已读',
+        key: 'read'
     },
     {
-        title: '代理地址',
-        key: 'proxyAddress'
-    },
-    {
-        title: '上次登录时间',
-        key: 'lastLoginTime'
+        title: '发送状态',
+        key: 'sendStatus'
     },
     {
         title: '备注',

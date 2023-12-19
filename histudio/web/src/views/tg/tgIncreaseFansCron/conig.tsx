@@ -1,44 +1,48 @@
 // table 表格
 export const columns = [
     {
-        title: '所属用户',
-        key: 'memberUsername'
+        title: 'id',
+        key: 'id'
     },
     {
-        title: '用户名',
-        key: 'username'
+        title: '组织ID',
+        key: 'orgId'
     },
     {
-        title: '名字',
-        key: 'firstName'
+        title: '发起任务的用户ID',
+        key: 'memberId'
     },
     {
-        title: '姓氏',
-        key: 'lastName'
+        title: '任务名称',
+        key: 'taskName'
     },
     {
-        title: '手机号',
-        key: 'phone'
+        title: '频道地址',
+        key: 'channel'
     },
     {
-        title: '账号头像',
-        key: 'photo'
+        title: '频道地址Id',
+        key: 'channelId'
     },
     {
-        title: '账号状态',
-        key: 'accountStatus'
+        title: '执行计划',
+        key: 'executedPlan'
     },
     {
-        title: '是否在线',
-        key: 'isOnline'
+        title: '持续天数',
+        key: 'dayCount'
     },
     {
-        title: '代理地址',
-        key: 'proxyAddress'
+        title: '涨粉数量',
+        key: 'fansCount'
     },
     {
-        title: '上次登录时间',
-        key: 'lastLoginTime'
+        title: '分组ID',
+        key: 'folderId'
+    },
+    {
+        title: '任务状态',
+        key: 'cronStatus'
     },
     {
         title: '备注',
@@ -51,6 +55,12 @@ export const columns = [
     {
         title: '更新时间',
         key: 'updatedAt'
+    }, {
+        title: '已执行天数',
+        key: 'executedDays'
+    }, {
+        title: '已添加粉丝数',
+        key: 'increasedFans'
     },
     {
         title: '操作',
