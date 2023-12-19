@@ -76,6 +76,7 @@
         }
 
         .list {
+            overflow: auto;
 
             .item {
                 width: 100%;
@@ -87,8 +88,24 @@
 
                 .lineFont {
                     // line-height: 60px;
-                    line-height: 40px;
+                    // line-height: 30px;
                     padding-left: 10px;
+
+                    .name {
+                        height: 15px;
+                        color: rgb(5, 85, 59);
+                    }
+
+                    .line {
+                        height: 30px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        width: 210px;
+                        max-width: 210px;
+                        line-height: 30px;
+                        color: rgb(66, 67, 66);
+                    }
                 }
             }
 

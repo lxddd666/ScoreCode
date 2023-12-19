@@ -1,6 +1,6 @@
 // third-party
 import { configureStore } from '@reduxjs/toolkit';
-import { useDispatch as useAppDispatch, useSelector as useAppSelector, TypedUseSelectorHook } from 'react-redux';
+import { useDispatch as useAppDispatch, useSelector as useAppSelector, TypedUseSelectorHook, shallowEqual } from 'react-redux';
 
 import { persistStore } from 'redux-persist';
 
@@ -25,4 +25,4 @@ const { dispatch } = store;
 const useDispatch = () => useAppDispatch<AppDispatch>();
 const useSelector: TypedUseSelectorHook<RootState> = useAppSelector;
 
-export { store, persister, dispatch, useSelector, useDispatch };
+export { store, persister, dispatch, useSelector, useDispatch, shallowEqual };

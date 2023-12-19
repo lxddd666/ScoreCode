@@ -75,7 +75,7 @@ const TgMsg = () => {
     const getTgSearchParams = async () => {
         try {
             const res = await axios.get(`/tg/tgFolders/list`);
-            console.log('tg分组选择请求', res);
+            // console.log('tg分组选择请求', res);
             let arr: any = [];
             res?.data?.data?.list.map((item: any) => {
                 arr.push({
