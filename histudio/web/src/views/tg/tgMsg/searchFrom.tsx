@@ -36,13 +36,14 @@ const SearchForm = (props: any) => {
     const { handleSearchFormData } = props;
     const [value, setValue] = useState<any>(null);
     const [formData, setFormData] = useState<any>({
-        id: undefined,
+        reqId: undefined,
         createdAt: undefined,
         initiator: undefined,
         sender: undefined,
         msgType: undefined,
         sendTime: undefined,
         read: undefined,
+        receiver: undefined
     })
 
     // 搜索按钮
@@ -53,22 +54,23 @@ const SearchForm = (props: any) => {
     };
     // 重置按钮
     const onResetClick = (e: any) => {
-        
+
         let obj = {
-            id: undefined,
+            reqId: undefined,
             createdAt: undefined,
             initiator: undefined,
             sender: undefined,
             msgType: undefined,
             sendTime: undefined,
             read: undefined,
-            sendStatus: undefined
+            sendStatus: undefined,
+            receiver: undefined
         }
         setValue({});
         setFormData(obj)
         handleSearchFormData(obj);
         // console.log(formData);
-        
+
     };
     return (
         <>
@@ -167,11 +169,11 @@ const SearchForm = (props: any) => {
                             margin="dense"
                             id="standard-required"
                             inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.id || ''}
+                            value={formData.reqId || ''}
                             onChange={(event) =>
                                 setFormData({
                                     ...formData,
-                                    id: event.target.value
+                                    reqId: event.target.value
                                 })
                             }
                             label="请输入请求id"

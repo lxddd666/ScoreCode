@@ -22,7 +22,7 @@ import {
     Pagination,
     Autocomplete
 } from '@mui/material';
-import { useDispatch, useSelector } from 'store';
+import { useDispatch, useSelector, shallowEqual } from 'store';
 import { useHeightComponent } from 'utils/tools';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { openSnackbar } from 'store/slices/snackbar';
@@ -53,13 +53,13 @@ const TgUser = () => {
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { tgUserList } = useSelector((state) => state.tg);
+    const { tgUserList } = useSelector((state) => state.tg, shallowEqual);
 
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
         getTgUserListActionFN();
-        console.log('tgUserList', tgUserList?.data?.list);
+        // console.log('tgUserList', tgUserList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
     useEffect(() => {
@@ -80,7 +80,7 @@ const TgUser = () => {
     const getTgSearchParams = async () => {
         try {
             const res = await axios.get(`/tg/tgFolders/list`);
-            console.log('tg分组选择请求', res);
+            // console.log('tg分组选择请求', res);
             let arr: any = [];
             res?.data?.data?.list.map((item: any) => {
                 arr.push({
@@ -156,7 +156,8 @@ const TgUser = () => {
     // 聊天室跳转
     const chatRoomToNavica = (rows: any) => {
         // console.log(rows);
-        navigate(`/tg/chat/index?id=${rows.id}`);
+        navigate(`/tg/chat/index/${rows.id}`);
+        // navigate(`/tg/chat/index/1`);
     };
     // 弹窗开启
     const handleSubmitOpenCallback = useCallback(() => {

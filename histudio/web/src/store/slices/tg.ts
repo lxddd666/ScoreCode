@@ -14,11 +14,16 @@ const initialState: DefaultRootStateProps['tg'] = {
     error: null,
     tgUserList: [],
     tgBatchExecutionTaskList: [],
-    tgFoldersList:[],
-    tgIncreaseFansCronList:[],
-    tgKeepTaskList:[],
-    tgContactsList:[],
-    tgMsgList:[]
+    tgFoldersList: [],
+    tgIncreaseFansCronList: [],
+    tgKeepTaskList: [],
+    tgContactsList: [],
+    tgMsgList: [],
+
+    // 聊天室 会话分组
+    tgArtsFolders: [],
+    tgFoldersMessageList:[],
+    tgFoldersMeeageHistoryList:[]
 };
 
 const slice = createSlice({
@@ -55,6 +60,18 @@ const slice = createSlice({
         // 消息记录 列表
         emitTgMsgList(state, action) {
             state.tgMsgList = action.payload;
+        },
+        // 聊天室 会话分组
+        emitTgArtsFoldersList(state, action) {
+            state.tgArtsFolders = action.payload;
+        },
+        // 聊天室 会话分组/消息队列
+        emitTgFoldersMessageList(state, action) {
+            state.tgFoldersMessageList = action.payload;
+        },
+        // 聊天室 会话分组/消息队列/聊天历史
+        emitTgFoldersMeeageHistoryList(state, action) {
+            state.tgFoldersMeeageHistoryList = action.payload;
         }
     }
 });
@@ -156,6 +173,48 @@ export function getTgMsgListAction(queryParam?: any) {
             });
             // console.log('tgUser列表',res)
             dispatch(slice.actions.emitTgMsgList(res.data));
+        } catch (error) {
+            dispatch(slice.actions.hasError(error));
+        }
+    };
+}
+// tg 聊天室 会话分组 列表请求
+export function getTgArtsFoldersAction(queryParam?: any) {
+    return async () => {
+        try {
+            const res = await axios.get(`/tg/arts/folders`, {
+                params: queryParam
+            });
+            // console.log('tgUser列表',res)
+            dispatch(slice.actions.emitTgArtsFoldersList(res.data));
+        } catch (error) {
+            dispatch(slice.actions.hasError(error));
+        }
+    };
+}
+// tg 聊天室 会话分组/消息队列 列表请求
+export function getTgFoldersMessageAction(queryParam?: any) {
+    return async () => {
+        try {
+            const res = await axios.post(`/tg/arts/getDialogs`, {
+                ...queryParam
+            });
+            // console.log('tgUser列表',res)
+            dispatch(slice.actions.emitTgFoldersMessageList(res.data));
+        } catch (error) {
+            dispatch(slice.actions.hasError(error));
+        }
+    };
+}
+// tg 聊天室 会话分组/消息队列/聊天历史 列表请求
+export function getTgFoldersMeeageHistoryAction(queryParam?: any) {
+    return async () => {
+        try {
+            const res = await axios.post(`/tg/arts/getMsgHistory`, {
+                ...queryParam
+            });
+            // console.log('tgUser列表',res)
+            dispatch(slice.actions.emitTgFoldersMeeageHistoryList(res.data));
         } catch (error) {
             dispatch(slice.actions.hasError(error));
         }

@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useMemo } from 'react';
 import { useState, useRef } from 'react';
 import Avatar from '@mui/material/Avatar';
 import { deepOrange } from '@mui/material/colors';
@@ -14,15 +14,24 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import KeyboardVoiceIcon from '@mui/icons-material/KeyboardVoice';
+import { openSnackbar } from 'store/slices/snackbar';
 
+import axios from 'utils/axios';
+import { useDispatch, useSelector, shallowEqual } from 'store';
+
+import { useParams } from "react-router-dom";
+import { getTgArtsFoldersAction, getTgFoldersMessageAction, getTgFoldersMeeageHistoryAction } from 'store/slices/tg';
 import styles from './index.module.scss';
 
 import MessageBody from './messageBody';
 
+
+
 const Chat = () => {
-    const [tabsIndex, setTabsIndex] = useState(0);
-    const [textValue,setTextValue] = useState('')
-    const [mockMessageList, setMockMessageList] = useState<any>([
+    const [loginInfo, setLoginInfo] = useState<any>({})
+    const [tabsIndex, setTabsIndex] = useState(0); // tab index
+    const [textValue, setTextValue] = useState('') // 发送消息
+    const [mockMessageList, setMockMessageList] = useState<any>([ // 历史消息
         {
             id: String(new Date().getTime()),
             msg: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
@@ -48,38 +57,147 @@ const Chat = () => {
             flag: 'o'
         }
     ]);
+    const [tabsSideList, setTabsSideList] = useState<any>([ // 会话分组
+        // { id: 0, name: '消息' },
+        // { id: 1, name: '群组' },
+        // { id: 2, name: '群聊' },
+        // { id: 3, name: '个人' }
+    ])
+    const [tabsUserList, setTabsUserList] = useState([]) // 会话分组列表
     const textRef: any = useRef();
-    const tabsSideList: any = [
-        { id: 0, name: '消息' },
-        { id: 1, name: '群组' },
-        { id: 2, name: '群聊' },
-        { id: 3, name: '个人' }
-    ];
-    const tabsUserList: any = [
-        { id: 0, name: '消息1111111111' },
-        { id: 1, name: '群组2222222222' },
-        { id: 2, name: '群聊3333333333' },
-        { id: 3, name: '个人4444444444' }
-    ];
+    const dispatch = useDispatch();
+    const { tgArtsFolders, tgFoldersMessageList, tgFoldersMeeageHistoryList } = useSelector((state) => state.tg, shallowEqual)
+    const { id } = useParams()
+
+    // tg 登录
+    useEffect(() => {
+        tgArtsLogin()
+    }, [])
+    useEffect(() => {
+
+        if (loginInfo.phone && loginInfo.phone !== '') {
+            console.log('dispatch', loginInfo);
+            dispatch(getTgArtsFoldersAction({ account: loginInfo.phone }))
+            dispatch(getTgFoldersMessageAction({ account: loginInfo.phone }))
+        }
+    }, [dispatch, loginInfo.phone])
+    useEffect(() => {
+        console.log('111');
+        setTabsSideList(tgArtsFolders?.data?.Elems || [])
+    }, [tgArtsFolders])
+    const memoizedList = useMemo(() => tgFoldersMessageList?.data?.list || [], [tgFoldersMessageList]);
+    useEffect(() => {
+        console.log('222', tabsUserList);
+        setTabsUserList(memoizedList)
+    }, [tabsUserList])
+    useEffect(() => {
+        console.log('333');
+        setMockMessageList(tgFoldersMeeageHistoryList?.data?.list || [])
+    }, [tgFoldersMeeageHistoryList])
+    const tgArtsLogin = async () => {
+        console.log('111');
+
+        try {
+            const { data } = await axios.post('/tg/arts/login', {
+                id: id
+            })
+            console.log('routes', id, data);
+            if (data.code !== 0) {
+                return dispatch(openSnackbar({
+                    open: true,
+                    message: data?.message || '出错了~~~',
+                    variant: 'alert',
+                    alert: {
+                        color: 'error'
+                    },
+                    close: false,
+                    anchorOrigin: {
+                        vertical: 'top',
+                        horizontal: 'center'
+                    }
+                }))
+            }
+            setLoginInfo(data.data)
+
+            dispatch(openSnackbar({
+                open: true,
+                message: data?.data?.comment || '出错了~~~',
+                variant: 'alert',
+                alert: {
+                    color: 'success'
+                },
+                close: false,
+                anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center'
+                }
+            }))
+
+
+
+
+        } catch (error) {
+            console.log('登陆错误', error);
+
+        }
+        // dispatch(getTgArtsFoldersAction({ account: loginInfo.phone }))
+        console.log('111');
+    }
+
+    // 会话 点击
     const onTabsClick = (index: any): any => {
         setTabsIndex(index);
     };
-    const onTextValueChange = (event:any) => {
+    // 消息输入
+    const onTextValueChange = (event: any) => {
         setTextValue(event.target.value)
     }
-    const onSendSubmit = () => {
+    // 发送消息
+    const onSendSubmit = async () => {
         // console.log('提交', textRef,textValue);
+        // let obj = {
+        //     id: String(new Date().getTime()),
+        //     msg: textRef?.current?.value,
+        //     flag: 'm'
+        // };
+        let textMsg = []
+        textMsg.push(textRef?.current?.value);
         let obj = {
-            id: String(new Date().getTime()),
-            msg: textRef?.current?.value,
-            flag: 'm'
-        };
+            msgId: String(new Date().getTime()),
+            out: false,
+            message: textRef?.current?.value
+        }
+
         let tempList = [...mockMessageList, obj];
-        // console.log(tempList);
 
         setMockMessageList(tempList);
-        setTextValue('')
+
+        try {
+            const res = await axios.post('/tg/arts/sendMsg', {
+                account: loginInfo.phone,
+                receiver: loginInfo.tgId,
+                textMsg: textMsg.push(textRef?.current?.value)
+            })
+            console.log('res', res);
+
+            // if (res.code === 0) {
+
+            // }
+            setTextValue('')
+        } catch (error) {
+
+        }
     };
+
+    // 用户聊天点击
+    const onUserClick = (item: any) => {
+        console.log('111', item);
+        dispatch(getTgFoldersMeeageHistoryAction({
+            account: loginInfo.phone,
+            contact: loginInfo.tgId,
+            // offsetId: item.topMessage + 1,
+        }))
+    }
     return (
         <div className={styles.chat}>
             <div className={styles.side}>
@@ -93,14 +211,14 @@ const Chat = () => {
                     </Avatar>
                 </div>
                 <div className={styles.list}>
-                    {tabsSideList.map((item: any, index: Number) => (
+                    {tabsSideList && tabsSideList.map((item: any, index: Number) => (
                         <div
-                            key={item.id}
+                            key={item.ID}
                             className={`${styles.item} ${tabsIndex === index ? styles.itemActive : ''} `}
                             onClick={(event) => onTabsClick(index)}
                         >
                             <ChatBubbleOutlineIcon />
-                            <span style={{ marginTop: '5px' }}>{item.name}</span>
+                            <span style={{ marginTop: '5px' }}>{item.Title || '全部消息'}</span>
                         </div>
                     ))}
                 </div>
@@ -125,9 +243,9 @@ const Chat = () => {
                     <DragIndicatorIcon className={styles.dragin} />
                 </div>
                 <div className={styles.list}>
-                    {tabsUserList.map((item: any, index: Number): any => {
+                    {tabsUserList && tabsUserList.map((item: any, index: Number): any => {
                         return (
-                            <div className={styles.item} key={item.id}>
+                            <div className={styles.item} key={item.id} onClick={e => onUserClick(item)}>
                                 <div>
                                     <Avatar
                                         variant="rounded"
@@ -136,7 +254,10 @@ const Chat = () => {
                                         N
                                     </Avatar>
                                 </div>
-                                <div className={styles.lineFont}>{item.name}</div>
+                                <div className={styles.lineFont}>
+                                    <div className={styles.name}>{(item.firstName !== '' && item.firstName + ' ' + item.lastName) || (item.username !== '' && item.username) || item.title || '~'}</div>
+                                    <div className={styles.line}>{item.last.message || ''}</div>
+                                </div>
                             </div>
                         );
                     })}
@@ -163,7 +284,7 @@ const Chat = () => {
                     </div>
                 </div>
                 <div className={styles.messageBodyInfo}>
-                    <MessageBody messageList={mockMessageList} />
+                    <MessageBody messageList={mockMessageList} key={Math.random() * 10}/>
                 </div>
                 <div className={styles.messageSend}>
                     <div className={styles.utilsInfo}>

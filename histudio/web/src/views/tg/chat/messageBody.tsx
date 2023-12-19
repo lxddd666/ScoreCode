@@ -8,32 +8,30 @@ const MessageBody = (props: any) => {
         <div className={styles.context}>
             {messageList &&
                 messageList.map((item: any) => {
-                    return (
-                        <>
-                            {item.flag === 'o' ? (
-                                <div className={styles.other} key={item.id}>
-                                    <div className={styles.otherBody}>
-                                        <div>
-                                            <Avatar
-                                                variant="rounded"
-                                                src="https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp"
-                                            />
-                                        </div>
-                                        <div className={styles.lineFont}>{item.msg}</div>
-                                    </div>
+                    return item.out === true ? (
+                        // {item.out === true ? (
+                        <div className={styles.other} key={item.msgId}>
+                            <div className={styles.otherBody}>
+                                <div>
+                                    <Avatar
+                                        variant="rounded"
+                                        src="https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp"
+                                    />
                                 </div>
-                            ) : (
-                                <div className={styles.me} key={item.id}>
-                                    <div className={styles.meBody}>
-                                        <div className={styles.lineFont}>{item.msg}</div>
-                                        <Avatar
-                                            variant="rounded"
-                                            src="https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-                        </>
+                                <div className={styles.lineFont}>{item.message}</div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className={styles.me} key={item.msgId}>
+                            <div className={styles.meBody}>
+                                <div className={styles.lineFont}>{item.message}</div>
+                                <Avatar
+                                    variant="rounded"
+                                    src="https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp"
+                                />
+                            </div>
+                        </div>
+                        // )}
                     );
                 })}
         </div>

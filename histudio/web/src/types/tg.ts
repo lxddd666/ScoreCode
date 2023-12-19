@@ -8,6 +8,9 @@ export interface TgStateProps {
     tgKeepTaskList: any | [];
     tgContactsList: any | [];
     tgMsgList: any | [];
+    tgArtsFolders: any | [];
+    tgFoldersMessageList: any | [];
+    tgFoldersMeeageHistoryList: any | [];
     error: object | string | null;
 }
 
