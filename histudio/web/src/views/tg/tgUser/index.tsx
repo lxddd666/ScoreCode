@@ -79,7 +79,12 @@ const TgUser = () => {
     // 分组选择请求
     const getTgSearchParams = async () => {
         try {
-            const res = await axios.get(`/tg/tgFolders/list`);
+            const res = await axios.get(`/tg/tgFolders/list`, {
+                params: {
+                    page: 1,
+                    pageSize: 9999
+                }
+            });
             // console.log('tg分组选择请求', res);
             let arr: any = [];
             res?.data?.data?.list.map((item: any) => {
@@ -324,7 +329,7 @@ const TgUser = () => {
                 )}
             </div>
 
-            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTableListActionFN} />
+            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTableListActionFN} getTgSearchParams={getTgSearchParams} />
 
             <SubmitDialog open={handleSubmitOpen} config={handleSubmitOpenConfig} setOpenChangeDialog={handleSetImportOpenDialog} />
         </MainCard>
@@ -344,12 +349,12 @@ const FormattedMessageTitle = () => {
 // 导入弹窗
 const filter = createFilterOptions();
 const ImportOpenDialog = (props: any) => {
-    const { importOpenDialog, setImportOpenDialog, data, getTgUserListActionFN } = props;
+    const { importOpenDialog, setImportOpenDialog, data, getTgUserListActionFN, getTgSearchParams } = props;
 
-    const [value, setValue] = useState<any>(undefined);
+    const [value, setValue] = useState<any>('');
     const [open, toggleOpen] = useState(false);
     const [dialogValue, setDialogValue] = useState({
-        title: ''
+        folderName: ''
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const dispatch = useDispatch();
@@ -357,7 +362,7 @@ const ImportOpenDialog = (props: any) => {
     // dialog 弹出关闭
     const handleImportClose = () => {
         setImportOpenDialog('import', false);
-        setValue(undefined)
+        setValue('')
     };
     // dialog 提交
     const handleImportSubmit = (event: any) => {
@@ -373,7 +378,8 @@ const ImportOpenDialog = (props: any) => {
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('folderId', value?.value);
-        axios('http://10.8.12.88:8001/tg/tgUser/importSession', {
+        // axios('http://10.8.12.88:8001/tg/tgUser/importSession', {
+        axios('/tg/tgUser/importSession', {
             method: 'POST',
             transformRequest: [function (data, headers: any) {
                 // 去除post请求默认的Content-Type
@@ -386,7 +392,7 @@ const ImportOpenDialog = (props: any) => {
             // 处理响应
             console.log('res上传成功', res);
             setImportOpenDialog('import', false);
-            setValue(undefined)
+            setValue('')
             getTgUserListActionFN()
         }).catch(err => {
             console.log('res上传失败', err);
@@ -412,7 +418,7 @@ const ImportOpenDialog = (props: any) => {
 
     const handleClose = () => {
         setDialogValue({
-            title: ''
+            folderName: ''
         });
 
         toggleOpen(false);
@@ -427,13 +433,13 @@ const ImportOpenDialog = (props: any) => {
             setTimeout(() => {
                 toggleOpen(true);
                 setDialogValue({
-                    title: newValue
+                    folderName: newValue
                 });
             });
         } else if (newValue && newValue.inputValue) {
             toggleOpen(true);
             setDialogValue({
-                title: newValue.inputValue
+                folderName: newValue.inputValue
             });
         } else {
             setValue(newValue);
@@ -444,11 +450,24 @@ const ImportOpenDialog = (props: any) => {
     const handleSubmit = (event: any) => {
         event.preventDefault();
         let obj: any = {
-            title: dialogValue.title
+            folderName: dialogValue.folderName
         };
-        setValue(obj);
+        console.log('添加分组名称', dialogValue.folderName);
 
-        handleClose();
+        axios.post('/tg/tgFolders/edit', {
+            ...obj
+        }).then(({ data }) => {
+            console.log('添加分组', data);
+
+            // setValue('');
+            setValue('')
+            getTgSearchParams()
+            handleClose();
+        }).catch(err => {
+            console.log('添加分组失败');
+
+        })
+
     };
     // 下载模板
     const handleDownload = () => {
@@ -496,7 +515,6 @@ const ImportOpenDialog = (props: any) => {
                                 id="controllable-states-demo"
                                 options={data}
                                 getOptionLabel={(option: any) => {
-                                    // e.g value selected with enter, right from the input
                                     if (typeof option === 'string') {
                                         return option;
                                     }
@@ -508,7 +526,7 @@ const ImportOpenDialog = (props: any) => {
                                 selectOnFocus
                                 clearOnBlur
                                 handleHomeEndKeys
-                                renderOption={(props, option) => <li {...props}>{option.title}</li>}
+                                renderOption={(props, option) => <li {...props} key={option.value}>{option.title}</li>}
                                 sx={{ width: 300 }}
                                 freeSolo
                                 renderInput={(params) => <TextField {...params} label="分组选择" />}
@@ -535,11 +553,11 @@ const ImportOpenDialog = (props: any) => {
                             autoFocus
                             margin="dense"
                             id="outlined-basic"
-                            value={dialogValue.title}
+                            value={dialogValue.folderName}
                             onChange={(event) =>
                                 setDialogValue({
                                     ...dialogValue,
-                                    title: event.target.value
+                                    folderName: event.target.value
                                 })
                             }
                             label="分组名称"
@@ -549,8 +567,8 @@ const ImportOpenDialog = (props: any) => {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose}>Cancel</Button>
-                        <Button type="submit">Add</Button>
+                        <Button onClick={handleClose}>取消</Button>
+                        <Button type="submit">添加</Button>
                     </DialogActions>
                 </form>
             </Dialog>
