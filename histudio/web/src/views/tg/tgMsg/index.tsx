@@ -218,7 +218,7 @@ const TgMsg = () => {
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <>
+                                                    <div className={styles.btnList} >
                                                         <Button size="small" variant="contained" >
                                                             编辑
                                                         </Button>
@@ -228,7 +228,7 @@ const TgMsg = () => {
                                                         <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
                                                             详情
                                                         </Button>
-                                                    </>
+                                                    </div>
                                                 ) : (
                                                     ''
                                                 )}

@@ -22,13 +22,23 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-const isOnlineArr = [
+const readArr = [
     {
-        title: '在线',
+        title: '已读',
         key: 1
     },
     {
-        title: '离线',
+        title: '未读',
+        key: 2
+    }
+];
+const sendStatusArr = [
+    {
+        title: '成功',
+        key: 1
+    },
+    {
+        title: '失败',
         key: 2
     }
 ];
@@ -217,7 +227,7 @@ const SearchForm = (props: any) => {
                             }}
                         >
 
-                            {isOnlineArr.map((option) => (
+                            {readArr.map((option) => (
                                 <MenuItem key={option.key} value={option.key}>
                                     {option.title}
                                 </MenuItem>
@@ -251,7 +261,7 @@ const SearchForm = (props: any) => {
                             }}
                         >
 
-                            {isOnlineArr.map((option) => (
+                            {sendStatusArr.map((option) => (
                                 <MenuItem key={option.key} value={option.key}>
                                     {option.title}
                                 </MenuItem>
