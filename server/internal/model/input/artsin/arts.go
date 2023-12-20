@@ -87,8 +87,11 @@ func (in *VcardMsgInp) Filter(ctx context.Context) (err error) {
 }
 
 type SyncContactInp struct {
-	Account  uint64   `json:"account" v:"required#AccountNumberNotEmpty" dc:"账号"`
-	Contacts []uint64 `json:"contacts" v:"required#ContactNotEmpty"    dc:"同步联系人小号号码"`
+	Account         uint64 `json:"account" v:"required#AccountNumberNotEmpty" dc:"账号"`
+	FirstName       string `json:"firstName"  dc:"firstName"`
+	LastName        string `json:"lastName"  dc:"firstName"`
+	Phone           string `json:"phone"  dc:"手机号/username"`
+	AddPhonePrivacy bool   `json:"addPhonePrivacy"  dc:"默认为false"`
 }
 
 func (in *SyncContactInp) Filter(ctx context.Context) (err error) {

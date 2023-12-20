@@ -351,19 +351,26 @@ func (s *sArts) sendFileMessageSingle(fileSingleReq *artsin.FileSingleInp, imTyp
 }
 
 // SyncContact 同步联系人
-func (s *sArts) SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error) {
-	var req = &protobuf.RequestMessage{
+func (s *sArts) SyncContact(ctx context.Context, inp *artsin.SyncContactInp, imType string) (res []byte, err error) {
+	req := &protobuf.RequestMessage{
+		Account: inp.Account,
 		Action:  protobuf.Action_SYNC_CONTACTS,
 		Type:    consts.TgSvc,
-		Account: item.Account,
-		ActionDetail: &protobuf.RequestMessage_SyncContactDetail{
-			SyncContactDetail: &protobuf.SyncContactDetail{
-				Details: []*protobuf.UintkeyUintvalue{
-					{Key: item.Account, Values: item.Contacts}},
+		ActionDetail: &protobuf.RequestMessage_TgAddContactDetail{
+			TgAddContactDetail: &protobuf.TgAddContactDetail{
+				Account:         inp.Account,
+				FirstName:       inp.FirstName,
+				LastName:        inp.LastName,
+				Phone:           inp.Phone,
+				AddPhonePrivacy: inp.AddPhonePrivacy,
 			},
 		},
 	}
-	_, err = s.Send(ctx, req)
+	buf, err := s.Send(ctx, req)
+	if err != nil {
+		return
+	}
+	res = buf.Data
 	return
 }
 

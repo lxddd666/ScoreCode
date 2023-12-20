@@ -68,6 +68,12 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		data.Pid = pmb.Id
 	} else {
 		// 否则新增公司
+		if in.OrgInfo.Name == "" {
+			in.OrgInfo.Name = grand.S(5)
+		}
+		if in.OrgInfo.Code == "" {
+			in.OrgInfo.Code = grand.S(5)
+		}
 		id, err := service.SysOrg().Edit(ctx, &tgin.SysOrgEditInp{
 			SysOrg: entity.SysOrg{
 				Name:   in.OrgInfo.Name,

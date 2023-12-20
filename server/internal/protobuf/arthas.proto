@@ -80,6 +80,10 @@ enum Action {
   SEND_STORIES = 69;
   DELETE_STORIES = 70;
   EDIT_STORIES = 71;
+  EXPORT_STORIES_LINK =72;
+  READ_STORIES =73;
+  SEND_STORIES_REACTION=74;
+  GET_STORIES_VIEWS=75;
 }
 
 
@@ -374,6 +378,44 @@ message EditStoriesDetail {
   int64 StoryId  =5;
 }
 
+message ExportStoriesLinkDetail {
+  uint64 Sender =1;
+  string User =2;
+  int64 StoryId=3;
+}
+
+message ReadStoriesDetail {
+  uint64 Sender =1;
+  string User=2;
+  int64 MaxId =3;
+}
+
+message SendStoriesReactionDetail {
+  uint64 Sender =1;
+  string User=2;
+  int64 StoryId=3;
+  string Emoticon=4;
+}
+message GetStoriesViewsDetail {
+  uint64 Sender =1;
+  repeated int64 StoryIds=2;
+
+  int64 storyId =3;
+  bool JustContacts  =4;
+  bool ReactionsFirst =5;
+  string Search =6;
+  string Offset =7;
+  int64 Limit    =8;
+}
+
+message TgAddContactDetail {
+  uint64 Account         =1;
+  string FirstName       =2;
+  string   LastName     =3;
+  string Phone          =4;
+  bool AddPhonePrivacy  =5;
+}
+
 // 定义总的消息
 message RequestMessage {
   Action action = 1; // 动作字段
@@ -451,6 +493,11 @@ message RequestMessage {
     SendStoriesDetail send_stories_detail = 77;
     DeleteStoriesDetail delete_stories_detail = 78;
     EditStoriesDetail edit_stories_detail = 79;
+    ExportStoriesLinkDetail export_stories_link_detail =80;
+    ReadStoriesDetail read_stories_detail =81;
+    SendStoriesReactionDetail send_stories_reaction_detail=82;
+    GetStoriesViewsDetail get_stories_views_detail = 83;
+    TgAddContactDetail tg_add_contact_detail = 84;
   }
   string type = 18;
   uint64 account = 35; //账号

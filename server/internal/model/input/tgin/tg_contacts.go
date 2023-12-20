@@ -172,3 +172,9 @@ type TgPeerModel struct {
 	ReadOutboxMaxID int    `json:"readOutboxMaxID"`
 	Link            string `json:"link" dc:"地址"`
 }
+
+type TgSyncContacts struct {
+	TgId   int64  `json:"tgId"    description:"tg id"`
+	ChatId int64  `json:"chatId"  description:"chat id"`
+	ResBuf []byte `json:"resBuf"   description:"result buf"`
+}

@@ -51,13 +51,22 @@ func init() {
 	actions.tasks[4] = RandUsername
 	actions.tasks[5] = RandPhoto
 	actions.tasks[6] = ReadChannelMsg
+	actions.tasks[7] = ReadGroupMsg
 }
 
 func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
+	//cErr := service.TgArts().TgCheckLogin(ctx, gconv.Uint64(tgUser.Phone))
+	//if cErr != nil {
+	//	_, err = service.TgArts().SingleLogin(ctx, tgUser)
+	//	if err != nil {
+	//		return
+	//	}
+	//}
 	_, err = service.TgArts().SingleLogin(ctx, tgUser)
 	if err != nil {
 		return
 	}
+	time.Sleep(1 * time.Second)
 	return
 }
 
@@ -95,6 +104,7 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		return
 	}
 	for _, user := range tgUserList {
+		// 未登陆
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
@@ -112,20 +122,36 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 				unReadCount := dialog.UnreadCount
 				topMsgId := dialog.TopMessage
 				if unReadCount != 0 {
-					// 消息已读，view +1
-					err = ChannelReadHistoryAndAddView(ctx, account, group, unReadCount, topMsgId, false)
 					if err != nil {
 						continue
 					}
 					seconds := grand.N(2, 6)
+					err = service.TgArts().TgReadPeerHistory(ctx, &tgin.TgReadPeerHistoryInp{
+						Sender:   account,
+						Receiver: gconv.String(dialog.TgId),
+					})
+					if err != nil {
+						continue
+					}
 					time.Sleep(time.Duration(seconds) * time.Second)
 					// 随机点赞
-					if GenerateRandomResult(1) {
+					if GenerateRandomResult(0.5) {
 						// 百分之40概率点赞
 						err = RandMsgLikes(ctx, account, group, topMsgId)
 						if err != nil {
 							continue
 						}
+					}
+					if GenerateRandomResult(0.3) {
+						// 查看群成员信息
+						_, err = service.TgArts().TgGetGroupMembers(ctx, &tgin.TgGetGroupMembersInp{
+							Account: account,
+							GroupId: dialog.TgId,
+						})
+						if err != nil {
+							return
+						}
+						time.Sleep(time.Duration(seconds) * time.Second)
 					}
 				}
 			}
@@ -233,6 +259,29 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			continue
 		}
 		for _, receiver := range tgUserList {
+			// 查询是否为好友
+			isFriend, err := g.Model(dao.TgUserContacts.Table()).Ctx(ctx).Where(dao.TgUserContacts.Columns().TgUserId, user.Id).Where(dao.TgUserContacts.Columns().TgContactsId, receiver.Id).Count()
+			if err != nil {
+				continue
+			}
+			if isFriend == 0 {
+				uPhone := receiver.Username
+				firstName := receiver.FirstName
+				lastName := receiver.LastName
+				if firstName == "" {
+					firstName = faker.FirstName()
+				}
+				if lastName == "" {
+					lastName = faker.LastName()
+				}
+				if receiver.Username == "" {
+					uPhone = receiver.Phone
+				}
+				_, err = service.TgArts().TgSyncContact(ctx, &artsin.SyncContactInp{Account: gconv.Uint64(user.Phone), Phone: uPhone, FirstName: firstName, LastName: lastName})
+				if err != nil {
+					continue
+				}
+			}
 			if user.Id != receiver.Id {
 				inp := &artsin.MsgInp{
 					Account:  gconv.Uint64(user.Phone),
@@ -334,10 +383,14 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改nickName
 	for _, user := range tgUserList {
-		err = beforeLogin(ctx, user)
+		err = service.TgArts().TgCheckLogin(ctx, gconv.Uint64(user.Phone))
 		if err != nil {
-			g.Log().Error(ctx, err)
-			continue
+			// 未登陆
+			err = beforeLogin(ctx, user)
+			if err != nil {
+				g.Log().Error(ctx, err)
+				continue
+			}
 		}
 		firstName, lastName := randomNickName()
 		inp := &tgin.TgUpdateUserInfoInp{
@@ -384,6 +437,9 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改username
 	for _, user := range tgUserList {
+		if user.Username != "" {
+			continue
+		}
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
@@ -542,6 +598,38 @@ func randomBio(ctx context.Context, user *entity.TgUser) (bio string) {
 		bio += emoji
 	}
 	return
+}
+
+// randomGetUnReadMsgId 生成包含随机数量（10到20）的int64切片,
+func randomGetUnReadMsgId(top int64, unRead int64) [][]int64 {
+	rand.Seed(time.Now().UnixNano()) // 初始化随机数种子
+
+	var slices [][]int64 // 存放最终结果的切片数组
+
+	for top > unRead {
+		// 每次随机选择10到20个数字
+		count := rand.Int63n(11) + 10 // 随机数范围[0,10] + 10，即[10,20]
+		currentSlice := make([]int64, 0)
+
+		// 填充切片并更新start值
+		for i := int64(0); i < count; i++ {
+			if top <= unRead {
+				// 如果start已经小于等于end，就结束循环
+				break
+			}
+			currentSlice = append(currentSlice, top)
+			top--
+			if top <= unRead {
+				currentSlice = append(currentSlice, top)
+				break
+			}
+		}
+
+		// 将当前切片添加到结果数组中
+		slices = append(slices, currentSlice)
+	}
+
+	return slices
 }
 
 var firstNames = []string{
@@ -852,4 +940,44 @@ var ranBio = []string{
 	"မင်္ဂလာပါ၊ ငါသည်အသစ်သောသူဖြစ်သည်",
 	"ဒါကဘယ်လောက်ကျသင့်လဲ",
 	"သင်ယူချင်တယ်",
+	"Life is beautiful.",                           // 生活是美好的。
+	"Keep up the good work.",                       // 继续保持好的工作。
+	"Time flies.",                                  // 时光飞逝。
+	"Birds of a feather flock together.",           // 物以类聚。
+	"Practice makes perfect.",                      // 熟能生巧。
+	"Better late than never.",                      // 迟做总比不做好。
+	"Easy come, easy go.",                          // 来得容易，去得快。
+	"Every cloud has a silver lining.",             // 黑暗中总有一线光明。
+	"Actions speak louder than words.",             // 行动胜于言语。
+	"The early bird catches the worm.",             // 早起的鸟儿有虫吃。
+	"Honesty is the best policy.",                  // 诚实是上策。
+	"Knowledge is power.",                          // 知识就是力量。
+	"Time is money.",                               // 时间就是金钱。
+	"When in Rome, do as the Romans do.",           // 入乡随俗。
+	"Silence is golden.",                           // 沉默是金。
+	"Let bygones be bygones.",                      // 让过去的成为过去。
+	"Love conquers all.",                           // 爱能克服一切。
+	"The pen is mightier than the sword.",          // 笔力强于剑势。
+	"Where there's a will, there's a way.",         // 有志者事竟成。
+	"Out of sight, out of mind.",                   // 眼不见，心不烦。
+	"All is well that ends well.",                  // 结局好，一切都好。
+	"Beauty is in the eye of the beholder.",        // 情人眼里出西施。
+	"Charity begins at home.",                      // 仁爱始于家庭。
+	"Don't count your chickens before they hatch.", // 别在小鸡孵出之前就数它们。
+	"Every man has his price.",                     // 每个人都有他的价格。
+	"Fortune favors the bold.",                     // 命运偏爱勇者。
+	"Good things come to those who wait.",          // 好事多磨。
+	"Honesty is the best policy.",                  // 诚实才是上策。
+	"It's never too late to learn.",                // 学习永远不嫌晚。
+	"Just do it.",                                  // 只管去做。
+	"Knowledge is power.",                          // 知识就是力量。
+	"Look before you leap.",                        // 三思而后行。
+	"Money talks.",                                 // 金钱万能。
+	"No pain, no gain.",                            // 不劳无获。
+	"Opportunity seldom knocks twice.",             // 机不可失，时不再来。
+	"Patience is a virtue.",                        // 耐心是一种美德。
+	"Quality over quantity.",                       // 质量胜过数量。
+	"Rome wasn't built in a day.",                  // 罗马不是一天建成的。
+	"Strike while the iron is hot.",                // 趁热打铁。
+	"The best is yet to come.",                     // 最好的还在后头。
 }
