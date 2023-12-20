@@ -33,7 +33,7 @@ const isOnlineArr = [
     }
 ];
 const SearchForm = (props: any) => {
-    const { handleSearchFormData } = props;
+    const { top100Films,handleSearchFormData } = props;
     const [value, setValue] = useState<any>(null);
     const [formData, setFormData] = useState<any>({
         id: undefined,
@@ -137,7 +137,7 @@ const SearchForm = (props: any) => {
                             ))}</TextField></Item>
                     </Grid>
                     <Grid item >
-                        <Item> <TextField
+                         <TextField
                             select
                             sx={{ width: 300 }}
                             autoFocus
@@ -164,11 +164,11 @@ const SearchForm = (props: any) => {
                             }}
                         >
 
-                            {isOnlineArr.map((option) => (
-                                <MenuItem key={option.key} value={option.key}>
+                            {top100Films.map((option: any) => (
+                                <MenuItem key={option.value} value={option.value}>
                                     {option.title}
                                 </MenuItem>
-                            ))}</TextField></Item>
+                            ))}</TextField>
                     </Grid>
 
 

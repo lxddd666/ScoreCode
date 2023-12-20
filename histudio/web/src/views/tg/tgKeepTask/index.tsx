@@ -215,7 +215,7 @@ const TgKeepTask = () => {
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <>
+                                                    <div style={item.key === 'active' ? { width: '300px' } : {}}>
                                                         <Button size="small" variant="contained">
                                                             编辑
                                                         </Button>
@@ -228,7 +228,7 @@ const TgKeepTask = () => {
                                                         <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
                                                             更多
                                                         </Button>
-                                                    </>
+                                                    </div>
                                                 ) : (
                                                     ''
                                                 )}

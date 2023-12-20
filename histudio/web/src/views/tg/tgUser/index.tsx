@@ -294,7 +294,7 @@ const TgUser = () => {
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <>
+                                                    <div style={item.key === 'active' ? { width: '220px' } : {}}>
                                                         <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
                                                             聊天室
                                                         </Button>
@@ -304,7 +304,7 @@ const TgUser = () => {
                                                         <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
                                                             删除
                                                         </Button>
-                                                    </>
+                                                    </div>
                                                 ) : (
                                                     ''
                                                 )}
