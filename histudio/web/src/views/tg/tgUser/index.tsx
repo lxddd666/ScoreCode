@@ -58,7 +58,7 @@ const TgUser = () => {
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
-        getTgUserListActionFN();
+        getTableListActionFN();
         // console.log('tgUserList', tgUserList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
@@ -73,7 +73,7 @@ const TgUser = () => {
     }, []);
 
     // tgUser 表格数据
-    const getTgUserListActionFN = async () => {
+    const getTableListActionFN = async () => {
         await dispatch(getTgUserListAction(paramsPayload));
     };
     // 分组选择请求
@@ -143,6 +143,10 @@ const TgUser = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
+    // 分页数量
+    const PaginationCount = (count: number) => {
+        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
+    }
 
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
@@ -302,19 +306,7 @@ const TgUser = () => {
                                             </TableCell>
                                         );
                                     })}
-                                    {/* <TableCell align="center">{row.memberUsername}</TableCell>
-                                    <TableCell align="center">{row.username}</TableCell>
-                                    <TableCell align="center">{row.firstName}</TableCell>
-                                    <TableCell align="center">{row.phone}</TableCell>
-                                    <TableCell align="center">{row.folderId}</TableCell>
-                                    <TableCell align="center">{row.lastName}</TableCell>
-                                    <TableCell align="center">{row.accountStatus}</TableCell>
-                                    <TableCell align="center">{row.isOnline}</TableCell>
-                                    <TableCell align="center">{row.proxyAddress}</TableCell>
-                                    <TableCell align="center">{row.lastLoginTime}</TableCell>
-                                    <TableCell align="center">{row.comment}</TableCell>
-                                    <TableCell align="center">{row.createdAt}</TableCell>
-                                    <TableCell align="center">{row.updatedAt}</TableCell> */}
+
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -324,7 +316,7 @@ const TgUser = () => {
                     <>
                         <div className={styles.paginations}>
                             <div>共 {pagetionTotle} 条</div>
-                            <Pagination count={10} color="primary" onChange={onPaginationChange} />
+                            <Pagination count={PaginationCount(pagetionTotle)} color="primary" onChange={onPaginationChange} />
                         </div>
                     </>
                 ) : (
@@ -332,7 +324,7 @@ const TgUser = () => {
                 )}
             </div>
 
-            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTgUserListActionFN} />
+            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTableListActionFN} />
 
             <SubmitDialog open={handleSubmitOpen} config={handleSubmitOpenConfig} setOpenChangeDialog={handleSetImportOpenDialog} />
         </MainCard>

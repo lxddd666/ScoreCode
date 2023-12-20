@@ -17,26 +17,23 @@ import {
     Pagination,
     // Autocomplete
 } from '@mui/material';
-import { useDispatch, useSelector } from 'store';
+import { useDispatch, useSelector, shallowEqual } from 'store';
 import { useHeightComponent } from 'utils/tools';
-// import { createFilterOptions } from '@mui/material/Autocomplete';
-// import { openSnackbar } from 'store/slices/snackbar';
 import styles from './index.module.scss';
 import SearchForm from './searchFrom';
 
-import { getTgContactsListAction } from 'store/slices/tg';
+import { getSysScriptListAction } from 'store/slices/script';
 import axios from 'utils/axios';
 import { columns } from './conig';
 
-// 联系人管理
-const TgContacts = () => {
+// 公司话术管理
+const OrgSysScript = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
     const [rows, setrows] = useState([]); // table rows 数据
     const [paramsPayload, setParamsPayload] = useState({
         page: 1,
         pageSize: 10,
-        phone: undefined,
-        type: undefined,
+        short: undefined,
         createdAt: undefined,
     }); // 分页
     const [searchForm, setSearchForm] = useState([]); // search Form
@@ -44,20 +41,20 @@ const TgContacts = () => {
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     // const navigate = useNavigate();
-    const { tgContactsList } = useSelector((state) => state.tg);
+    const { scriptList } = useSelector((state) => state.script, shallowEqual);
 
     let { height: boxHeight } = useHeightComponent(boxRef);
+    // console.log('boxHeight', boxHeight);
 
     useEffect(() => {
         getTableListActionFN();
-        // console.log('tgContactsList', tgContactsList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
     useEffect(() => {
         // getTgSearchParams();
-        setrows(tgContactsList?.data?.list || []);
-        setPagetionTotle(tgContactsList?.data?.totalCount);
-    }, [tgContactsList]);
+        setrows(scriptList?.data?.list || []);
+        setPagetionTotle(scriptList?.data?.totalCount);
+    }, [scriptList]);
     // 网络请求
     useEffect(() => {
         getTgSearchParams();
@@ -65,7 +62,8 @@ const TgContacts = () => {
 
     // tgUser 表格数据
     const getTableListActionFN = async () => {
-        await dispatch(getTgContactsListAction(paramsPayload));
+        // 1 个人 2 公司
+        await dispatch(getSysScriptListAction(2, paramsPayload));
     };
     // 分组选择请求
     const getTgSearchParams = async () => {
@@ -134,16 +132,15 @@ const TgContacts = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
-    // 分页数量
-    const PaginationCount = (count: number) => {
-        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
-    }
 
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
         setParamsPayload({ ...paramsPayload, ...obj, page: 1 });
     };
 
+    const PaginationCount = (count: number) => {
+        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
+    }
     return (
         // <div>批量操作任务</div>
         <MainCard title={<FormattedMessageTitle />} content={true}>
@@ -230,19 +227,6 @@ const TgContacts = () => {
                                             </TableCell>
                                         );
                                     })}
-                                    {/* <TableCell align="center">{row.memberUsername}</TableCell>
-                                    <TableCell align="center">{row.username}</TableCell>
-                                    <TableCell align="center">{row.firstName}</TableCell>
-                                    <TableCell align="center">{row.phone}</TableCell>
-                                    <TableCell align="center">{row.folderId}</TableCell>
-                                    <TableCell align="center">{row.lastName}</TableCell>
-                                    <TableCell align="center">{row.accountStatus}</TableCell>
-                                    <TableCell align="center">{row.isOnline}</TableCell>
-                                    <TableCell align="center">{row.proxyAddress}</TableCell>
-                                    <TableCell align="center">{row.lastLoginTime}</TableCell>
-                                    <TableCell align="center">{row.comment}</TableCell>
-                                    <TableCell align="center">{row.createdAt}</TableCell>
-                                    <TableCell align="center">{row.updatedAt}</TableCell> */}
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -267,12 +251,11 @@ const TgContacts = () => {
 const FormattedMessageTitle = () => {
     return (
         <div className={styles.FormattedMessageTitle}>
-            <FormattedMessage id="setting.cron.tg-contacts" />
+            <FormattedMessage id="setting.cron.tg-batch-execution-task" />
             {/* <div>
                 <Button variant="outlined">登录</Button>
             </div> */}
         </div>
     );
 };
-
-export default memo(TgContacts)
+export default memo(OrgSysScript)

@@ -185,7 +185,8 @@ const Chat = () => {
             // }
             setTextValue('')
         } catch (error) {
-
+            tempList.pop()
+            setMockMessageList(tempList);
         }
     };
 
@@ -284,7 +285,7 @@ const Chat = () => {
                     </div>
                 </div>
                 <div className={styles.messageBodyInfo}>
-                    <MessageBody messageList={mockMessageList} key={Math.random() * 10}/>
+                    <MessageBody messageList={mockMessageList} key={Math.random() * 10} />
                 </div>
                 <div className={styles.messageSend}>
                     <div className={styles.utilsInfo}>

@@ -47,7 +47,7 @@ const TgBatchExecutionTask = () => {
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
-        getTgUserListActionFN();
+        getTableListActionFN();
         // console.log('getTgBatchExecutionTaskListAction', tgBatchExecutionTaskList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
@@ -62,7 +62,7 @@ const TgBatchExecutionTask = () => {
     }, []);
 
     // tgUser 表格数据
-    const getTgUserListActionFN = async () => {
+    const getTableListActionFN = async () => {
         await dispatch(getTgBatchExecutionTaskListAction(paramsPayload));
     };
     // 分组选择请求
@@ -138,7 +138,9 @@ const TgBatchExecutionTask = () => {
         setParamsPayload({ ...paramsPayload, ...obj, page: 1 });
     };
 
-
+    const PaginationCount = (count: number) => {
+        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
+    }
     return (
         // <div>批量操作任务</div>
         <MainCard title={<FormattedMessageTitle />} content={true}>
@@ -234,7 +236,7 @@ const TgBatchExecutionTask = () => {
                     <>
                         <div className={styles.paginations}>
                             <div>共 {pagetionTotle} 条</div>
-                            <Pagination count={10} color="primary" onChange={onPaginationChange} />
+                            <Pagination count={PaginationCount(pagetionTotle)} color="primary" onChange={onPaginationChange} />
                         </div>
                     </>
                 ) : (
