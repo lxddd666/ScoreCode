@@ -1,8 +1,8 @@
 // table 表格
 export const columns = [
     {
-        title: 'Id',
-        key: 'id'
+        title: '创建时间',
+        key: 'createdAt'
     },
     {
         title: '聊天发起人',
@@ -19,6 +19,10 @@ export const columns = [
     {
         title: '请求id',
         key: 'reqId'
+    },
+    {
+        title: '消息内容',
+        key: 'sendMsg'
     },
     {
         title: '消息类型',
@@ -41,10 +45,6 @@ export const columns = [
         key: 'comment'
     },
     {
-        title: '创建时间',
-        key: 'createdAt'
-    },
-    {
         title: '更新时间',
         key: 'updatedAt'
     },
@@ -53,56 +53,41 @@ export const columns = [
         key: 'active'
     }
 ];
-export const accountStatusArr = [
+
+export const readArr = [
     {
-        title: '正常',
-        key: 0
-    },
-    {
-        title: '登陆失败',
+        title: '已读',
         key: 1
     },
     {
-        title: '未知',
+        title: '未读',
         key: 2
-    },
-    {
-        title: '不存在',
-        key: 3
-    },
-    {
-        title: '已封号',
-        key: 4
-    },
-    {
-        title: '认证失败',
-        key: 5
     }
 ];
-// 账号状态
-export const accountStatus = (value: any) => {
-    let title = accountStatusArr.filter((item) => {
+export const read = (value: any) => {
+
+    let title = readArr.map((item) => {
         if (item.key === value) {
             return item.title;
         }
     });
 
-    return title.length > 0 ? title[0].title : value;
+    return title;
 };
 
-export const isOnlineArr = [
+export const sendStatusArr = [
     {
-        title: '在线',
+        title: '成功',
         key: 1
     },
     {
-        title: '离线',
+        title: '失败',
         key: 2
     }
 ];
-export const isOnline = (value: any) => {
+export const sendStatus = (value: any) => {
 
-    let title = isOnlineArr.map((item) => {
+    let title = sendStatusArr.map((item) => {
         if (item.key === value) {
             return item.title;
         }
