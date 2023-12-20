@@ -114,7 +114,7 @@ const OrgSysScript = () => {
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
 
     const renderTable = (value: any, key: any) => {
-        let temp: any = '';
+        let temp: any = '';  
         if (key === 'accountStatus') {
             temp = value;
         } else if (key === 'isOnline') {
