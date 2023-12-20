@@ -41,9 +41,8 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 	res, err = service.Arts().SyncContact(ctx, inp, consts.TgSvc)
 	if err == nil {
 		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
-		for _, contact := range inp.Contacts {
-			prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(contact)).Inc()
-		}
+		prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(inp.Phone)).Inc()
+
 	}
 	return
 }

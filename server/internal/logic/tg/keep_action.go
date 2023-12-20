@@ -55,10 +55,18 @@ func init() {
 }
 
 func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
+	//cErr := service.TgArts().TgCheckLogin(ctx, gconv.Uint64(tgUser.Phone))
+	//if cErr != nil {
+	//	_, err = service.TgArts().SingleLogin(ctx, tgUser)
+	//	if err != nil {
+	//		return
+	//	}
+	//}
 	_, err = service.TgArts().SingleLogin(ctx, tgUser)
 	if err != nil {
 		return
 	}
+	time.Sleep(1 * time.Second)
 	return
 }
 
@@ -96,6 +104,7 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		return
 	}
 	for _, user := range tgUserList {
+		// 未登陆
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
@@ -250,6 +259,29 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			continue
 		}
 		for _, receiver := range tgUserList {
+			// 查询是否为好友
+			isFriend, err := g.Model(dao.TgUserContacts.Table()).Ctx(ctx).Where(dao.TgUserContacts.Columns().TgUserId, user.Id).Where(dao.TgUserContacts.Columns().TgContactsId, receiver.Id).Count()
+			if err != nil {
+				continue
+			}
+			if isFriend == 0 {
+				uPhone := receiver.Username
+				firstName := receiver.FirstName
+				lastName := receiver.LastName
+				if firstName == "" {
+					firstName = faker.FirstName()
+				}
+				if lastName == "" {
+					lastName = faker.LastName()
+				}
+				if receiver.Username == "" {
+					uPhone = receiver.Phone
+				}
+				_, err = service.TgArts().TgSyncContact(ctx, &artsin.SyncContactInp{Account: gconv.Uint64(user.Phone), Phone: uPhone, FirstName: firstName, LastName: lastName})
+				if err != nil {
+					continue
+				}
+			}
 			if user.Id != receiver.Id {
 				inp := &artsin.MsgInp{
 					Account:  gconv.Uint64(user.Phone),
@@ -351,10 +383,14 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改nickName
 	for _, user := range tgUserList {
-		err = beforeLogin(ctx, user)
+		err = service.TgArts().TgCheckLogin(ctx, gconv.Uint64(user.Phone))
 		if err != nil {
-			g.Log().Error(ctx, err)
-			continue
+			// 未登陆
+			err = beforeLogin(ctx, user)
+			if err != nil {
+				g.Log().Error(ctx, err)
+				continue
+			}
 		}
 		firstName, lastName := randomNickName()
 		inp := &tgin.TgUpdateUserInfoInp{
@@ -401,6 +437,9 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改username
 	for _, user := range tgUserList {
+		if user.Username != "" {
+			continue
+		}
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
@@ -559,6 +598,38 @@ func randomBio(ctx context.Context, user *entity.TgUser) (bio string) {
 		bio += emoji
 	}
 	return
+}
+
+// randomGetUnReadMsgId 生成包含随机数量（10到20）的int64切片,
+func randomGetUnReadMsgId(top int64, unRead int64) [][]int64 {
+	rand.Seed(time.Now().UnixNano()) // 初始化随机数种子
+
+	var slices [][]int64 // 存放最终结果的切片数组
+
+	for top > unRead {
+		// 每次随机选择10到20个数字
+		count := rand.Int63n(11) + 10 // 随机数范围[0,10] + 10，即[10,20]
+		currentSlice := make([]int64, 0)
+
+		// 填充切片并更新start值
+		for i := int64(0); i < count; i++ {
+			if top <= unRead {
+				// 如果start已经小于等于end，就结束循环
+				break
+			}
+			currentSlice = append(currentSlice, top)
+			top--
+			if top <= unRead {
+				currentSlice = append(currentSlice, top)
+				break
+			}
+		}
+
+		// 将当前切片添加到结果数组中
+		slices = append(slices, currentSlice)
+	}
+
+	return slices
 }
 
 var firstNames = []string{

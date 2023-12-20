@@ -55,7 +55,16 @@ func ChannelReadHistoryAndAddView(ctx context.Context, account uint64, channelId
 		}
 	}
 	if len(msgIds) > 0 {
-		err = service.TgArts().TgChannelReadAddView(ctx, &tgin.ChannelReadAddViewInp{Sender: account, Receiver: channelId, MsgIds: msgIds})
+
+		msgIdList := randomGetUnReadMsgId(int64(topMsgId), int64(topMsgId-unReadCount))
+
+		for _, idList := range msgIdList {
+			err = service.TgArts().TgChannelReadAddView(ctx, &tgin.ChannelReadAddViewInp{Sender: account, Receiver: channelId, MsgIds: idList})
+			if err != nil {
+				return
+			}
+			time.Sleep(1 * time.Second)
+		}
 		if err != nil {
 			return
 		}
