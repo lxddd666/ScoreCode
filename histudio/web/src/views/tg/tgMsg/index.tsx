@@ -53,7 +53,7 @@ const TgMsg = () => {
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
-        getTgUserListActionFN();
+        getTableListActionFN();
         // console.log('tgMsgList', tgMsgList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
@@ -68,7 +68,7 @@ const TgMsg = () => {
     }, []);
 
     // tgUser 表格数据
-    const getTgUserListActionFN = async () => {
+    const getTableListActionFN = async () => {
         await dispatch(getTgMsgListAction(paramsPayload));
     };
     // 分组选择请求
@@ -138,6 +138,10 @@ const TgMsg = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
+     // 分页数量
+     const PaginationCount = (count: number) => {
+        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
+    }
 
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
@@ -167,7 +171,7 @@ const TgMsg = () => {
                 </div>
                 <TableContainer
                     component={Paper}
-                    style={{ maxHeight: `calc(${boxHeight - 200}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
+                    style={{ maxHeight: `calc(${boxHeight - 210}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
                 >
                     <Table aria-label="simple table" sx={{ border: 1, borderColor: 'divider' }} stickyHeader={true}>
                         <TableHead>
@@ -231,19 +235,6 @@ const TgMsg = () => {
                                             </TableCell>
                                         );
                                     })}
-                                    {/* <TableCell align="center">{row.memberUsername}</TableCell>
-                                    <TableCell align="center">{row.username}</TableCell>
-                                    <TableCell align="center">{row.firstName}</TableCell>
-                                    <TableCell align="center">{row.phone}</TableCell>
-                                    <TableCell align="center">{row.folderId}</TableCell>
-                                    <TableCell align="center">{row.lastName}</TableCell>
-                                    <TableCell align="center">{row.accountStatus}</TableCell>
-                                    <TableCell align="center">{row.isOnline}</TableCell>
-                                    <TableCell align="center">{row.proxyAddress}</TableCell>
-                                    <TableCell align="center">{row.lastLoginTime}</TableCell>
-                                    <TableCell align="center">{row.comment}</TableCell>
-                                    <TableCell align="center">{row.createdAt}</TableCell>
-                                    <TableCell align="center">{row.updatedAt}</TableCell> */}
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -253,7 +244,7 @@ const TgMsg = () => {
                     <>
                         <div className={styles.paginations}>
                             <div>共 {pagetionTotle} 条</div>
-                            <Pagination count={10} color="primary" onChange={onPaginationChange} />
+                            <Pagination count={PaginationCount(pagetionTotle)} color="primary" onChange={onPaginationChange} />
                         </div>
                     </>
                 ) : (
