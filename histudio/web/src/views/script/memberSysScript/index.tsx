@@ -80,7 +80,7 @@ const OrgSysScript = () => {
             });
             setSearchForm(arr);
         } catch (error) {
-            console.log('分组数据请求失败');
+            console.log('分组数据请求失败'); console.log('分组数据请求失败'); console.log('分组数据请求失败'); console.log('分组数据请求失败');
         }
     };
     // table多选all操作
@@ -114,7 +114,7 @@ const OrgSysScript = () => {
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
 
     const renderTable = (value: any, key: any) => {
-        let temp: any = '';  
+        let temp: any = '';
         if (key === 'accountStatus') {
             temp = value;
         } else if (key === 'isOnline') {
