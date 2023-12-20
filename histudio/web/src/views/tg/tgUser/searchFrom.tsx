@@ -6,7 +6,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+// import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import SearchIcon from '@mui/icons-material/Search';
 import styles from './searchForm.module.scss';
@@ -27,11 +27,12 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-const filter = createFilterOptions();
+// const filter = createFilterOptions();
 const SearchForm = (props: any) => {
     const { top100Films, handleSearchFormData } = props;
     const [value, setValue] = useState<any>(null);
     const [formData, setFormData] = useState<any>({
+        folderId: undefined,
         username: undefined,
         firstName: undefined,
         lastName: undefined,
@@ -55,28 +56,28 @@ const SearchForm = (props: any) => {
         toggleOpen(false);
     };
 
-    const onAutocompleteChange = (event: any, newValue: any) => {
-        console.log('Autocomplete', event.currentTarget, newValue);
+    // const onAutocompleteChange = (event: any, newValue: any) => {
+    //     console.log('Autocomplete', event.currentTarget, newValue);
 
-        if (typeof newValue === 'string') {
-            // timeout to avoid instant validation of the dialog's form.
-            setTimeout(() => {
-                toggleOpen(true);
-                setDialogValue({
-                    title: newValue,
-                    year: ''
-                });
-            });
-        } else if (newValue && newValue.inputValue) {
-            toggleOpen(true);
-            setDialogValue({
-                title: newValue.inputValue,
-                year: ''
-            });
-        } else {
-            setValue(newValue);
-        }
-    };
+    //     if (typeof newValue === 'string') {
+    //         // timeout to avoid instant validation of the dialog's form.
+    //         setTimeout(() => {
+    //             toggleOpen(true);
+    //             setDialogValue({
+    //                 title: newValue,
+    //                 year: ''
+    //             });
+    //         });
+    //     } else if (newValue && newValue.inputValue) {
+    //         toggleOpen(true);
+    //         setDialogValue({
+    //             title: newValue.inputValue,
+    //             year: ''
+    //         });
+    //     } else {
+    //         setValue(newValue);
+    //     }
+    // };
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
@@ -109,6 +110,7 @@ const SearchForm = (props: any) => {
         // })
         handleSearchFormData({});
         let obj = {
+            folderId: undefined,
             username: undefined,
             firstName: undefined,
             lastName: undefined,
@@ -182,7 +184,8 @@ const SearchForm = (props: any) => {
                         /></Item>
                     </Grid>
                     <Grid item >
-                        <Item> <Autocomplete
+                        <Item>
+                            {/* <Autocomplete
                             size="small"
                             value={value}
                             onChange={onAutocompleteChange}
@@ -226,7 +229,40 @@ const SearchForm = (props: any) => {
                                     </InputAdornment>
                                 ),
                             }} />}
-                        /></Item>
+                        /> */}
+                            <TextField
+                                select
+                                sx={{ width: 300 }}
+                                autoFocus
+                                margin="dense"
+                                id="standard-required"
+                                inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                value={formData.folderId || ''}
+                                onChange={(event) =>
+                                    setFormData({
+                                        ...formData,
+                                        folderId: event.target.value
+                                    })
+                                }
+                                label="请输入分组选择"
+                                type="text"
+                                variant="outlined"
+                                size="small"
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            >
+
+                                {top100Films.map((option: any) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.title}
+                                    </MenuItem>
+                                ))}</TextField>
+                        </Item>
                     </Grid>
                     <Grid item >
                         <Item> <TextField
