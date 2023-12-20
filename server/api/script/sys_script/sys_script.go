@@ -44,6 +44,14 @@ type EditReq struct {
 
 type EditRes struct{}
 
+// AddReq 新增话术管理
+type AddReq struct {
+	g.Meta `path:"/sysScript/add" method:"post" tags:"话术管理" summary:"新增话术管理"`
+	scriptin.SysScriptEditInp
+}
+
+type AddRes struct{}
+
 // DeleteReq 删除话术管理
 type DeleteReq struct {
 	g.Meta `path:"/sysScript/delete" method:"post" tags:"话术管理" summary:"删除话术管理"`

@@ -36,13 +36,21 @@ type ViewRes struct {
 	*scriptin.ScriptGroupViewModel
 }
 
-// EditReq 修改/新增话术分组
+// EditReq 修改话术分组
 type EditReq struct {
 	g.Meta `path:"/scriptGroup/edit" method:"post" tags:"话术分组(type:1个人2公司)" summary:"修改/新增话术分组"`
 	scriptin.ScriptGroupEditInp
 }
 
 type EditRes struct{}
+
+// AddReq 新增话术分组
+type AddReq struct {
+	g.Meta `path:"/scriptGroup/add" method:"post" tags:"话术分组(type:1个人2公司)" summary:"新增话术分组"`
+	scriptin.ScriptGroupEditInp
+}
+
+type AddRes struct{}
 
 // DeleteReq 删除话术分组
 type DeleteReq struct {

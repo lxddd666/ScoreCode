@@ -121,9 +121,32 @@ func (s *sSysScript) Edit(ctx context.Context, in *scriptin.SysScriptEditInp) (e
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#ModifyWordsManagementFailed}"))
 		}
 		return
+	} else {
+		return gerror.New(g.I18n().T(ctx, "{#AddWordsManagementFailed}"))
 	}
 
 	// 新增
+	//if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+	//	Fields(scriptin.SysScriptInsertFields{}).
+	//	Data(in).Insert(); err != nil {
+	//	err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddWordsManagementFailed}"))
+	//}
+	//return
+}
+
+// Add 新增话术管理
+func (s *sSysScript) Add(ctx context.Context, in *scriptin.SysScriptEditInp) (err error) {
+	//校验参数
+	if err = s.checkInfo(ctx, in); err != nil {
+		return
+	}
+	user := contexts.GetUser(ctx)
+	in.OrgId = user.OrgId
+	if in.Type == consts.ScriptTypeMember {
+		in.MemberId = user.Id
+	}
+	// 修改
+
 	if _, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
 		Fields(scriptin.SysScriptInsertFields{}).
 		Data(in).Insert(); err != nil {

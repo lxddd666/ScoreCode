@@ -105,6 +105,12 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		mod = mod.WhereBetween("tg_user."+dao.TgUser.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
+	// 员工账号
+	if in.MemberId != 0 {
+		mod = mod.Where("tg_user."+dao.TgUser.Columns().MemberId, in.MemberId)
+
+	}
+
 	totalCount, err = mod.Clone().Count()
 	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgDataLineFailed}"))

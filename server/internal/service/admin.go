@@ -138,7 +138,7 @@ type (
 		List(ctx context.Context, in *tgin.SysOrgListInp) (list []*tgin.SysOrgListModel, totalCount int, err error)
 		// Export 导出公司信息
 		Export(ctx context.Context, in *tgin.SysOrgListInp) (err error)
-		// Edit 修改/新增公司信息
+		// Edit 修改公司信息
 		Edit(ctx context.Context, in *tgin.SysOrgEditInp) (orgId int64, err error)
 		// Delete 删除公司信息
 		Delete(ctx context.Context, in *tgin.SysOrgDeleteInp) (err error)
@@ -150,6 +150,8 @@ type (
 		Status(ctx context.Context, in *tgin.SysOrgStatusInp) (err error)
 		// Ports 修改端口数
 		Ports(ctx context.Context, in *tgin.SysOrgPortInp) (err error)
+		// Add 新增公司
+		Add(ctx context.Context, t *tgin.SysOrgEditInp) (orgId int64, err error)
 	}
 	IAdminRole interface {
 		// Verify 验证权限

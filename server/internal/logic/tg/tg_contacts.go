@@ -2,7 +2,6 @@ package tg
 
 import (
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -37,19 +36,23 @@ func (s *sTgContacts) Model(ctx context.Context, option ...*handler.Option) *gdb
 func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (list []*tgin.TgContactsListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
 
+	if in.TgUserId != 0 {
+		mod = mod.LeftJoin("tg_user_contacts tuc", " on tg_contacts.id = tuc.tg_contacts_id").Where("tuc.tg_user_id", in.TgUserId)
+	}
+
 	// 查询phone
 	if in.Phone != "" {
-		mod = mod.WhereLike(dao.TgContacts.Columns().Phone, in.Phone)
+		mod = mod.WhereLike("tg_contacts."+dao.TgContacts.Columns().Phone, in.Phone)
 	}
 
 	// 查询type
 	if in.Type > 0 {
-		mod = mod.Where(dao.TgContacts.Columns().Type, in.Type)
+		mod = mod.Where("tg_contacts."+dao.TgContacts.Columns().Type, in.Type)
 	}
 
 	// 查询创建时间
 	if len(in.CreatedAt) == 2 {
-		mod = mod.WhereBetween(dao.TgContacts.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
+		mod = mod.WhereBetween("tg_contacts."+dao.TgContacts.Columns().CreatedAt, in.CreatedAt[0], in.CreatedAt[1])
 	}
 
 	totalCount, err = mod.Clone().Count()
@@ -172,13 +175,17 @@ func (s *sTgContacts) SyncContactCallback(ctx context.Context, in map[uint64][]*
 		for _, model := range list {
 			model.OrgId = tgUser.OrgId
 			phones = append(phones, model.Phone)
+			go func(ctx context.Context, model *tgin.TgContactsListModel) {
+				if model.Avatar != "" {
+					service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Avatar)})
+				}
+			}(ctx, model)
 		}
 		err = dao.TgContacts.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-			result, err := dao.TgContacts.Ctx(ctx).Fields(tgin.TgContactsInsertFields{}).Save(&list)
+			_, err = dao.TgContacts.Ctx(ctx).Fields(tgin.TgContactsInsertFields{}).Save(&list)
 			if err != nil {
 				return err
 			}
-			fmt.Println(result)
 			var contacts []entity.TgContacts
 			err = dao.TgContacts.Ctx(ctx).Where(dao.TgContacts.Columns().Phone, phones).Scan(&contacts)
 			if err != nil {

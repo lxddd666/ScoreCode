@@ -37,6 +37,12 @@ func (c *cOrg) Edit(ctx context.Context, req *sysorg.EditReq) (res *sysorg.EditR
 	return
 }
 
+// Add 新增公司信息
+func (c *cOrg) Add(ctx context.Context, req *sysorg.AddReq) (res *sysorg.AddRes, err error) {
+	_, err = service.SysOrg().Add(ctx, &req.SysOrgEditInp)
+	return
+}
+
 // MaxSort 获取公司信息最大排序
 func (c *cOrg) MaxSort(ctx context.Context, req *sysorg.MaxSortReq) (res *sysorg.MaxSortRes, err error) {
 	data, err := service.SysOrg().MaxSort(ctx, &req.SysOrgMaxSortInp)

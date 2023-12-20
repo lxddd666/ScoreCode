@@ -60,7 +60,7 @@ func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
 	if err != nil {
 		return
 	}
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 	return
 }
 
@@ -273,6 +273,7 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			if err != nil {
 				continue
 			}
+			time.Sleep(1 * time.Second)
 			if user.Id != receiver.Id {
 				inp := &artsin.MsgInp{
 					Account:  gconv.Uint64(user.Phone),
@@ -475,9 +476,9 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改username
 	for _, user := range tgUserList {
-		if user.Username != "" {
-			continue
-		}
+		//if user.Username != "" {
+		//	continue
+		//}
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
@@ -495,6 +496,7 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
+		time.Sleep(1 * time.Second)
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:  gconv.Uint64(user.Phone),
 			Username: proto.String(username),
@@ -507,7 +509,7 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		keepLog.Status = 1
 		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-		time.Sleep(1 * time.Second)
+		time.Sleep(2 * time.Second)
 	}
 	return err
 }

@@ -15,6 +15,7 @@
   "ExportTgChannelTask": "Xuất kênh TG tăng nhiệm vụ-",
   "ModifyTgChannelRisingTaskFailed": "Sửa đổi việc thực hiện tác vụ tăng kênh TG, vui lòng thử nó sau",
   "AddTgChannelRisingTaskFailed": "Lỗi tác vụ tăng kênh TG mới không thành công, vui lòng thử sau",
-  "CompanyCodeExists": "Mã công ty đã tồn tại, vui lòng điền lại mã công ty mới đăng ký"
+  "CompanyCodeExists": "Mã công ty đã tồn tại, vui lòng điền lại mã công ty mới đăng ký",
+  "CompanyChoose": "Vui lòng chọn công ty sửa đổi"
 
 }

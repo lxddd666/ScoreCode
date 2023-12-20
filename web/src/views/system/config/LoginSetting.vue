@@ -58,7 +58,14 @@
             :default-expand-all="true"
           />
         </n-form-item>
-
+        <n-form-item label="默认注册公司主管角色(没有公司情况下)" path="managerRoleId">
+          <n-tree-select
+            key-field="id"
+            :options="options.role"
+            v-model:value="formValue.managerRoleId"
+            :default-expand-all="true"
+          />
+        </n-form-item>
 
 
         <n-divider title-placement="left">协议配置</n-divider>
@@ -107,6 +114,7 @@
     loginAvatar: '',
     loginProtocol: '',
     loginPolicy: '',
+    managerRoleId: null,
     loginRoleId: null,
     loginDeptId: null,
     loginPostIds: [],

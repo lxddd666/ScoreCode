@@ -37,6 +37,11 @@ func (c *cSysScript) Edit(ctx context.Context, req *sysscript.EditReq) (res *sys
 	return
 }
 
+func (c *cSysScript) Add(ctx context.Context, req *sysscript.AddReq) (res *sysscript.AddRes, err error) {
+	err = service.ScriptSysScript().Add(ctx, &req.SysScriptEditInp)
+	return
+}
+
 // View 获取指定话术管理信息
 func (c *cSysScript) View(ctx context.Context, req *sysscript.ViewReq) (res *sysscript.ViewRes, err error) {
 	data, err := service.ScriptSysScript().View(ctx, &req.SysScriptViewInp)

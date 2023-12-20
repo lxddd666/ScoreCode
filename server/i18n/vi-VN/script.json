@@ -19,5 +19,8 @@
   "SelectGroupNotExist": "Nhóm đã chọn không tồn tại",
   "QuickInstructionExist": "Hướng dẫn nhanh đã tồn tại",
   "DeleteWordsManagementFailed": "Xóa lỗi quản lý diễn ngôn, vui lòng thử lại sau",
-  "ObtainWordsManagementInformation": "Nhận thông tin quản lý thông tin, vui lòng thử lại sau"
+  "ObtainWordsManagementInformation": "Nhận thông tin quản lý thông tin, vui lòng thử lại sau",
+  "ChooseGroup": "Vui lòng chọn nhóm đã sửa đổi",
+  "ChooseScript": "Vui lòng chọn từ"
+
 }
