@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/grand"
 	"google.golang.org/protobuf/proto"
+	"hotgo/internal/consts"
 	"hotgo/internal/dao"
 	"hotgo/internal/library/container/array"
 	"hotgo/internal/model/entity"
@@ -55,13 +56,6 @@ func init() {
 }
 
 func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
-	//cErr := service.TgArts().TgCheckLogin(ctx, gconv.Uint64(tgUser.Phone))
-	//if cErr != nil {
-	//	_, err = service.TgArts().SingleLogin(ctx, tgUser)
-	//	if err != nil {
-	//		return
-	//	}
-	//}
 	_, err = service.TgArts().SingleLogin(ctx, tgUser)
 	if err != nil {
 		return
@@ -258,29 +252,26 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			g.Log().Error(ctx, err)
 			continue
 		}
+		_, err = service.TgArts().TgGetDialogs(ctx, gconv.Uint64(user.Phone))
+		if err != nil {
+			continue
+		}
 		for _, receiver := range tgUserList {
+			if receiver.Id == user.Id {
+				continue
+			}
 			// 查询是否为好友
-			isFriend, err := g.Model(dao.TgUserContacts.Table()).Ctx(ctx).Where(dao.TgUserContacts.Columns().TgUserId, user.Id).Where(dao.TgUserContacts.Columns().TgContactsId, receiver.Id).Count()
+			err = beforeLogin(ctx, receiver)
 			if err != nil {
 				continue
 			}
-			if isFriend == 0 {
-				uPhone := receiver.Username
-				firstName := receiver.FirstName
-				lastName := receiver.LastName
-				if firstName == "" {
-					firstName = faker.FirstName()
-				}
-				if lastName == "" {
-					lastName = faker.LastName()
-				}
-				if receiver.Username == "" {
-					uPhone = receiver.Phone
-				}
-				_, err = service.TgArts().TgSyncContact(ctx, &artsin.SyncContactInp{Account: gconv.Uint64(user.Phone), Phone: uPhone, FirstName: firstName, LastName: lastName})
-				if err != nil {
-					continue
-				}
+			err = CheckIsFriend(ctx, user, receiver)
+			if err != nil {
+				continue
+			}
+			err = CheckIsFriend(ctx, receiver, user)
+			if err != nil {
+				continue
 			}
 			if user.Id != receiver.Id {
 				inp := &artsin.MsgInp{
@@ -297,6 +288,20 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 					resp := g.Client().Discovery(nil).GetContent(ctx, getContentUrl)
 					inp.TextMsg = []string{resp}
 				}
+				// 消息已读
+				err = service.TgArts().TgReadPeerHistory(ctx, &tgin.TgReadPeerHistoryInp{
+					Sender:   gconv.Uint64(user.Phone),
+					Receiver: receiver.Phone,
+				})
+				if err != nil {
+					return
+				}
+				// 发消息状态
+				_ = service.TgArts().TgSendMsgType(ctx, &artsin.MsgTypeInp{Sender: gconv.Uint64(user.Phone), Receiver: receiver.Phone, FileType: consts.TG_SEND_TEXT})
+				if err != nil {
+					return
+				}
+				time.Sleep(2 * time.Second)
 				_, err = service.TgArts().TgSendMsg(ctx, inp)
 				if err != nil {
 					continue
@@ -309,6 +314,39 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 
 	return
 
+}
+
+// CheckIsFriend 查询对方是否为好友
+func CheckIsFriend(ctx context.Context, user *entity.TgUser, receiver *entity.TgUser) (err error) {
+	//isFriend, err := g.Model(dao.TgUserContacts.Table()).Ctx(ctx).Where(dao.TgUserContacts.Columns().TgUserId, user.Id).Where(dao.TgUserContacts.Columns().TgContactsId, receiver.Id).Count()
+	list, err := service.TgArts().TgGetContacts(ctx, gconv.Uint64(user.Phone))
+	for _, c := range list {
+		if c.Phone == receiver.Phone {
+			return
+		}
+	}
+	if err != nil {
+		return
+	}
+
+	uPhone := receiver.Username
+	firstName := receiver.FirstName
+	lastName := receiver.LastName
+	if firstName == "" {
+		firstName = faker.FirstName()
+	}
+	if lastName == "" {
+		lastName = faker.LastName()
+	}
+	if receiver.Username == "" {
+		uPhone = receiver.Phone
+	}
+	_, err = service.TgArts().TgSyncContact(ctx, &artsin.SyncContactInp{Account: gconv.Uint64(user.Phone), Phone: uPhone, FirstName: firstName, LastName: lastName})
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 // RandBio 随机签名动作

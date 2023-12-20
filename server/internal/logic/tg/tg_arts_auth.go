@@ -358,6 +358,7 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 	}
 	if resp != nil {
 		_ = gjson.DecodeTo(resp.Data, &result)
+		result.Phone = resp.Account
 	}
 	return
 }
@@ -402,8 +403,9 @@ func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 // TgCheckLogin 检查是否登录
 func (s *sTgArts) TgCheckLogin(ctx context.Context, account uint64) (err error) {
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_GET_ONLINE_ACCOUNTS,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_GET_ONLINE_ACCOUNTS,
+		Type:    consts.TgSvc,
+		Account: account,
 		ActionDetail: &protobuf.RequestMessage_GetOnlineAccountsDetail{
 			GetOnlineAccountsDetail: &protobuf.GetOnlineAccountsDetail{
 				Phone: []string{gconv.String(account)},

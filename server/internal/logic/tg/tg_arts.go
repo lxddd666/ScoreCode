@@ -43,13 +43,16 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 		prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(inp.Phone)).Inc()
 
+		if len(resp) == 0 {
+			return
+		}
 		contactModel := tgin.TgSyncContacts{}
 		err = gjson.DecodeTo(resp, &contactModel)
 		if err != nil {
 			return
 		}
 		var box tg.Updates
-		err = (&bin.Buffer{Buf: resp}).Decode(&box)
+		err = (&bin.Buffer{Buf: contactModel.ResBuf}).Decode(&box)
 		if err != nil {
 			return
 		}
@@ -76,6 +79,17 @@ func handleAddContact(ctx context.Context, account uint64, contact tg.Updates) (
 			})
 		}
 	}
+	for _, chat := range contact.GetChats() {
+		switch chat.(type) {
+		case *tg.Chat:
+			u := chat.(*tg.Chat)
+			contactList = append(contactList, &tgin.TgContactsListModel{
+				TgId:     u.ID,
+				Username: u.Title,
+				Type:     2,
+			})
+		}
+	}
 
 	in[account] = contactList
 	err = service.TgContacts().SyncContactCallback(ctx, in)
@@ -85,9 +99,9 @@ func handleAddContact(ctx context.Context, account uint64, contact tg.Updates) (
 // TgGetContacts 获取contacts
 func (s *sTgArts) TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, account); err != nil {
-		return
-	}
+	//if err = s.TgCheckLogin(ctx, account); err != nil {
+	//	return
+	//}
 
 	msg := &protobuf.GetContactList{
 		Account: account,
@@ -107,10 +121,25 @@ func (s *sTgArts) TgGetContacts(ctx context.Context, account uint64) (list []*tg
 	}
 	if resp.ActionResult == protobuf.ActionResult_ALL_SUCCESS {
 		prometheus.AccountGetContactsCount.WithLabelValues(gconv.String(account)).Inc()
-		err = gjson.DecodeTo(resp.Data, &list)
-		if err == nil {
-			s.handlerSaveContacts(ctx, account, list)
+		modified := tg.ContactsContacts{}
+		err = (&bin.Buffer{Buf: resp.Data}).Decode(&modified)
+
+		for _, user := range modified.Users {
+			t, b := user.AsNotEmpty()
+			if !b {
+				continue
+			}
+			list = append(list, &tgin.TgContactsListModel{
+				TgId:      t.ID,
+				Username:  t.Username,
+				FirstName: t.FirstName,
+				LastName:  t.LastName,
+				Phone:     t.Phone,
+			})
+
 		}
+		s.handlerSaveContacts(ctx, account, list)
+
 	}
 
 	return

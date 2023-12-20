@@ -169,6 +169,7 @@ type (
 		// Edit 编辑/新增角色
 		Edit(ctx context.Context, in *adminin.RoleEditInp) (err error)
 		// Delete 删除权限
+
 		Delete(ctx context.Context, in *adminin.RoleDeleteInp) (err error)
 		DataScopeSelect() (res form.Selects)
 		DataScopeEdit(ctx context.Context, in *adminin.DataScopeEditInp) (err error)
