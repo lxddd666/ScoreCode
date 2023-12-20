@@ -122,7 +122,7 @@ type (
 		TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistoryInp) (list []*tgin.TgMsgModel, err error)
 		// TgGetEmojiGroup 获取emoji分组
 		TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error)
-		// TgSendReaction 发送消息动作
+		// TgSendReaction 消息点赞
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 		// TgSendMsgType 发送消息时候的状态
 		TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error)

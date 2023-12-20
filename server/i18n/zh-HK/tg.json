@@ -89,6 +89,7 @@
   "ModifyBatchTaskFailed": "修改批次操作任務失敗，請稍後重試!",
   "AddBatchTaskFailed": "新增批次作業任務失敗，請稍後重試！",
   "MemberAccountCountErr": "用戶帳號不足",
-  "DraftMsgClearErr": "草稿消息清除錯誤"
+  "DraftMsgClearErr": "草稿消息清除錯誤",
+  "SameFolderName": "相同该公司下已经有相同名称的分组，请重新更换分组名称"
 
 }

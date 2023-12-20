@@ -94,12 +94,26 @@ func (s *sTgFolders) Export(ctx context.Context, in *tgin.TgFoldersListInp) (err
 func (s *sTgFolders) Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err error) {
 	// 修改
 	user := contexts.GetUser(ctx)
-	in.OrgId = user.OrgId
-	in.MemberId = user.Id
+	data := entity.TgFolders{
+		Id:          in.Id,
+		OrgId:       user.OrgId,
+		MemberId:    user.Id,
+		FolderName:  in.FolderName,
+		MemberCount: in.MemberCount,
+		Accounts:    in.Accounts,
+	}
+
 	in.MemberCount = len(in.Accounts)
 	if in.Id > 0 {
+		count, gErr := s.Model(ctx).Where(dao.TgFolders.Columns().FolderName, in.FolderName).Where(dao.TgFolders.Columns().OrgId, data.OrgId).WhereNot(dao.TgFolders.Columns().Id, data.Id).Count()
+		if gErr != nil {
+			return gErr
+		}
+		if count > 0 {
+			return gerror.New(g.I18n().T(ctx, "{#SameFolderName"))
+		}
 		err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
-			_, err = s.Model(ctx).Fields(tgin.TgFoldersUpdateFields{}).WherePri(in.Id).Data(in).Update()
+			_, err = s.Model(ctx).Fields(tgin.TgFoldersUpdateFields{}).WherePri(in.Id).Data(data).Update()
 			if err != nil {
 				return
 			}
@@ -125,10 +139,17 @@ func (s *sTgFolders) Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err e
 	}
 
 	// 新增
+	count, err := s.Model(ctx).Where(dao.TgFolders.Columns().FolderName, in.FolderName).Where(dao.TgFolders.Columns().OrgId, data.OrgId).Count()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return gerror.New(g.I18n().T(ctx, "{#SameFolderName"))
+	}
 	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 		id, err := s.Model(ctx, &handler.Option{FilterAuth: false}).
 			Fields(tgin.TgFoldersInsertFields{}).
-			Data(in).InsertAndGetId()
+			Data(data).InsertAndGetId()
 		if err != nil {
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddTgGroupError}"))
 		}
