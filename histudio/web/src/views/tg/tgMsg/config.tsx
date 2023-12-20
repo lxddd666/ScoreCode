@@ -56,12 +56,12 @@ export const columns = [
 
 export const readArr = [
     {
-        title: '已读',
-        key: 1
+        title: '未读',
+        key: 0
     },
     {
-        title: '未读',
-        key: 2
+        title: '已读',
+        key: 1
     }
 ];
 export const read = (value: any) => {
@@ -77,12 +77,12 @@ export const read = (value: any) => {
 
 export const sendStatusArr = [
     {
-        title: '成功',
-        key: 1
+        title: '失败',
+        key: 0
     },
     {
-        title: '失败',
-        key: 2
+        title: '成功',
+        key: 1
     }
 ];
 export const sendStatus = (value: any) => {

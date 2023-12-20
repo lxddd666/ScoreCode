@@ -10,6 +10,7 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
+import {readArr, sendStatusArr} from "./config";
 // import { DatePicker } from '@mui/x-date-pickers';
 
 // import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -22,26 +23,7 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-const readArr = [
-    {
-        title: '已读',
-        key: 1
-    },
-    {
-        title: '未读',
-        key: 2
-    }
-];
-const sendStatusArr = [
-    {
-        title: '成功',
-        key: 1
-    },
-    {
-        title: '失败',
-        key: 2
-    }
-];
+
 const SearchForm = (props: any) => {
     const { handleSearchFormData } = props;
     const [value, setValue] = useState<any>(null);

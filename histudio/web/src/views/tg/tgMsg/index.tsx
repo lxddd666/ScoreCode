@@ -26,7 +26,7 @@ import SearchForm from './searchFrom';
 
 import { getTgMsgListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 消息记录
 const TgMsg = () => {
@@ -121,9 +121,9 @@ const TgMsg = () => {
 
     const renderTable = (value: any, key: any) => {
         let temp: any = '';
-        if (key === 'accountStatus') {
+        if (key === 'read') {
             temp = value;
-        } else if (key === 'isOnline') {
+        } else if (key === 'sendStatus') {
             temp = value;
         } else {
             temp = value;

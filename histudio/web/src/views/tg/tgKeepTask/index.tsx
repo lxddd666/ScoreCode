@@ -26,7 +26,7 @@ import SearchForm from './searchFrom';
 
 import { getTgKeepTaskListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 养号任务
 const TgKeepTask = () => {

@@ -16,10 +16,7 @@ import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 // import { DatePicker } from '@mui/x-date-pickers';
-import {
-    accountStatusArr,
-    isOnlineArr
-} from './conig'
+import {accountStatusArr, isOnlineArr} from './config';
 // import { LocalizationProvider } from '@mui/x-date-pickers';
 // import AdapterDateFns from '@mui/lab/AdapterDateFns';
 // import AdapterDateFns from '@mui/x-date-pickers/AdapterDateFns';
@@ -95,7 +92,7 @@ const SearchForm = (props: any) => {
     // 搜索按钮
     const onSearchClick = (e: any) => {
         console.log(e.target.value, formData);
-        let obj = { folderId: value?.value ? value?.value : undefined, ...formData }
+        let obj = { folderId: value?.value ? value?.value : undefined, ...formData };
         handleSearchFormData(obj);
     };
     // 重置按钮
@@ -119,9 +116,9 @@ const SearchForm = (props: any) => {
             proxyAddress: undefined,
             accountStatus: undefined,
             isOnline: undefined
-        }
+        };
         setValue({});
-        setFormData(obj)
+        setFormData(obj);
         handleSearchFormData(obj);
     };
     return (

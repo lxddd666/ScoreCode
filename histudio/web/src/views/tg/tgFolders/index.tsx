@@ -26,7 +26,7 @@ import SearchForm from './searchFrom';
 
 import { getTgFoldersListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 账号分组
 const TgFolders = () => {

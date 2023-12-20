@@ -168,7 +168,7 @@ export function getTgContactsListAction(queryParam?: any) {
 export function getTgMsgListAction(queryParam?: any) {
     return async () => {
         try {
-            const res = await axios.get(`/whats/whatsMsg/list`, {
+            const res = await axios.get(`/tg/tgMsg/list`, {
                 params: queryParam
             });
             // console.log('tgUser列表',res)
