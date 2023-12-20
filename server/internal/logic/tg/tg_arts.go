@@ -38,12 +38,47 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
-	res, err = service.Arts().SyncContact(ctx, inp, consts.TgSvc)
+	resp, err := service.Arts().SyncContact(ctx, inp, consts.TgSvc)
 	if err == nil {
 		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 		prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(inp.Phone)).Inc()
 
+		contactModel := tgin.TgSyncContacts{}
+		err = gjson.DecodeTo(resp, &contactModel)
+		if err != nil {
+			return
+		}
+		var box tg.Updates
+		err = (&bin.Buffer{Buf: resp}).Decode(&box)
+		if err != nil {
+			return
+		}
+		err = handleAddContact(ctx, inp.Account, box)
 	}
+	return
+}
+
+func handleAddContact(ctx context.Context, account uint64, contact tg.Updates) (err error) {
+	in := make(map[uint64][]*tgin.TgContactsListModel)
+	contactList := make([]*tgin.TgContactsListModel, 0)
+	for _, user := range contact.GetUsers() {
+		switch user.(type) {
+		case *tg.User:
+			u := user.(*tg.User)
+			contactList = append(contactList, &tgin.TgContactsListModel{
+				TgId:       u.ID,
+				AccessHash: u.AccessHash,
+				Username:   u.Username,
+				FirstName:  u.FirstName,
+				LastName:   u.LastName,
+				Phone:      u.Phone,
+				Type:       1,
+			})
+		}
+	}
+
+	in[account] = contactList
+	err = service.TgContacts().SyncContactCallback(ctx, in)
 	return
 }
 

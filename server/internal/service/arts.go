@@ -22,7 +22,7 @@ type (
 		SendMsgSinglePeerMsgBatch(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error)
 		SendMsgSingleSameMsgBatch(ctx context.Context, item *artsin.MsgSingleInp, imType string) (res string, err error)
 		// SyncContact 同步联系人
-		SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res string, err error)
+		SyncContact(ctx context.Context, item *artsin.SyncContactInp, imType string) (res []byte, err error)
 		// SendVcard 发送名片
 		SendVcard(ctx context.Context, inp []*artsin.ContactCardInp, imType string) (err error)
 		// Send 发送请求

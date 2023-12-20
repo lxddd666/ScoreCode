@@ -351,7 +351,7 @@ func (s *sArts) sendFileMessageSingle(fileSingleReq *artsin.FileSingleInp, imTyp
 }
 
 // SyncContact 同步联系人
-func (s *sArts) SyncContact(ctx context.Context, inp *artsin.SyncContactInp, imType string) (res string, err error) {
+func (s *sArts) SyncContact(ctx context.Context, inp *artsin.SyncContactInp, imType string) (res []byte, err error) {
 	req := &protobuf.RequestMessage{
 		Account: inp.Account,
 		Action:  protobuf.Action_SYNC_CONTACTS,
@@ -366,7 +366,11 @@ func (s *sArts) SyncContact(ctx context.Context, inp *artsin.SyncContactInp, imT
 			},
 		},
 	}
-	_, err = s.Send(ctx, req)
+	buf, err := s.Send(ctx, req)
+	if err != nil {
+		return
+	}
+	res = buf.Data
 	return
 }
 
