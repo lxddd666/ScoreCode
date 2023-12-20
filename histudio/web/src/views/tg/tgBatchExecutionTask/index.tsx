@@ -24,7 +24,7 @@ import SearchForm from './searchFrom';
 
 import { getTgBatchExecutionTaskListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 批量操作任务
 const TgBatchExecutionTask = () => {

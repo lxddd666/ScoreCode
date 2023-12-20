@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useEffect } from "react"
+import { memo, useState, useRef, useEffect } from "react";
 import { FormattedMessage } from 'react-intl';
 // import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
@@ -14,7 +14,7 @@ import {
     Paper,
     Checkbox,
     // Chip,
-    Pagination,
+    Pagination
     // Autocomplete
 } from '@mui/material';
 import { useDispatch, useSelector, shallowEqual } from 'store';
@@ -24,7 +24,7 @@ import SearchForm from './searchFrom';
 
 import { getScriptGroupListAction } from 'store/slices/script';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 个人话术分组
 const OrgSysScript = () => {
@@ -34,7 +34,7 @@ const OrgSysScript = () => {
         page: 1,
         pageSize: 10,
         name: undefined,
-        createdAt: undefined,
+        createdAt: undefined
     }); // 分页
     const [searchForm, setSearchForm] = useState([]); // search Form
     const [pagetionTotle, setPagetionTotle] = useState(0); // total/ 弹窗控制
@@ -140,7 +140,7 @@ const OrgSysScript = () => {
 
     const PaginationCount = (count: number) => {
         return typeof count === 'number' ? Math.ceil(count / 10) : 1;
-    }
+    };
     return (
         // <div>批量操作任务</div>
         <MainCard title={<FormattedMessageTitle />} content={true}>
@@ -211,10 +211,10 @@ const OrgSysScript = () => {
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
                                                     <>
-                                                        <Button size="small" variant="contained" >
+                                                        <Button size="small" variant="contained">
                                                             编辑
                                                         </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
+                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
                                                             删除
                                                         </Button>
                                                     </>
@@ -240,10 +240,9 @@ const OrgSysScript = () => {
                     ''
                 )}
             </div>
-
         </MainCard>
-    )
-}
+    );
+};
 // 标题 tg
 const FormattedMessageTitle = () => {
     return (

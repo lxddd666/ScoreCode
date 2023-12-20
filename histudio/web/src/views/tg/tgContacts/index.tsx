@@ -26,7 +26,7 @@ import SearchForm from './searchFrom';
 
 import { getTgContactsListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 联系人管理
 const TgContacts = () => {

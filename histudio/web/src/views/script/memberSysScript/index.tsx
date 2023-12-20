@@ -24,7 +24,7 @@ import SearchForm from './searchFrom';
 
 import { getSysScriptListAction } from 'store/slices/script';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 个人话术管理
 const OrgSysScript = () => {
