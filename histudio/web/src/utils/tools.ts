@@ -34,3 +34,34 @@ export const useHeightComponent = (el: any) => {
         width
     };
 };
+
+export const useScroll = (divRef: any) => {
+    // const divRef = useRef(null); // 创建一个ref来引用div元素
+    const [scrollInfo, setScrollInfo] = useState({
+        scrollTop: 0,
+        divHeight: 0,
+        scrollHeight: 0,
+        offsetHeight: 0
+    });
+
+    useEffect(() => {
+        const handleScroll = () => {
+            // 当滚动事件触发时，更新状态
+            setScrollInfo({
+                scrollTop: divRef.current.scrollTop,
+                divHeight: divRef.current.clientHeight,
+                scrollHeight: divRef.current.scrollHeight,
+                offsetHeight: divRef.current.height,
+            });
+        };
+
+        const div = divRef.current;
+        // 添加滚动监听
+        div.addEventListener('scroll', handleScroll);
+
+        // 组件卸载时移除监听
+        return () => div.removeEventListener('scroll', handleScroll);
+    }, []); // 空依赖数组意味着effect只在挂载时运行
+
+    return { divRef, scrollInfo };
+}

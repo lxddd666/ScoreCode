@@ -10,6 +10,12 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 
+import AdapterDateFns from '@date-io/date-fns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+// import dayjs from 'dayjs';
+
+
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
     padding: theme.spacing(1),
@@ -71,6 +77,76 @@ const SearchForm = (props: any) => {
                                 ),
                             }}
                         /></Item>
+                    </Grid>
+
+                    <Grid>
+                        <Item>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                                    <DateTimePicker
+                                        label="请输入开始时间"
+                                        value={formData.startTime || null}
+                                        onChange={(newValue: any) => {
+                                            console.log(newValue);
+
+                                            setFormData({
+                                                ...formData,
+                                                startTime: newValue
+                                            })
+                                        }
+                                        }
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        renderInput={(params: any) => <TextField
+                                            sx={{ width: 300 }}
+                                            autoFocus
+                                            variant="outlined"
+                                            type="text"
+                                            margin="dense"
+                                            size="small"
+
+                                            clearable
+                                            {...params} />}
+                                    />
+                                    <div style={{ display: 'flex', alignItems: 'center', margin: '0 10px' }}> ~ </div>
+                                    <DateTimePicker
+                                        label="请输入结束时间"
+                                        value={formData.end || null}
+                                        onChange={(newValue: any) => {
+                                            console.log(newValue);
+
+                                            setFormData({
+                                                ...formData,
+                                                end: newValue
+                                            })
+                                        }
+                                        }
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        renderInput={(params: any) => <TextField
+                                            sx={{ width: 300 }}
+                                            autoFocus
+                                            variant="outlined"
+                                            type="text"
+                                            margin="dense"
+                                            size="small"
+
+                                            clearable
+                                            {...params} />}
+                                    />
+                                </div>
+                            </LocalizationProvider>
+                        </Item>
                     </Grid>
 
                     <Grid item >

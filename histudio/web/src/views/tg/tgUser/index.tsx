@@ -317,15 +317,13 @@ const TgUser = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
-                {pagetionTotle !== 0 ? (
+                {pagetionTotle && pagetionTotle !== 0 && (
                     <>
                         <div className={styles.paginations}>
                             <div>共 {pagetionTotle} 条</div>
                             <Pagination count={PaginationCount(pagetionTotle)} color="primary" onChange={onPaginationChange} />
                         </div>
                     </>
-                ) : (
-                    ''
                 )}
             </div>
 

@@ -25,6 +25,8 @@ import styles from './index.module.scss';
 
 import MessageBody from './messageBody';
 
+import { useScroll } from 'utils/tools';
+
 
 
 const Chat = () => {
@@ -33,28 +35,28 @@ const Chat = () => {
     const [textValue, setTextValue] = useState('') // 发送消息
     const [mockMessageList, setMockMessageList] = useState<any>([ // 历史消息
         {
-            id: String(new Date().getTime()),
-            msg: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            msgId: 1,
+            message: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             time: new Date(),
-            flag: 'o'
+            out: true
         },
         {
-            id: String(new Date().getTime()),
-            msg: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            msgId: 2,
+            message: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             time: new Date(),
-            flag: 'm'
+            out: false
         },
         {
-            id: String(new Date().getTime()),
-            msg: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            msgId: 3,
+            message: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             time: new Date(),
-            flag: 'o'
+            out: true
         },
         {
-            id: String(new Date().getTime()),
-            msg: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            msgId: 4,
+            message: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
             time: new Date(),
-            flag: 'o'
+            out: true
         }
     ]);
     const [tabsSideList, setTabsSideList] = useState<any>([ // 会话分组
@@ -64,36 +66,60 @@ const Chat = () => {
         // { id: 3, name: '个人' }
     ])
     const [tabsUserList, setTabsUserList] = useState([]) // 会话分组列表
+    const [inputDisable, setInputDisable] = useState(false)
     const textRef: any = useRef();
+    const divRef: any = useRef(null);
     const dispatch = useDispatch();
     const { tgArtsFolders, tgFoldersMessageList, tgFoldersMeeageHistoryList } = useSelector((state) => state.tg, shallowEqual)
     const { id } = useParams()
+    // console.log('dispatchdispatchdispatch', tgFoldersMessageList);
+    const { scrollInfo } = useScroll(divRef)
 
+    // divRef.current = divRef?.current?.scrollHeight;
+    useEffect(() => {
+        console.log('scrollInfo', scrollInfo, divRef?.current?.scrollHeight);
+        divRef.current.scrollTop = scrollInfo.scrollHeight;
+    }, [mockMessageList, divRef?.current?.scrollHeight]);
     // tg 登录
     useEffect(() => {
         tgArtsLogin()
     }, [])
     useEffect(() => {
-
         if (loginInfo.phone && loginInfo.phone !== '') {
             console.log('dispatch', loginInfo);
             dispatch(getTgArtsFoldersAction({ account: loginInfo.phone }))
             dispatch(getTgFoldersMessageAction({ account: loginInfo.phone }))
+            setInputDisable(true)
         }
     }, [dispatch, loginInfo.phone])
+
     useEffect(() => {
-        console.log('111');
+        console.log('111', tabsSideList);
         setTabsSideList(tgArtsFolders?.data?.Elems || [])
     }, [tgArtsFolders])
-    const memoizedList = useMemo(() => tgFoldersMessageList?.data?.list || [], [tgFoldersMessageList]);
+    let memoizedList = useMemo(() => tgFoldersMessageList?.data?.list || [], [tgFoldersMessageList]);
     useEffect(() => {
         console.log('222', tabsUserList);
         setTabsUserList(memoizedList)
-    }, [tabsUserList])
+    }, [tabsUserList, memoizedList])
     useEffect(() => {
-        console.log('333');
+        console.log('333', tgFoldersMeeageHistoryList?.data?.list);
+        divRef.current.scrollTop = 20
+
+        // const arr = tgFoldersMeeageHistoryList?.data?.list.reverse() || []
+        // console.log('arr', arr);
+
+
         setMockMessageList(tgFoldersMeeageHistoryList?.data?.list || [])
+
     }, [tgFoldersMeeageHistoryList])
+
+    useEffect(() => {
+        console.log(divRef.current);
+        window.addEventListener('scroll', (event: any) => {
+            console.log('开始滚动了', event)
+        });
+    }, [divRef])
     const tgArtsLogin = async () => {
         console.log('111');
 
@@ -121,7 +147,7 @@ const Chat = () => {
 
             dispatch(openSnackbar({
                 open: true,
-                message: data?.data?.comment || '出错了~~~',
+                message: data?.data?.comment || data?.message || '登录成功~~~',
                 variant: 'alert',
                 alert: {
                     color: 'success'
@@ -132,13 +158,21 @@ const Chat = () => {
                     horizontal: 'center'
                 }
             }))
-
-
-
-
-        } catch (error) {
+        } catch (error: any) {
             console.log('登陆错误', error);
-
+            dispatch(openSnackbar({
+                open: true,
+                message: error?.message || '登陆错误~~~',
+                variant: 'alert',
+                alert: {
+                    color: 'error'
+                },
+                close: false,
+                anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center'
+                }
+            }))
         }
         // dispatch(getTgArtsFoldersAction({ account: loginInfo.phone }))
         console.log('111');
@@ -154,6 +188,9 @@ const Chat = () => {
     }
     // 发送消息
     const onSendSubmit = async () => {
+        if (!inputDisable) {
+            return
+        }
         // console.log('提交', textRef,textValue);
         // let obj = {
         //     id: String(new Date().getTime()),
@@ -195,9 +232,10 @@ const Chat = () => {
         console.log('111', item);
         dispatch(getTgFoldersMeeageHistoryAction({
             account: loginInfo.phone,
-            contact: loginInfo.tgId,
-            // offsetId: item.topMessage + 1,
+            contact: item.tgId,
+            offsetId: item.topMessage + 1,
         }))
+        // console.log('scrollInfo', scrollInfo, divRef?.current?.scrollHeight);
     }
     return (
         <div className={styles.chat}>
@@ -284,7 +322,7 @@ const Chat = () => {
                         </div>
                     </div>
                 </div>
-                <div className={styles.messageBodyInfo}>
+                <div className={styles.messageBodyInfo} ref={divRef}>
                     <MessageBody messageList={mockMessageList} key={Math.random() * 10} />
                 </div>
                 <div className={styles.messageSend}>

@@ -2,15 +2,22 @@ import { memo } from 'react';
 import Avatar from '@mui/material/Avatar';
 import styles from './messageBody.module.scss';
 
+// import { useScroll } from 'utils/tools';
+
 const MessageBody = (props: any) => {
     const { messageList } = props;
+    // const divRefs: any = useRef(null)
+    // let { divRef, scrollInfo } = useScroll(divRefs)
+    // console.log(divRef, scrollInfo, divRefs?.current?.scrollHeight);
+
+
     return (
         <div className={styles.context}>
             {messageList &&
-                messageList.map((item: any) => {
-                    return item.out === true ? (
+                messageList.map((item: any, index: any) => {
+                    return item.out === false ? (
                         // {item.out === true ? (
-                        <div className={styles.other} key={item.msgId}>
+                        <div className={styles.other} key={index}>
                             <div className={styles.otherBody}>
                                 <div>
                                     <Avatar
@@ -22,7 +29,7 @@ const MessageBody = (props: any) => {
                             </div>
                         </div>
                     ) : (
-                        <div className={styles.me} key={item.msgId}>
+                        <div className={styles.me} key={index}>
                             <div className={styles.meBody}>
                                 <div className={styles.lineFont}>{item.message}</div>
                                 <Avatar
@@ -32,9 +39,9 @@ const MessageBody = (props: any) => {
                             </div>
                         </div>
                         // )}
-                    );
+                    )
                 })}
-        </div>
+        </div >
     );
 };
 export default memo(MessageBody);
