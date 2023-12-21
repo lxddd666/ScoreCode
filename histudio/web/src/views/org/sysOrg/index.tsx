@@ -214,13 +214,19 @@ const SysOrg = () => {
                                                 {item.key === 'active' ? (
                                                     <div className={styles.btnList}>
                                                         <Button size="small" variant="contained" >
-                                                            添加
+                                                            编辑
                                                         </Button>
                                                         <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
-                                                            批量删除
+                                                            禁用
+                                                        </Button>
+                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
+                                                            删除
                                                         </Button>
                                                         <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            导出
+                                                            修改端口数
+                                                        </Button>
+                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
+                                                           查看详情
                                                         </Button>
                                                     </div>
                                                 ) : (

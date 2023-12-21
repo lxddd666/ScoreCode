@@ -39,6 +39,10 @@ export const columns = [
     {
         title: '更新时间',
         key: 'updatedAt'
+    },
+    {
+        title: '操作',
+        key: 'active'
     }
 ];
 
