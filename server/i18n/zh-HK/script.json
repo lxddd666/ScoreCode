@@ -19,5 +19,8 @@
   "SelectGroupNotExist": "所選分組不存在",
   "QuickInstructionExist": "快捷指令已存在",
   "DeleteWordsManagementFailed": "刪除話術管理失敗，請稍後重試",
-  "ObtainWordsManagementInformation": "獲取話術管理信息，請稍後重試"
+  "ObtainWordsManagementInformation": "獲取話術管理信息，請稍後重試",
+  "ChooseGroup": "請選擇修改的分組",
+  "ChooseScript": "請選擇話術"
+
 }

@@ -78,6 +78,7 @@ type TgContactsViewModel struct {
 // TgContactsListInp 获取联系人管理列表
 type TgContactsListInp struct {
 	form.PageReq
+	TgUserId  int64         `json:"tgUserID"  dc:"tgUserID"`
 	Phone     string        `json:"phone"     dc:"phone"`
 	Type      int           `json:"type"      dc:"type"`
 	CreatedAt []*gtime.Time `json:"createdAt" dc:"创建时间"`
@@ -95,6 +96,7 @@ type TgContactsListModel struct {
 	FirstName  string         `json:"firstName" dc:"First Name"`
 	LastName   string         `json:"lastName"  dc:"Last Name"`
 	Avatar     string         `json:"avatar"    dc:"头像"`
+	Photo      string         `json:"photo"     dc:"头像"`
 	Phone      string         `json:"phone"     dc:"phone"`
 	Type       int            `json:"type"      dc:"type"`
 	OrgId      int64          `json:"orgId"     dc:"organization id"`

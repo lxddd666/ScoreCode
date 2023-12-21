@@ -128,6 +128,26 @@ func (s *sSysOrg) Export(ctx context.Context, in *tgin.SysOrgListInp) (err error
 	return
 }
 
+// Add 新增公司信息
+func (s *sSysOrg) Add(ctx context.Context, in *tgin.SysOrgEditInp) (orgId int64, err error) {
+	// 新增
+	// 公司编码要唯一
+	count, err := s.Model(ctx).Where(dao.SysOrg.Columns().Code, in.Code).Count()
+	if err != nil {
+		return
+	}
+	if count > 0 {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#CompanyCodeExists}"))
+		return
+	}
+	if orgId, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
+		Fields(tgin.SysOrgInsertFields{}).
+		Data(in).InsertAndGetId(); err != nil {
+		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
+	}
+	return
+}
+
 // Edit 修改/新增公司信息
 func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (orgId int64, err error) {
 	// 修改
@@ -149,22 +169,8 @@ func (s *sSysOrg) Edit(ctx context.Context, in *tgin.SysOrgEditInp) (orgId int64
 			err = gerror.Wrap(err, g.I18n().T(ctx, "{#EditInfoError}"))
 		}
 		return
-	}
-
-	// 新增
-	// 公司编码要唯一
-	count, err := s.Model(ctx).Where(dao.SysOrg.Columns().Code, in.Code).Count()
-	if err != nil {
-		return
-	}
-	if count > 0 {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#CompanyCodeExists}"))
-		return
-	}
-	if orgId, err = s.Model(ctx, &handler.Option{FilterAuth: false}).
-		Fields(tgin.SysOrgInsertFields{}).
-		Data(in).InsertAndGetId(); err != nil {
-		err = gerror.Wrap(err, g.I18n().T(ctx, "{#AddInfoError}"))
+	} else {
+		err = gerror.New(g.I18n().T(ctx, "{#CompanyChoose}"))
 	}
 	return
 }

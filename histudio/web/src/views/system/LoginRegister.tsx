@@ -29,6 +29,7 @@ interface inputTemplate {
     horizontalLineTextRegDefaultConfigure: ParamForm;
     loginAvatar: ParamForm;
     loginRoleId: ParamForm;
+    managerRoleId: ParamForm;
     loginDeptId: ParamForm;
     loginPostIds: ParamForm;
     horizontalLineTextProtocolConfigure: ParamForm;
@@ -204,6 +205,7 @@ const LoginRegister = () => {
             horizontalLineTextRegDefaultConfigure: { label: intl.formatMessage({ id: 'setting.loginRegister.regDefaultConfigure' }) },
             loginAvatar: { value: intl.formatMessage({ id: 'setting.loginRegister.defaultProfileImg' }) },
             loginRoleId: { value: intl.formatMessage({ id: 'setting.loginRegister.defaultRegisterRole' }) },
+            managerRoleId: { value: intl.formatMessage({ id: 'setting.loginRegister.defaultRegisterRole' }) },
             loginDeptId: { value: intl.formatMessage({ id: 'setting.loginRegister.defaultRegisterDept' }) },
             loginPostIds: { value: intl.formatMessage({ id: 'setting.loginRegister.defaultRegisterPosition' }) },
             horizontalLineTextProtocolConfigure: { label: intl.formatMessage({ id: 'setting.loginRegister.protocolConfigure' }) },
@@ -245,7 +247,8 @@ const LoginRegister = () => {
             loginDeptId: '',
             loginPostIds: [],
             loginProtocol: '',
-            loginPolicy: ''
+            loginPolicy: '',
+            managerRoleId:''
         },
         validationSchema,
         onSubmit: async (values, { setErrors, setStatus, setSubmitting }) => {

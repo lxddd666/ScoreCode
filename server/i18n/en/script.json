@@ -6,6 +6,7 @@
   "ObtainGroupListFailed": "The list of discourse groups failed, please try it later",
   "ExportScriptGroup": "Export the storytelling group-",
   "GroupNameExist": "The group name already exists",
+  "ChooseGroup": "Please select the modified group",
   "ModifyGroupFailed": "Modify the discourse group failure, please try it later",
   "AddGroupFailed": "Newly added discourse group failure, please try it later",
   "DeleteGroupFailed": "Delete the discourse group failure, please try it later",
@@ -19,5 +20,6 @@
   "SelectGroupNotExist": "The selected group does not exist",
   "QuickInstructionExist": "The fast instruction exists",
   "DeleteWordSManagementFailed": "Delete the discourse management failure, please try it later",
-  "ObtainWordsManagementInformation": "Get discourse management information, please try later"
+  "ObtainWordsManagementInformation": "Get discourse management information, please try later",
+  "ChooseScript": "Please choose the script"
 }

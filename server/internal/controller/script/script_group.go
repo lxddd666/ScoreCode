@@ -37,6 +37,12 @@ func (c *cScriptGroup) Edit(ctx context.Context, req *scriptgroup.EditReq) (res 
 	return
 }
 
+// Add 新增话术分组
+func (c *cScriptGroup) Add(ctx context.Context, req *scriptgroup.AddReq) (res *scriptgroup.AddRes, err error) {
+	err = service.ScriptGroup().Add(ctx, &req.ScriptGroupEditInp)
+	return
+}
+
 // View 获取指定话术分组信息
 func (c *cScriptGroup) View(ctx context.Context, req *scriptgroup.ViewReq) (res *scriptgroup.ViewRes, err error) {
 	data, err := service.ScriptGroup().View(ctx, &req.ScriptGroupViewInp)

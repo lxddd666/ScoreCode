@@ -36,13 +36,22 @@ type ViewRes struct {
 	*tgin.SysOrgViewModel
 }
 
-// EditReq 修改/新增公司信息
+// EditReq 修改公司信息
 type EditReq struct {
-	g.Meta `path:"/org/edit" method:"post" tags:"公司信息" summary:"修改/新增公司信息"`
+	g.Meta `path:"/org/edit" method:"post" tags:"公司信息" summary:"修改公司信息"`
 	tgin.SysOrgEditInp
 }
 
 type EditRes struct{}
+
+// AddReq 新增公司信息
+type AddReq struct {
+	g.Meta `path:"/org/add" method:"post" tags:"公司信息" summary:"新增公司信息"`
+	tgin.SysOrgEditInp
+}
+
+type AddRes struct {
+}
 
 // DeleteReq 删除公司信息
 type DeleteReq struct {

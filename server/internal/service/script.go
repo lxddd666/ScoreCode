@@ -27,6 +27,8 @@ type (
 		Delete(ctx context.Context, in *scriptin.ScriptGroupDeleteInp) (err error)
 		// View 获取话术分组指定信息
 		View(ctx context.Context, in *scriptin.ScriptGroupViewInp) (res *scriptin.ScriptGroupViewModel, err error)
+		// Add 修改/新增话术分组
+		Add(ctx context.Context, in *scriptin.ScriptGroupEditInp) (err error)
 	}
 	ISysScript interface {
 		// Model 话术管理ORM模型
@@ -41,6 +43,8 @@ type (
 		Delete(ctx context.Context, in *scriptin.SysScriptDeleteInp) (err error)
 		// View 获取话术管理指定信息
 		View(ctx context.Context, in *scriptin.SysScriptViewInp) (res *scriptin.SysScriptViewModel, err error)
+		// Edit 修改/新增话术管理
+		Add(ctx context.Context, in *scriptin.SysScriptEditInp) (err error)
 	}
 )
 

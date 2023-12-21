@@ -108,8 +108,16 @@ func (s *sScriptGroup) Edit(ctx context.Context, in *scriptin.ScriptGroupEditInp
 	// 修改
 	if in.Id > 0 {
 		return s.modify(ctx, in)
+	} else {
+		err = gerror.New(g.I18n().T(ctx, "{#ChooseGroup}"))
+		return
 	}
+
 	// 新增
+	//return s.add(ctx, in)
+}
+
+func (s *sScriptGroup) Add(ctx context.Context, in *scriptin.ScriptGroupEditInp) (err error) {
 	return s.add(ctx, in)
 }
 

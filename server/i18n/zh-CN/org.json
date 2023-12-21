@@ -15,6 +15,7 @@
   "ExportTgChannelTask": "导出TG频道涨粉任务执行情况-",
   "ModifyTgChannelRisingTaskFailed": "修改TG频道涨粉任务执行情况失败，请稍后重试",
   "AddTgChannelRisingTaskFailed": "新增TG频道涨粉任务执行情况失败，请稍后重试",
-  "CompanyCodeExists": "公司编码已存在，请重新填过新注册的公司编码"
+  "CompanyCodeExists": "公司编码已存在，请重新填过新注册的公司编码",
+  "CompanyChoose": "请选择修改的公司"
 
 }
