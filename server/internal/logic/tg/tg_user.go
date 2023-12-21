@@ -127,7 +127,8 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 
 	if err = mod.
 		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
-		Fields("tg_user.*", "ham.member_username").
+		LeftJoin("tg_photo as tp", "tg_user.photo=tp.photo_id").
+		Fields("tg_user.*", "ham.member_username", "tp.file_url as avatar").
 		OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
 		return
