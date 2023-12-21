@@ -10,6 +10,7 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
+import {statusArr} from "./config";
 // import { DatePicker } from '@mui/x-date-pickers';
 
 // import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -22,16 +23,7 @@ const Item = styled(Paper)(({ theme }) => ({
     textAlign: 'center',
     color: theme.palette.text.secondary,
 }));
-const isOnlineArr = [
-    {
-        title: '在线',
-        key: 1
-    },
-    {
-        title: '离线',
-        key: 2
-    }
-];
+
 const SearchForm = (props: any) => {
     const { handleSearchFormData } = props;
     const [value, setValue] = useState<any>(null);
@@ -130,7 +122,7 @@ const SearchForm = (props: any) => {
                             }}
                         >
 
-                            {isOnlineArr.map((option) => (
+                            {statusArr.map((option) => (
                                 <MenuItem key={option.key} value={option.key}>
                                     {option.title}
                                 </MenuItem>

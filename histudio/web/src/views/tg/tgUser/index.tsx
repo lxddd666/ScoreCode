@@ -28,12 +28,12 @@ import { createFilterOptions } from '@mui/material/Autocomplete';
 import { openSnackbar } from 'store/slices/snackbar';
 import styles from './index.module.scss';
 import SearchForm from './searchFrom';
-import FileUpload from './upload'
-import SubmitDialog from './submitDialog'
+import FileUpload from './upload';
+import SubmitDialog from './submitDialog';
 
 import { getTgUserListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns, accountStatus, isOnline } from './conig';
+import { columns, accountStatus, isOnline } from './config';
 
 const TgUser = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
@@ -46,10 +46,10 @@ const TgUser = () => {
     const [searchForm, setSearchForm] = useState([]); // search Form
     const [pagetionTotle, setPagetionTotle] = useState(0); // total
     const [importOpenDialog, setImportOpenDialog] = useState(false);
-    const [handleSubmitOpen, setHandleSubmitOpen] = useState(false) // 弹窗控制
+    const [handleSubmitOpen, setHandleSubmitOpen] = useState(false); // 弹窗控制
     const [handleSubmitOpenConfig, setHandleSubmitOpenConfig] = useState({
         title: ''
-    })
+    });
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -151,7 +151,7 @@ const TgUser = () => {
     // 分页数量
     const PaginationCount = (count: number) => {
         return typeof count === 'number' ? Math.ceil(count / 10) : 1;
-    }
+    };
 
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
@@ -159,7 +159,7 @@ const TgUser = () => {
     };
     const handleSetImportOpenDialog = (type: String, value: any) => {
         // setImportOpenDialog(value);
-        onBtnCloseList(type, value)
+        onBtnCloseList(type, value);
     };
 
     // 聊天室跳转
@@ -171,7 +171,7 @@ const TgUser = () => {
     // 弹窗开启
     const handleSubmitOpenCallback = useCallback(() => {
         setHandleSubmitOpen(true);
-        setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' })
+        setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' });
     }, []);
     const onBtnOpenList = (active: String) => {
         switch (active) {
@@ -179,7 +179,7 @@ const TgUser = () => {
                 setImportOpenDialog(true);
                 break;
             case 'iphone':
-                handleSubmitOpenCallback()
+                handleSubmitOpenCallback();
                 break;
             default:
                 break;
@@ -197,7 +197,7 @@ const TgUser = () => {
                 setImportOpenDialog(value);
                 break;
             case 'iphone':
-                handleSubmitCloseCallback(value)
+                handleSubmitCloseCallback(value);
                 break;
             default:
                 break;
@@ -294,7 +294,7 @@ const TgUser = () => {
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <>
+                                                    <div style={item.key === 'active' ? { width: '220px' } : {}}>
                                                         <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
                                                             聊天室
                                                         </Button>
@@ -304,7 +304,7 @@ const TgUser = () => {
                                                         <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
                                                             删除
                                                         </Button>
-                                                    </>
+                                                    </div>
                                                 ) : (
                                                     ''
                                                 )}

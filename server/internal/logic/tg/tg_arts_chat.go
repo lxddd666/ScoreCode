@@ -204,7 +204,7 @@ func setEmoJiToRedis(ctx context.Context, res []*tgin.TgGetEmojiGroupModel) erro
 	return nil
 }
 
-// TgSendReaction 发送消息动作
+// TgSendReaction 消息点赞
 func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error) {
 	// 检查是否登录
 	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {

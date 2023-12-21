@@ -30,7 +30,10 @@ type TgFoldersInsertFields struct {
 
 // TgFoldersEditInp 修改/新增tg分组
 type TgFoldersEditInp struct {
-	entity.TgFolders
+	Id          uint64  `json:"id"         description:""`
+	FolderName  string  `json:"folderName" description:"分组名称"`
+	MemberCount int     `json:"memberCount" description:"分组名称"`
+	Accounts    []int64 `json:"accounts"    description:"账号"`
 }
 
 func (in *TgFoldersEditInp) Filter(ctx context.Context) (err error) {

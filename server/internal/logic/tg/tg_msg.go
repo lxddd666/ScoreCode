@@ -83,6 +83,11 @@ func (s *sTgMsg) List(ctx context.Context, in *tgin.TgMsgListInp) (list []*tgin.
 		mod = mod.Where(dao.TgMsg.Columns().SendStatus, in.SendStatus)
 	}
 
+	// 消息已读
+	if in.Read == 1 {
+
+	}
+
 	mod = mod.WhereIn(dao.TgMsg.Columns().TgId, tgIds)
 	totalCount, err = mod.Clone().Count()
 	if err != nil {

@@ -26,7 +26,7 @@ import SearchForm from './searchFrom';
 
 import { getTgIncreaseFansCronListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
-import { columns } from './conig';
+import { columns } from './config';
 
 // 涨粉任务
 const TgIncreaseFansCron = () => {
