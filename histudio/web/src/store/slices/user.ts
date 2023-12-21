@@ -461,6 +461,7 @@ export function setAdminInfoError(response: any) {
     };
 }
 
+// 获取 后台用户信息列表
 export function getUserList(queryParam: String) {
     return async () => {
         try {

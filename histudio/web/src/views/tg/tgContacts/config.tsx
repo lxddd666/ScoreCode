@@ -8,10 +8,10 @@ export const columns = [
         title: 'Tg Id',
         key: 'tgId'
     },
-    {
-        title: 'AccessHash',
-        key: 'accessHash'
-    },
+    // {
+    //     title: 'AccessHash',
+    //     key: 'accessHash'
+    // },
     {
         title: 'Username',
         key: 'username'
@@ -20,14 +20,14 @@ export const columns = [
         title: 'FirstName',
         key: 'firstName'
     },
-    {
-        title: 'LastName',
-        key: 'lastName'
-    },
-    {
-        title: 'Phone',
-        key: 'phone'
-    },
+    // {
+    //     title: 'LastName',
+    //     key: 'lastName'
+    // },
+    // {
+    //     title: 'Phone',
+    //     key: 'phone'
+    // },
     {
         title: 'Type',
         key: 'type'

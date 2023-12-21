@@ -15,8 +15,15 @@ import {
     Checkbox,
     // Chip,
     Pagination,
-    // Autocomplete
+    Avatar,
+    Tooltip,
+    IconButton
 } from '@mui/material';
+import DetailsIcon from '@mui/icons-material/Details';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
 import { useDispatch, useSelector } from 'store';
 import { useHeightComponent } from 'utils/tools';
 // import { createFilterOptions } from '@mui/material/Autocomplete';
@@ -115,9 +122,33 @@ const TgContacts = () => {
     // id筛选
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
 
-    const renderTable = (value: any, key: any) => {
+    const renderTable = (value: any, key: any, item: any) => {
         let temp: any = '';
-        if (key === 'accountStatus') {
+        if (key === 'firstName') {
+            temp = <div className={styles.tablesColumns}>
+                <div className={styles.avatars}>
+                    <StyledBadge
+                        overlap="circular"
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        variant="dot"
+                        badgeColor={item.isOnline === 1 ? '#44b700' : 'red'}
+                    >
+                        {/* <Avatar alt="Remy Sharp" src="https://berrydashboard.io/assets/avatar-1-8ab8bc8e.png"> */}
+                        <Avatar alt="Remy Sharp" src={item.avatar}>
+                            {item.lastName.charAt(0).toUpperCase() || '-'}
+                        </Avatar>
+                    </StyledBadge>
+                </div>
+                <div className={styles.info}>
+                    <div className={styles.titles}>
+                        <p>{item.firstName}</p>
+                        <p style={{ marginLeft: '5px' }}>{item.lastName}</p>
+                    </div>
+                    <div style={{ fontSize: '12px' }}>phone:{item.phone}</div>
+                </div>
+            </div>
+        }
+        else if (key === 'accountStatus') {
             temp = value;
         } else if (key === 'isOnline') {
             temp = value;
@@ -208,21 +239,27 @@ const TgContacts = () => {
                                     {columns.map((item) => {
                                         return (
                                             <TableCell align="center" key={item.key}>
-                                                {renderTable(row[item.key], item.key)}
+                                                {renderTable(row[item.key], item.key, row)}
 
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <div  className={styles.btnList}>
-                                                        <Button size="small" variant="contained" >
-                                                            编辑
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
-                                                            删除
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            详情
-                                                        </Button>
+                                                    <div className={styles.btnList}>
+                                                        <IconButton>
+                                                            <Tooltip title='编辑' placement="top">
+                                                                <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='删除' placement="top">
+                                                                <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='详情' placement="top">
+                                                                <DetailsIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
                                                     </div>
                                                 ) : (
                                                     ''
@@ -274,5 +311,35 @@ const FormattedMessageTitle = () => {
         </div>
     );
 };
-
+interface StyledBadgeProps {
+    badgeColor?: string; // 这是你的自定义属性
+}
+const StyledBadge = styled(Badge)<StyledBadgeProps>(({ theme, badgeColor }) => ({
+    '& .MuiBadge-badge': {
+        backgroundColor: badgeColor || '#44b700',
+        color: badgeColor || '#44b700',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+        '&::after': {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            animation: 'ripple 1.2s infinite ease-in-out',
+            border: '1px solid currentColor',
+            content: '""',
+        },
+    },
+    '@keyframes ripple': {
+        '0%': {
+            transform: 'scale(.8)',
+            opacity: 1,
+        },
+        '100%': {
+            transform: 'scale(2.4)',
+            opacity: 0,
+        },
+    },
+}));
 export default memo(TgContacts)

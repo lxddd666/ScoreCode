@@ -20,8 +20,17 @@ import {
     Checkbox,
     Chip,
     Pagination,
-    Autocomplete
+    Autocomplete,
+    Avatar,
+    Tooltip,
+    IconButton
 } from '@mui/material';
+// import DeleteIcon from '@mui/icons-material/Delete';
+import ChatIcon from '@mui/icons-material/Chat';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
 import { useDispatch, useSelector, shallowEqual } from 'store';
 import { useHeightComponent } from 'utils/tools';
 import { createFilterOptions } from '@mui/material/Autocomplete';
@@ -32,6 +41,7 @@ import FileUpload from './upload';
 import SubmitDialog from './submitDialog';
 
 import { getTgUserListAction } from 'store/slices/tg';
+
 import axios from 'utils/axios';
 import { columns, accountStatus, isOnline } from './config';
 
@@ -99,6 +109,7 @@ const TgUser = () => {
             console.log('分组数据请求失败');
         }
     };
+
     // table多选all操作
     const handleSelectAllClick = (event: any) => {
         if (event.target.checked) {
@@ -129,16 +140,45 @@ const TgUser = () => {
     // id筛选
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
 
-    const renderTable = (value: any, key: any) => {
+    const renderTable = (value: any, key: any, item: any) => {
+        // console.log(value, key, item);
+
         let temp: any = '';
-        if (key === 'accountStatus') {
+        if (key === 'firstName') {
+            temp = <div className={styles.tablesColumns}>
+                <div className={styles.avatars}>
+                    <StyledBadge
+                        overlap="circular"
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        variant="dot"
+                        badgeColor={item.isOnline === 1 ? '#44b700' : 'red'}
+                    >
+                        {/* <Avatar alt="Remy Sharp" src="https://berrydashboard.io/assets/avatar-1-8ab8bc8e.png"> */}
+                        <Avatar alt="Remy Sharp" src={item.photo}>
+                            {item.lastName.charAt(0).toUpperCase()}
+                        </Avatar>
+                    </StyledBadge>
+                </div>
+                <div className={styles.info}>
+                    <div className={styles.titles}>
+                        <p>{item.firstName}</p>
+                        <p style={{ marginLeft: '5px' }}>{item.lastName}</p>
+                    </div>
+                    <div style={{ fontSize: '12px' }}>phone:{item.phone}</div>
+                </div>
+            </div>
+        }
+        else if (key === 'accountStatus') {
             temp = <Chip label={accountStatus(value)} color="primary" />;
         } else if (key === 'isOnline') {
-            temp = <Chip label={isOnline(value)} color="primary" />;
+            temp = <Chip label={isOnline(value)} sx={{ bgcolor: `${item.isOnline === 1 ? '#44b700' : 'red'}`, color: 'white' }} />;
         } else {
             temp = value;
         }
-        return temp;
+        // return <Tooltip title={temp} placement="top-start">
+        //     <p>{temp}</p>
+        // </Tooltip>;
+        return temp
     };
 
     // 分页事件
@@ -289,21 +329,30 @@ const TgUser = () => {
                                     {columns.map((item) => {
                                         return (
                                             <TableCell align="center" key={item.key}>
-                                                {renderTable(row[item.key], item.key)}
+                                                {renderTable(row[item.key], item.key, row)}
 
                                                 {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
                                                     <div style={item.key === 'active' ? { width: '220px' } : {}}>
-                                                        <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
+                                                        <IconButton aria-label="delete" onClick={(e) => chatRoomToNavica(row)}>
+                                                            <Tooltip title='聊天室' placement="top">
+                                                                <ChatIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        {/* <Button size="small" variant="contained">
                                                             聊天室
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
-                                                            编辑
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            删除
-                                                        </Button>
+                                                        </Button> */}
+                                                        <IconButton style={{ marginLeft: '5px' }}>
+                                                            <Tooltip title='编辑' placement="top">
+                                                                <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='删除' placement="top">
+                                                                <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
                                                     </div>
                                                 ) : (
                                                     ''
@@ -573,4 +622,36 @@ const ImportOpenDialog = (props: any) => {
         </>
     );
 };
+
+interface StyledBadgeProps {
+    badgeColor?: string; // 这是你的自定义属性
+}
+const StyledBadge = styled(Badge)<StyledBadgeProps>(({ theme, badgeColor }) => ({
+    '& .MuiBadge-badge': {
+        backgroundColor: badgeColor || '#44b700',
+        color: badgeColor || '#44b700',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+        '&::after': {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            animation: 'ripple 1.2s infinite ease-in-out',
+            border: '1px solid currentColor',
+            content: '""',
+        },
+    },
+    '@keyframes ripple': {
+        '0%': {
+            transform: 'scale(.8)',
+            opacity: 1,
+        },
+        '100%': {
+            transform: 'scale(2.4)',
+            opacity: 0,
+        },
+    },
+}));
 export default memo(TgUser);

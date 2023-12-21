@@ -86,7 +86,7 @@ const Chat = () => {
     }, [])
     useEffect(() => {
         if (loginInfo.phone && loginInfo.phone !== '') {
-            console.log('dispatch', loginInfo);
+            // console.log('dispatch', loginInfo);
             dispatch(getTgArtsFoldersAction({ account: loginInfo.phone }))
             dispatch(getTgFoldersMessageAction({ account: loginInfo.phone }))
             setInputDisable(true)
@@ -114,12 +114,6 @@ const Chat = () => {
 
     }, [tgFoldersMeeageHistoryList])
 
-    useEffect(() => {
-        console.log(divRef.current);
-        window.addEventListener('scroll', (event: any) => {
-            console.log('开始滚动了', event)
-        });
-    }, [divRef])
     const tgArtsLogin = async () => {
         console.log('111');
 
