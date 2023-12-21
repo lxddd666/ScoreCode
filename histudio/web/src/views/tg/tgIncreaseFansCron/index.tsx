@@ -15,8 +15,14 @@ import {
     Checkbox,
     // Chip,
     Pagination,
-    // Autocomplete
+    Tooltip,
+    IconButton
 } from '@mui/material';
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import TimerOffIcon from '@mui/icons-material/TimerOff';
+import DetailsIcon from '@mui/icons-material/Details';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'store';
 import { useHeightComponent } from 'utils/tools';
 // import { createFilterOptions } from '@mui/material/Autocomplete';
@@ -134,8 +140,8 @@ const TgIncreaseFansCron = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
-     // 分页数量
-     const PaginationCount = (count: number) => {
+    // 分页数量
+    const PaginationCount = (count: number) => {
         return typeof count === 'number' ? Math.ceil(count / 10) : 1;
     }
 
@@ -215,21 +221,31 @@ const TgIncreaseFansCron = () => {
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
                                                     <div style={item.key === 'active' ? { width: '400px' } : {}}>
-                                                        <Button size="small" variant="contained" >
-                                                            编辑
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
-                                                            暂停
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            启动
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            删除
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            详情
-                                                        </Button>
+                                                        <IconButton>
+                                                            <Tooltip title='编辑' placement="top">
+                                                                <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton>
+                                                            <Tooltip title='暂停' placement="top">
+                                                                <TimerOffIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton>
+                                                            <Tooltip title='启动' placement="top">
+                                                                <PlayCircleFilledWhiteIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='删除' placement="top">
+                                                                <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='详情' placement="top">
+                                                                <DetailsIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
                                                     </div>
                                                 ) : (
                                                     ''
@@ -237,19 +253,6 @@ const TgIncreaseFansCron = () => {
                                             </TableCell>
                                         );
                                     })}
-                                    {/* <TableCell align="center">{row.memberUsername}</TableCell>
-                                    <TableCell align="center">{row.username}</TableCell>
-                                    <TableCell align="center">{row.firstName}</TableCell>
-                                    <TableCell align="center">{row.phone}</TableCell>
-                                    <TableCell align="center">{row.folderId}</TableCell>
-                                    <TableCell align="center">{row.lastName}</TableCell>
-                                    <TableCell align="center">{row.accountStatus}</TableCell>
-                                    <TableCell align="center">{row.isOnline}</TableCell>
-                                    <TableCell align="center">{row.proxyAddress}</TableCell>
-                                    <TableCell align="center">{row.lastLoginTime}</TableCell>
-                                    <TableCell align="center">{row.comment}</TableCell>
-                                    <TableCell align="center">{row.createdAt}</TableCell>
-                                    <TableCell align="center">{row.updatedAt}</TableCell> */}
                                 </TableRow>
                             ))}
                         </TableBody>
