@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gratahistudio-headless
+spec:
+  ports:
+    - name: http
+      port: 4887
+      protocol: TCP
+      targetPort: 4887
+  selector:
+    app/name: gratahistudio
+  type: NodePort
