@@ -37,7 +37,7 @@ func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (lis
 	mod := s.Model(ctx)
 
 	if in.TgUserId != 0 {
-		mod = mod.LeftJoin("tg_user_contacts tuc", " on tg_contacts.id = tuc.tg_contacts_id").Where("tuc.tg_user_id", in.TgUserId)
+		mod = mod.LeftJoin("tg_user_contacts tuc", " tg_contacts.id = tuc.tg_contacts_id").Where("tuc.tg_user_id", in.TgUserId)
 	}
 
 	// 查询phone
@@ -65,7 +65,7 @@ func (s *sTgContacts) List(ctx context.Context, in *tgin.TgContactsListInp) (lis
 		return
 	}
 
-	if err = mod.Fields(tgin.TgContactsListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgContacts.Columns().Id).Scan(&list); err != nil {
+	if err = mod.LeftJoin("tg_photo tp", "tg_contacts.photo=tp.photo_id").Fields("tg_contacts.*,tp.file_url as avatar").Page(in.Page, in.PerPage).OrderDesc(dao.TgContacts.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetContactManagementListFailed}"))
 		return
 	}
@@ -176,10 +176,13 @@ func (s *sTgContacts) SyncContactCallback(ctx context.Context, in map[uint64][]*
 			model.OrgId = tgUser.OrgId
 			phones = append(phones, model.Phone)
 			go func(ctx context.Context, model *tgin.TgContactsListModel) {
-				if model.Avatar != "" {
-					service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Avatar)})
+				if model.Photo != "" {
+					service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Photo)})
 				}
-			}(ctx, model)
+			}(gctx.New(), model)
+			//if model.Photo != "" {
+			//	service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Photo)})
+			//}
 		}
 		err = dao.TgContacts.Transaction(ctx, func(ctx context.Context, tx gdb.TX) (err error) {
 			_, err = dao.TgContacts.Ctx(ctx).Fields(tgin.TgContactsInsertFields{}).Save(&list)

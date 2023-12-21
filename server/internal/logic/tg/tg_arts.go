@@ -79,7 +79,7 @@ func handleAddContact(ctx context.Context, account uint64, contact tg.Updates) (
 			}
 			if u.Photo != nil {
 				if p, flag := u.Photo.AsNotEmpty(); flag {
-					model.Avatar = gconv.String(p.PhotoID)
+					model.Photo = gconv.String(p.PhotoID)
 				}
 			}
 			contactList = append(contactList)
@@ -89,11 +89,17 @@ func handleAddContact(ctx context.Context, account uint64, contact tg.Updates) (
 		switch chat.(type) {
 		case *tg.Chat:
 			u := chat.(*tg.Chat)
-			contactList = append(contactList, &tgin.TgContactsListModel{
+			c := &tgin.TgContactsListModel{
 				TgId:     u.ID,
 				Username: u.Title,
 				Type:     2,
-			})
+			}
+			if u.Photo != nil {
+				if photo, ok := u.Photo.AsNotEmpty(); ok {
+					c.Photo = gconv.String(photo.PhotoID)
+				}
+			}
+			contactList = append(contactList, c)
 		}
 	}
 
@@ -144,7 +150,7 @@ func (s *sTgArts) TgGetContacts(ctx context.Context, account uint64) (list []*tg
 			}
 			if t.Photo != nil {
 				if p, flag := t.Photo.AsNotEmpty(); flag == true {
-					contact.Avatar = gconv.String(p.PhotoID)
+					contact.Photo = gconv.String(p.PhotoID)
 				}
 			}
 

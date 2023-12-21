@@ -96,6 +96,7 @@ type TgContactsListModel struct {
 	FirstName  string         `json:"firstName" dc:"First Name"`
 	LastName   string         `json:"lastName"  dc:"Last Name"`
 	Avatar     string         `json:"avatar"    dc:"头像"`
+	Photo      string         `json:"photo"     dc:"头像"`
 	Phone      string         `json:"phone"     dc:"phone"`
 	Type       int            `json:"type"      dc:"type"`
 	OrgId      int64          `json:"orgId"     dc:"organization id"`

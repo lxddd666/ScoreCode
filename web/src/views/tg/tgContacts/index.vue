@@ -1,11 +1,11 @@
 <template>
   <div>
     <n-card :bordered="false" class="proCard">
-         <div class="n-layout-page-header">
-           <n-card :bordered="false" title="联系人管理">
-             <!--  这是由系统生成的CURD表格，你可以将此行注释改为表格的描述 -->
-           </n-card>
-         </div>
+      <div class="n-layout-page-header">
+        <n-card :bordered="false" title="联系人管理">
+          <!--  这是由系统生成的CURD表格，你可以将此行注释改为表格的描述 -->
+        </n-card>
+      </div>
 
       <BasicForm
         @register="register"
@@ -221,8 +221,6 @@
     message.loading('正在导出列表...', { duration: 1200 });
     Export(searchFormRef.value?.formModel);
   }
-
-
 </script>
 
 <style lang="less" scoped></style>
