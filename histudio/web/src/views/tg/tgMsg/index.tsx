@@ -15,8 +15,12 @@ import {
     Checkbox,
     // Chip,
     Pagination,
-    // Autocomplete
+    Tooltip,
+    IconButton
 } from '@mui/material';
+import DetailsIcon from '@mui/icons-material/Details';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'store';
 import { useHeightComponent } from 'utils/tools';
 // import { createFilterOptions } from '@mui/material/Autocomplete';
@@ -138,8 +142,8 @@ const TgMsg = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
-     // 分页数量
-     const PaginationCount = (count: number) => {
+    // 分页数量
+    const PaginationCount = (count: number) => {
         return typeof count === 'number' ? Math.ceil(count / 10) : 1;
     }
 
@@ -219,15 +223,21 @@ const TgMsg = () => {
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
                                                     <div className={styles.btnList}>
-                                                        <Button size="small" variant="contained" >
-                                                            编辑
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
-                                                            删除
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            详情
-                                                        </Button>
+                                                        <IconButton>
+                                                            <Tooltip title='编辑' placement="top">
+                                                                <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='删除' placement="top">
+                                                                <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                            <Tooltip title='详情' placement="top">
+                                                                <DetailsIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
                                                     </div>
                                                 ) : (
                                                     ''
