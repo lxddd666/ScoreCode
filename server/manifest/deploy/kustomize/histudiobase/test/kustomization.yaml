@@ -1,0 +1,12 @@
+resources:
+- ../base
+
+configMapGenerator:
+  - name: grata-config
+    files:
+      - config.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+namespace: arts-system
