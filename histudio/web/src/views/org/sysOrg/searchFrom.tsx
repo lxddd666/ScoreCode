@@ -61,11 +61,11 @@ const SearchForm = (props: any) => {
                             margin="dense"
                             id="standard-required"
                             inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.initiator || ''}
+                            value={formData.name || ''}
                             onChange={(event) =>
                                 setFormData({
                                     ...formData,
-                                    initiator: event.target.value
+                                    name: event.target.value
                                 })
                             }
                             label="请输入公司名称"
@@ -89,11 +89,11 @@ const SearchForm = (props: any) => {
                             margin="dense"
                             id="standard-required"
                             inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.sendStatus || ''}
+                            value={formData.status || ''}
                             onChange={(event) =>
                                 setFormData({
                                     ...formData,
-                                    sendStatus: event.target.value
+                                    status: event.target.value
                                 })
                             }
                             label="请选择公司状态"
