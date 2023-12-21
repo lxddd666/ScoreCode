@@ -8,6 +8,7 @@ import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { TablerIcon } from '@tabler/icons';
 import { CartStateProps } from './cart';
 import { UserStateProps } from './user';
+import {OrgStateProps} from "./org";
 import { blacklistStateProps } from './blacklist';
 import { CronStateProps } from './cron';
 import { SubcronStateProps } from './subcron';
@@ -112,6 +113,7 @@ export interface DefaultRootStateProps {
     snackbar: SnackbarProps;
     cart: CartStateProps;
     user: UserStateProps;
+    org: OrgStateProps;
     whats: WhatsStateProps;
     log: LogStateProps;
     loginlog: LoginlogStateProps;

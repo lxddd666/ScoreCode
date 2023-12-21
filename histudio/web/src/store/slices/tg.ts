@@ -19,7 +19,6 @@ const initialState: DefaultRootStateProps['tg'] = {
     tgKeepTaskList: [],
     tgContactsList: [],
     tgMsgList: [],
-
     // 聊天室 会话分组
     tgArtsFolders: [],
     tgFoldersMessageList:[],

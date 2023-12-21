@@ -17,6 +17,7 @@ import loginlogReducer from './slices/loginlog';
 import servelogReducer from './slices/servelog';
 import smslogReducer from './slices/smslog';
 import tgReducer from './slices/tg';
+import orgReducer from './slices/org';
 import scriptReducer from './slices/script';
 
 // ==============================|| COMBINE REDUCER ||============================== //
@@ -42,6 +43,7 @@ const reducer = combineReducers({
     cron: cronReducer,
     subcron: subcronReducer,
     tg: tgReducer,
+    org: orgReducer,
     script: scriptReducer
 });
 
