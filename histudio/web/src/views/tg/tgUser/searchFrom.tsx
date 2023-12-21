@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -15,11 +15,9 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
-// import { DatePicker } from '@mui/x-date-pickers';
-import {accountStatusArr, isOnlineArr} from './config';
-// import { LocalizationProvider } from '@mui/x-date-pickers';
-// import AdapterDateFns from '@mui/lab/AdapterDateFns';
-// import AdapterDateFns from '@mui/x-date-pickers/AdapterDateFns';
+import { accountStatusArr, isOnlineArr } from './config';
+import { useSelector, useDispatch } from 'store';
+import { getUserList } from 'store/slices/user';
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
@@ -39,21 +37,45 @@ const SearchForm = (props: any) => {
         phone: undefined,
         proxyAddress: undefined,
         accountStatus: undefined,
-        isOnline: undefined
+        isOnline: undefined,
+        memberId: undefined
     })
     const [open, toggleOpen] = useState(false);
-    const [dialogValue, setDialogValue] = useState({
-        title: '',
-        year: ''
-    });
-
+    const [dialogValue, setDialogValue] = useState({ title: '', });
+    const [userListRow, setUserListRow] = useState<any>([]);
+    const dispatch = useDispatch();
     const handleClose = () => {
         setDialogValue({
-            title: '',
-            year: ''
+            title: ''
         });
 
         toggleOpen(false);
+    };
+    const { userList, adminInfo } = useSelector((state) => state.user);
+    useEffect(() => {
+        // console.log(adminInfo.id);
+        if (adminInfo.id) {
+            const updatedParams = [
+                `page=${1}`,
+                `pageSize=${9999}`,
+                `roleId=${adminInfo.id}`,
+            ];
+            fetchData(updatedParams)
+        }
+    }, [adminInfo]);
+    useEffect(() => {
+        if (userList?.data?.list) {
+            setUserListRow(userList?.data?.list || [])
+        }
+    }, [userList])
+
+    const fetchData = async (queries: String[]) => {
+        try {
+            await dispatch(getUserList(queries.filter((query) => !query.endsWith('=') && query !== 'status=0').join('&')));
+        } catch (error: any) {
+            console.log('失败');
+
+        }
     };
 
     // const onAutocompleteChange = (event: any, newValue: any) => {
@@ -82,8 +104,7 @@ const SearchForm = (props: any) => {
     const handleSubmit = (event: any) => {
         event.preventDefault();
         let obj: any = {
-            title: dialogValue.title,
-            year: parseInt(dialogValue.year, 10)
+            title: dialogValue.title
         };
         setValue(obj);
 
@@ -98,16 +119,6 @@ const SearchForm = (props: any) => {
     };
     // 重置按钮
     const onResetClick = (e: any) => {
-        // setValue({});
-        // setFormData({
-        //     username: undefined,
-        //     firstName: undefined,
-        //     lastName: undefined,
-        //     phone: undefined,
-        //     proxyAddress: undefined,
-        //     accountStatus: undefined,
-        //     isOnline: undefined
-        // })
         handleSearchFormData({});
         let obj = {
             folderId: undefined,
@@ -117,7 +128,8 @@ const SearchForm = (props: any) => {
             phone: undefined,
             proxyAddress: undefined,
             accountStatus: undefined,
-            isOnline: undefined
+            isOnline: undefined,
+            memberId: undefined
         };
         setValue({});
         setFormData(obj);
@@ -417,20 +429,40 @@ const SearchForm = (props: any) => {
                             }}
                         /></Item>
                     </Grid>
-                    {/* <Grid item >
-                        <Item>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}><DatePicker
-                                label="创建时间"
-                                value={formData.date}
-                                minDate={new Date('2017-01-01')}
-                                onChange={(event: any) =>
-                                    setFormData({
-                                        ...formData,
-                                        date: event.target.value
-                                    })}
-                                renderInput={(params: any) => <TextField {...params} />}
-                            /> </LocalizationProvider></Item>
-                    </Grid> */}
+                    <Grid item >
+                        <Item> <TextField
+                            select
+                            sx={{ width: 300 }}
+                            autoFocus
+                            margin="dense"
+                            id="standard-required"
+                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                            value={formData.memberId || ''}
+                            onChange={(event) =>
+                                setFormData({
+                                    ...formData,
+                                    memberId: event.target.value
+                                })
+                            }
+                            label="请选择员工"
+                            type="text"
+                            variant="outlined"
+                            size="small"
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        >
+
+                            {userListRow && userListRow.map((option: any) => (
+                                <MenuItem key={option.id} value={option.id}>
+                                    {option.username}
+                                </MenuItem>
+                            ))}</TextField></Item>
+                    </Grid>
                     <Grid item >
                         <Item><Stack direction="row" spacing={2} style={{ marginLeft: '10px', height: '30px' }}>
                             <Button size="small" variant="outlined" startIcon={<SearchIcon />} onClick={onSearchClick}>

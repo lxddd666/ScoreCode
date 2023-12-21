@@ -9,21 +9,21 @@ export const columns = [
         key: 'username'
     },
     {
-        title: '名字',
+        title: '用户信息',
         key: 'firstName'
     },
-    {
-        title: '姓氏',
-        key: 'lastName'
-    },
-    {
-        title: '手机号',
-        key: 'phone'
-    },
-    {
-        title: '账号头像',
-        key: 'photo'
-    },
+    // {
+    //     title: '姓氏',
+    //     key: 'lastName'
+    // },
+    // {
+    //     title: '手机号',
+    //     key: 'phone'
+    // },
+    // {
+    //     title: '账号头像',
+    //     key: 'photo'
+    // },
     {
         title: '账号状态',
         key: 'accountStatus'
