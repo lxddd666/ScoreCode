@@ -677,6 +677,7 @@
 	"setting.cron.tg-contacts" : "Contact Management",
 	"setting.cron.tg-msg" : "Message record",
 	"setting.cron.sys-org": "Company information",
+	"setting.cron.sys-proxy": "Proxy Management",
 	"setting.crongroup.superior-id" : "Superior ID",
 	"setting.crongroup.group-name" : "Group Name",
 	"setting.crongroup.is-default" : "Default",
