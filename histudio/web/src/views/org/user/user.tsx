@@ -59,7 +59,7 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 
 import { GetComparator, EnhancedTableHeadProps, HeadCell, ArrangementOrder, KeyedObject } from 'types';
-import logo from 'assets/images/general/logo.png';
+// import logo from 'assets/images/general/logo.png';
 
 // ui-components
 import Chip from 'ui-component/extended/Chip';
@@ -104,6 +104,10 @@ import flattenNestedObjects from 'utils/flattenNestedObjects';
 import { gridSpacing } from 'store/constant';
 import DynamicPermissionComponent from 'ui-component/general/DynamicPermissionComponent';
 import { AccessPermissions, statusFlatOptions } from 'constant/general';
+
+import styles from './index.module.scss'
+import { styled } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
 
 // START handle last active date
 function handleLastActiveDate(lastActiveDate: string) {
@@ -176,36 +180,36 @@ function stableSort(array: UserListData[], comparator: (a: UserListData, b: User
 
 // table header options
 const headCells: HeadCell[] = [
-    {
-        id: 'id',
-        numeric: false,
-        label: 'user.user-id',
-        align: 'center'
-    },
+    // {
+    //     id: 'id',
+    //     numeric: false,
+    //     label: 'user.user-id',
+    //     align: 'center'
+    // },
     {
         id: 'username',
         numeric: false,
         label: 'user.username',
         align: 'center'
     },
-    {
-        id: 'realName',
-        numeric: false,
-        label: 'user.real-name',
-        align: 'center'
-    },
-    {
-        id: 'avatar',
-        numeric: false,
-        label: 'user.avatar',
-        align: 'center'
-    },
-    {
-        id: 'mobile',
-        numeric: true,
-        label: 'user.mobile-number',
-        align: 'center'
-    },
+    // {
+    //     id: 'realName',
+    //     numeric: false,
+    //     label: 'user.real-name',
+    //     align: 'center'
+    // },
+    // {
+    //     id: 'avatar',
+    //     numeric: false,
+    //     label: 'user.avatar',
+    //     align: 'center'
+    // },
+    // {
+    //     id: 'mobile',
+    //     numeric: true,
+    //     label: 'user.mobile-number',
+    //     align: 'center'
+    // },
     {
         id: 'roleName',
         numeric: false,
@@ -1130,7 +1134,7 @@ const User = () => {
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell
+                                        {/* <TableCell
                                             component="th"
                                             id={labelId}
                                             scope="row"
@@ -1143,10 +1147,34 @@ const User = () => {
                                             >
                                                 {row.id || '-'}
                                             </Typography>
+                                        </TableCell> */}
+                                        <TableCell>
+                                            <div className={styles.tablesColumns}>
+                                                <div className={styles.avatars}>
+                                                    <StyledBadge
+                                                        overlap="circular"
+                                                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                                        variant="dot"
+                                                        badgeColor={row.status === 1 ? '#44b700' : 'red'}
+                                                    >
+                                                        {/* <Avatar alt="Remy Sharp" src="https://berrydashboard.io/assets/avatar-1-8ab8bc8e.png"> */}
+                                                        <Avatar alt="Remy Sharp" src={row.avatar}>
+                                                            {row.username.charAt(0).toUpperCase()}
+                                                        </Avatar>
+                                                    </StyledBadge>
+                                                </div>
+                                                <div className={styles.info}>
+                                                    <div className={styles.titles}>
+                                                        <p>{row.realName}</p>
+                                                        <p style={{ marginLeft: '5px' }}>{row.username}</p>
+                                                    </div>
+                                                    <div style={{ fontSize: '12px' }}>phone:{row.mobile || "-"}</div>
+                                                </div>
+                                            </div>
                                         </TableCell>
-                                        <TableCell>{row.username}</TableCell>
-                                        <TableCell>{row.realName}</TableCell>
-                                        <TableCell align="center">
+                                        {/* <TableCell>{row.username}</TableCell>
+                                        <TableCell>{row.realName}</TableCell> */}
+                                        {/* <TableCell align="center">
                                             {
                                                 // Special handling avatar using HiSeven logo due to incompatible path
                                                 // Currently displaying "-" for null avatar
@@ -1159,8 +1187,8 @@ const User = () => {
                                                 )
                                             }
                                         </TableCell>
-                                        <TableCell align="center">{row.mobile || '-'}</TableCell>
-                                        <TableCell align="center">{row.roleName || '-'}</TableCell>
+                                        <TableCell align="center">{row.mobile || '-'}</TableCell>*/}
+                                        <TableCell align="center">{row.roleName || '-'}</TableCell> 
                                         <TableCell align="center">{row.deptName || '-'}</TableCell>
                                         <TableCell align="center">
                                             {row.status === 1 && (
@@ -1238,10 +1266,10 @@ const User = () => {
                                                     {intl.formatMessage({ id: 'user.more' })}
                                                 </Button>
                                                 <Menu
-                                                    id={`qrqr-${row.id}`} 
+                                                    id={`qrqr-${row.id}`}
                                                     anchorEl={anchorElMap[row.id]}
                                                     keepMounted
-                                                    open={Boolean(anchorElMap[row.id])} 
+                                                    open={Boolean(anchorElMap[row.id])}
                                                     onClose={handleMenuClose}
                                                 >
                                                     <MenuItem onClick={() => handleResetModal(row.id)}>
@@ -1586,13 +1614,13 @@ const User = () => {
                         <div id="Qr">{isQrModalOpen && <QRCodeSVG value={`${currentUrl}/register/inviteCode/${qr}`} size={300} />}</div>
                     </Grid>
                     <Grid container justifyContent="center">
-                    <OutlinedInput
+                        <OutlinedInput
                             id="test-input"
                             type="text"
                             value={`${currentUrl}/register/inviteCode/${qr}`}
                             name="inviteCodetest"
                             readOnly
-                            style={{ width: '50%', height: '70%'}} 
+                            style={{ width: '50%', height: '70%' }}
                         />
                         <Grid item>
                             <Button variant="outlined" color="primary" onClick={handleCopyUrl}>
@@ -2108,5 +2136,35 @@ const User = () => {
         </MainCard>
     );
 };
-
+interface StyledBadgeProps {
+    badgeColor?: string; // 这是你的自定义属性
+}
+const StyledBadge = styled(Badge)<StyledBadgeProps>(({ theme, badgeColor }) => ({
+    '& .MuiBadge-badge': {
+        backgroundColor: badgeColor || '#44b700',
+        color: badgeColor || '#44b700',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+        '&::after': {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            animation: 'ripple 1.2s infinite ease-in-out',
+            border: '1px solid currentColor',
+            content: '""',
+        },
+    },
+    '@keyframes ripple': {
+        '0%': {
+            transform: 'scale(.8)',
+            opacity: 1,
+        },
+        '100%': {
+            transform: 'scale(2.4)',
+            opacity: 0,
+        },
+    },
+}));
 export default User;
