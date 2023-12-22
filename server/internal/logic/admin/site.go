@@ -74,7 +74,7 @@ func (s *sAdminSite) Register(ctx context.Context, in *adminin.RegisterInp) (res
 		if in.OrgInfo.Code == "" {
 			in.OrgInfo.Code = grand.S(5)
 		}
-		id, err := service.SysOrg().Edit(ctx, &tgin.SysOrgEditInp{
+		id, err := service.SysOrg().Add(ctx, &tgin.SysOrgEditInp{
 			SysOrg: entity.SysOrg{
 				Name:   in.OrgInfo.Name,
 				Phone:  in.OrgInfo.Phone,
