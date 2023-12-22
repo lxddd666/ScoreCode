@@ -12,7 +12,8 @@ import { DefaultRootStateProps } from 'types';
 
 const initialState: DefaultRootStateProps['org'] = {
     error: null,
-    orgList: []
+    orgList: [],
+    proxyList: []
 };
 
 const slice = createSlice({
@@ -25,6 +26,10 @@ const slice = createSlice({
         //公司信息列表
         emitOrgList(state, action) {
             state.orgList = action.payload;
+        },
+        //代理管理列表
+        emitProxyList(state, action) {
+            state.proxyList = action.payload;
         }
     }
 });
@@ -33,7 +38,7 @@ const slice = createSlice({
 export default slice.reducer;
 
 // 异步请求提交----------------------------------------------------------------------
-// Org请求
+// 公司列表请求
 export function getOrgListAction(queryParam?: any) {
     return async () => {
         try {
@@ -46,3 +51,17 @@ export function getOrgListAction(queryParam?: any) {
         }
     };
 }
+//代理管理列表请求
+export function getProxyListAction(queryParam?: any) {
+    return async () => {
+        try {
+            const res = await axios.get(`/admin/sysProxy/list`, {
+                params: queryParam
+            });
+            dispatch(slice.actions.emitProxyList(res.data));
+        } catch (error) {
+            dispatch(slice.actions.hasError(error));
+        }
+    };
+}
+

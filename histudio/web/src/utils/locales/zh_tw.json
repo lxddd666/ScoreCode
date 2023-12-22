@@ -678,6 +678,7 @@
 	"setting.cron.tg-contacts" : "聯絡人管理",
 	"setting.cron.tg-msg" : "訊息記錄",
 	"setting.cron.sys-org": "公司資訊",
+	"setting.cron.sys-proxy": "代理管理",
 	"setting.crongroup.superior-id" : "上級ID",
 	"setting.crongroup.group-name" : "分組名稱",
 	"setting.crongroup.is-default" : "是否預設",
