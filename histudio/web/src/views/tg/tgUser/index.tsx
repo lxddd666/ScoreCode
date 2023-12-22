@@ -44,6 +44,7 @@ import { getTgUserListAction } from 'store/slices/tg';
 
 import axios from 'utils/axios';
 import { columns, accountStatus, isOnline } from './config';
+import FormDialog from './formDialog'
 
 const TgUser = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
@@ -60,6 +61,10 @@ const TgUser = () => {
     const [handleSubmitOpenConfig, setHandleSubmitOpenConfig] = useState({
         title: ''
     });
+    const [formDialogConfig, setFormDialogConfig] = useState({
+        title: '',
+        edit: false
+    })
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -212,8 +217,8 @@ const TgUser = () => {
     const handleSubmitOpenCallback = useCallback(() => {
         setHandleSubmitOpen(true);
         setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' });
-    }, []);
-    const onBtnOpenList = (active: String) => {
+    }, [handleSubmitOpen]);
+    const onBtnOpenList = useCallback((active: String) => {
         switch (active) {
             case 'import':
                 setImportOpenDialog(true);
@@ -221,16 +226,19 @@ const TgUser = () => {
             case 'iphone':
                 handleSubmitOpenCallback();
                 break;
+            case 'bind':
+                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定用户' });
+                break;
             default:
                 break;
         }
-    };
+    }, []);
     // 弹窗关闭
     const handleSubmitCloseCallback = useCallback((value: any) => {
         setHandleSubmitOpen(value);
     }, []);
     const onBtnCloseList = (type: String, value: any) => {
-        console.log(type, value);
+        // console.log(type, value);
 
         switch (type) {
             case 'import':
@@ -238,6 +246,9 @@ const TgUser = () => {
                 break;
             case 'iphone':
                 handleSubmitCloseCallback(value);
+                break;
+            case 'bind':
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '' });
                 break;
             default:
                 break;
@@ -259,7 +270,7 @@ const TgUser = () => {
                         <Button size="small" variant="contained" disabled={true}>
                             导出
                         </Button>
-                        <Button size="small" variant="contained" disabled={true}>
+                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('bind')} >
                             绑定员工
                         </Button>
                         <Button size="small" variant="contained" disabled={true}>
@@ -379,6 +390,8 @@ const TgUser = () => {
             <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTableListActionFN} getTgSearchParams={getTgSearchParams} />
 
             <SubmitDialog open={handleSubmitOpen} config={handleSubmitOpenConfig} setOpenChangeDialog={handleSetImportOpenDialog} />
+
+            <FormDialog open={formDialogConfig.edit} config={formDialogConfig} onChangeDialogStatus={onBtnCloseList}/>
         </MainCard>
     );
 };

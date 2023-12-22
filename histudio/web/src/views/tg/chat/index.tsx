@@ -298,21 +298,34 @@ const Chat = () => {
             </div>
             <div className={styles.messageBody}>
                 <div className={styles.messageTop}>
-                    <div>
+                    <div className={styles.messageTopLeft}>
                         <Avatar alt=" " src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png" />
+                        <div className={styles.name}>
+                            <div>XXX</div>
+                            <div>三天前</div>
+                        </div>
                     </div>
                     <div className={styles.messageTopRight}>
                         <div className={styles.item}>
                             <FilterRoundedIcon style={{ fontSize: '18px' }} />
                         </div>
-                        <div className={styles.item}>
+                        {/* <div className={styles.item}>
                             <AttachFileIcon style={{ fontSize: '18px' }} />
-                        </div>
+                        </div> */}
                         <div className={styles.item}>
                             <KeyboardVoiceIcon style={{ fontSize: '18px' }} />
                         </div>
                         <div className={styles.item}>
                             <CampaignIcon style={{ fontSize: '18px' }} />
+                        </div>
+                        <div className={styles.item} style={{ fontSize: '18px', width: "120px" }}>
+                            聊天素材
+                        </div>
+                        <div className={styles.item} style={{ fontSize: '18px', width: "120px" }}>
+                            自定义话术
+                        </div>
+                        <div className={styles.item} style={{ fontSize: '18px', width: "120px" }}>
+                            话术库
                         </div>
                     </div>
                 </div>
@@ -327,9 +340,9 @@ const Chat = () => {
                         <div className={styles.item}>
                             <AttachFileIcon style={{ fontSize: '15px' }} />
                         </div>
-                        <div className={styles.item}>
+                        {/* <div className={styles.item}>
                             <KeyboardVoiceIcon style={{ fontSize: '15px' }} />
-                        </div>
+                        </div> */}
                         <div className={styles.item}>
                             <CampaignIcon style={{ fontSize: '15px' }} />
                         </div>
