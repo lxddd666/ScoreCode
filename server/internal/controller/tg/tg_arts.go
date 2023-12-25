@@ -306,3 +306,9 @@ func (c *cTgArts) GetManageChannels(ctx context.Context, req *tgarts.GetManageCh
 	err = service.TgArts().GetManageChannels(ctx, req.GetManageChannelsInp)
 	return
 }
+
+//// TestPrometheus
+//func (c *cTgArts) TestPrometheus(ctx context.Context) (err error) {
+//	prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(18818877128)).Inc()
+//	return
+//}

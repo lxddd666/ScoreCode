@@ -12,6 +12,11 @@ type ConsoleStatReq struct {
 	g.Meta `path:"/console/stat" method:"get" tags:"控制台" summary:"综合数据统计"`
 }
 
+// ConsoleGrataStatReq grata控制台统计
+type ConsoleGrataStatReq struct {
+	g.Meta `path:"/console/grataStat" method:"get" tags:"控制台" summary:"grata综合数据统计"`
+}
+
 type ConsoleStatRes struct {
 	Visits struct {
 		DayVisits float64 `json:"dayVisits"`
