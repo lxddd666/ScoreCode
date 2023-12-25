@@ -85,6 +85,39 @@
     }
 }
 
+.tablesColumns {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .info {
+        // width: 60px;
+        margin-left: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        .titles {
+            display: flex;
+            flex-direction: row;
+            height: 30px;
+            // justify-content: center;
+            align-items: center;
+            color: rgb(3, 90, 61);
+            // color: rgb(3, 106, 129);
+        }
+    }
+}
+
+.paginations {
+    width: 100%;
+    display: flex;
+    height: 40px;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+}
+
 // .css-19kzrtu {
 //     padding: 0 24px;
 //     width: calc(100vw - 440px);
