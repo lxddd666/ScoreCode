@@ -10,6 +10,7 @@ import { CartStateProps } from './cart';
 import { UserStateProps } from './user';
 import {OrgStateProps} from "./org";
 import { blacklistStateProps } from './blacklist';
+import {DictStateProps} from "./dict";
 import { CronStateProps } from './cron';
 import { SubcronStateProps } from './subcron';
 import { SnackbarProps } from './snackbar';
@@ -116,6 +117,7 @@ export interface DefaultRootStateProps {
     org: OrgStateProps;
     whats: WhatsStateProps;
     log: LogStateProps;
+    dict: DictStateProps;
     loginlog: LoginlogStateProps;
     servelog: ServelogStateProps;
     smslog: SmslogStateProps;
