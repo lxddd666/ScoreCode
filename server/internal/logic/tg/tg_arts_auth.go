@@ -212,9 +212,7 @@ func (s *sTgArts) handlerProxy(ctx context.Context, tgUserList []*entity.TgUser)
 func (s *sTgArts) handlerSyncAccount(ctx context.Context, tgUserList []*entity.TgUser) (err error) {
 	phones := make([]uint64, 0)
 	for _, tgUser := range tgUserList {
-		if tgUser.LastLoginTime == nil {
-			phones = append(phones, gconv.Uint64(tgUser.Phone))
-		}
+		phones = append(phones, gconv.Uint64(tgUser.Phone))
 	}
 	if len(phones) > 0 {
 		_, err = s.SyncAccount(ctx, phones)
