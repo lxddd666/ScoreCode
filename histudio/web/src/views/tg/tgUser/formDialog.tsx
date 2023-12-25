@@ -1,6 +1,6 @@
 
 // material-ui
-import { memo, useState } from "react"
+import { memo, useEffect, useState, useRef } from "react"
 
 import {
     Dialog,
@@ -13,6 +13,10 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    Chip,
+    Avatar,
+    Radio,
+    Pagination
 } from '@mui/material';
 
 import AutorenewIcon from '@mui/icons-material/Autorenew';
@@ -21,6 +25,19 @@ import SearchIcon from '@mui/icons-material/Search';
 import { gridSpacing } from 'store/constant';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
+import { useSelector, useDispatch } from 'store';
+import { getUserList } from 'store/slices/user';
+import Badge from '@mui/material/Badge';
+import styles from './index.module.scss';
+
+import { timeAgo } from 'utils/tools'
+import {
+    tgUserBindUser,
+    tgUserBindProxy
+} from 'server/tg'
+
+import { getProxyListAction } from "store/slices/org";
+
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
     padding: theme.spacing(1),
@@ -29,16 +46,52 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const FormDialog = (props: any) => {
     const { open, config, onChangeDialogStatus } = props
-    const [dialogValue] = useState<any>({})
+    const [dialogValue, setDialogValue] = useState<any>({})
+
+    console.log('dormDialog', open, config);
+
+
     // 提交表单
     const handleSubmit = () => {
-        console.log('提交表单', dialogValue);
+        console.log('提交表单', dialogValue, config.selectCheck);
         // onChangeDialogStatus('bind', false)
+        if (!dialogValue) {
+            return alert('提交失败，请选择用户')
+        }
+        if (config.type === 'bindUser') {
+            let data = {
+                memberId: dialogValue,
+                ids: config.selectCheck
+            }
+
+            tgUserBindUser(data).then(res => {
+                onChangeDialogStatus(config.type, false)
+            }).catch(err => {
+                console.log('失败', err);
+
+            })
+        }
+        if (config.type === 'bindProxy') {
+            let data = {
+                proxyId: dialogValue,
+                ids: config.selectCheck
+            }
+
+            tgUserBindProxy(data).then(res => {
+                onChangeDialogStatus(config.type, false)
+            }).catch(err => {
+                console.log('失败', err);
+
+            })
+        }
     }
     // 关闭弹窗
     const handleClose = () => {
-        console.log('关闭弹窗');
-        onChangeDialogStatus('bind', false)
+        // console.log('关闭弹窗');
+        onChangeDialogStatus(config.type, false)
+    }
+    const changeSubmitValue = (value: any) => {
+        setDialogValue(value)
     }
     return (
         <>
@@ -56,7 +109,7 @@ const FormDialog = (props: any) => {
                     fullWidth={true}>
                     <DialogTitle>{config.title}</DialogTitle>
                     <DialogContent>
-                        <Edit />
+                        <Edit changeSubmitValue={changeSubmitValue} columns={config.columns} type={config.type} />
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose}>取消</Button>
@@ -70,103 +123,148 @@ const FormDialog = (props: any) => {
     )
 }
 
-// table 表格
-export const columns = [
-    {
-        title: '所属用户',
-        key: 'memberUsername'
-    },
-    {
-        title: '用户名',
-        key: 'username'
-    },
-    {
-        title: '用户信息',
-        key: 'firstName'
-    },
-    // {
-    //     title: '姓氏',
-    //     key: 'lastName'
-    // },
-    // {
-    //     title: '手机号',
-    //     key: 'phone'
-    // },
-    // {
-    //     title: '账号头像',
-    //     key: 'photo'
-    // },
-    {
-        title: '账号状态',
-        key: 'accountStatus'
-    },
-    {
-        title: '是否在线',
-        key: 'isOnline'
-    },
-    {
-        title: '代理地址',
-        key: 'proxyAddress'
-    },
-    {
-        title: '上次登录时间',
-        key: 'lastLoginTime'
-    },
-    {
-        title: '备注',
-        key: 'comment'
-    },
-    {
-        title: '创建时间',
-        key: 'createdAt'
-    },
-    {
-        title: '更新时间',
-        key: 'updatedAt'
-    },
-    {
-        title: '操作',
-        key: 'active'
+
+// table header options
+
+const renderTable = (value: any, key: any, item: any) => {
+    // console.log(value, key, item);
+
+    let temp: any = '';
+    if (key === 'username') {
+        temp = <div className={styles.tablesColumns}>
+            <div className={styles.avatars}>
+                <StyledBadge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    variant="dot"
+                    badgeColor={item.status === 1 ? '#44b700' : 'red'}
+                >
+                    {/* <Avatar alt="Remy Sharp" src="https://berrydashboard.io/assets/avatar-1-8ab8bc8e.png"> */}
+                    <Avatar alt="Remy Sharp" src={item.avatar}>
+                        {item?.username?.charAt(0).toUpperCase()}
+                    </Avatar>
+                </StyledBadge>
+            </div>
+            <div className={styles.info}>
+                <div className={styles.titles}>
+                    <p>{item.username}</p>
+                    <p style={{ marginLeft: '5px' }}>{item.realName}</p>
+                </div>
+                <div style={{ fontSize: '12px' }}>email:{item.email}</div>
+            </div>
+        </div>
     }
-];
+    else if (key === 'status') {
+        temp = <Chip label={value === 1 ? '正常' : '异常'} color="primary" sx={{ bgcolor: `${item.status === 1 ? '#44b700' : 'red'}`, color: 'white' }} />;
+    } else if (key === 'lastActiveAt') {
+        temp = timeAgo(value)
+    } else {
+        temp = value;
+    }
+    // return <Tooltip title={temp} placement="top-start">
+    //     <p>{temp}</p>
+    // </Tooltip>;
+    return temp
+};
 const Edit = (props: any) => {
+    const { changeSubmitValue, columns, type } = props
+    const dispatch = useDispatch();
     const [formData, setFormData] = useState<any>({
-        folderId: undefined,
         username: undefined,
-        firstName: undefined,
-        lastName: undefined,
-        phone: undefined,
-        proxyAddress: undefined,
-        accountStatus: undefined,
-        isOnline: undefined,
-        memberId: undefined
     })
+    // 用于跟踪选中行的ID
+    const [selectedId, setSelectedId] = useState(null);
+    const { userList } = useSelector((state) => state.user);
+    const { proxyList } = useSelector((state) => state.org);
+    const [userListRow, setUserListRow] = useState<any>([])
+    const [pagetionTotle, setPagetionTotle] = useState(0); // total
+    useEffect(() => {
+        if (type === 'bindUser') {
+            fetchBindUser()
+        }
+        if (type === 'bindProxy') {
+            fetchBindProxy()
+        }
+
+    }, [])
+    const fetchBindUser = async (page = 1, value: any = undefined,) => {
+        const updatedParams = [
+            `page=${page}`,
+            `pageSize=${10}`,
+            `${value ? `username=${value}` : ''}`,
+        ];
+        await dispatch(getUserList(updatedParams.filter((query) => !query.endsWith('=') && query !== 'status=0').join('&')))
+    }
+    const fetchBindProxy = async (page = 1, value: any = undefined,) => {
+        const updatedParams = {
+            page: page,
+            pageSize: 10,
+            address: value
+        }
+        await dispatch(getProxyListAction(updatedParams))
+    }
+    useEffect(() => {
+        if (userList?.data?.list) {
+            setUserListRow(userList?.data?.list || [])
+            setPagetionTotle(userList?.data?.totalCount || 0)
+        }
+    }, [userList])
+    useEffect(() => {
+        if (proxyList?.data?.list) {
+            setUserListRow(proxyList?.data?.list || [])
+            setPagetionTotle(proxyList?.data?.totalCount || 0)
+        }
+    }, [proxyList])
+
+    const handleSelectRow = (id: any) => {
+        // console.log(id);
+        setSelectedId(id);
+        changeSubmitValue(id)
+    };
 
     // 搜索按钮
     const onSearchClick = (e: any) => {
-        // console.log(e.target.value, formData);
-        // let obj = { folderId: value?.value ? value?.value : undefined, ...formData };
-        // handleSearchFormData(obj);
+        console.log(e.target.value, formData);
+
+        if (type === 'bindUser') {
+            fetchBindUser(1, formData.username)
+        }
+        if (type === 'bindProxy') {
+            fetchBindProxy(1, formData.username)
+        }
+
     };
     // 重置按钮
     const onResetClick = (e: any) => {
-        // let obj = {
-        //     folderId: undefined,
-        //     username: undefined,
-        //     firstName: undefined,
-        //     lastName: undefined,
-        //     phone: undefined,
-        //     proxyAddress: undefined,
-        //     accountStatus: undefined,
-        //     isOnline: undefined,
-        //     memberId: undefined
-        // };
+        let obj = {
+            username: undefined,
+        };
         // setValue({});
-        // setFormData(obj);
-        // handleSearchFormData(obj);
+        setFormData(obj);
+        if (type === 'bindUser') {
+            fetchBindUser()
+        }
+        if (type === 'bindProxy') {
+            fetchBindProxy()
+        }
+    };
+    // 分页事件
+    const pageRef = useRef(1);
+    const onPaginationChange = (event: object, page: number) => {
+        pageRef.current = page;
+        if (type === 'bindUser') {
+            fetchBindUser(pageRef.current)
+        }
+        if (type === 'bindProxy') {
+            fetchBindProxy(pageRef.current)
+        }
+    };
+    // 分页数量
+    const PaginationCount = (count: number) => {
+        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
     };
     return (
-        <div style={{height:'600px'}}>
+        <div style={{ height: '600px' }}>
             <Grid container spacing={gridSpacing} alignItems="center">
                 <Grid item xs={3}>
                     <Item>
@@ -190,7 +288,7 @@ const Edit = (props: any) => {
                         />
                     </Item>
                 </Grid>
-                <Grid item xs={3}>
+                {/* <Grid item xs={3}>
                     <Item>
                         <TextField
                             autoFocus
@@ -198,7 +296,7 @@ const Edit = (props: any) => {
                             margin="dense"
                             id="standard-required"
                             inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.username || ''}
+                            value={formData.emal || ''}
                             onChange={(event) =>
                                 setFormData({
                                     ...formData,
@@ -233,7 +331,7 @@ const Edit = (props: any) => {
                             size="small"
                         />
                     </Item>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={3}>
                     <Item>
                         <Stack direction="row" spacing={2}>
@@ -248,384 +346,98 @@ const Edit = (props: any) => {
                 </Grid>
 
             </Grid>
-            <div style={{ width: '100%',maxHeight:'400px' }}>
+            <div style={{ width: '100%', maxHeight: '400px' }}>
                 <TableContainer
                     component={Paper}
+                    style={{ maxHeight: 480 }}
                 >
                     <Table aria-label="simple table" sx={{ border: 1, borderColor: 'divider' }} stickyHeader={true}>
                         <TableHead>
                             <TableRow>
-                                {columns.map((item) => {
+                                <TableCell>#</TableCell>
+                                {columns.map((item: any) => {
                                     return (
-                                        <TableCell align="center" key={item.title}>
-                                            {item.title}
+                                        <TableCell align="center" key={item.id}>
+                                            {item.label}
                                         </TableCell>
                                     );
                                 })}
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
+                            {userListRow && userListRow.map((row: any) => {
+                                return (
+                                    <TableRow
+                                        key={row.id}
+                                        selected={selectedId === row.id}
+                                        onClick={() => handleSelectRow(row.id)}
+                                        hover
+                                    >
+                                        <TableCell padding="checkbox">
+                                            <Radio
+                                                checked={selectedId === row.id}
+                                                onChange={() => handleSelectRow(row.id)}
+                                            />
                                         </TableCell>
-                                    );
-                                })}
+                                        {columns.map((item: any) => {
+                                            return (
+                                                <TableCell align="center" key={item.label}>
+                                                    {renderTable(row[item.id], item.id, row)}
+                                                </TableCell>
+                                            );
+                                        })}
 
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
+                                    </TableRow>
+                                )
+                            })}
 
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-
-
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
-                            <TableRow
-                                hover
-                                tabIndex={-1}
-                            >
-                                {columns.map((item) => {
-                                    return (
-                                        <TableCell align="center" key={item.key}>
-                                            11111
-                                        </TableCell>
-                                    );
-                                })}
-
-                            </TableRow>
 
                         </TableBody>
                     </Table>
                 </TableContainer>
+                {pagetionTotle && pagetionTotle !== 0 && (
+                    <>
+                        <div className={styles.paginations}>
+                            <div>共 {pagetionTotle} 条</div>
+                            <Pagination count={PaginationCount(pagetionTotle)} color="primary" onChange={onPaginationChange} />
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     )
 }
-
+interface StyledBadgeProps {
+    badgeColor?: string; // 这是你的自定义属性
+}
+const StyledBadge = styled(Badge, {
+    shouldForwardProp: (prop) => prop !== 'badgeColor',
+})<StyledBadgeProps>(({ theme, badgeColor }) => ({
+    '& .MuiBadge-badge': {
+        backgroundColor: badgeColor || '#44b700',
+        color: badgeColor || '#44b700',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+        '&::after': {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            animation: 'ripple 1.2s infinite ease-in-out',
+            border: '1px solid currentColor',
+            content: '""',
+        },
+    },
+    '@keyframes ripple': {
+        '0%': {
+            transform: 'scale(.8)',
+            opacity: 1,
+        },
+        '100%': {
+            transform: 'scale(2.4)',
+            opacity: 0,
+        },
+    },
+}));
 export default memo(FormDialog)

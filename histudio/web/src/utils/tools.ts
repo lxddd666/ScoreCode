@@ -65,3 +65,34 @@ export const useScroll = (divRef: any) => {
 
     return { divRef, scrollInfo };
 }
+
+export const timeAgo = (input: any) => {
+    if (!input) return '从未登录'
+    // 将输入转换为Date对象
+    const date = (typeof input === 'object' && input instanceof Date) ? input : new Date(input);
+    const now = new Date();
+    const secondsPast = (now.getTime() - date.getTime()) / 1000;
+
+    // 根据时间差返回对应的时间描述
+    if (secondsPast < 60) { // 小于1分钟
+        return '刚刚';
+    } else if (secondsPast < 3600) { // 小于1小时
+        const minutes = Math.round(secondsPast / 60);
+        return `${minutes}分钟前`;
+    } else if (secondsPast < 86400) { // 小于1天
+        const hours = Math.round(secondsPast / 3600);
+        return `${hours}小时前`;
+    } else if (secondsPast < 604800) { // 小于1周
+        const days = Math.round(secondsPast / 86400);
+        return `${days}天前`;
+    } else if (secondsPast < 2592000) { // 小于1个月
+        const weeks = Math.round(secondsPast / 604800);
+        return `${weeks}周前`;
+    } else if (secondsPast < 31536000) { // 小于1年
+        const months = Math.round(secondsPast / 2592000);
+        return `${months}个月前`;
+    } else { // 超过1年
+        const years = Math.round(secondsPast / 31536000);
+        return `${years}年前`;
+    }
+}

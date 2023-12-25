@@ -39,6 +39,7 @@ import styles from './index.module.scss';
 import SearchForm from './searchFrom';
 import FileUpload from './upload';
 import SubmitDialog from './submitDialog';
+import AnimateButton from 'ui-component/extended/AnimateButton';
 
 import { getTgUserListAction } from 'store/slices/tg';
 
@@ -46,6 +47,14 @@ import axios from 'utils/axios';
 import { columns, accountStatus, isOnline } from './config';
 import FormDialog from './formDialog'
 
+import { timeAgo } from 'utils/tools'
+import {
+    tgUnUserBindUser,
+    tgUserBindUnProxy,
+    tgUserBatchLoginOut,
+    tgUserAllDelete
+} from 'server/tg'
+import useConfirm from 'hooks/useConfirm'
 const TgUser = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
     const [rows, setrows] = useState([]); // table rows 数据
@@ -61,13 +70,16 @@ const TgUser = () => {
     const [handleSubmitOpenConfig, setHandleSubmitOpenConfig] = useState({
         title: ''
     });
-    const [formDialogConfig, setFormDialogConfig] = useState({
+    const [formDialogConfig, setFormDialogConfig] = useState<any>({
         title: '',
-        edit: false
+        edit: false,
+        selectCheck: []
     })
+    const [checkListIsDisable, setCheckListIsDisable] = useState(true)
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const confirm = useConfirm(); // 弹窗
     const { tgUserList } = useSelector((state) => state.tg, shallowEqual);
 
     let { height: boxHeight } = useHeightComponent(boxRef);
@@ -120,9 +132,11 @@ const TgUser = () => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: any) => n.id);
             setSelected(newSelecteds);
+            setCheckListIsDisable(false)
             return;
         }
         setSelected([]);
+        setCheckListIsDisable(true)
     };
     // table多选点击操作
     const handleClick = (event: any, id: any) => {
@@ -141,6 +155,13 @@ const TgUser = () => {
         }
 
         setSelected(newSelected);
+        console.log(newSelected, selected);
+
+        if (newSelected.length > 0) {
+            setCheckListIsDisable(false)
+        } else {
+            setCheckListIsDisable(true)
+        }
     };
     // id筛选
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
@@ -160,7 +181,7 @@ const TgUser = () => {
                     >
                         {/* <Avatar alt="Remy Sharp" src="https://berrydashboard.io/assets/avatar-1-8ab8bc8e.png"> */}
                         <Avatar alt="Remy Sharp" src={item.photo}>
-                            {item.lastName.charAt(0).toUpperCase()}
+                            {item.lastName?.charAt(0)?.toUpperCase()}
                         </Avatar>
                     </StyledBadge>
                 </div>
@@ -177,6 +198,8 @@ const TgUser = () => {
             temp = <Chip label={accountStatus(value)} color="primary" />;
         } else if (key === 'isOnline') {
             temp = <Chip label={isOnline(value)} sx={{ bgcolor: `${item.isOnline === 1 ? '#44b700' : 'red'}`, color: 'white' }} />;
+        } else if (key === 'lastLoginTime') {
+            temp = timeAgo(value)
         } else {
             temp = value;
         }
@@ -218,7 +241,8 @@ const TgUser = () => {
         setHandleSubmitOpen(true);
         setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' });
     }, [handleSubmitOpen]);
-    const onBtnOpenList = useCallback((active: String) => {
+    const onBtnOpenList = (active: String) => {
+        let columns = []
         switch (active) {
             case 'import':
                 setImportOpenDialog(true);
@@ -226,13 +250,106 @@ const TgUser = () => {
             case 'iphone':
                 handleSubmitOpenCallback();
                 break;
-            case 'bind':
-                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定用户' });
+            case 'bindUser':
+                // 绑定员工开启
+                columns = [
+                    {
+                        id: 'username',
+                        numeric: false,
+                        label: '用户名',
+                        align: 'center'
+                    },
+                    {
+                        id: 'roleName',
+                        numeric: false,
+                        label: '绑定角色',
+                        align: 'center'
+                    },
+                    {
+                        id: 'orgName',
+                        numeric: false,
+                        label: '所属公司',
+                        align: 'center'
+                    },
+                    {
+                        id: 'status',
+                        numeric: false,
+                        label: '状态',
+                        align: 'center'
+                    },
+                    {
+                        id: 'lastActiveAt',
+                        numeric: false,
+                        label: '最近活跃',
+                        align: 'center'
+                    }
+                ];
+                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定用户', selectCheck: selected, columns, type: 'bindUser' });
+                break;
+            case 'bindProxy':
+                // 绑定员工开启
+                columns = [
+                    {
+                        id: 'address',
+                        numeric: false,
+                        label: '代理地址',
+                        align: 'center'
+                    },
+                    {
+                        id: 'type',
+                        numeric: false,
+                        label: '代理类型',
+                        align: 'center'
+                    },
+                    {
+                        id: 'maxConnections',
+                        numeric: false,
+                        label: '最大连接数',
+                        align: 'center'
+                    },
+                    {
+                        id: 'connectedCount',
+                        numeric: false,
+                        label: '已连接数',
+                        align: 'center'
+                    },
+                    {
+                        id: 'assignedCount',
+                        numeric: false,
+                        label: '已分配数',
+                        align: 'center'
+                    },
+                    {
+                        id: 'longTermCount',
+                        numeric: false,
+                        label: '长期未登录',
+                        align: 'center'
+                    },
+                    {
+                        id: 'region',
+                        numeric: false,
+                        label: '地区',
+                        align: 'center'
+                    },
+                    {
+                        id: 'delay',
+                        numeric: false,
+                        label: '延迟',
+                        align: 'center'
+                    },
+                    {
+                        id: 'status',
+                        numeric: false,
+                        label: '状态',
+                        align: 'center'
+                    }
+                ];
+                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定用户', selectCheck: selected, columns, type: 'bindProxy' });
                 break;
             default:
                 break;
         }
-    }, []);
+    }
     // 弹窗关闭
     const handleSubmitCloseCallback = useCallback((value: any) => {
         setHandleSubmitOpen(value);
@@ -247,13 +364,108 @@ const TgUser = () => {
             case 'iphone':
                 handleSubmitCloseCallback(value);
                 break;
-            case 'bind':
-                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '' });
+            case 'bindUser':
+                // 绑定员工关闭
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', selectCheck: [], type: '' });
+                getTableListActionFN()
+                break;
+            case 'bindProxy':
+                // 绑定代理关闭
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', selectCheck: [], type: '' });
+                getTableListActionFN()
                 break;
             default:
                 break;
         }
     };
+
+    // 解绑员工操作
+    const onUnBindUserClick = () => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否解绑选中的 ${selected.length} 个员工,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUnUserBindUser({ ids: selected })
+                        console.log('解绑成功', res);
+                    } catch (error) {
+                        console.log('解绑失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 解绑代理操作
+    const onUnBindProxyClick = () => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否解绑选中的 ${selected.length} 个代理,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserBindUnProxy({ ids: selected })
+                        console.log('解绑成功', res);
+                        getTableListActionFN()
+                    } catch (error) {
+                        console.log('解绑失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 批量上线 下线 操作
+    const onBatchLoginOutClick = (type: String) => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否${type === 'batchLogin' ? '上线' : '下线'}选中的 ${selected.length} 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserBatchLoginOut({ ids: selected }, type)
+                        console.log(' 批量上线 下线 操作', res);
+
+                        getTableListActionFN()
+                    } catch (error) {
+                        console.log('批量上下线失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 批量删除 操作
+    const onUserAllDeleteClick = () => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否批量删除选中的 ${selected.length} 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserAllDelete({ id: selected })
+                        console.log('批量删除', res);
+
+                        getTableListActionFN()
+                        setSelected([]);
+                        setCheckListIsDisable(true)
+                    } catch (error) {
+                        console.log('批量删除失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
 
 
     return (
@@ -264,36 +476,56 @@ const TgUser = () => {
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
-                        <Button size="small" variant="contained" disabled={true}>
-                            批量删除
-                        </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            导出
-                        </Button>
-                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('bind')} >
-                            绑定员工
-                        </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            解绑员工
-                        </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            绑定代理
-                        </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            解绑代理
-                        </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            批量上线
-                        </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            批量下线
-                        </Button>
-                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('import')}>
-                            导入
-                        </Button>
-                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('iphone')}>
-                            手机验证码登录
-                        </Button>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} color="error" onClick={onUserAllDeleteClick}>
+                                批量删除
+                            </Button>
+                        </AnimateButton>
+                        {/* <AnimateButton type="slide">
+                            <Button size="small" variant="contained" >
+                                导出
+                            </Button>
+                        </AnimateButton> */}
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBtnOpenList('bindUser')} color="secondary">
+                                绑定员工
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={onUnBindUserClick} color="secondary">
+                                解绑员工
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBtnOpenList('bindProxy')} color="success">
+                                绑定代理
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={onUnBindProxyClick} color="success">
+                                解绑代理
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBatchLoginOutClick('batchLogin')} color="warning">
+                                批量上线
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBatchLoginOutClick('batchLogout')} color="warning">
+                                批量下线
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('import')}>
+                                导入
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('iphone')}>
+                                手机验证码登录
+                            </Button>
+                        </AnimateButton>
                     </Stack>
                 </div>
                 <TableContainer
@@ -391,7 +623,7 @@ const TgUser = () => {
 
             <SubmitDialog open={handleSubmitOpen} config={handleSubmitOpenConfig} setOpenChangeDialog={handleSetImportOpenDialog} />
 
-            <FormDialog open={formDialogConfig.edit} config={formDialogConfig} onChangeDialogStatus={onBtnCloseList}/>
+            <FormDialog open={formDialogConfig.edit} config={formDialogConfig} onChangeDialogStatus={onBtnCloseList} />
         </MainCard>
     );
 };
