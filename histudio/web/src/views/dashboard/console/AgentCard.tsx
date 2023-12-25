@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import { Avatar, Box, Grid, Typography } from '@mui/material';
+import ImportantDevicesIcon from '@mui/icons-material/ImportantDevices';
 import MainCard from 'ui-component/cards/MainCard';
 import SkeletonAgentCard from 'ui-component/cards/Skeleton/AgentCard';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+// import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import Request from 'utils/request'; // Make sure the path to your request utility is correct
 import { useDispatch } from 'react-redux'; // Assuming you're using Redux
 import { openSnackbar } from 'store/slices/snackbar'; // Verify the path for your snackbar slice
@@ -20,9 +21,8 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
         position: 'absolute',
         width: 210,
         height: 210,
-        background: `linear-gradient(140.9deg, ${
-            theme.palette.mode === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary[800]
-        } -14.02%, rgba(144, 202, 249, 0) 70.50%)`,
+        background: `linear-gradient(140.9deg, ${theme.palette.mode === 'dark' ? theme.palette.secondary.dark : theme.palette.secondary[800]
+            } -14.02%, rgba(144, 202, 249, 0) 70.50%)`,
         borderRadius: '50%'
     },
 
@@ -132,7 +132,7 @@ function AgentCard({ isLoading }: AgentCardProps) {
                                                 theme.palette.mode === 'dark' ? theme.palette.text.secondary : theme.palette.secondary[200]
                                         }}
                                     >
-                                        Total Agent
+                                        代理端口数量-期限
                                     </Typography>
                                 </Grid>
                                 <Grid item>
@@ -144,11 +144,11 @@ function AgentCard({ isLoading }: AgentCardProps) {
                                                 theme.palette.mode === 'dark' ? theme.palette.text.secondary : theme.palette.secondary[200]
                                         }}
                                     >
-                                        Week
+                                        TOTLE
                                     </Typography>
                                 </Grid>
                             </Grid>
-                            <Grid item>
+                            <Grid item sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                                 <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
                                     {orderLarge.orderLarge ? orderLarge.orderLarge.weekLarge : 'N/A'}
                                 </Typography>
@@ -162,7 +162,7 @@ function AgentCard({ isLoading }: AgentCardProps) {
                                         ...theme.typography.smallAvatar
                                     }}
                                 >
-                                    <ArrowUpwardIcon fontSize="inherit" sx={{ transform: 'rotate3d(1, 1, 1, 45deg)' }} />
+                                    <ImportantDevicesIcon fontSize="inherit" />
                                 </Avatar>
                             </Grid>
                             <Grid container justifyContent="space-between">
@@ -175,7 +175,7 @@ function AgentCard({ isLoading }: AgentCardProps) {
                                                 theme.palette.mode === 'dark' ? theme.palette.text.secondary : theme.palette.secondary[200]
                                         }}
                                     >
-                                        Rise: {orderLarge.orderLarge ? orderLarge.orderLarge.rise : 'N/A'}
+                                        run: {orderLarge.orderLarge ? orderLarge.orderLarge.rise : 'N/A'}
                                     </Typography>
                                 </Grid>
                                 <Grid item>
@@ -187,20 +187,9 @@ function AgentCard({ isLoading }: AgentCardProps) {
                                                 theme.palette.mode === 'dark' ? theme.palette.text.secondary : theme.palette.secondary[200]
                                         }}
                                     >
-                                        Decline: {orderLarge.orderLarge ? orderLarge.orderLarge.decline : 'N/A'}
+                                        deadline: {orderLarge.orderLarge ? orderLarge.orderLarge.decline : 'N/A'}
                                     </Typography>
                                 </Grid>
-                            </Grid>
-                            <Grid item>
-                                <Typography
-                                    sx={{
-                                        fontSize: '1.125rem',
-                                        fontWeight: 500,
-                                        color: theme.palette.mode === 'dark' ? theme.palette.text.secondary : theme.palette.secondary[200]
-                                    }}
-                                >
-                                    Amount: {orderLarge.orderLarge ? orderLarge.orderLarge.amount : 'N/A'}
-                                </Typography>
                             </Grid>
                         </Grid>
                     </Box>
