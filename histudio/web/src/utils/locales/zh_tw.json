@@ -679,6 +679,8 @@
 	"setting.cron.tg-msg" : "訊息記錄",
 	"setting.cron.sys-org": "公司資訊",
 	"setting.cron.sys-proxy": "代理管理",
+	"setting.cron.dict": "字典管理",
+	"setting.cron.dict-state": "可取代後台管理系統，設定的大量枚舉值和配置，統一標準化管理，隨時修改或增加",
 	"setting.crongroup.superior-id" : "上級ID",
 	"setting.crongroup.group-name" : "分組名稱",
 	"setting.crongroup.is-default" : "是否預設",

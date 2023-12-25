@@ -678,6 +678,8 @@
 	"setting.cron.tg-msg" : "Message record",
 	"setting.cron.sys-org": "Company information",
 	"setting.cron.sys-proxy": "Proxy Management",
+	"setting.cron.dict": "Dictionary management",
+	"setting.cron.dict-state": "It can replace the background management system, set a large number of enumeration values ​​and configurations, unified and standardized management, and can be modified or added at any time",
 	"setting.crongroup.superior-id" : "Superior ID",
 	"setting.crongroup.group-name" : "Group Name",
 	"setting.crongroup.is-default" : "Default",
