@@ -17,6 +17,7 @@ import (
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/service"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -218,6 +219,12 @@ func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 
 // Msg 聊天动作
 func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand sen msg",
+	}
 	// 获取账号
 	var ids = array.New[int64]()
 	if task.FolderId != 0 {
@@ -245,10 +252,16 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		g.Log().Error(ctx, g.I18n().T(ctx, "{#ObtainWordsFailed}"))
 		return err
 	}
+	contactMap := make(map[string][]*tgin.TgContactsListModel)
 	//相互聊天
 	for _, user := range tgUserList {
+		keepLog.Account = int64(user.Id)
+		keepLog.Content = gjson.New(g.Map{"sender": user.Phone})
+		keepLog.Status = 2
 		err = beforeLogin(ctx, user)
 		if err != nil {
+			keepLog.Comment = "login err:" + err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			g.Log().Error(ctx, err)
 			continue
 		}
@@ -256,20 +269,27 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		if err != nil {
 			continue
 		}
+		time.Sleep(2 * time.Second)
 		for _, receiver := range tgUserList {
+			keepLog.Content = gjson.New(g.Map{"sender": user.Phone, "receiver": receiver.Phone})
 			if receiver.Id == user.Id {
 				continue
 			}
 			// 查询是否为好友
 			err = beforeLogin(ctx, receiver)
 			if err != nil {
+				keepLog.Comment = "sync contact err:" + err.Error()
+				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 				continue
 			}
-			err = CheckIsFriend(ctx, user, receiver)
+			err = CheckIsFriend(ctx, user, receiver, contactMap)
+			time.Sleep(2 * time.Second)
 			if err != nil {
+				keepLog.Comment = "sync contact err:" + err.Error()
+				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 				continue
 			}
-			err = CheckIsFriend(ctx, receiver, user)
+			err = CheckIsFriend(ctx, receiver, user, contactMap)
 			if err != nil {
 				continue
 			}
@@ -295,19 +315,27 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 					Receiver: receiver.Phone,
 				})
 				if err != nil {
-					return
+					keepLog.Comment = "read msg err:" + err.Error()
+					_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
+					continue
 				}
 				// 发消息状态
 				_ = service.TgArts().TgSendMsgType(ctx, &artsin.MsgTypeInp{Sender: gconv.Uint64(user.Phone), Receiver: receiver.Phone, FileType: consts.TG_SEND_TEXT})
 				if err != nil {
+					keepLog.Comment = "send msg type err:" + err.Error()
+					_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 					return
 				}
 				time.Sleep(2 * time.Second)
 				_, err = service.TgArts().TgSendMsg(ctx, inp)
 				if err != nil {
+					keepLog.Comment = "send msg err:" + err.Error()
+					_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 					continue
 				}
-				time.Sleep(1 * time.Second)
+				keepLog.Status = 1
+				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
+				time.Sleep(2 * time.Second)
 			}
 		}
 
@@ -318,9 +346,12 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 }
 
 // CheckIsFriend 查询对方是否为好友
-func CheckIsFriend(ctx context.Context, user *entity.TgUser, receiver *entity.TgUser) (err error) {
-	//isFriend, err := g.Model(dao.TgUserContacts.Table()).Ctx(ctx).Where(dao.TgUserContacts.Columns().TgUserId, user.Id).Where(dao.TgUserContacts.Columns().TgContactsId, receiver.Id).Count()
-	list, err := service.TgArts().TgGetContacts(ctx, gconv.Uint64(user.Phone))
+func CheckIsFriend(ctx context.Context, user *entity.TgUser, receiver *entity.TgUser, contactMap map[string][]*tgin.TgContactsListModel) (err error) {
+	list := contactMap[user.Phone]
+	if list == nil {
+		list, err = service.TgArts().TgGetContacts(ctx, gconv.Uint64(user.Phone))
+		contactMap[user.Phone] = list
+	}
 	for _, c := range list {
 		if c.Phone == receiver.Phone {
 			return
@@ -479,6 +510,7 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		//if user.Username != "" {
 		//	continue
 		//}
+		keepLog.Status = 2
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
@@ -603,6 +635,7 @@ func randomNickName() (firstName string, lastName string) {
 	if num >= 8 {
 		//随机中文名
 		firstName = firstNames[rand.Intn(len(firstNames))]
+		firstName = strings.ToLower(firstName)
 		lastName = lastNames[rand.Intn(len(lastNames))]
 		if rand.Intn(4) == 1 {
 			specialChar := specialChars[rand.Intn(len(specialChars))]
