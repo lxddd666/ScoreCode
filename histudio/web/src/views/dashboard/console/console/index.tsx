@@ -12,8 +12,8 @@ import PopularCard from '../PopularCard';
 // import TotalOrderLineChartCard from '../TotalOrderLineChartCard';
 // import TotalIncomeDarkCard from '../TotalIncomeDarkCard';
 // import TotalIncomeLightCard from '../TotalIncomeLightCard';
-// import TotalGrowthBarChart from '../TotalGrowthBarChart';
-import LatestCustomerTableCard from './LatestCustomerTableCard'
+import TotalGrowthBarChart from '../TotalGrowthBarChart';
+// import LatestCustomerTableCard from './LatestCustomerTableCard'
 import { gridSpacing } from 'store/constant';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
@@ -38,7 +38,8 @@ const Dashboard = () => {
                 </Grid>
                 <Grid container spacing={gridSpacing} style={{ marginTop: '8px' }}>
                     <Grid item lg={12} xs={2} md={8}>
-                        <LatestCustomerTableCard />
+                        {/* <LatestCustomerTableCard /> */}
+                        <TotalGrowthBarChart isLoading={isLoading}/>
                     </Grid>
                 </Grid>
             </Grid>
