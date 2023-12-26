@@ -188,7 +188,7 @@ const TgIncreaseFansCron = () => {
                                 </TableCell>
                                 {columns.map((item) => {
                                     return (
-                                        <TableCell align="center" key={item.title}>
+                                        <TableCell style={{ minWidth: 100 }} align="center" key={item.title}>
                                             {item.title}
                                         </TableCell>
                                     );

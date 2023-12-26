@@ -44,14 +44,14 @@ export const columns = [
         title: '备注',
         key: 'comment'
     },
-    {
-        title: '创建时间',
-        key: 'createdAt'
-    },
-    {
-        title: '更新时间',
-        key: 'updatedAt'
-    },
+    // {
+    //     title: '创建时间',
+    //     key: 'createdAt'
+    // },
+    // {
+    //     title: '更新时间',
+    //     key: 'updatedAt'
+    // },
     {
         title: '操作',
         key: 'active'

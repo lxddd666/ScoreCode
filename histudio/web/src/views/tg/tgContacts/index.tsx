@@ -17,7 +17,8 @@ import {
     Pagination,
     Avatar,
     Tooltip,
-    IconButton
+    IconButton,
+    Chip
 } from '@mui/material';
 import DetailsIcon from '@mui/icons-material/Details';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
@@ -148,10 +149,10 @@ const TgContacts = () => {
                 </div>
             </div>
         }
-        else if (key === 'accountStatus') {
-            temp = value;
-        } else if (key === 'isOnline') {
-            temp = value;
+        else if (key === 'orgId') {
+            temp = <Chip label={value} sx={{ bgcolor: `${item.orgId === 0 ? '#44b700' : 'red'}`, color: 'white' }} />;;
+        } else if (key === 'type') {
+            temp = <Chip label={value} sx={{ bgcolor: `${item.type === 0 ? '#44b700' : 'red'}`, color: 'white' }} />;
         } else {
             temp = value;
         }
@@ -212,7 +213,7 @@ const TgContacts = () => {
                                 </TableCell>
                                 {columns.map((item) => {
                                     return (
-                                        <TableCell align="center" key={item.title}>
+                                        <TableCell align="center" style={{ minWidth: 100 }} key={item.title}>
                                             {item.title}
                                         </TableCell>
                                     );

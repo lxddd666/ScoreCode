@@ -1,17 +1,17 @@
 // table 表格
 export const columns = [
-    {
-        title: 'id',
-        key: 'id'
-    },
-    {
-        title: '组织ID',
-        key: 'orgId'
-    },
-    {
-        title: '发起任务的用户ID',
-        key: 'memberId'
-    },
+    // {
+    //     title: 'id',
+    //     key: 'id'
+    // },
+    // {
+    //     title: '组织ID',
+    //     key: 'orgId'
+    // },
+    // {
+    //     title: '发起任务的用户ID',
+    //     key: 'memberId'
+    // },
     {
         title: '任务名称',
         key: 'taskName'
@@ -44,23 +44,25 @@ export const columns = [
         title: '任务状态',
         key: 'cronStatus'
     },
+
+    // {
+    //     title: '创建时间',
+    //     key: 'createdAt'
+    // },
+    // {
+    //     title: '更新时间',
+    //     key: 'updatedAt'
+    // },
     {
-        title: '备注',
-        key: 'comment'
-    },
-    {
-        title: '创建时间',
-        key: 'createdAt'
-    },
-    {
-        title: '更新时间',
-        key: 'updatedAt'
-    }, {
         title: '已执行天数',
         key: 'executedDays'
     }, {
         title: '已添加粉丝数',
         key: 'increasedFans'
+    },
+    {
+        title: '备注',
+        key: 'comment'
     },
     {
         title: '操作',

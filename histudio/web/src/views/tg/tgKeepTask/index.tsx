@@ -136,8 +136,8 @@ const TgKeepTask = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
-     // 分页数量
-     const PaginationCount = (count: number) => {
+    // 分页数量
+    const PaginationCount = (count: number) => {
         return typeof count === 'number' ? Math.ceil(count / 10) : 1;
     }
 
@@ -183,7 +183,7 @@ const TgKeepTask = () => {
                                 </TableCell>
                                 {columns.map((item) => {
                                     return (
-                                        <TableCell align="center" key={item.title}>
+                                        <TableCell sx={{ maxWidth: 200 }} align="center" key={item.title}>
                                             {item.title}
                                         </TableCell>
                                     );

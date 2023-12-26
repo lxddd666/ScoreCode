@@ -1,13 +1,17 @@
 // table 表格
 export const columns = [
     {
-        title: 'Id',
-        key: 'id'
+        title: 'FirstName',
+        key: 'firstName'
     },
-    {
-        title: 'Tg Id',
-        key: 'tgId'
-    },
+    // {
+    //     title: 'Id',
+    //     key: 'id'
+    // },
+    // {
+    //     title: 'Tg Id',
+    //     key: 'tgId'
+    // },
     // {
     //     title: 'AccessHash',
     //     key: 'accessHash'
@@ -16,10 +20,7 @@ export const columns = [
         title: 'Username',
         key: 'username'
     },
-    {
-        title: 'FirstName',
-        key: 'firstName'
-    },
+  
     // {
     //     title: 'LastName',
     //     key: 'lastName'
@@ -40,14 +41,14 @@ export const columns = [
         title: '备注',
         key: 'comment'
     },
-    {
-        title: '创建时间',
-        key: 'createdAt'
-    },
-    {
-        title: '更新时间',
-        key: 'updatedAt'
-    },
+    // {
+    //     title: '创建时间',
+    //     key: 'createdAt'
+    // },
+    // {
+    //     title: '更新时间',
+    //     key: 'updatedAt'
+    // },
     {
         title: '操作',
         key: 'active'
