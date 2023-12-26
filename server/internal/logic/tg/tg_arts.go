@@ -409,31 +409,34 @@ func (s *sTgArts) TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatar
 	}
 	prometheus.AccountGetUserHeadImageCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 	mime := mimetype.Detect(resp.Data)
-	var meta = &storager.FileMeta{
-		Filename: gconv.String(inp.PhotoId) + mime.Extension(),
-		Size:     gconv.Int64(len(resp.Data)),
-		MimeType: mime.String(),
-		Ext:      mime.Extension()[1:],
-		Md5:      gmd5.MustEncryptBytes(resp.Data),
-		Content:  resp.Data,
-	}
-	meta.Kind = storager.GetFileKind(meta.Ext)
-	result, err := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
-	if err != nil {
-		return
-	}
-	_, err = dao.TgPhoto.Ctx(ctx).Save(entity.TgPhoto{
-		TgId:         int64(inp.GetUser),
-		PhotoId:      inp.PhotoId,
-		AttachmentId: result.Id,
-		Path:         result.Path,
-		FileUrl:      result.FileUrl,
-	})
-	if err != nil {
-		return
-	}
-	res = &tgin.TgGetUserAvatarModel{
-		Avatar: result.FileUrl,
+	if len(mime.Extension()) > 0 {
+		var meta = &storager.FileMeta{
+			Filename: gconv.String(inp.PhotoId) + mime.Extension(),
+			Size:     gconv.Int64(len(resp.Data)),
+			MimeType: mime.String(),
+			Ext:      mime.Extension()[1:],
+			Md5:      gmd5.MustEncryptBytes(resp.Data),
+			Content:  resp.Data,
+		}
+		meta.Kind = storager.GetFileKind(meta.Ext)
+		result, uErr := service.CommonUpload().UploadFile(ctx, storager.KindOther, meta)
+		if uErr != nil {
+			err = uErr
+			return
+		}
+		_, err = dao.TgPhoto.Ctx(ctx).Save(entity.TgPhoto{
+			TgId:         int64(inp.GetUser),
+			PhotoId:      inp.PhotoId,
+			AttachmentId: result.Id,
+			Path:         result.Path,
+			FileUrl:      result.FileUrl,
+		})
+		if err != nil {
+			return
+		}
+		res = &tgin.TgGetUserAvatarModel{
+			Avatar: result.FileUrl,
+		}
 	}
 	return
 }
