@@ -73,7 +73,11 @@ const TgUser = () => {
     const [formDialogConfig, setFormDialogConfig] = useState<any>({
         title: '',
         edit: false,
-        selectCheck: []
+        selectCheck: [],
+        dialogType: undefined,
+
+        params: undefined,
+        renderField: undefined
     })
     const [checkListIsDisable, setCheckListIsDisable] = useState(true)
     const boxRef: any = useRef();
@@ -155,7 +159,7 @@ const TgUser = () => {
         }
 
         setSelected(newSelected);
-        console.log(newSelected, selected);
+        // console.log(newSelected, selected);
 
         if (newSelected.length > 0) {
             setCheckListIsDisable(false)
@@ -241,7 +245,7 @@ const TgUser = () => {
         setHandleSubmitOpen(true);
         setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' });
     }, [handleSubmitOpen]);
-    const onBtnOpenList = (active: String) => {
+    const onBtnOpenList = (active: String, value: any = undefined) => {
         let columns = []
         switch (active) {
             case 'import':
@@ -344,8 +348,27 @@ const TgUser = () => {
                         align: 'center'
                     }
                 ];
-                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定用户', selectCheck: selected, columns, type: 'bindProxy' });
+                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定代理', selectCheck: selected, columns, type: 'bindProxy' });
                 break;
+            case 'Edit':
+                let renderField = {
+                    username: '用户名',
+                    firstName: '姓氏',
+                    lastName: '名字',
+                    phone: '手机号码',
+                    bio: '个性签名',
+                    comment: '备注'
+                }
+                setFormDialogConfig({
+                    ...formDialogConfig,
+                    edit: true,
+                    title: '绑定用户',
+                    dialogType: 'editForm',
+                    type: 'Edit',
+                    params: value,
+                    renderField
+                });
+                break
             default:
                 break;
         }
@@ -374,6 +397,10 @@ const TgUser = () => {
                 setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', selectCheck: [], type: '' });
                 getTableListActionFN()
                 break;
+            case 'Edit':
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
+                getTableListActionFN()
+                break
             default:
                 break;
         }
@@ -443,15 +470,35 @@ const TgUser = () => {
             });
     }
     // 批量删除 操作
-    const onUserAllDeleteClick = () => {
-        // console.log('解绑员工操作', selected);
+    const onUserAllDeleteClick = (id: any = undefined) => {
         confirm('警告', `是否批量删除选中的 ${selected.length} 个数据,确定之后不可取消,请谨慎操作。`)
             .then(async (result) => {
                 if (result) {
                     try {
                         const res = await tgUserAllDelete({ id: selected })
                         console.log('批量删除', res);
-
+                        getTableListActionFN()
+                        setSelected([]);
+                        setCheckListIsDisable(true)
+                    } catch (error) {
+                        console.log('批量删除失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 单个删除 操作
+    const onUserSingleDeleteClick = (id: any) => {
+        confirm('警告', `是否删除选中的 1 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserAllDelete({ id: id })
+                        console.log('批量删除', res);
                         getTableListActionFN()
                         setSelected([]);
                         setCheckListIsDisable(true)
@@ -586,12 +633,12 @@ const TgUser = () => {
                                                         {/* <Button size="small" variant="contained">
                                                             聊天室
                                                         </Button> */}
-                                                        <IconButton style={{ marginLeft: '5px' }}>
+                                                        <IconButton style={{ marginLeft: '5px' }} onClick={(e) => onBtnOpenList('Edit', row)}>
                                                             <Tooltip title='编辑' placement="top">
                                                                 <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
                                                             </Tooltip>
                                                         </IconButton>
-                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                        <IconButton style={{ marginLeft: '5px' }} onClick={(e) => onUserSingleDeleteClick(row.id)} >
                                                             <Tooltip title='删除' placement="top">
                                                                 <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
                                                             </Tooltip>

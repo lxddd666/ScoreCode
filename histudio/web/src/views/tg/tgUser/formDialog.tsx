@@ -30,10 +30,14 @@ import { getUserList } from 'store/slices/user';
 import Badge from '@mui/material/Badge';
 import styles from './index.module.scss';
 
+import { useFormik } from 'formik';
+import * as yup from 'yup';
+
 import { timeAgo } from 'utils/tools'
 import {
     tgUserBindUser,
-    tgUserBindProxy
+    tgUserBindProxy,
+    tgUserEdit
 } from 'server/tg'
 
 import { getProxyListAction } from "store/slices/org";
@@ -84,6 +88,18 @@ const FormDialog = (props: any) => {
 
             })
         }
+        if (config.type === 'Edit') {
+            let data = {
+                ...dialogValue
+            }
+
+            tgUserEdit(data).then(res => {
+                onChangeDialogStatus(config.type, false)
+            }).catch(err => {
+                console.log('失败', err);
+
+            })
+        }
     }
     // 关闭弹窗
     const handleClose = () => {
@@ -109,7 +125,17 @@ const FormDialog = (props: any) => {
                     fullWidth={true}>
                     <DialogTitle>{config.title}</DialogTitle>
                     <DialogContent>
-                        <Edit changeSubmitValue={changeSubmitValue} columns={config.columns} type={config.type} />
+                        {
+                            config.dialogType && config.dialogType === 'editForm'
+                                ?
+                                <EditForm changeSubmitValue={changeSubmitValue}
+                                    row={config.params}
+                                    renderField={config.renderField}
+                                />
+                                :
+                                <EditTable changeSubmitValue={changeSubmitValue} columns={config.columns} type={config.type} />
+                        }
+
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose}>取消</Button>
@@ -166,7 +192,7 @@ const renderTable = (value: any, key: any, item: any) => {
     // </Tooltip>;
     return temp
 };
-const Edit = (props: any) => {
+const EditTable = (props: any) => {
     const { changeSubmitValue, columns, type } = props
     const dispatch = useDispatch();
     const [formData, setFormData] = useState<any>({
@@ -288,50 +314,6 @@ const Edit = (props: any) => {
                         />
                     </Item>
                 </Grid>
-                {/* <Grid item xs={3}>
-                    <Item>
-                        <TextField
-                            autoFocus
-                            sx={{ width: '100%' }}
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.emal || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    username: event.target.value
-                                })
-                            }
-                            label="请输入用户名"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                        />
-                    </Item>
-                </Grid>
-                <Grid item xs={3}>
-                    <Item>
-                        <TextField
-                            autoFocus
-                            sx={{ width: '100%' }}
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.username || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    username: event.target.value
-                                })
-                            }
-                            label="请输入用户名"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                        />
-                    </Item>
-                </Grid> */}
                 <Grid item xs={3}>
                     <Item>
                         <Stack direction="row" spacing={2}>
@@ -407,6 +389,131 @@ const Edit = (props: any) => {
         </div>
     )
 }
+
+const validationSchema = yup.object({
+    username: yup.string().trim('Enter a valid username').required('username is required'),
+    phone: yup.string().trim('Enter a valid phone').required('phone is required'),
+});
+
+const EditForm = (props: any) => {
+    const { row, renderField, changeSubmitValue } = props
+    // console.log('EditForm', row);
+
+    useEffect(() => {
+        console.log(row.id);
+
+        if (row.id) {
+            changeSubmitValue({
+                id: row.id,
+                ...formik.values
+            })
+        }
+    }, [])
+
+    const formik = useFormik({
+        initialValues: {
+            username: row.username || '',
+            firstName: row.firstName || '',
+            lastName: row.lastName || '',
+            phone: row.phone || '',
+            bio: row.bio || '',
+            comment: row.comment || ''
+        },
+        validationSchema,
+        onSubmit: (values) => {
+            console.log('value', values,);
+        }
+    });
+
+    const inputChange = (event: any) => {
+        formik.handleChange(event)
+        // console.log(event.target.value, formik.values);
+        changeSubmitValue({
+            id: row.id,
+            ...formik.values
+        })
+    }
+
+
+    return (
+        <form onSubmit={formik.handleSubmit} style={{ marginTop: '10px' }}>
+
+            <Grid container spacing={gridSpacing}>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="username"
+                        name="username"
+                        label={renderField.username}
+                        value={formik.values.username}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                        error={formik.touched.username && Boolean(formik.errors.username)}
+                        helperText={formik.touched.username && Boolean(formik.errors.username)}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="firstName"
+                        name="firstName"
+                        label={renderField.firstName}
+                        value={formik.values.firstName}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="lastName"
+                        name="lastName"
+                        label={renderField.lastName}
+                        value={formik.values.lastName}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="phone"
+                        name="phone"
+                        label={renderField.phone}
+                        value={formik.values.phone}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                        error={formik.touched.username && Boolean(formik.errors.username)}
+                        helperText={formik.touched.username && Boolean(formik.errors.username)}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="bio"
+                        name="bio"
+                        label={renderField.bio}
+                        value={formik.values.bio}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="comment"
+                        name="comment"
+                        label={renderField.comment}
+                        value={formik.values.comment}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
+            </Grid>
+        </form>
+    )
+}
+
 interface StyledBadgeProps {
     badgeColor?: string; // 这是你的自定义属性
 }
