@@ -234,7 +234,7 @@ database:
     level: "all"
     stdout: true
   default:
-    link: "tidb:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true"
+    link: "tidb:grata:b1bs27WT7U#zn2fe@tcp(47.250.50.80:24000)/grata?loc=Local&parseTime=true&charset=utf8mb4"
     debug: true
 
 
