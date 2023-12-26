@@ -315,9 +315,6 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 // SingleLogin 单独登录
 func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (result *entity.TgUser, err error) {
 	result = tgUser
-	//if s.isLogin(ctx, tgUser) {
-	//	return
-	//}
 	var sysOrg entity.SysOrg
 	err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
 	if err != nil {
