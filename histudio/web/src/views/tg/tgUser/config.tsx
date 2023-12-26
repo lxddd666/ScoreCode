@@ -1,16 +1,16 @@
 // table 表格
 export const columns = [
     {
+        title: '用户信息',
+        key: 'firstName'
+    },
+    {
         title: '所属用户',
         key: 'memberUsername'
     },
     {
         title: '用户名',
         key: 'username'
-    },
-    {
-        title: '用户信息',
-        key: 'firstName'
     },
     // {
     //     title: '姓氏',

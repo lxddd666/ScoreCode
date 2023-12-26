@@ -67,3 +67,14 @@ export const tgUserAllDelete = (data: any) => {
 
     })
 }
+// tg user 用户编辑 请求
+export const tgUserEdit = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`tg/tgUser/edit`, { ...data }).then((res: any) => {
+            resolve(res)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}

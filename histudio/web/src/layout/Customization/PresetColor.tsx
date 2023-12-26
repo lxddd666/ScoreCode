@@ -51,14 +51,15 @@ const PresetColor = () => {
     const colorOptions = [
         {
             id: 'theme1',
-            primary: theme.palette.mode === 'dark' ? theme1.darkPrimaryMain : theme1.primaryMain,
-            secondary: theme.palette.mode === 'dark' ? theme1.darkSecondaryMain : theme1.secondaryMain
-        },
-        {
-            id: 'default',
             primary: theme.palette.mode === 'dark' ? colors.darkPrimaryMain : colors.primaryMain,
             secondary: theme.palette.mode === 'dark' ? colors.darkSecondaryMain : colors.secondaryMain
         },
+        {
+            id: 'default',
+            primary: theme.palette.mode === 'dark' ? theme1.darkPrimaryMain : theme1.primaryMain,
+            secondary: theme.palette.mode === 'dark' ? theme1.darkSecondaryMain : theme1.secondaryMain
+        },
+
         {
             id: 'theme2',
             primary: theme.palette.mode === 'dark' ? theme2.darkPrimaryMain : theme2.primaryMain,
