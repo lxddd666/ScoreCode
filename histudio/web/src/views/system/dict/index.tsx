@@ -42,6 +42,7 @@ const Dict = () => {
     const [paramsPayload, setParamsPayload] = useState({
         page: 1,
         pageSize: 10,
+        typeId:0,
         id: undefined,
         type: undefined,
         label: undefined,
@@ -73,10 +74,12 @@ const Dict = () => {
         getTgSearchParams();
     }, []);
 
-    // tgUser 表格数据
+    // dict 表格数据
     const getTableListActionFN = async () => {
         await dispatch(getDictList(paramsPayload));
     };
+    const [isOpen, setIsOpen] =useState(false);
+
     // 分组选择请求
     const getTgSearchParams = async () => {
         try {
@@ -166,10 +169,10 @@ const Dict = () => {
                 ></MainCard>
             </Grid>
         </Grid>
-            <Grid container alignItems="center" spacing={gridSpacing}>
+
                 <Grid item xs={12} sm={6}>
             <div className={styles.leftContent}>
-                <div className={styles.Tree}>
+                <MainCard>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
                         <Button size="small" variant="contained" disabled={true}>
@@ -181,15 +184,25 @@ const Dict = () => {
                         <Button size="small" variant="contained" disabled={true}>
                             删除
                         </Button>
+                        <Button
+                                size="small"
+                                variant="contained"
+                                disabled={!isOpen}
+                                onClick={() => setIsOpen(isOpen)}
+                        >
+                            {isOpen ? '收起': '展开'}
+                        </Button>
                     </Stack>
                 </div>
                 <div className={styles.menu}>
-                    <TextField id="outlined-basic" label="Outlined" variant="outlined" />
+                    <TextField id="outlined-basic" label="输入字典名称搜索" variant="outlined" sx={{mt:2, mb:2}} />
                 </div>
-            </div>
+                </MainCard>
             </div>
             </Grid>
-                <Grid item xs={12} sm={6}>
+
+
+            <Grid item xs={12} sm={6}>
             <div className={styles.rightContent}>
                     <div className={styles.box} ref={boxRef}>
                         <TableContainer
@@ -284,8 +297,6 @@ const Dict = () => {
                     </div>
             </div>
                 </Grid>
-            </Grid>
-
             </>
     );
 }

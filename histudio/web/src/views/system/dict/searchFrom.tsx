@@ -51,26 +51,24 @@ const SearchForm = (props: any) => {
         setValue({});
         setFormData(obj)
         handleSearchFormData(obj);
-        // console.log(formData);
 
     };
     return (
         <>
             <div className={styles.searchForm}>
                 <Grid container spacing={0.3} alignItems="center">
-                    <Grid item >
-                        <Item> <TextField
-
+                    <Grid item>
+                        <Item><TextField
                             sx={{ width: 300 }}
                             autoFocus
                             margin="dense"
                             id="standard-required"
                             inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.type || ''}
+                            value={formData.label || ''}
                             onChange={(event) =>
                                 setFormData({
                                     ...formData,
-                                    type: event.target.value
+                                    label: event.target.value
                                 })
                             }
                             label="请输入标签名称"
