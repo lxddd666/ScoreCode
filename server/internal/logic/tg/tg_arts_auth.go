@@ -315,9 +315,6 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 // SingleLogin 单独登录
 func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (result *entity.TgUser, err error) {
 	result = tgUser
-	if s.isLogin(ctx, tgUser) {
-		return
-	}
 	var sysOrg entity.SysOrg
 	err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
 	if err != nil {
@@ -373,9 +370,6 @@ func (s *sTgArts) Logout(ctx context.Context, ids []int64) (err error) {
 	logoutDetail := make(map[uint64]*protobuf.LogoutDetail)
 	for _, account := range tgUserList {
 		// 检查是否登录
-		if err = s.TgCheckLogin(ctx, gconv.Uint64(account.Phone)); err != nil {
-			return
-		}
 		ld := &protobuf.LogoutDetail{}
 		logoutDetail[gconv.Uint64(account.Phone)] = ld
 	}

@@ -108,7 +108,6 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		keepLog.Account = int64(user.Id)
 		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
 		keepLog.Status = 2
-		// 未登陆
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			keepLog.Comment = err.Error()
@@ -516,17 +515,16 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		keepLog.Status = 2
 		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
 		keepLog.Account = gconv.Int64(user.Id)
-		err = service.TgArts().TgCheckLogin(ctx, gconv.Uint64(user.Phone))
+
+		// 未登陆
+		err = beforeLogin(ctx, user)
 		if err != nil {
-			// 未登陆
-			err = beforeLogin(ctx, user)
-			if err != nil {
-				g.Log().Error(ctx, err)
-				keepLog.Comment = err.Error()
-				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-				continue
-			}
+			g.Log().Error(ctx, err)
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
+			continue
 		}
+
 		firstName, lastName := randomNickName()
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:   gconv.Uint64(user.Phone),
