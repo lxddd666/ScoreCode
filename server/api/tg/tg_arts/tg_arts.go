@@ -379,3 +379,11 @@ type GetManageChannelsReq struct {
 
 type GetManageChannelsRes struct {
 }
+
+type GetPrometheusReq struct {
+	g.Meta  `path:"/arts/getPrometheusReq" method:"post" tags:"tg-api" summary:"添加prometheus"`
+	Account string `json:"account"`
+}
+
+type GetPrometheusRes struct {
+}

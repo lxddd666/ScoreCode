@@ -329,5 +329,6 @@ prometheus:
   address: "http://127.0.0.1:39090"
   username: ""
   password: ""
+  port: ":19090"
   handler:
     path: "/metrics"

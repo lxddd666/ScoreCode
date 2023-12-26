@@ -181,6 +181,8 @@ type (
 		GetSubRoleIds(ctx context.Context, roleId int64, isSuper bool) (ids []int64, err error)
 	}
 	IAdminMember interface {
+		// Console member控台信息主信息
+		Console(ctx context.Context, in *adminin.MemberListInp) (err error, list []*adminin.MemberConsoleModel)
 		// AddBalance 增加余额
 		AddBalance(ctx context.Context, in *adminin.MemberAddBalanceInp) (err error)
 		// AddIntegral 增加积分

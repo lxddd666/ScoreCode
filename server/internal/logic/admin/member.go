@@ -7,7 +7,6 @@ package admin
 
 import (
 	"context"
-
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/database/gredis"
@@ -18,6 +17,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/gogf/gf/v2/util/grand"
 	"hotgo/internal/consts"
+	"hotgo/internal/controller/admin/common"
 	"hotgo/internal/dao"
 	"hotgo/internal/global"
 	cmember "hotgo/internal/library/cache/member"
@@ -54,6 +54,48 @@ func NewAdminMember() *sAdminMember {
 
 func init() {
 	service.RegisterAdminMember(NewAdminMember())
+}
+
+// Console 员工控台信息
+func (s *sAdminMember) Console(ctx context.Context, in *adminin.MemberListInp) (err error, list []*adminin.MemberConsoleModel) {
+	members, count, err := s.List(ctx, in)
+	if err != nil {
+		return
+	}
+	if count == 0 {
+		return
+	}
+
+	for _, member := range members {
+		console := adminin.MemberConsoleModel{}
+		userList := make([]entity.TgUser, 0)
+		err = g.Model(dao.TgUser.Table()).Where(dao.TgUser.Columns().MemberId, member.Id).Scan(&userList)
+		// 账号名下社交账号数
+		if len(userList) > 0 {
+			console.AccountCount = int64(len(userList))
+			// 发消息次数
+			_, sendMsg := common.GetPrometheus(ctx, "tg_member_send_message", g.Map{"member": member.Id})
+			console.DailyMessagesSent = sendMsg.Number
+			// 联系人数量
+			for _, user := range userList {
+				contactsCount, err := g.Model(dao.TgContacts.Table()).Ctx(ctx).
+					LeftJoin("tg_user_contacts uc", "tg_user.id=uc.tg_user_id").
+					Where("tg_user."+dao.TgUser.Columns().MemberId, member.Id).Count()
+				if err != nil {
+					return err, list
+				}
+				console.ActiveContactsAccum = int64(contactsCount)
+				// 新增联系人数量
+				err, syncContactInfo := common.GetPrometheus(ctx, "tg_member_sync_contact", g.Map{"member": user.Id})
+				if err != nil {
+					return err, list
+
+				}
+				console.SyncContacts = syncContactInfo.Number
+			}
+		}
+	}
+	return
 }
 
 // AddBalance 增加余额
