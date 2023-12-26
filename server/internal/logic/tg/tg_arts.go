@@ -12,6 +12,7 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
@@ -35,13 +36,14 @@ func init() {
 // TgSyncContact 同步联系人
 func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp) (res string, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	resp, err := service.Arts().SyncContact(ctx, inp, consts.TgSvc)
 	if err == nil {
+		user := contexts.GetUser(ctx)
 		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 		prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(inp.Phone)).Inc()
+
+		prometheus.MemberSyncContact.WithLabelValues(gconv.String(user.Id))
+		prometheus.OrgSyncContact.WithLabelValues(gconv.String(user.OrgId))
 
 		if len(resp) == 0 {
 			return
@@ -111,9 +113,6 @@ func handleAddContact(ctx context.Context, account uint64, contact tg.Updates) (
 // TgGetContacts 获取contacts
 func (s *sTgArts) TgGetContacts(ctx context.Context, account uint64) (list []*tgin.TgContactsListModel, err error) {
 	// 检查是否登录
-	//if err = s.TgCheckLogin(ctx, account); err != nil {
-	//	return
-	//}
 
 	msg := &protobuf.GetContactList{
 		Account: account,
@@ -173,9 +172,6 @@ func (s *sTgArts) handlerSaveContacts(ctx context.Context, account uint64, list 
 // TgDownloadFile 下载聊天文件
 func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp) (res *tgin.TgDownloadMsgModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	msgMap := make(map[uint64]*protobuf.DownLoadFileMsg)
 	msgMap[inp.Account] = &protobuf.DownLoadFileMsg{
 		ChatId:    inp.ChatId,
@@ -227,9 +223,6 @@ func (s *sTgArts) TgDownloadFile(ctx context.Context, inp *tgin.TgDownloadMsgInp
 // TgAddGroupMembers 添加群成员
 func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMembersInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_ADD_GROUP_MEMBER,
 		Type:    consts.TgSvc,
@@ -256,9 +249,6 @@ func (s *sTgArts) TgAddGroupMembers(ctx context.Context, inp *tgin.TgGroupAddMem
 // TgCreateGroup 创建群聊
 func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_CREATE_GROUP,
 		Type:    consts.TgSvc,
@@ -283,9 +273,6 @@ func (s *sTgArts) TgCreateGroup(ctx context.Context, inp *tgin.TgCreateGroupInp)
 // TgGetGroupMembers 获取群成员
 func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMembersInp) (list []*tgin.TgContactsListModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_GET_GROUP_MEMBERS,
 		Type:    consts.TgSvc,
@@ -310,9 +297,6 @@ func (s *sTgArts) TgGetGroupMembers(ctx context.Context, inp *tgin.TgGetGroupMem
 // TgCreateChannel 创建频道
 func (s *sTgArts) TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreateInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_CREATE_CHANNEL,
 		Type:    consts.TgSvc,
@@ -339,9 +323,6 @@ func (s *sTgArts) TgCreateChannel(ctx context.Context, inp *tgin.TgChannelCreate
 // TgChannelAddMembers 添加频道成员
 func (s *sTgArts) TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAddMembersInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_INVITE_TO_CHANNEL,
 		Type:    consts.TgSvc,
@@ -369,9 +350,6 @@ func (s *sTgArts) TgChannelAddMembers(ctx context.Context, inp *tgin.TgChannelAd
 // TgChannelJoinByLink 加入频道
 func (s *sTgArts) TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_JOIN_BY_LINK,
 		Type:    consts.TgSvc,
@@ -410,9 +388,6 @@ func (s *sTgArts) TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatar
 		res = &tgin.TgGetUserAvatarModel{
 			Avatar: tgPhoto.FileUrl,
 		}
-		return
-	}
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
 		return
 	}
 
@@ -465,9 +440,6 @@ func (s *sTgArts) TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatar
 
 func (s *sTgArts) TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SEARCH,
 		Type:    consts.TgSvc,
@@ -494,9 +466,6 @@ func (s *sTgArts) TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfo
 // TgReadPeerHistory 消息已读
 func (s *sTgArts) TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHistoryInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Account: inp.Sender,
 		Action:  protobuf.Action_READ_HISTORY,
@@ -520,9 +489,6 @@ func (s *sTgArts) TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHis
 // TgReadChannelHistory channel消息已读
 func (s *sTgArts) TgReadChannelHistory(ctx context.Context, inp *tgin.TgReadChannelHistoryInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Account: inp.Sender,
 		Action:  protobuf.Action_READ_CHANNEL_HISTORY,
@@ -547,9 +513,6 @@ func (s *sTgArts) TgReadChannelHistory(ctx context.Context, inp *tgin.TgReadChan
 // TgChannelReadAddView channel view++
 func (s *sTgArts) TgChannelReadAddView(ctx context.Context, inp *tgin.ChannelReadAddViewInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Account: inp.Sender,
 		Action:  protobuf.Action_CHANNEL_READ_VIEW,
@@ -572,9 +535,6 @@ func (s *sTgArts) TgChannelReadAddView(ctx context.Context, inp *tgin.ChannelRea
 // TgUpdateUserInfo 修改用户信息
 func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	sendMsg := make(map[uint64]*protobuf.UpdateUserInfoMsg)
 	sendMsg[inp.Account] = &protobuf.UpdateUserInfoMsg{
 		UserName:  inp.Username,
@@ -632,9 +592,6 @@ func (s *sTgArts) TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserIn
 // TgCheckUsername 校验username
 func (s *sTgArts) TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Account: inp.Account,
 		Action:  protobuf.Action_CHECK_USERNAME,
@@ -659,9 +616,6 @@ func (s *sTgArts) TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsername
 
 func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	detail := &protobuf.UintkeyStringvalue{}
 	detail.Key = inp.Account
 
@@ -688,9 +642,6 @@ func (s *sTgArts) TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (e
 
 // ContactsGetLocated 获取附近的人
 func (s *sTgArts) ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error) {
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_CONTACTS_GET_LOCATED,
@@ -733,9 +684,6 @@ func handlerLocateContact(box tg.Updates) (list []tgin.TgPeerModel) {
 
 // EditChannelInfo 修改频道信息
 func (s *sTgArts) EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error) {
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 
 	photo := &protobuf.FileDetailValue{
 		FileType: inp.Photo.MIME,
@@ -777,9 +725,6 @@ func (s *sTgArts) EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfo
 
 // EditChannelInfo 获取附近的人
 func (s *sTgArts) EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error) {
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_EDIT_CHAT_BANNED_RIGHTS,
@@ -821,9 +766,6 @@ func (s *sTgArts) EditChannelBannedRight(ctx context.Context, inp *tgin.EditChan
 
 // GetManageChannels 获取自己管理的频道和群
 func (s *sTgArts) GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error) {
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_GET_MANAGED_CHANNELS,

@@ -360,3 +360,25 @@ func (in *MemberAddIntegralInp) Filter(ctx context.Context) (err error) {
 }
 
 type MemberAddIntegralModel struct{}
+
+//type MemberConsoleModel struct {
+//	AccountCount        float64 `json:"accountCount"           dc:"名下社交账号数"`
+//	OnlineDuration      float64 `json:"onlineDuration"         dc:"在线时长"`
+//	DailyMessagesSent   float64 `json:"dailyMessagesSent"     dc:"日均发送消息数量"`
+//	DailyInteractions   float64 `json:"dailyInteractions"      dc:"日均联系人互动数"`
+//	NewContacts         float64 `json:"newContacts"            dc:"新增联系人数量"`
+//	TotalConversations  float64 `json:"totalConversations"     dc:"社交账号会话总数"`
+//	ActiveContactsAccum float64 `json:"activeContactsAccum"   dc:"积累活跃联系人数量"`
+//	UsedScriptsAccum    float64 `json:"usedScriptsAccum"      dc:"累积使用话术数量"`
+//}
+
+type MemberConsoleModel struct {
+	AccountCount        int64   `json:"accountCount"           dc:"名下社交账号数"`
+	OnlineDuration      float64 `json:"onlineDuration"         dc:"在线时长"`
+	DailyMessagesSent   int64   `json:"dailyMessagesSent"     dc:"日均发送消息数量"`
+	DailyInteractions   int64   `json:"dailyInteractions"      dc:"日均联系人互动数"`
+	SyncContacts        int64   `json:"SyncContacts"            dc:"新增联系人数量"`
+	TotalConversations  int64   `json:"totalConversations"     dc:"社交账号会话总数"`
+	ActiveContactsAccum int64   `json:"activeContactsAccum"   dc:"积累活跃联系人数量"`
+	UsedScriptsAccum    int64   `json:"usedScriptsAccum"      dc:"累积使用话术数量"`
+}

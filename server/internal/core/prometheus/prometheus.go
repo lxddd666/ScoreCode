@@ -10,7 +10,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"hotgo/internal/service"
+	"net/http"
 )
+
+var ()
 
 var (
 	// LoginSuccessCounter 登录成功记录
@@ -396,9 +399,54 @@ var (
 			Help: "Total number of channel edit  info",
 		},
 		[]string{"channel"})
+
+	MemberSendTgMsg = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_member_send_message",
+			Help: "Total number of member send message",
+		},
+		[]string{"member"})
+
+	OrgSendTgMsg = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_org_send_message",
+			Help: "Total number of org send message",
+		},
+		[]string{"org"})
+
+	// TgUserChatWithOther 和别人和会话
+	TgUserChatWithOther = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_user_send_chat",
+			Help: "Total number of send message chat with other user",
+		},
+		[]string{"account", "otherUser"})
+
+	// MemberSyncContact 员工添加Tg联系人
+	MemberSyncContact = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_member_sync_contact",
+			Help: "Total number of member sync tg contact",
+		},
+		[]string{"member"})
+
+	// OrgSyncContact 公司添加Tg联系人
+	OrgSyncContact = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "tg_org_sync_contact",
+			Help: "Total number of org sync tg contact",
+		},
+		[]string{"org"})
 )
 
 func init() {
+	prometheus.MustRegister(MemberSyncContact)
+	prometheus.MustRegister(OrgSyncContact)
+
+	prometheus.MustRegister(MemberSendTgMsg)
+	prometheus.MustRegister(OrgSendTgMsg)
+	prometheus.MustRegister(TgUserChatWithOther)
+
 	prometheus.MustRegister(LoginSuccessCounter)
 	prometheus.MustRegister(LoginFailureCounter)
 	prometheus.MustRegister(LogoutCount)
@@ -466,6 +514,8 @@ func InitPrometheus(ctx context.Context, s *ghttp.Server) {
 	s.BindHandler(g.Cfg().MustGet(ctx, "prometheus.handler.path").String(), func(r *ghttp.Request) {
 		promhttp.Handler().ServeHTTP(r.Response.Writer, r.Request)
 	})
-	//http.Handle("/metrics", promhttp.Handler())
-	//go http.ListenAndServe(":48870", nil)
+	port := g.Cfg().MustGet(ctx, "prometheus.port").String()
+	metrics := g.Cfg().MustGet(ctx, "prometheus.handler.path").String()
+	http.Handle(metrics, promhttp.Handler())
+	go http.ListenAndServe(port, nil)
 }

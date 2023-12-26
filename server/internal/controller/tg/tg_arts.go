@@ -3,7 +3,9 @@ package tg
 import (
 	"context"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gogf/gf/v2/util/gconv"
 	tgarts "hotgo/api/tg/tg_arts"
+	"hotgo/internal/core/prometheus"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/service"
 )
@@ -307,8 +309,33 @@ func (c *cTgArts) GetManageChannels(ctx context.Context, req *tgarts.GetManageCh
 	return
 }
 
-//// TestPrometheus
-//func (c *cTgArts) TestPrometheus(ctx context.Context) (err error) {
-//	prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(18818877128)).Inc()
-//	return
-//}
+// TestPrometheus
+func (c *cTgArts) TestPrometheus(ctx context.Context, inp *tgarts.GetPrometheusReq) (res *tgarts.GetPrometheusRes, err error) {
+	prometheus.InitiateSyncContactCount.WithLabelValues(inp.Account).Inc()
+	prometheus.LoginSuccessCounter.WithLabelValues(inp.Account).Inc()
+	prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountGetContactsCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountDownloadFileCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AddMemberToGroupCount.WithLabelValues(inp.Account).Inc()
+	prometheus.AccountJoinGroupCount.WithLabelValues(inp.Account).Inc()
+	prometheus.CreateGroupCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountGetGroupMsgCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.CreateChannelCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AddMemberToChannelCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountJoinChannelCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountJoinChannelCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountGetUserHeadImageCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountSearchInfoCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountReadMsgHistoryCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountMsgPassiveReadHistoryCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountReadMsgHistoryCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountChannelReadHistoryCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountUpdateUserInfoCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountLeaveGroupCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.GroupLeaveGroupCount.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountClearMsgDraft.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.AccountEditChannelInfo.WithLabelValues(gconv.String(inp.Account)).Inc()
+	prometheus.ChannelEditInfo.WithLabelValues(gconv.String(inp.Account)).Inc()
+	return
+}

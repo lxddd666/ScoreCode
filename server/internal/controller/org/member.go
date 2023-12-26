@@ -144,3 +144,9 @@ func (c *cMember) AddIntegral(ctx context.Context, req *member.AddIntegralReq) (
 	err = service.AdminMember().AddIntegral(ctx, &req.MemberAddIntegralInp)
 	return
 }
+
+// MemberConsole 员工TG数据
+func (c *cMember) MemberConsole(ctx context.Context, req *member.MemberConsoleReq) (res *member.MemberConsoleRes, err error) {
+	err, _ = service.AdminMember().Console(ctx, &req.MemberListInp)
+	return
+}

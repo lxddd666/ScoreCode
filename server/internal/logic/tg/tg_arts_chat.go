@@ -12,6 +12,7 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
+	"hotgo/internal/library/contexts"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
 	"hotgo/internal/model/input/artsin"
@@ -24,14 +25,15 @@ import (
 // TgSendMsg 发送消息
 func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
+	user := contexts.GetUser(ctx)
 	res, err = service.Arts().SendMsg(ctx, inp, consts.TgSvc)
 	if err == nil {
 		prometheus.AccountSendMsg.WithLabelValues(gconv.String(inp.Account)).Add(gconv.Float64(len(inp.Receiver)))
+		prometheus.OrgSendTgMsg.WithLabelValues(gconv.String(user.OrgId)).Add(gconv.Float64(len(inp.Receiver)))
+		prometheus.MemberSendTgMsg.WithLabelValues(gconv.String(user.Id)).Add(gconv.Float64(len(inp.Receiver)))
 		for _, receiver := range inp.Receiver {
 			prometheus.AccountPassiveSendMsg.WithLabelValues(gconv.String(receiver)).Inc()
+			prometheus.TgUserChatWithOther.WithLabelValues(gconv.String(inp.Account), gconv.String(receiver)).Inc()
 		}
 	}
 	return
@@ -40,14 +42,15 @@ func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string
 // TgSendMsgSingle 单独发送消息
 func (s *sTgArts) TgSendMsgSingle(ctx context.Context, inp *artsin.MsgSingleInp) (res string, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
-
+	user := contexts.GetUser(ctx)
 	res, err = service.Arts().SendMsgSingle(ctx, inp, consts.TgSvc)
 	if err == nil {
+		prometheus.OrgSendTgMsg.WithLabelValues(gconv.String(user.OrgId)).Inc()
+		prometheus.MemberSendTgMsg.WithLabelValues(gconv.String(user.Id)).Inc()
 		prometheus.AccountSendMsg.WithLabelValues(gconv.String(inp.Account)).Inc()
 		prometheus.AccountPassiveSendMsg.WithLabelValues(gconv.String(inp.Receiver)).Inc()
+		prometheus.TgUserChatWithOther.WithLabelValues(gconv.String(inp.Account), gconv.String(inp.Receiver)).Inc()
+
 	}
 	return
 }
@@ -70,9 +73,6 @@ func (s *sTgArts) TgSendFileSingle(ctx context.Context, inp *artsin.FileSingleIn
 // TgGetDialogs 获取chats
 func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgin.TgDialogModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_DIALOG_LIST,
 		Type:    consts.TgSvc,
@@ -119,9 +119,6 @@ func (s *sTgArts) TgGetMsgHistory(ctx context.Context, inp *tgin.TgGetMsgHistory
 		}
 	}
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_Get_MSG_HISTORY,
@@ -165,9 +162,6 @@ func (s *sTgArts) handlerSaveMsg(ctx context.Context, list []*tgin.TgMsgModel) {
 // TgGetEmojiGroup 获取emoji分组
 func (s *sTgArts) TgGetEmojiGroup(ctx context.Context, inp *tgin.TgGetEmojiGroupInp) (res []*tgin.TgGetEmojiGroupModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_GET_EMOJI_GROUP,
 		Type:    consts.TgSvc,
@@ -207,9 +201,6 @@ func setEmoJiToRedis(ctx context.Context, res []*tgin.TgGetEmojiGroupModel) erro
 // TgSendReaction 消息点赞
 func (s *sTgArts) TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_MESSAGES_REACTION,
 		Type:    consts.TgSvc,
@@ -250,9 +241,6 @@ func (s *sTgArts) TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (er
 // SaveMsgDraft 消息草稿同步
 func (s *sTgArts) SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_SAVE_DRAFT,
 		Type:    consts.TgSvc,
@@ -278,9 +266,6 @@ func (s *sTgArts) SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (
 // ClearMsgDraft 清除消息草稿同步
 func (s *sTgArts) ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error) {
 	// 检查是否登录
-	if err = s.TgCheckLogin(ctx, inp.Account); err != nil {
-		return
-	}
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_CLEAR_ALL_DRAFT,
 		Type:    consts.TgSvc,
@@ -309,9 +294,6 @@ func (s *sTgArts) ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp)
 
 // DeleteMsg 删除消息
 func (s *sTgArts) DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error) {
-	if err = s.TgCheckLogin(ctx, inp.Sender); err != nil {
-		return
-	}
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_DELETE_MESSAGES,

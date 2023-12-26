@@ -136,3 +136,13 @@ type AddIntegralReq struct {
 }
 
 type AddIntegralRes struct{}
+
+// MemberConsoleReq 增加积分
+type MemberConsoleReq struct {
+	g.Meta `path:"/member/memberConsole" method:"post" tags:"用户" summary:"员工Grata信息"`
+	adminin.MemberListInp
+}
+
+type MemberConsoleRes struct {
+	console *adminin.MemberConsoleModel
+}

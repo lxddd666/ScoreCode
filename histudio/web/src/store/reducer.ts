@@ -10,6 +10,7 @@ import whatsReducer from './slices/whats';
 import cronReducer from './slices/cron';
 import subcronReducer from './slices/subcron';
 import blacklistReducer from './slices/blacklist';
+import dictReducer from './slices/dict';
 import cartReducer from './slices/cart';
 import menuReducer from './slices/menu';
 import logReducer from './slices/log';
@@ -40,6 +41,7 @@ const reducer = combineReducers({
     servelog: servelogReducer,
     smslog: smslogReducer,
     blacklist: blacklistReducer,
+    dict: dictReducer,
     cron: cronReducer,
     subcron: subcronReducer,
     tg: tgReducer,
