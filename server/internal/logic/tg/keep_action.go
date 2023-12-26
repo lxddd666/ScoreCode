@@ -79,6 +79,12 @@ func beforeGetTgUsers(ctx context.Context, ids []int64) (tgUserList []*entity.Tg
 
 // ReadGroupMsg 已读群消息
 func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand read group msg and likes msg",
+	}
 	var ids = array.New[int64]()
 	if task.FolderId != 0 {
 		list := make([]entity.TgUserFolders, 0)
@@ -99,9 +105,14 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		return
 	}
 	for _, user := range tgUserList {
+		keepLog.Account = int64(user.Id)
+		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
+		keepLog.Status = 2
 		// 未登陆
 		err = beforeLogin(ctx, user)
 		if err != nil {
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			g.Log().Error(ctx, err)
 			continue
 		}
@@ -118,6 +129,8 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 				topMsgId := dialog.TopMessage
 				if unReadCount != 0 {
 					if err != nil {
+						keepLog.Comment = err.Error()
+						_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 						continue
 					}
 					seconds := grand.N(2, 6)
@@ -126,6 +139,8 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 						Receiver: gconv.String(dialog.TgId),
 					})
 					if err != nil {
+						keepLog.Comment = "read msg err:" + err.Error()
+						_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 						continue
 					}
 					time.Sleep(time.Duration(seconds) * time.Second)
@@ -134,6 +149,8 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 						// 百分之40概率点赞
 						err = RandMsgLikes(ctx, account, group, topMsgId)
 						if err != nil {
+							keepLog.Comment = "likes msg err:" + err.Error()
+							_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 							continue
 						}
 					}
@@ -144,19 +161,29 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 							GroupId: dialog.TgId,
 						})
 						if err != nil {
-							return
+							keepLog.Comment = "get group member err:" + err.Error()
+							_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
+							continue
 						}
 						time.Sleep(time.Duration(seconds) * time.Second)
 					}
 				}
 			}
 		}
+		keepLog.Status = 1
+		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 	}
 	return
 }
 
 // ReadChannelMsg 读channel信息和点赞
 func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand read channel msg and likes msg",
+	}
 	// 获取账号
 	var ids = array.New[int64]()
 	if task.FolderId != 0 {
@@ -178,9 +205,14 @@ func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		return
 	}
 	for _, user := range tgUserList {
+		keepLog.Account = int64(user.Id)
+		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
+		keepLog.Status = 2
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
 		dialogList, dErr := service.TgArts().TgGetDialogs(ctx, gconv.Uint64(user.Phone))
@@ -198,21 +230,27 @@ func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 					// 消息已读，view +1
 					err = ChannelReadHistoryAndAddView(ctx, account, channelId, unReadCount, topMsgId, false)
 					if err != nil {
+						keepLog.Comment = "view err:" + err.Error()
+						_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 						continue
 					}
 					seconds := grand.N(2, 6)
 					time.Sleep(time.Duration(seconds) * time.Second)
 					// 随机点赞
-					if GenerateRandomResult(1) {
+					if GenerateRandomResult(0.5) {
 						// 百分之40概率点赞
 						err = RandMsgLikes(ctx, account, channelId, topMsgId)
 						if err != nil {
+							keepLog.Comment = "likes err:" + err.Error()
+							_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 							continue
 						}
 					}
 				}
 			}
 		}
+		keepLog.Status = 1
+		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 	}
 	return
 }
@@ -383,6 +421,12 @@ func CheckIsFriend(ctx context.Context, user *entity.TgUser, receiver *entity.Tg
 
 // RandBio 随机签名动作
 func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand bio",
+	}
 	// 获取账号
 	var ids = array.New[int64]()
 	if task.FolderId != 0 {
@@ -405,6 +449,9 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 
 	for _, user := range tgUserList {
+		keepLog.Status = 2
+		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
+		keepLog.Account = gconv.Int64(user.Id)
 		//修改签名
 		bio := randomBio(ctx, user)
 
@@ -413,6 +460,8 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
 		inp := &tgin.TgUpdateUserInfoInp{
@@ -421,8 +470,13 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
+		keepLog.Status = 1
+		keepLog.Comment = *inp.Bio
+		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 		time.Sleep(1 * time.Second)
 	}
 
@@ -431,6 +485,12 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 
 // RandNickName 随机姓名
 func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand nick name",
+	}
 	// 获取账号
 	var ids = array.New[int64]()
 	if task.FolderId != 0 {
@@ -453,12 +513,17 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改nickName
 	for _, user := range tgUserList {
+		keepLog.Status = 2
+		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
+		keepLog.Account = gconv.Int64(user.Id)
 		err = service.TgArts().TgCheckLogin(ctx, gconv.Uint64(user.Phone))
 		if err != nil {
 			// 未登陆
 			err = beforeLogin(ctx, user)
 			if err != nil {
 				g.Log().Error(ctx, err)
+				keepLog.Comment = err.Error()
+				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 				continue
 			}
 		}
@@ -470,8 +535,12 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
+		keepLog.Status = 1
+		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 		time.Sleep(1 * time.Second)
 	}
 	return err
@@ -548,6 +617,12 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 
 // RandPhoto 随机头像
 func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
+	keepLog := entity.TgKeepTaskLog{
+		OrgId:    task.OrgId,
+		TaskId:   task.Id,
+		TaskName: task.TaskName,
+		Action:   "rand photo",
+	}
 	// 获取账号
 	var ids = array.New[int64]()
 	if task.FolderId != 0 {
@@ -570,14 +645,21 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 	}
 	//修改头像
 	for _, user := range tgUserList {
+		keepLog.Status = 2
+		keepLog.Content = gjson.New(g.Map{"account": user.Phone})
+		keepLog.Account = gconv.Int64(user.Id)
 		err = beforeLogin(ctx, user)
 		if err != nil {
 			g.Log().Error(ctx, err)
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
 		url := RandUrl(IMAGE)
 		if url == "" {
-			return
+			keepLog.Comment = "获取头像url为空"
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
+			continue
 		}
 		avatar := g.Client().Discovery(nil).GetBytes(ctx, url)
 		mime := mimetype.Detect(avatar)
@@ -591,8 +673,12 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		err = service.TgArts().TgUpdateUserInfo(ctx, inp)
 		if err != nil {
+			keepLog.Comment = err.Error()
+			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
+		keepLog.Status = 1
+		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 		time.Sleep(1 * time.Second)
 	}
 	return err
