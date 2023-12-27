@@ -91,6 +91,7 @@
   "AddBatchTaskFailed": "Add batch operation task failed, please try again later!",
   "MemberAccountCountErr": "Insufficient user account",
   "DraftMsgClearErr": "Draft message clear error",
-  "SameFolderName": "There is already a group with the same name under the same company. Please change the group name again"
+  "SameFolderName": "There is already a group with the same name under the same company. Please change the group name again",
+  "GetTgUserAccountEmpty": "Get Tg account empty"
 
 }
