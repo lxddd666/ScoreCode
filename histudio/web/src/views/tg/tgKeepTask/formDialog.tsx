@@ -97,7 +97,7 @@ const FormDialog = (props: any) => {
         folderId: false,
     })
 
-    console.log('dormDialog', open, config);
+    // console.log('dormDialog', open, config);
     useEffect(() => {
         setFormikValue({
             ...formikValue,

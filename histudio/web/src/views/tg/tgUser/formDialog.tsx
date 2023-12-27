@@ -52,7 +52,7 @@ const FormDialog = (props: any) => {
     const { open, config, onChangeDialogStatus } = props
     const [dialogValue, setDialogValue] = useState<any>({})
 
-    console.log('dormDialog', open, config);
+    // console.log('dormDialog', open, config);
 
 
     // 提交表单
