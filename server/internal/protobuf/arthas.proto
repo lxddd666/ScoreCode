@@ -84,6 +84,9 @@ enum Action {
   READ_STORIES =73;
   SEND_STORIES_REACTION=74;
   GET_STORIES_VIEWS=75;
+  IMPORT_CONTACTS = 76;
+  GET_ONLINE =77;
+  CREATE_GROUP_CALL =78;
 }
 
 
@@ -240,7 +243,6 @@ message OrdinarySingleAction {
   loginDetail login_detail = 1;
   string Type = 2;
   uint64 account = 3;
-
 }
 
 message DeletePrivateChatDetail {
@@ -274,6 +276,8 @@ message loginDetail {
   TgDeviceConfig tgDevice = 3; // 登录设备信息
   bool isBot = 4;
   string token = 5;
+  uint64 appId = 6;
+  string appHash = 7;
 }
 
 message TgDeviceConfig {
@@ -416,6 +420,32 @@ message TgAddContactDetail {
   bool AddPhonePrivacy  =5;
 }
 
+message ImportContactsDetail {
+  uint64 Sender =1;
+  repeated ContactInfo ContactInfoList =2;
+}
+
+message ContactInfo {
+  int64 ClientID =1;
+  // Phone number
+  string Phone  =2;
+  // Contact's first name
+  string  FirstName  =3;
+  // Contact's last name
+  string LastName  =4;
+}
+
+message GetOnlineDetail {
+  uint64 Sender =1;
+  string Chat =2;
+}
+
+message CreateGroupCallDetail {
+  uint64 Sender =1;
+  string Chat =2;
+  string Title =3;
+}
+
 // 定义总的消息
 message RequestMessage {
   Action action = 1; // 动作字段
@@ -498,6 +528,9 @@ message RequestMessage {
     SendStoriesReactionDetail send_stories_reaction_detail=82;
     GetStoriesViewsDetail get_stories_views_detail = 83;
     TgAddContactDetail tg_add_contact_detail = 84;
+    ImportContactsDetail import_contacts_detail =85;
+    GetOnlineDetail get_online_detail =86;
+    CreateGroupCallDetail create_group_call_detail =87;
   }
   string type = 18;
   uint64 account = 35; //账号

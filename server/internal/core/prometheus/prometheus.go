@@ -13,13 +13,17 @@ import (
 	"net/http"
 )
 
-var ()
+var (
+	LoginSuccessCounter_key = "tg_user_login_success_total"
+	LoginFailureCounter_key = "tg_user_login_failure_total"
+	AccountBannedCount_key  = "tg_account_banned"
+)
 
 var (
 	// LoginSuccessCounter 登录成功记录
 	LoginSuccessCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "tg_user_login_success_total",
+			Name: LoginSuccessCounter_key,
 			Help: "Total number of successful user logins",
 		},
 		[]string{"username"},
@@ -27,7 +31,7 @@ var (
 	// LoginFailureCounter 登录失败记录
 	LoginFailureCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "tg_user_login_failure_total",
+			Name: LoginFailureCounter_key,
 			Help: "Total number of failed user logins",
 		},
 		[]string{"username", "reason"},
@@ -35,7 +39,7 @@ var (
 	// AccountBannedCount 账号被封
 	AccountBannedCount = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "tg_account_banned",
+			Name: AccountBannedCount_key,
 			Help: "Total number of account banned",
 		},
 		[]string{"username", "reason"},
