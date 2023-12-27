@@ -79,7 +79,8 @@ func (s *sAdminMember) Console(ctx context.Context, in *adminin.MemberListInp) (
 			// 联系人数量
 			for _, user := range userList {
 				contactsCount, err := g.Model(dao.TgContacts.Table()).Ctx(ctx).
-					LeftJoin("tg_user_contacts uc", "tg_user.id=uc.tg_user_id").
+					LeftJoin("tg_user_contacts uc", "tg_contacts.id=uc.tg_contacts_id").
+					LeftJoin("tg_user ", "tg_user.id=uc.tg_user_id").
 					Where("tg_user."+dao.TgUser.Columns().MemberId, member.Id).Count()
 				if err != nil {
 					return err, list
@@ -92,6 +93,7 @@ func (s *sAdminMember) Console(ctx context.Context, in *adminin.MemberListInp) (
 
 				}
 				console.SyncContacts = syncContactInfo.Number
+
 			}
 		}
 	}

@@ -61,7 +61,8 @@ func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
 	if err != nil {
 		return
 	}
-	time.Sleep(3 * time.Second)
+	second := grand.N(5, 60)
+	time.Sleep(time.Duration(second) * time.Second)
 	return
 }
 
@@ -132,7 +133,7 @@ func ReadGroupMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 						_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 						continue
 					}
-					seconds := grand.N(2, 6)
+					seconds := grand.N(3, 7)
 					err = service.TgArts().TgReadPeerHistory(ctx, &tgin.TgReadPeerHistoryInp{
 						Sender:   account,
 						Receiver: gconv.String(dialog.TgId),
@@ -233,7 +234,7 @@ func ReadChannelMsg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 						_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 						continue
 					}
-					seconds := grand.N(2, 6)
+					seconds := grand.N(3, 7)
 					time.Sleep(time.Duration(seconds) * time.Second)
 					// 随机点赞
 					if GenerateRandomResult(0.5) {
@@ -306,7 +307,8 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		if err != nil {
 			continue
 		}
-		time.Sleep(2 * time.Second)
+		second := grand.N(5, 12)
+		time.Sleep(time.Duration(second) * time.Second)
 		for _, receiver := range tgUserList {
 			keepLog.Content = gjson.New(g.Map{"sender": user.Phone, "receiver": receiver.Phone})
 			if receiver.Id == user.Id {
@@ -320,7 +322,8 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 				continue
 			}
 			err = CheckIsFriend(ctx, user, receiver, contactMap)
-			time.Sleep(2 * time.Second)
+			time.Sleep(time.Duration(second) * time.Second)
+
 			if err != nil {
 				keepLog.Comment = "sync contact err:" + err.Error()
 				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
@@ -330,7 +333,7 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			if err != nil {
 				continue
 			}
-			time.Sleep(1 * time.Second)
+			time.Sleep(time.Duration(second) * time.Second)
 			if user.Id != receiver.Id {
 				inp := &artsin.MsgInp{
 					Account:  gconv.Uint64(user.Phone),
@@ -372,7 +375,8 @@ func Msg(ctx context.Context, task *entity.TgKeepTask) (err error) {
 				}
 				keepLog.Status = 1
 				_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-				time.Sleep(2 * time.Second)
+				time.Sleep(time.Duration(second) * time.Second)
+
 			}
 		}
 
@@ -476,7 +480,7 @@ func RandBio(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		keepLog.Status = 1
 		keepLog.Comment = *inp.Bio
 		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 
 	return err
@@ -539,7 +543,8 @@ func RandNickName(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		keepLog.Status = 1
 		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-		time.Sleep(1 * time.Second)
+
+		time.Sleep(5 * time.Second)
 	}
 	return err
 }
@@ -595,7 +600,8 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 			_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
 			continue
 		}
-		time.Sleep(1 * time.Second)
+		second := grand.N(5, 10)
+		time.Sleep(time.Duration(second) * time.Second)
 		inp := &tgin.TgUpdateUserInfoInp{
 			Account:  gconv.Uint64(user.Phone),
 			Username: proto.String(username),
@@ -608,7 +614,7 @@ func RandUsername(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		keepLog.Status = 1
 		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-		time.Sleep(2 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 	return err
 }
@@ -677,7 +683,8 @@ func RandPhoto(ctx context.Context, task *entity.TgKeepTask) (err error) {
 		}
 		keepLog.Status = 1
 		_, _ = dao.TgKeepTaskLog.Ctx(ctx).Data(keepLog).Save()
-		time.Sleep(1 * time.Second)
+		second := grand.N(5, 10)
+		time.Sleep(time.Duration(second) * time.Second)
 	}
 	return err
 }

@@ -381,7 +381,7 @@ type GetManageChannelsRes struct {
 }
 
 type GetPrometheusReq struct {
-	g.Meta  `path:"/arts/getPrometheusReq" method:"post" tags:"tg-api" summary:"添加prometheus"`
+	g.Meta  `path:"/arts/getPrometheusReq" method:"post" tags:"tg-api" summary:"添加prometheus(测试使用)"`
 	Account string `json:"account"`
 }
 

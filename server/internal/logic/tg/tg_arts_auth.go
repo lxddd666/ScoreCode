@@ -32,8 +32,9 @@ func (s *sTgArts) SyncAccount(ctx context.Context, phones []uint64) (result stri
 		appData[phone] = &protobuf.AppData{AppId: 0, AppHash: ""}
 	}
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_SYNC_APP_INFO,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_SYNC_APP_INFO,
+		Type:    consts.TgSvc,
+		Account: phones[0],
 		ActionDetail: &protobuf.RequestMessage_SyncAppAction{
 			SyncAppAction: &protobuf.SyncAppInfoAction{
 				AppData: appData,
@@ -216,6 +217,9 @@ func (s *sTgArts) handlerSyncAccount(ctx context.Context, tgUserList []*entity.T
 	}
 	if len(phones) > 0 {
 		_, err = s.SyncAccount(ctx, phones)
+	} else {
+		err = gerror.New(g.I18n().T(ctx, "{#GetTgUserAccountEmpty}"))
+		return
 	}
 
 	return
@@ -336,8 +340,9 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 	}
 
 	req := &protobuf.RequestMessage{
-		Action: protobuf.Action_LOGIN_SINGLE,
-		Type:   consts.TgSvc,
+		Action:  protobuf.Action_LOGIN_SINGLE,
+		Type:    consts.TgSvc,
+		Account: gconv.Uint64(tgUser.Phone),
 		ActionDetail: &protobuf.RequestMessage_OrdinarySingleAction{
 			OrdinarySingleAction: &protobuf.OrdinarySingleAction{
 				LoginDetail: &protobuf.LoginDetail{
