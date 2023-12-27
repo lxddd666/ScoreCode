@@ -31,10 +31,12 @@ const slice = createSlice({
 // Reducer
 export default slice.reducer;
 //字典管理列表请求
-export function getDictList(queryParam: { valueType: undefined; pageSize: number; page: number; id: undefined; type: undefined; value: undefined; status: undefined }) {
+export function getDictList(queryParam:any) {
     return async () => {
         try {
-            const response = await axios.get(`/admin/dictData/list`);
+            const response = await axios.get(`/admin/dictData/list`,{
+                params:{...queryParam}
+            });
             dispatch(slice.actions.emitDictList(response.data));
         } catch (error) {
             dispatch(slice.actions.hasError(error));
