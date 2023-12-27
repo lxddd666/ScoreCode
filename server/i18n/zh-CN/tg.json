@@ -91,6 +91,7 @@
   "AddBatchTaskFailed": "新增批量操作任务失败，请稍后重试！",
   "MemberAccountCountErr": "用户账号不足",
   "DraftMsgClearErr": "草稿消息清除错误",
-  "SameFolderName": "相同该公司下已经有相同名称的分组，请重新更换分组名称"
+  "SameFolderName": "相同该公司下已经有相同名称的分组，请重新更换分组名称",
+  "GetTgUserAccountEmpty": "获取Tg账号为空"
 
 }
