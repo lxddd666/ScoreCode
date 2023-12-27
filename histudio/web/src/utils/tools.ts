@@ -65,7 +65,7 @@ export const useScroll = (divRef: any) => {
 
     return { divRef, scrollInfo };
 }
-
+// 根据时间差返回对应的时间描述
 export const timeAgo = (input: any) => {
     if (!input) return '从未登录'
     // 将输入转换为Date对象
@@ -94,5 +94,16 @@ export const timeAgo = (input: any) => {
     } else { // 超过1年
         const years = Math.round(secondsPast / 31536000);
         return `${years}年前`;
+    }
+}
+
+// 高阶函数，用于处理 async 函数的错误
+export const handleAsync = async (asyncFn: any) => {
+    try {
+        const res = await asyncFn();
+        return { res, error: null };
+    } catch (error) {
+        console.error('执行失败', error);
+        return { res: null, error };
     }
 }
