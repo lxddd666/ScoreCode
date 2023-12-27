@@ -183,7 +183,6 @@ const TgUser = () => {
                         variant="dot"
                         badgeColor={item.isOnline === 1 ? '#44b700' : 'red'}
                     >
-                        {/* <Avatar alt="Remy Sharp" src="https://berrydashboard.io/assets/avatar-1-8ab8bc8e.png"> */}
                         <Avatar alt="Remy Sharp" src={item.photo}>
                             {item.lastName?.charAt(0)?.toUpperCase()}
                         </Avatar>
@@ -207,9 +206,6 @@ const TgUser = () => {
         } else {
             temp = value;
         }
-        // return <Tooltip title={temp} placement="top-start">
-        //     <p>{temp}</p>
-        // </Tooltip>;
         return temp
     };
 
@@ -621,8 +617,6 @@ const TgUser = () => {
                                             <TableCell align="center" key={item.key}>
                                                 {renderTable(row[item.key], item.key, row)}
 
-                                                {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
-                                                {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
                                                     <div style={item.key === 'active' ? { width: '220px' } : {}}>
                                                         <IconButton aria-label="delete" onClick={(e) => chatRoomToNavica(row)}>

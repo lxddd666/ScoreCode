@@ -1,5 +1,21 @@
 import axios from 'utils/axios'
 
+/********************* TG User 账号*****************************/
+// tg user 账号列表 请求
+export const tgUserList = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.get('tg/tgUser/list', {
+            params: {
+                ...data
+            }
+        }).then(res => {
+            resolve(res.data)
+        }).catch(err => {
+            reject(err)
+        })
+
+    })
+}
 // tg user 绑定员工 请求
 export const tgUserBindUser = (data: any) => {
     return new Promise((resolve, reject) => {
@@ -72,6 +88,108 @@ export const tgUserEdit = (data: any) => {
     return new Promise((resolve, reject) => {
         axios.post(`tg/tgUser/edit`, { ...data }).then((res: any) => {
             resolve(res)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+
+/********************* TG Folders 账号分组*****************************/
+// tg Folders 账号分组 请求
+export const tgFoldersList = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`tg/tgFolders/list`, {
+            params: {
+                ...data
+            }
+        }).then((res: any) => {
+            // console.log('tg Folders 账号分组 ', res);
+            resolve(res)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+/********************* TG KeepTask 养号任务*****************************/
+// 养号动作 请求
+export const tgDictDataOptions = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`/admin/dictData/options`, {
+            params: {
+                types: data
+            }
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 养号任务添加 请求
+export const tgtgKeepTaskEdit = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgKeepTask/edit`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 养号任务数据回显 请求
+export const tgtgKeepTaskEditEcho = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`/tg/tgKeepTask/view`, {
+            params: {
+                id: data.id
+            }
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 养号任务 执行 请求
+// 1 执行 2 暂停
+export const tgKeepTaskExecute = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgKeepTask/status`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 养号任务 执行一次 请求
+export const tgKeepTaskExecuteOne = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgKeepTask/once`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 养号任务 批量删除/删除 请求
+export const tgKeepTaskAllDelete = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgKeepTask/delete`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
         }).catch((err: any) => {
             reject(err)
         })
