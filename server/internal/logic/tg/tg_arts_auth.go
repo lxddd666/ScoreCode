@@ -281,10 +281,10 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 	if err != nil {
 		return
 	}
-	err = s.handlerSyncAccount(ctx, tgUserList)
-	if err != nil {
-		return
-	}
+	//err = s.handlerSyncAccount(ctx, tgUserList)
+	//if err != nil {
+	//	return
+	//}
 	err = s.login(ctx, tgUserList)
 
 	return
@@ -334,10 +334,10 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 	if err != nil {
 		return
 	}
-	err = s.handlerSyncAccount(ctx, []*entity.TgUser{tgUser})
-	if err != nil {
-		return
-	}
+	//err = s.handlerSyncAccount(ctx, []*entity.TgUser{tgUser})
+	//if err != nil {
+	//	return
+	//}
 
 	req := &protobuf.RequestMessage{
 		Action:  protobuf.Action_LOGIN_SINGLE,
@@ -358,7 +358,7 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 	}
 	if resp != nil {
 		_ = gjson.DecodeTo(resp.Data, &result)
-		result.Phone = resp.Account
+		result.Phone = tgUser.Phone
 	}
 	return
 }
