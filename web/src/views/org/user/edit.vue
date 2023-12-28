@@ -79,7 +79,7 @@
               </n-form-item>
             </n-gi>
           </n-grid>
-          <n-divider title-placement="left">填写更多信息（可选)</n-divider>
+          <n-divider title-placement="left">填写更多信息</n-divider>
           <n-grid x-gap="24" :cols="2">
             <n-gi>
               <n-form-item label="手机号" path="mobile">

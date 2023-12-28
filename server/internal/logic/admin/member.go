@@ -450,9 +450,9 @@ func (s *sAdminMember) VerifyUnique(ctx context.Context, in *adminin.VerifyUniqu
 
 	cols := dao.AdminMember.Columns()
 	msgMap := g.MapStrStr{
-		cols.Username:   g.I18n().T(ctx, "{#UserNameExistChangeOne}"),
-		cols.Email:      g.I18n().T(ctx, "{#MailboxExistChangeOne}"),
-		cols.Mobile:     g.I18n().T(ctx, "{#PhoneNumberExistChangeOne}"),
+		cols.Username: g.I18n().T(ctx, "{#UserNameExistChangeOne}"),
+		cols.Email:    g.I18n().T(ctx, "{#MailboxExistChangeOne}"),
+		//cols.Mobile:     g.I18n().T(ctx, "{#PhoneNumberExistChangeOne}"),
 		cols.InviteCode: g.I18n().T(ctx, "{#InvitationCodeExistChangeOne}"),
 	}
 
@@ -525,8 +525,8 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 		Id: in.Id,
 		Where: g.Map{
 			cols.Username: in.Username,
-			cols.Mobile:   in.Mobile,
-			cols.Email:    in.Email,
+			//cols.Mobile:   in.Mobile,
+			cols.Email: in.Email,
 		},
 	})
 	if err != nil {
@@ -623,7 +623,7 @@ func (s *sAdminMember) Edit(ctx context.Context, in *adminin.MemberEditInp) (err
 // View 获取用户信息
 func (s *sAdminMember) View(ctx context.Context, in *adminin.MemberViewInp) (res *adminin.MemberViewModel, err error) {
 
-	if err = s.FilterAuthModel(ctx, contexts.GetUserId(ctx)).Cache(cmember.ClearCache(in.Id)).Hook(hook.MemberInfo).WherePri(in.Id).Scan(&res); err != nil {
+	if err = s.FilterSelfAuthModel(ctx, contexts.GetUserId(ctx)).Cache(cmember.ClearCache(in.Id)).Hook(hook.MemberInfo).WherePri(in.Id).Scan(&res); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserInformationFailureTryAgain}"))
 	}
 	return
