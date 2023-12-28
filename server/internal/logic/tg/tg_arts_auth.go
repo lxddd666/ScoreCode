@@ -129,11 +129,15 @@ func (s *sTgArts) handlerPorts(ctx context.Context, sysOrg entity.SysOrg, list [
 		Data(do.SysOrg{AssignedPorts: gdb.Raw(fmt.Sprintf("%s+%d", dao.SysOrg.Columns().AssignedPorts, count))}).
 		Update()
 	// 记录占用端口的账号
-	loginPorts := make(map[string]interface{})
+	userPorts := make([]entity.TgUserPorts, 0)
 	for _, user := range list {
-		loginPorts[user.Phone] = sysOrg.Id
+		item := entity.TgUserPorts{
+			OrgId: sysOrg.Id,
+			Phone: user.Phone,
+		}
+		userPorts = append(userPorts, item)
 	}
-	_, err = g.Redis().HSet(ctx, consts.TgLoginPorts, loginPorts)
+	_, err = dao.TgUserPorts.Ctx(ctx).Save(userPorts)
 	return
 }
 

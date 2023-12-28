@@ -288,7 +288,8 @@ func (s *sTgUser) LoginCallback(ctx context.Context, res []entity.TgUser) (err e
 		if protobuf.AccountStatus(item.AccountStatus) != protobuf.AccountStatus_SUCCESS {
 			item.IsOnline = consts.Offline
 			// 移除登录失败的端口记录
-			_, _ = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+			_, _ = dao.TgUserPorts.Ctx(ctx).Where(dao.TgUserPorts.Columns().Phone, item.Phone).Delete()
+
 		} else {
 			item.IsOnline = consts.Online
 			item.LastLoginTime = gtime.Now()
@@ -316,9 +317,8 @@ func (s *sTgUser) LogoutCallback(ctx context.Context, res []entity.TgUser) (err 
 
 	cols := dao.TgUser.Columns()
 	for _, item := range res {
-		// 返还端口数
 		// 移除登录的端口记录
-		_, err = g.Redis().HDel(ctx, consts.TgLoginPorts, item.Phone)
+		_, _ = dao.TgUserPorts.Ctx(ctx).Where(dao.TgUserPorts.Columns().Phone, item.Phone).Delete()
 
 		//更新登录状态
 		_, _ = s.Model(ctx).

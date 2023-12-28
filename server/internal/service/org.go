@@ -14,6 +14,20 @@ import (
 )
 
 type (
+	IOrgSysOrgPorts interface {
+		// Model 公司端口ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取公司端口列表
+		List(ctx context.Context, in *orgin.SysOrgPortsListInp) (list []*orgin.SysOrgPortsListModel, totalCount int, err error)
+		// Add 新增公司端口
+		Add(ctx context.Context, in *orgin.SysOrgPortsEditInp) (err error)
+		// Edit 修改/新增公司端口
+		Edit(ctx context.Context, in *orgin.SysOrgPortsEditInp) (err error)
+		// Delete 删除公司端口
+		Delete(ctx context.Context, in *orgin.SysOrgPortsDeleteInp) (err error)
+		// View 获取公司端口指定信息
+		View(ctx context.Context, in *orgin.SysOrgPortsViewInp) (res *orgin.SysOrgPortsViewModel, err error)
+	}
 	IOrgSysProxy interface {
 		// Model 代理管理ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
@@ -37,8 +51,20 @@ type (
 )
 
 var (
-	localOrgSysProxy IOrgSysProxy
+	localOrgSysOrgPorts IOrgSysOrgPorts
+	localOrgSysProxy    IOrgSysProxy
 )
+
+func OrgSysOrgPorts() IOrgSysOrgPorts {
+	if localOrgSysOrgPorts == nil {
+		panic("implement not found for interface IOrgSysOrgPorts, forgot register?")
+	}
+	return localOrgSysOrgPorts
+}
+
+func RegisterOrgSysOrgPorts(i IOrgSysOrgPorts) {
+	localOrgSysOrgPorts = i
+}
 
 func OrgSysProxy() IOrgSysProxy {
 	if localOrgSysProxy == nil {
