@@ -83,6 +83,8 @@ export const tgUserAllDelete = (data: any) => {
 
     })
 }
+
+
 // tg user 用户编辑 请求
 export const tgUserEdit = (data: any) => {
     return new Promise((resolve, reject) => {
@@ -105,6 +107,29 @@ export const tgFoldersList = (data: any) => {
             }
         }).then((res: any) => {
             // console.log('tg Folders 账号分组 ', res);
+            resolve(res)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+/********************* tgBatchExecutionTask批量操作任务*****************************/
+// tg tgBatchExecutionTask批量操作 删除请求
+export const tgBatchExecutionTaskDelete = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgBatchExecutionTask/delete`, { ...data }).then((res: any) => {
+            resolve(res)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+//批量操作添加
+export const tgBatchExecutionTaskEdit = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgBatchExecutionTask/edit`, { ...data }).then((res: any) => {
             resolve(res)
         }).catch((err: any) => {
             reject(err)

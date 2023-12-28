@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useEffect } from "react"
+import {memo, useState, useRef, useEffect, useCallback, useMemo} from "react"
 import { FormattedMessage } from 'react-intl';
 // import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
@@ -25,6 +25,11 @@ import SearchForm from './searchFrom';
 import { getTgBatchExecutionTaskListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
 import { columns } from './config';
+import {tgBatchExecutionTaskDelete} from "../../../server/tg";
+import AnimateButton from "../../../ui-component/extended/AnimateButton";
+import useConfirm from "../../../hooks/useConfirm";
+import FormDialog from "./formDialog";
+import {openSnackbar} from "../../../store/slices/snackbar";
 
 // 批量操作任务
 const TgBatchExecutionTask = () => {
@@ -43,7 +48,8 @@ const TgBatchExecutionTask = () => {
     const dispatch = useDispatch();
     // const navigate = useNavigate();
     const { tgBatchExecutionTaskList } = useSelector((state) => state.tg);
-
+    const [checkListIsDisable, setCheckListIsDisable] = useState(true)
+    const confirm = useConfirm(); // 弹窗
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
@@ -88,9 +94,11 @@ const TgBatchExecutionTask = () => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: any) => n.id);
             setSelected(newSelecteds);
+            setCheckListIsDisable(false)
             return;
         }
         setSelected([]);
+        setCheckListIsDisable(true)
     };
     // table多选点击操作
     const handleClick = (event: any, id: any) => {
@@ -109,6 +117,12 @@ const TgBatchExecutionTask = () => {
         }
 
         setSelected(newSelected);
+
+        if (newSelected.length > 0) {
+            setCheckListIsDisable(false)
+        } else {
+            setCheckListIsDisable(true)
+        }
     };
     // id筛选
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
@@ -132,7 +146,15 @@ const TgBatchExecutionTask = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
+    const [formDialogConfig, setFormDialogConfig] = useState<any>({
+        title: '',
+        edit: false,
+        selectCheck: [],
+        dialogType: undefined,
 
+        params: undefined,
+        renderField: undefined
+    })
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
         setParamsPayload({ ...paramsPayload, ...obj, page: 1 });
@@ -141,6 +163,75 @@ const TgBatchExecutionTask = () => {
     const PaginationCount = (count: number) => {
         return typeof count === 'number' ? Math.ceil(count / 10) : 1;
     }
+    // sendMsg
+    const sendMsg = (msg: any = '~~', type: String = 'success') => {
+        dispatch(openSnackbar({
+            open: true,
+            message: msg,
+            variant: 'alert',
+            alert: {
+                color: type
+            },
+            close: false,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center'
+            }
+        }))
+    }
+
+    // 批量删除 操作
+    const onUserAllDeleteClick = (id: any = undefined) => {
+        confirm('警告', `是否批量删除选中的 ${selected.length} 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgBatchExecutionTaskDelete({ id: selected })
+                        console.log('批量删除', res);
+                        getTableListActionFN()
+                        setSelected([]);
+                        setCheckListIsDisable(true)
+                    } catch (error) {
+                        console.log('批量删除失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+
+    // 弹窗开启
+    const onBtnOpenList = useCallback(async (active: String, value: any = undefined) => {
+        // let columns = []
+        switch (active) {
+            case 'Add':
+                setFormDialogConfig({
+                    ...formDialogConfig,
+                    edit: true,
+                    title: '添加批量操作任务',
+                    dialogType: 'editForm',
+                    type: 'Add',
+                    params: { ...searchForm}
+                });
+                break
+            default:
+                break;
+        }
+    }, [formDialogConfig])
+    // 弹窗关闭
+    const onBtnCloseList = useCallback((type: String, value: any) => {
+        switch (type) {
+            case 'Add':
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
+                getTableListActionFN()
+                sendMsg('添加成功')
+                break;
+        }
+    }, [formDialogConfig]);
+    const memoizedFormDialogConfig = useMemo(() => formDialogConfig, [formDialogConfig]);
     return (
         // <div>批量操作任务</div>
         <MainCard title={<FormattedMessageTitle />} content={true}>
@@ -150,12 +241,14 @@ const TgBatchExecutionTask = () => {
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
-                        <Button size="small" variant="contained" disabled={true}>
+                        <Button size="small" variant="contained" onClick={e => onBtnOpenList('Add')}>
                             添加
                         </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            批量删除
-                        </Button>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} color="error" onClick={onUserAllDeleteClick}>
+                                批量删除
+                            </Button>
+                        </AnimateButton>
                         <Button size="small" variant="contained" disabled={true}>
                             导出
                         </Button>
@@ -206,24 +299,6 @@ const TgBatchExecutionTask = () => {
                                         return (
                                             <TableCell align="center" key={item.key}>
                                                 {renderTable(row[item.key], item.key)}
-
-                                                {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
-                                                {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
-                                                {/* {item.key === 'active' ? (
-                                                    <>
-                                                        <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
-                                                            聊天室
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }} >
-                                                            编辑
-                                                        </Button>
-                                                        <Button size="small" variant="contained" style={{ marginLeft: '5px' }}>
-                                                            删除
-                                                        </Button>
-                                                    </>
-                                                ) : (
-                                                    ''
-                                                )} */}
                                             </TableCell>
                                         );
                                     })}
@@ -243,18 +318,15 @@ const TgBatchExecutionTask = () => {
                     ''
                 )}
             </div>
-
+            <FormDialog open={memoizedFormDialogConfig.edit} config={memoizedFormDialogConfig} onChangeDialogStatus={onBtnCloseList} />
         </MainCard>
     )
 }
-// 标题 tg
+// 批量操作标题
 const FormattedMessageTitle = () => {
     return (
         <div className={styles.FormattedMessageTitle}>
             <FormattedMessage id="setting.cron.tg-batch-execution-task" />
-            {/* <div>
-                <Button variant="outlined">登录</Button>
-            </div> */}
         </div>
     );
 };
