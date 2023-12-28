@@ -8,10 +8,10 @@ export const columns = [
         title: '所属用户',
         key: 'memberUsername'
     },
-    {
-        title: '用户名',
-        key: 'username'
-    },
+    // {
+    //     title: '用户名',
+    //     key: 'username'
+    // },
     // {
     //     title: '姓氏',
     //     key: 'lastName'

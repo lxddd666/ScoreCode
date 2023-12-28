@@ -9,6 +9,8 @@ import Stack from '@mui/material/Stack';
 // import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import SearchIcon from '@mui/icons-material/Search';
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import styles from './searchForm.module.scss';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -27,7 +29,7 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 // const filter = createFilterOptions();
 const SearchForm = (props: any) => {
-    const { top100Films, handleSearchFormData } = props;
+    const { top100Films, handleSearchFormData, showHide, handleShowHide } = props;
     const [value, setValue] = useState<any>(null);
     const [formData, setFormData] = useState<any>({
         folderId: undefined,
@@ -41,6 +43,7 @@ const SearchForm = (props: any) => {
         memberId: undefined
     })
     const [open, toggleOpen] = useState(false);
+
     const [dialogValue, setDialogValue] = useState({ title: '', });
     const [userListRow, setUserListRow] = useState<any>([]);
     const dispatch = useDispatch();
@@ -135,6 +138,10 @@ const SearchForm = (props: any) => {
         setFormData(obj);
         handleSearchFormData(obj);
     };
+
+    const onShowHideClick = () => {
+        handleShowHide()
+    }
     return (
         <>
             <div className={styles.searchForm}>
@@ -168,36 +175,38 @@ const SearchForm = (props: any) => {
                             }}
                         /></Item>
                     </Grid>
-                    <Grid item >
-                        <Item><TextField
+                    {
+                        showHide ? <>
+                            <Grid item >
+                                <Item><TextField
 
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.firstName || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    firstName: event.target.value
-                                })
-                            }
-                            label="请输入名字"
-                            type="text"
-                            variant="outlined"
-                            size="small" InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        /></Item>
-                    </Grid>
-                    <Grid item >
-                        <Item>
-                            {/* <Autocomplete
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.firstName || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            firstName: event.target.value
+                                        })
+                                    }
+                                    label="请输入名字"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small" InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                /></Item>
+                            </Grid>
+                            <Grid item >
+                                <Item>
+                                    {/* <Autocomplete
                             size="small"
                             value={value}
                             onChange={onAutocompleteChange}
@@ -242,227 +251,228 @@ const SearchForm = (props: any) => {
                                 ),
                             }} />}
                         /> */}
-                            <TextField
-                                select
-                                sx={{ width: 300 }}
-                                autoFocus
-                                margin="dense"
-                                id="standard-required"
-                                inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                                value={formData.folderId || ''}
-                                onChange={(event) =>
-                                    setFormData({
-                                        ...formData,
-                                        folderId: event.target.value
-                                    })
-                                }
-                                label="请输入分组选择"
-                                type="text"
-                                variant="outlined"
-                                size="small"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <SearchIcon />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                            >
+                                    <TextField
+                                        select
+                                        sx={{ width: 300 }}
+                                        autoFocus
+                                        margin="dense"
+                                        id="standard-required"
+                                        inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                        value={formData.folderId || ''}
+                                        onChange={(event) =>
+                                            setFormData({
+                                                ...formData,
+                                                folderId: event.target.value
+                                            })
+                                        }
+                                        label="请输入分组选择"
+                                        type="text"
+                                        variant="outlined"
+                                        size="small"
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                    >
 
-                                {top100Films.map((option: any) => (
-                                    <MenuItem key={option.value} value={option.value}>
-                                        {option.title}
-                                    </MenuItem>
-                                ))}</TextField>
-                        </Item>
-                    </Grid>
-                    <Grid item >
-                        <Item> <TextField
+                                        {top100Films.map((option: any) => (
+                                            <MenuItem key={option.value} value={option.value}>
+                                                {option.title}
+                                            </MenuItem>
+                                        ))}</TextField>
+                                </Item>
+                            </Grid>
+                            <Grid item >
+                                <Item> <TextField
 
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.lastName || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    lastName: event.target.value
-                                })
-                            }
-                            label="请输入姓氏"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        /></Item>
-                    </Grid>
-                    <Grid item >
-                        <Item> <TextField
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.lastName || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            lastName: event.target.value
+                                        })
+                                    }
+                                    label="请输入姓氏"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                /></Item>
+                            </Grid>
+                            <Grid item >
+                                <Item> <TextField
 
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.phone || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    phone: event.target.value
-                                })
-                            }
-                            label="请输入手机号"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        /></Item>
-                    </Grid>
-                    <Grid item >
-                        <Item> <TextField
-                            select
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.accountStatus || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    accountStatus: event.target.value
-                                })
-                            }
-                            label="请输入账号状态"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        >
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.phone || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            phone: event.target.value
+                                        })
+                                    }
+                                    label="请输入手机号"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                /></Item>
+                            </Grid>
+                            <Grid item >
+                                <Item> <TextField
+                                    select
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.accountStatus || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            accountStatus: event.target.value
+                                        })
+                                    }
+                                    label="请输入账号状态"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                >
 
-                            {accountStatusArr.map((option) => (
-                                <MenuItem key={option.key} value={option.key}>
-                                    {option.title}
-                                </MenuItem>
-                            ))}</TextField></Item>
-                    </Grid>
-                    <Grid item >
-                        <Item> <TextField
-                            select
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.isOnline || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    isOnline: event.target.value
-                                })
-                            }
-                            label="请输入在线状态"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        >
+                                    {accountStatusArr.map((option) => (
+                                        <MenuItem key={option.key} value={option.key}>
+                                            {option.title}
+                                        </MenuItem>
+                                    ))}</TextField></Item>
+                            </Grid>
+                            <Grid item >
+                                <Item> <TextField
+                                    select
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.isOnline || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            isOnline: event.target.value
+                                        })
+                                    }
+                                    label="请输入在线状态"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                >
 
-                            {isOnlineArr.map((option) => (
-                                <MenuItem key={option.key} value={option.key}>
-                                    {option.title}
-                                </MenuItem>
-                            ))}</TextField></Item>
-                    </Grid>
+                                    {isOnlineArr.map((option) => (
+                                        <MenuItem key={option.key} value={option.key}>
+                                            {option.title}
+                                        </MenuItem>
+                                    ))}</TextField></Item>
+                            </Grid>
 
-                    <Grid item >
-                        <Item> <TextField
+                            <Grid item >
+                                <Item> <TextField
 
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.proxyAddress || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    proxyAddress: event.target.value
-                                })
-                            }
-                            label="请输入代理地址"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        /></Item>
-                    </Grid>
-                    <Grid item >
-                        <Item> <TextField
-                            select
-                            sx={{ width: 300 }}
-                            autoFocus
-                            margin="dense"
-                            id="standard-required"
-                            inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
-                            value={formData.memberId || ''}
-                            onChange={(event) =>
-                                setFormData({
-                                    ...formData,
-                                    memberId: event.target.value
-                                })
-                            }
-                            label="请选择员工"
-                            type="text"
-                            variant="outlined"
-                            size="small"
-                            InputProps={{
-                                startAdornment: (
-                                    <InputAdornment position="start">
-                                        <SearchIcon />
-                                    </InputAdornment>
-                                ),
-                            }}
-                        >
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.proxyAddress || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            proxyAddress: event.target.value
+                                        })
+                                    }
+                                    label="请输入代理地址"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                /></Item>
+                            </Grid>
+                            <Grid item >
+                                <Item> <TextField
+                                    select
+                                    sx={{ width: 300 }}
+                                    autoFocus
+                                    margin="dense"
+                                    id="standard-required"
+                                    inputProps={{ pattern: ".*\\S.*", title: "The field cannot be empty or just whitespace." }}
+                                    value={formData.memberId || ''}
+                                    onChange={(event) =>
+                                        setFormData({
+                                            ...formData,
+                                            memberId: event.target.value
+                                        })
+                                    }
+                                    label="请选择员工"
+                                    type="text"
+                                    variant="outlined"
+                                    size="small"
+                                    InputProps={{
+                                        startAdornment: (
+                                            <InputAdornment position="start">
+                                                <SearchIcon />
+                                            </InputAdornment>
+                                        ),
+                                    }}
+                                >
 
-                            {userListRow && userListRow.map((option: any) => (
-                                <MenuItem key={option.id} value={option.id}>
-                                    {option.username}
-                                </MenuItem>
-                            ))}</TextField></Item>
-                    </Grid>
+                                    {userListRow && userListRow.map((option: any) => (
+                                        <MenuItem key={option.id} value={option.id}>
+                                            {option.username}
+                                        </MenuItem>
+                                    ))}</TextField></Item>
+                            </Grid></> : ''
+                    }
                     <Grid item >
                         <Item><Stack direction="row" spacing={2} style={{ marginLeft: '10px', height: '30px' }}>
                             <Button size="small" variant="outlined" startIcon={<SearchIcon />} onClick={onSearchClick}>
@@ -471,15 +481,12 @@ const SearchForm = (props: any) => {
                             <Button size="small" variant="outlined" startIcon={<AutorenewIcon />} onClick={onResetClick}>
                                 重置
                             </Button>
+                            <Button size="small" variant="outlined" startIcon={!showHide ? <UnfoldMoreIcon /> : <UnfoldLessIcon />} onClick={onShowHideClick}>
+                                {!showHide ? '展开' : '收起'}
+                            </Button>
                         </Stack></Item>
                     </Grid>
                 </Grid>
-
-
-
-
-
-
             </div>
 
             <Dialog open={open} onClose={handleClose}>
