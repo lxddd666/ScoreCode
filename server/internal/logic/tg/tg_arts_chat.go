@@ -25,12 +25,12 @@ import (
 // TgSendMsg 发送消息
 func (s *sTgArts) TgSendMsg(ctx context.Context, inp *artsin.MsgInp) (res string, err error) {
 	// 检查是否登录
-	user := contexts.GetUser(ctx)
+	//user := contexts.GetUser(ctx)
 	res, err = service.Arts().SendMsg(ctx, inp, consts.TgSvc)
 	if err == nil {
 		prometheus.AccountSendMsg.WithLabelValues(gconv.String(inp.Account)).Add(gconv.Float64(len(inp.Receiver)))
-		prometheus.OrgSendTgMsg.WithLabelValues(gconv.String(user.OrgId)).Add(gconv.Float64(len(inp.Receiver)))
-		prometheus.MemberSendTgMsg.WithLabelValues(gconv.String(user.Id)).Add(gconv.Float64(len(inp.Receiver)))
+		//prometheus.OrgSendTgMsg.WithLabelValues(gconv.String(user.OrgId)).Add(gconv.Float64(len(inp.Receiver)))
+		//prometheus.MemberSendTgMsg.WithLabelValues(gconv.String(user.Id)).Add(gconv.Float64(len(inp.Receiver)))
 		for _, receiver := range inp.Receiver {
 			prometheus.AccountPassiveSendMsg.WithLabelValues(gconv.String(receiver)).Inc()
 			prometheus.TgUserChatWithOther.WithLabelValues(gconv.String(inp.Account), gconv.String(receiver)).Inc()

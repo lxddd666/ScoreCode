@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	tguser "hotgo/api/tg/tg_user"
+	"hotgo/internal/dao"
 	"hotgo/internal/service"
 )
 
@@ -21,7 +22,7 @@ func (c *cTgUser) List(ctx context.Context, req *tguser.ListReq) (res *tguser.Li
 	if err != nil {
 		return
 	}
-
+	dao.TgUser.Columns()
 	res = new(tguser.ListRes)
 	res.List = list
 	res.PageRes.Pack(req, totalCount)

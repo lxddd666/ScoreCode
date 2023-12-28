@@ -26,6 +26,8 @@ type TgUser struct {
 	IsOnline       interface{} // 是否在线
 	ProxyAddress   interface{} // 代理地址
 	PublicProxy    interface{} // 公共代理
+	AppId          interface{} // appId
+	AppHash        interface{} // appHash
 	LastLoginTime  *gtime.Time // 上次登录时间
 	FirstLoginTime *gtime.Time // 首次登录时间
 	Comment        interface{} // 备注

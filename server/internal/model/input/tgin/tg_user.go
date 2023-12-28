@@ -29,6 +29,8 @@ type TgUserInsertFields struct {
 	Phone         string `json:"phone"                dc:"手机号"`
 	Photo         int64  `json:"photo,string"         dc:"账号头像"`
 	Bio           string `json:"bio"                  dc:"个性签名"`
+	AppId         string `json:"appId"                cd:"appId"`
+	AppHash       string `json:"appHash"              cd:"appHash"`
 	AccountStatus int    `json:"accountStatus"        dc:"accountStatus"`
 	ProxyAddress  string `json:"proxyAddress"         dc:"代理地址"`
 	Comment       string `json:"comment"              dc:"备注"`
@@ -103,6 +105,8 @@ type TgUserViewModel struct {
 	PublicProxy    int         `json:"publicProxy"          description:"公共代理"`
 	LastLoginTime  *gtime.Time `json:"lastLoginTime"        description:"上次登录时间"`
 	FirstLoginTime *gtime.Time `json:"firstLoginTime"        description:"首次登录时间"`
+	AppId          string      `json:"appId"                 dc:"appId"`
+	AppHash        string      `json:"appHash"               dc:"appHash"`
 	Comment        string      `json:"comment"              description:"备注"`
 	Session        []byte      `json:"session"              description:"session"`
 	DeletedAt      *gtime.Time `json:"deletedAt"            description:"删除时间"`
@@ -144,6 +148,8 @@ type TgUserListModel struct {
 	IsOnline       int         `json:"isOnline"              dc:"是否在线"`
 	ProxyAddress   string      `json:"proxyAddress"          dc:"代理地址"`
 	PublicProxy    int         `json:"-"                     dc:"公共代理"`
+	AppId          string      `json:"appId"                 dc:"appId"`
+	AppHash        string      `json:"appHash"               dc:"appHash"`
 	LastLoginTime  *gtime.Time `json:"lastLoginTime"         dc:"上次登录时间"`
 	Comment        string      `json:"comment"               dc:"备注"`
 	CreatedAt      *gtime.Time `json:"createdAt"             dc:"创建时间"`
@@ -164,6 +170,8 @@ type TgUserExportModel struct {
 	IsOnline      int         `json:"isOnline"      dc:"是否在线"`
 	ProxyAddress  string      `json:"proxyAddress"  dc:"代理地址"`
 	LastLoginTime *gtime.Time `json:"lastLoginTime" dc:"上次登录时间"`
+	AppId         string      `json:"appId"                 dc:"appId"`
+	AppHash       string      `json:"appHash"               dc:"appHash"`
 	Comment       string      `json:"comment"       dc:"备注"`
 	CreatedAt     *gtime.Time `json:"createdAt"     dc:"创建时间"`
 	UpdatedAt     *gtime.Time `json:"updatedAt"     dc:"更新时间"`

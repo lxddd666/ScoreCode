@@ -132,7 +132,7 @@
             type="error"
             @click="handleUpload"
             class="min-left-space"
-            v-if="hasPermission(['/arts/batchLogout'])"
+            v-if="hasPermission(['/tgUser/importSession'])"
           >
             <n-icon>
               <UploadOutlined/>

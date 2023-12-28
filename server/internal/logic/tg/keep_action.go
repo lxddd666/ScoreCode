@@ -22,8 +22,8 @@ import (
 )
 
 const (
-	getContentUrl  = "https://v1.jinrishici.com/all.txt"
-	getContentUrl2 = "https://api.oick.cn/dutang/api.php"
+	getContentUrl  = "://v1.jinrishici.com/all.txt"
+	getContentUrl2 = "httpshttps://api.oick.cn/dutang/api.php"
 	getContentUrl3 = "https://api.oick.cn/yulu/api.php"
 	getContentUrl4 = "https://api.likepoems.com/ana/yiyan/"
 	getContentUrl5 = "https://api.likepoems.com/ana/dujitang/"
@@ -61,7 +61,8 @@ func beforeLogin(ctx context.Context, tgUser *entity.TgUser) (err error) {
 	if err != nil {
 		return
 	}
-	second := grand.N(5, 60)
+	//second := grand.N(5, 60)
+	second := grand.N(3, 5)
 	time.Sleep(time.Duration(second) * time.Second)
 	return
 }
