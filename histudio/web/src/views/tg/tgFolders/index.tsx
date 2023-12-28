@@ -1,4 +1,4 @@
-import { memo, useState, useRef, useEffect } from "react"
+import {memo, useState, useRef, useEffect, useCallback, useMemo} from "react"
 import { FormattedMessage } from 'react-intl';
 // import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
@@ -22,7 +22,7 @@ import DetailsIcon from '@mui/icons-material/Details';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'store';
-import { useHeightComponent } from 'utils/tools';
+import { useHeightComponent} from 'utils/tools';
 // import { createFilterOptions } from '@mui/material/Autocomplete';
 // import { openSnackbar } from 'store/slices/snackbar';
 import styles from './index.module.scss';
@@ -31,7 +31,13 @@ import SearchForm from './searchFrom';
 import { getTgFoldersListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
 import { columns } from './config';
-
+import {tgFoldersDelete, tgFoldersView} from "../../../server/tg";
+import {openSnackbar} from "../../../store/slices/snackbar";
+import FormDialog from "../tgFolders/formDialog";
+import useConfirm from "../../../hooks/useConfirm";
+import {
+    handleAsync
+} from 'utils/tools'
 // 账号分组
 const TgFolders = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
@@ -47,9 +53,9 @@ const TgFolders = () => {
     const [pagetionTotle, setPagetionTotle] = useState(0); // total/ 弹窗控制
     const boxRef: any = useRef();
     const dispatch = useDispatch();
+    const confirm = useConfirm(); // 弹窗
     // const navigate = useNavigate();
     const { tgFoldersList } = useSelector((state) => state.tg);
-
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
@@ -147,7 +153,101 @@ const TgFolders = () => {
     const handleSearchFormData = (obj: any) => {
         setParamsPayload({ ...paramsPayload, ...obj, page: 1 });
     };
+    const [formDialogConfig, setFormDialogConfig] = useState<any>({
+        title: '',
+        edit: false,
+        selectCheck: [],
+        dialogType: undefined,
 
+        params: undefined,
+        renderField: undefined
+    })
+    // sendMsg
+    const sendMsg = (msg: any = '~~', type: String = 'success') => {
+        dispatch(openSnackbar({
+            open: true,
+            message: msg,
+            variant: 'alert',
+            alert: {
+                color: type
+            },
+            close: false,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center'
+            },
+            severity: type
+        }))
+    }
+    // 弹窗开启
+    const onBtnOpenList = useCallback(async (active: String, value: any = undefined) => {
+        switch (active) {
+            case 'Add':
+                setFormDialogConfig({
+                    ...formDialogConfig,
+                    edit: true,
+                    title: '添加',
+                    dialogType: 'editForm',
+                    type: 'Add',
+                    params: { folderList: searchForm },
+                });
+                break
+            case 'Edit':
+                const { res, error } = await handleAsync(() => tgFoldersView({ id: value.id }))
+                if (error) {
+                    return sendMsg(error.message || '回显数据获取失败', 'error')
+                }
+                setFormDialogConfig({
+                    ...formDialogConfig,
+                    edit: true,
+                    title: '编辑',
+                    dialogType: 'editForm',
+                    type: 'Edit',
+                    params: { folderList: searchForm, echo: res?.data },
+                });
+                break
+            default:
+                break;
+        }
+    }, [formDialogConfig, searchForm])
+    // 弹窗关闭
+    const onBtnCloseList = useCallback((type: String, value: any) => {
+        switch (type) {
+            case 'Add':
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
+                getTableListActionFN()
+                break
+            case 'Edit':
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
+                getTableListActionFN()
+                break
+            default:
+                break;
+        }
+    }, [formDialogConfig]);
+    const memoizedFormDialogConfig = useMemo(() => formDialogConfig, [formDialogConfig]);
+    const onExecuteClick = async (type: String, row: any = undefined, status: any = undefined) => {
+        if (type === 'delete') {
+            confirm('警告', `是否执行批量删除操作,该操作会批量删除数据且无法恢复，请谨慎操作。`)
+                .then(async (result) => {
+                    if (result) {
+                        // 执行
+                        const { res, error } = await handleAsync(() => tgFoldersDelete({ id: selected }))
+                        if (error) {
+                            return sendMsg(error?.message || '删除失败', 'error')
+                        }
+                        getTableListActionFN()
+                        sendMsg(res.message)
+                    } else {
+                        console.log('Cancelled!');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            return
+        }
+    }
 
     return (
         // <div>批量操作任务</div>
@@ -158,15 +258,15 @@ const TgFolders = () => {
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
-                        <Button size="small" variant="contained" disabled={true}>
+                        <Button size="small" variant="contained" onClick={e => onBtnOpenList('Add')}>
                             添加
                         </Button>
-                        <Button size="small" variant="contained" disabled={true}>
+                        <Button size="small" variant="contained" disabled={selected.length > 0 ? false : true} onClick={e => onExecuteClick('delete')}>
                             批量删除
                         </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            导出
-                        </Button>
+                        {/*<Button size="small" variant="contained" disabled={true}>*/}
+                        {/*    导出*/}
+                        {/*</Button>*/}
                     </Stack>
                 </div>
                 <TableContainer
@@ -219,7 +319,7 @@ const TgFolders = () => {
                                                 {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
                                                     <>
-                                                        <IconButton>
+                                                        <IconButton onClick={e => onBtnOpenList('Edit', row)}>
                                                             <Tooltip title='编辑' placement="top">
                                                                 <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
                                                             </Tooltip>
@@ -257,7 +357,7 @@ const TgFolders = () => {
                     ''
                 )}
             </div>
-
+            <FormDialog open={memoizedFormDialogConfig.edit} config={memoizedFormDialogConfig} onChangeDialogStatus={onBtnCloseList} />
         </MainCard>
     )
 }

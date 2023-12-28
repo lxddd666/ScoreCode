@@ -4,14 +4,14 @@ export const columns = [
         title: 'ID',
         key: 'id'
     },
-    {
-        title: '组织ID',
-        key: 'orgId'
-    },
-    {
-        title: '用户ID',
-        key: 'memberId'
-    },
+    // {
+    //     title: '组织ID',
+    //     key: 'orgId'
+    // },
+    // {
+    //     title: '用户ID',
+    //     key: 'memberId'
+    // },
     {
         title: '分组名称',
         key: 'folderName'
@@ -28,10 +28,10 @@ export const columns = [
         title: '创建时间',
         key: 'createdAt'
     },
-    {
-        title: '修改时间',
-        key: 'updatedAt'
-    },
+    // {
+    //     title: '修改时间',
+    //     key: 'updatedAt'
+    // },
     {
         title: '操作',
         key: 'active'

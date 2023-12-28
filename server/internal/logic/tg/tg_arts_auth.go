@@ -297,7 +297,7 @@ func (s *sTgArts) SessionLogin(ctx context.Context, ids []int64) (err error) {
 func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err error) {
 	loginDetail := make(map[uint64]*protobuf.LoginDetail)
 	for _, tgUser := range tgUserList {
-		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress}
+		ld := &protobuf.LoginDetail{ProxyUrl: tgUser.ProxyAddress, AppId: gconv.Uint64(tgUser.AppId), AppHash: tgUser.AppHash}
 		loginDetail[gconv.Uint64(tgUser.Phone)] = ld
 	}
 	if len(loginDetail) == 0 {
@@ -351,6 +351,8 @@ func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (resul
 			OrdinarySingleAction: &protobuf.OrdinarySingleAction{
 				LoginDetail: &protobuf.LoginDetail{
 					ProxyUrl: tgUser.ProxyAddress,
+					AppId:    gconv.Uint64(tgUser.AppId),
+					AppHash:  tgUser.AppHash,
 				},
 				Account: gconv.Uint64(tgUser.Phone),
 			},
