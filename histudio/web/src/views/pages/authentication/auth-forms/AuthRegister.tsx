@@ -92,7 +92,7 @@ const JWTRegister = ({ ...others }) => {
     // START OTP Timer Countdown
     const defaultOtpTimerSeconds = 60;
     const [otpTimer, setOtpTimer] = useState(0);
-    const otpTimerRef = useRef(() => {});
+    const otpTimerRef = useRef(() => { });
 
     const sendOtpCode = (event: React.SyntheticEvent, mobile: string, email: string) => {
         event.preventDefault();
@@ -178,16 +178,31 @@ const JWTRegister = ({ ...others }) => {
             <Formik
                 initialValues={{
                     username: '',
+                    firstName: '',
+                    lastName: '',
                     mobile: '',
                     email: '',
                     password: '',
                     code: '',
                     inviteCode,
                     tnc: '',
+                    orgInfo: {
+                        name: '',
+                        code: '',
+                        phone: '',
+                        leader: '',
+                        email: '',
+                    },
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
                     username: Yup.string()
+                        .max(255)
+                        .required(intl.formatMessage({ id: 'auth-register.username-required' })),
+                    firstName: Yup.string()
+                        .max(255)
+                        .required(intl.formatMessage({ id: 'auth-register.username-required' })),
+                    lastName: Yup.string()
                         .max(255)
                         .required(intl.formatMessage({ id: 'auth-register.username-required' })),
                     code: Yup.string().required(intl.formatMessage({ id: 'auth-register.otp-required' })),
@@ -220,11 +235,14 @@ const JWTRegister = ({ ...others }) => {
                                 `${envRef?.API_URL}/admin/site/register`,
                                 {
                                     username: values.username,
+                                    firstName: values.firstName,
+                                    lastName: values.lastName,
                                     password: encryptedPassword,
                                     mobile: values.mobile,
                                     code: values.code,
                                     inviteCode: values.inviteCode,
-                                    email: values.email
+                                    email: values.email,
+                                    orgInfo: values.orgInfo
                                 },
                                 { headers: {} }
                             )
@@ -314,6 +332,54 @@ const JWTRegister = ({ ...others }) => {
                             {touched.username && errors.username && (
                                 <FormHelperText error id="standard-weight-helper-text-username-register">
                                     {errors.username}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
+
+                        <FormControl
+                            fullWidth
+                            error={Boolean(touched.firstName && errors.firstName)}
+                            sx={{ ...theme.typography.customInput }}
+                        >
+                            <InputLabel htmlFor="outlined-adornment-username-register">
+                                请输入姓氏
+                            </InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-username-register"
+                                type="text"
+                                value={values.firstName}
+                                name="firstName"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                inputProps={{}}
+                            />
+                            {touched.firstName && errors.firstName && (
+                                <FormHelperText error id="standard-weight-helper-text-username-register">
+                                    {errors.firstName}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
+
+                        <FormControl
+                            fullWidth
+                            error={Boolean(touched.lastName && errors.lastName)}
+                            sx={{ ...theme.typography.customInput }}
+                        >
+                            <InputLabel htmlFor="outlined-adornment-username-register">
+                                请输入名字
+                            </InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-username-register"
+                                type="text"
+                                value={values.lastName}
+                                name="lastName"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                inputProps={{}}
+                            />
+                            {touched.lastName && errors.lastName && (
+                                <FormHelperText error id="standard-weight-helper-text-username-register">
+                                    {errors.lastName}
                                 </FormHelperText>
                             )}
                         </FormControl>
@@ -488,7 +554,7 @@ const JWTRegister = ({ ...others }) => {
                                 onBlur={handleBlur}
                                 onChange={handleChange}
                                 inputProps={{}}
-                                disabled = {values.inviteCode?true:false}
+                            // disabled={values.inviteCode ? true : false}
                             />
                             {touched.inviteCode && errors.inviteCode && (
                                 <FormHelperText error id="standard-weight-helper-text-inviteCode-register">
@@ -496,6 +562,100 @@ const JWTRegister = ({ ...others }) => {
                                 </FormHelperText>
                             )}
                         </FormControl>
+
+
+
+
+                        {
+                            !values.inviteCode ? <>
+                                <FormControl
+                                    fullWidth
+                                    sx={{ ...theme.typography.customInput }}
+                                >
+                                    <InputLabel htmlFor="outlined-adornment-username-register">
+                                        请输入公司名称
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-username-register"
+                                        type="text"
+                                        value={values?.orgInfo?.name || ''}
+                                        name="orgInfo.name"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        inputProps={{}}
+                                    />
+                                </FormControl>
+                                <FormControl
+                                    fullWidth
+                                    sx={{ ...theme.typography.customInput }}
+                                >
+                                    <InputLabel htmlFor="outlined-adornment-username-register">
+                                        请输入公司编码
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-username-register"
+                                        type="text"
+                                        value={values?.orgInfo?.code || ''}
+                                        name="orgInfo.code"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        inputProps={{}}
+                                    />
+                                </FormControl>
+                                <FormControl
+                                    fullWidth
+                                    sx={{ ...theme.typography.customInput }}
+                                >
+                                    <InputLabel htmlFor="outlined-adornment-username-register">
+                                        请输入公司联系电话
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-username-register"
+                                        type="text"
+                                        value={values?.orgInfo?.phone || ''}
+                                        name="orgInfo.phone"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        inputProps={{}}
+                                    />
+                                </FormControl>
+                                <FormControl
+                                    fullWidth
+                                    sx={{ ...theme.typography.customInput }}
+                                >
+                                    <InputLabel htmlFor="outlined-adornment-username-register">
+                                        请输入公司负责人
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-username-register"
+                                        type="text"
+                                        value={values?.orgInfo?.leader || ''}
+                                        name="orgInfo.leader"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        inputProps={{}}
+                                    />
+                                </FormControl>
+                                <FormControl
+                                    fullWidth
+                                    sx={{ ...theme.typography.customInput }}
+                                >
+                                    <InputLabel htmlFor="outlined-adornment-username-register">
+                                        请输入公司邮箱
+                                    </InputLabel>
+                                    <OutlinedInput
+                                        id="outlined-adornment-username-register"
+                                        type="text"
+                                        value={values?.orgInfo?.email || ''}
+                                        name="orgInfo.email"
+                                        onBlur={handleBlur}
+                                        onChange={handleChange}
+                                        inputProps={{}}
+                                    />
+                                </FormControl>
+                            </> :
+                                ''
+                        }
 
                         <Grid container alignItems="center" justifyContent="space-between">
                             <Grid item>
@@ -527,6 +687,7 @@ const JWTRegister = ({ ...others }) => {
                                 )}
                             </Grid>
                         </Grid>
+
                         {errors.submit && (
                             <Box sx={{ mt: 3 }}>
                                 <FormHelperText error>{errors.submit}</FormHelperText>
@@ -544,7 +705,7 @@ const JWTRegister = ({ ...others }) => {
                                     variant="contained"
                                     color="secondary"
                                 >
-                                    {intl.formatMessage({ id: 'auth-register.sign-up' })}
+                                    11{intl.formatMessage({ id: 'auth-register.sign-up' })}
                                 </Button>
                             </AnimateButton>
                         </Box>
