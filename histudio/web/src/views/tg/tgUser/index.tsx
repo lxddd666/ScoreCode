@@ -23,7 +23,8 @@ import {
     Autocomplete,
     Avatar,
     Tooltip,
-    IconButton
+    IconButton,
+    Link
 } from '@mui/material';
 // import DeleteIcon from '@mui/icons-material/Delete';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -67,6 +68,8 @@ const TgUser = () => {
     const [pagetionTotle, setPagetionTotle] = useState(0); // total
     const [importOpenDialog, setImportOpenDialog] = useState(false);
     const [handleSubmitOpen, setHandleSubmitOpen] = useState(false); // 弹窗控制
+    const [showHide, setShowHide] = useState(false) // 展开收起
+    const [tableHeigth, setTableHeigth] = useState(150)
     const [handleSubmitOpenConfig, setHandleSubmitOpenConfig] = useState({
         title: ''
     });
@@ -193,7 +196,8 @@ const TgUser = () => {
                         <p>{item.firstName}</p>
                         <p style={{ marginLeft: '5px' }}>{item.lastName}</p>
                     </div>
-                    <div style={{ fontSize: '12px' }}>phone:{item.phone}</div>
+                    <div style={{ fontSize: '12px' }}>(+) {item.phone}</div>
+                    <div style={{ fontSize: '12px' }}><Link href="" onClick={(e) => e.preventDefault()}>@{item.username}</Link></div>
                 </div>
             </div>
         }
@@ -510,12 +514,17 @@ const TgUser = () => {
             });
     }
 
+    const handleShowHide = () => {
+        setShowHide(!showHide)
+        let v = showHide ? 150 : 300
+        setTableHeigth(v)
+    }
 
     return (
         <MainCard title={<FormattedMessageTitle />} content={true}>
             <div className={styles.box} ref={boxRef}>
                 <div className={styles.searchTop}>
-                    <SearchForm top100Films={searchForm} handleSearchFormData={handleSearchFormData} />
+                    <SearchForm top100Films={searchForm} handleSearchFormData={handleSearchFormData} showHide={showHide} handleShowHide={handleShowHide} />
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
@@ -564,16 +573,16 @@ const TgUser = () => {
                                 导入
                             </Button>
                         </AnimateButton>
-                        <AnimateButton type="slide">
+                        {/* <AnimateButton type="slide">
                             <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('iphone')}>
                                 手机验证码登录
                             </Button>
-                        </AnimateButton>
+                        </AnimateButton> */}
                     </Stack>
                 </div>
                 <TableContainer
                     component={Paper}
-                    style={{ maxHeight: `calc(${boxHeight - 270}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
+                    style={{ maxHeight: `calc(${boxHeight - tableHeigth}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
                 >
                     <Table aria-label="simple table" sx={{ border: 1, borderColor: 'divider' }} stickyHeader={true}>
                         <TableHead>
