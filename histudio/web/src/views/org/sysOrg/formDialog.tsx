@@ -17,19 +17,21 @@ import {
     Avatar,
     Radio,
     Pagination,
-    FormControl,
-    InputLabel,
-    Select,
-    OutlinedInput,
-    MenuItem,
-    Checkbox,
-    ListItemText,
-    FormHelperText,
-    ButtonGroup,
+    // FormControl,
+    // InputLabel,
+    // Select,
+    // OutlinedInput,
+    // MenuItem,
+    // // Checkbox,
+    // ListItemText,
+    // FormHelperText,
+    // ButtonGroup,
     // Autocomplete
 } from '@mui/material';
+// import ClearIcon from '@mui/icons-material/Clear';
+import AutorenewIcon from '@mui/icons-material/Autorenew';
+import SearchIcon from '@mui/icons-material/Search';
 import AnimateButton from 'ui-component/extended/AnimateButton';
-
 import { gridSpacing } from 'store/constant';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
@@ -41,12 +43,12 @@ import styles from './index.module.scss';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 
-import { timeAgo } from 'utils/tools'
-import {
-    tgFoldersEdit,
-} from 'server/tg'
-
+import { timeAgo } from 'utils/tools';
 import { getProxyListAction } from "store/slices/org";
+// import {
+//     handleAsync
+// } from 'utils/tools'
+import {adminOrgAdd, adminOrgEdit} from "../../../server/org";
 
 const Item = styled(Paper)(({ theme }) => ({
     ...theme.typography.body2,
@@ -56,15 +58,25 @@ const Item = styled(Paper)(({ theme }) => ({
 }));
 const createValidationSchema = (requiredFields: any) => {
     return yup.object().shape({
-        folderName: yup.string().trim('Enter a valid folderName').required('folderName is required'),
-        id: yup.string().trim('Enter a valid id').required('id is required'),
-        // accounts: yup.array().of(
+        taskName: yup.string().trim('Enter a valid username').test('is-required', 'Cron is required', (value) => {
+            return requiredFields.taskName ? !!value : true;
+        }),
+        // cron: yup.string().trim('Enter a valid cron').required('cron is required'),
+        // actions: yup.array().of(
         //     yup.number().required('Action is required')
-        // ).test(
-        //     'is-accounts-required',
-        //     'At least one account is required',
-        //     (value) => !requiredFields.accounts || (Array.isArray(value) && value?.length > 0)
-        // ),
+        // ).required('At least one action is required')
+        //     .min(1, 'At least one action is required'),
+        accounts: yup.array().of(
+            yup.number().required('Action is required')
+        ).test(
+            'is-accounts-required',
+            'At least one account is required',
+            (value) => !requiredFields.accounts || (Array.isArray(value) && value?.length > 0)
+        ),
+        folderId: yup.string().trim('Enter a valid cron').test('is-required', 'Cron is required', (value) => {
+            return requiredFields.folderId ? !!value : true;
+        }),
+        // scriptGroup: yup.string().trim('Enter a valid scriptGroup').required('scriptGroup is required'),
     });
 }
 
@@ -73,20 +85,20 @@ const FormDialog = (props: any) => {
     const [dialogValue, setDialogValue] = useState<any>({})
     const [formikValue, setFormikValue] = useState<any>({
         id: undefined,
-        orgId:'',
-        memberId:'',
-        folderName:'',
-        memberCount:'',
-        accounts: [],
-        comment:'',
-
+        name: '',
+        code: '',
+        leader: '',
+        phone: '',
+        email: '',
     })
     const [requiredFields] = useState({
         accounts: false,
-        folderName: false,
+        folderId: false,
+        channel: false,
+        taskName: false,
     })
 
-    // console.log('dormDialog', open, config);
+    console.log('dormDialog', open, config);
     useEffect(() => {
         setFormikValue({
             ...formikValue,
@@ -102,7 +114,7 @@ const FormDialog = (props: any) => {
             console.log('value', values);
             if (config.type === 'Add') {
                 try {
-                    const res = await tgFoldersEdit(values)
+                    const res = await adminOrgAdd(values)
                     console.log(res);
                     onChangeDialogStatus(config.type, false)
                 } catch (error) {
@@ -113,7 +125,7 @@ const FormDialog = (props: any) => {
             }
             if (config.type === 'Edit') {
                 try {
-                    const res = await tgFoldersEdit(values)
+                    const res = await adminOrgEdit(values)
                     console.log(res);
                     onChangeDialogStatus(config.type, false)
                 } catch (error) {
@@ -124,6 +136,7 @@ const FormDialog = (props: any) => {
             }
         }
     });
+
     // 关闭弹窗
     const handleClose = () => {
         // console.log('关闭弹窗');
@@ -131,13 +144,11 @@ const FormDialog = (props: any) => {
         formik.resetForm();
         setFormikValue({
             id: undefined,
-            orgId:'',
-            memberId:'',
-            folderName:'',
-            memberCount:'',
-            accounts: [],
-            comment:'',
-
+            name: '',
+            code: '',
+            leader: '',
+            phone: '',
+            email: '',
         })
     }
     const changeSubmitValue = useCallback((value: any) => {
@@ -151,28 +162,34 @@ const FormDialog = (props: any) => {
                         // handleImportClose();
                     }
                 }}
-                                 maxWidth="sm"
-                                 sx={{
-                                     '& .MuiDialog-paper': { width: '80%' }, // 80% 的宽度
-                                     '& .css-meoh0q-MuiPaper-root-MuiDialog-paper': { maxWidth: '1000px' }
-                                 }}
-                                 fullWidth={true}>
+                    maxWidth="sm"
+                    sx={{
+                        '& .MuiDialog-paper': { width: '80%' }, // 80% 的宽度
+                        '& .css-meoh0q-MuiPaper-root-MuiDialog-paper': { maxWidth: '1000px' }
+                    }}
+                    fullWidth={true}>
                     <DialogTitle>{config.title}</DialogTitle>
                     <DialogContent>
                         {
                             config.dialogType && config.dialogType === 'editForm'
                                 ?
                                 <EditForm changeSubmitValue={changeSubmitValue}
-                                          row={config.params}
-                                          renderField={config.renderField}
-                                          formik={formik}
-                                          handleClose={handleClose}
+                                    row={config.params}
+                                    renderField={config.renderField}
+                                    formik={formik}
+                                    handleClose={handleClose}
                                 />
                                 :
                                 <EditTable changeSubmitValue={changeSubmitValue} columns={config.columns} type={config.type} />
                         }
 
                     </DialogContent>
+                    {/* <DialogActions>
+                        <Button onClick={handleClose}>取消</Button>
+                        <Button type="submit">提交</Button>
+                    </DialogActions> */}
+
+                    {/* </form> */}
                 </Dialog>)
             }
         </>
@@ -183,6 +200,8 @@ const FormDialog = (props: any) => {
 // table header options
 
 const renderTable = (value: any, key: any, item: any) => {
+    // console.log(value, key, item);
+
     let temp: any = '';
     if (key === 'username') {
         temp = <div className={styles.tablesColumns}>
@@ -215,9 +234,6 @@ const renderTable = (value: any, key: any, item: any) => {
     } else {
         temp = value;
     }
-    // return <Tooltip title={temp} placement="top-start">
-    //     <p>{temp}</p>
-    // </Tooltip>;
     return temp
 };
 const EditTable = (props: any) => {
@@ -275,6 +291,33 @@ const EditTable = (props: any) => {
         setSelectedId(id);
         changeSubmitValue(id)
     };
+
+    // 搜索按钮
+    const onSearchClick = (e: any) => {
+        console.log(e.target.value, formData);
+
+        if (type === 'bindUser') {
+            fetchBindUser(1, formData.username)
+        }
+        if (type === 'bindProxy') {
+            fetchBindProxy(1, formData.username)
+        }
+
+    };
+    // 重置按钮
+    const onResetClick = (e: any) => {
+        let obj = {
+            username: undefined,
+        };
+        // setValue({});
+        setFormData(obj);
+        if (type === 'bindUser') {
+            fetchBindUser()
+        }
+        if (type === 'bindProxy') {
+            fetchBindProxy()
+        }
+    };
     // 分页事件
     const pageRef = useRef(1);
     const onPaginationChange = (event: object, page: number) => {
@@ -315,18 +358,18 @@ const EditTable = (props: any) => {
                         />
                     </Item>
                 </Grid>
-                {/*<Grid item xs={3}>*/}
-                {/*    <Item>*/}
-                {/*        <Stack direction="row" spacing={2}>*/}
-                {/*            <Button size="small" variant="outlined" startIcon={<SearchIcon />} onClick={onSearchClick}>*/}
-                {/*                查询*/}
-                {/*            </Button>*/}
-                {/*            <Button size="small" variant="outlined" startIcon={<AutorenewIcon />} onClick={onResetClick}>*/}
-                {/*                重置*/}
-                {/*            </Button>*/}
-                {/*        </Stack>*/}
-                {/*    </Item>*/}
-                {/*</Grid>*/}
+                <Grid item xs={3}>
+                    <Item>
+                        <Stack direction="row" spacing={2}>
+                            <Button size="small" variant="outlined" startIcon={<SearchIcon />} onClick={onSearchClick}>
+                                查询
+                            </Button>
+                            <Button size="small" variant="outlined" startIcon={<AutorenewIcon />} onClick={onResetClick}>
+                                重置
+                            </Button>
+                        </Stack>
+                    </Item>
+                </Grid>
 
             </Grid>
             <div style={{ width: '100%', maxHeight: '400px' }}>
@@ -391,46 +434,8 @@ const EditTable = (props: any) => {
     )
 }
 
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
 const EditForm = (props: any) => {
-    const { row, changeSubmitValue, formik, handleClose } = props
-    // console.log('EditForm', formik.initialValues);
-
-
-    const inputChange = (event: any) => {
-        formik.handleChange(event)
-        changeSubmitValue({
-            id: row?.id || undefined,
-            ...formik.values
-        })
-    }
-
-    const selectBtn = (event: any) => {
-        const { value } = event.target
-        console.log(value, value === '50', value === 50);
-
-        let tempArr: [] = []
-        if (value === '50') {
-            tempArr = row?.accountsList?.slice(0, 50)
-            let arr: any = []
-            tempArr?.map((item: any) => {
-                arr.push(String(item.id))
-            })
-            formik.setFieldValue('accounts', arr);
-        }
-        if (value === 'clear') {
-            formik.setFieldValue('accounts', []);
-        }
-    }
+    const {  formik, handleClose } = props
 
     return (
         <form onSubmit={formik.handleSubmit} style={{ marginTop: '10px' }}>
@@ -438,123 +443,84 @@ const EditForm = (props: any) => {
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={12}>
                     <TextField
-                        type="number"
-                        inputProps={{
-                            min: 0, // 最小值
-                            max: 10000, // 最大值
-                            step: 1 // 步长
-                        }}
                         fullWidth
-                        id="orgId"
-                        name="orgId"
-                        label='组织ID'
-                        value={formik.values.orgId}
+                        id="name"
+                        name="name"
+                        label='公司名称'
+                        value={formik.values.name}
                         onChange={(event) => {
                             const value = event.target.value;
-                            formik.setFieldValue('orgId', value);
+                            console.log(event.target.value);
+
+                            formik.setFieldValue('name', value);
                         }}
                         onBlur={formik.handleBlur}
                     />
                 </Grid>
                 <Grid item xs={12}>
                     <TextField
-                        type="number"
-                        inputProps={{
-                            min: 0, // 最小值
-                            max: 10000, // 最大值
-                            step: 1 // 步长
-                        }}
                         fullWidth
-                        id="memberId"
-                        name="memberId"
-                        label='用户ID'
-                        value={formik.values.memberId}
+                        id="code"
+                        name="code"
+                        label='公司编码'
+                        value={formik.values.code}
                         onChange={(event) => {
                             const value = event.target.value;
-                            formik.setFieldValue('memberId', value);
+                            console.log(event.target.value);
+
+                            formik.setFieldValue('code', value);
                         }}
                         onBlur={formik.handleBlur}
                     />
                 </Grid>
-                    {
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="leader"
+                        name="leader"
+                        label='负责人'
+                        value={formik.values.leader}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            console.log(event.target.value);
 
-                        <Grid item xs={12}>
-                            <FormControl sx={{ width: '100%' }} error={Boolean(formik.errors.folderId)}>
-                                <InputLabel id="demo-multiple-checkbox-label">分组名称</InputLabel>
-                                <Select
-                                    labelId="folderName"
-                                    id="folderNamev"
-                                    value={formik.values.folderName || ''}
-                                    onChange={(event) => {
-                                        const value = event.target.value;
-                                        formik.setFieldValue('folderName', value);
-                                    }}
-                                    input={<OutlinedInput label="分组名称" />}
+                            formik.setFieldValue('leader', value);
+                        }}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="phone"
+                        name="phone"
+                        label='联系电话'
+                        value={formik.values.phone}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            console.log(event.target.value);
 
-                                >
-                                    {row?.folderList?.map((item: any) => (
-                                        <MenuItem key={item.value} value={item.value}>
-                                            <ListItemText primary={item.title} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {formik.touched.folderName && formik.errors.folderName ? (
-                                    <FormHelperText>{formik.errors.folderName}</FormHelperText>
-                                ) : null}
-                            </FormControl>
-                        </Grid>
-                    }
-                    {
-                        <Grid item xs={12}>
-                        <FormControl sx={{ width: '100%' }} error={Boolean(formik.errors.accounts)}>
-                            <InputLabel id="demo-multiple-checkbox-label">账号</InputLabel>
-                            <Select
-                                labelId="accounts"
-                                id="accounts"
-                                multiple
-                                value={formik.values.accounts || []}
-                                onChange={(event) => {
-                                    const value = event.target.value;
-                                    formik.setFieldValue('accounts', value);
-                                }}
-                                input={<OutlinedInput label="账号" />}
-                                renderValue={(selected) => selected
-                                    .map((value: any) => row?.accountsList?.find((item: any) => item.id === value)?.phone)
-                                    .join(', ')}
-                                MenuProps={MenuProps}
+                            formik.setFieldValue('phone', value);
+                        }}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="email"
+                        name="email"
+                        label='邮箱'
+                        value={formik.values.email}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            console.log(event.target.value);
 
-                            >
-                                {row?.accountsList?.map((item: any) => (
-                                    <MenuItem key={item.id} value={item.id}>
-                                        <Checkbox checked={formik.values.accounts?.includes(item.id)} />
-                                        <ListItemText primary={`${item.phone}-${item.firstName} ${item.lastName}`} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {formik.touched.accounts && formik.errors.accounts ? (
-                                <FormHelperText>{formik.errors.accounts}</FormHelperText>
-                            ) : null}
-                        </FormControl>
-                        <ButtonGroup size="small" aria-label="small button group" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button value="50" onClick={selectBtn}>选择50个</Button>
-                            <Button value="100">选择100个</Button>
-                            <Button value="200">选择200个</Button>
-                            <Button value="clear" onClick={selectBtn}>清除</Button>
-                        </ButtonGroup>
-                    </Grid>}
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            id="comment"
-                            name="comment"
-                            label='备注'
-                            value={formik.values.comment}
-                            onChange={inputChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.comment && Boolean(formik.errors.comment)}
-                            helperText={formik.touched.comment && formik.errors.comment}
-                        />
-                        </Grid>
+                            formik.setFieldValue('email', value);
+                        }}
+                        onBlur={formik.handleBlur}
+                    />
+                </Grid>
                 <Grid item xs={12}>
                     <Stack direction="row" justifyContent="flex-end">
                         <AnimateButton>
@@ -569,8 +535,8 @@ const EditForm = (props: any) => {
                         </AnimateButton>
                     </Stack>
                 </Grid>
-                </Grid>
-        </form>
+            </Grid>
+        </form >
     )
 }
 

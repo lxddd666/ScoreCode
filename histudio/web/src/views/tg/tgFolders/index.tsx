@@ -264,9 +264,9 @@ const TgFolders = () => {
                         <Button size="small" variant="contained" disabled={selected.length > 0 ? false : true} onClick={e => onExecuteClick('delete')}>
                             批量删除
                         </Button>
-                        <Button size="small" variant="contained" disabled={true}>
-                            导出
-                        </Button>
+                        {/*<Button size="small" variant="contained" disabled={true}>*/}
+                        {/*    导出*/}
+                        {/*</Button>*/}
                     </Stack>
                 </div>
                 <TableContainer
