@@ -45,10 +45,7 @@ export const columns = [
         key: 'cronStatus'
     },
 
-    // {
-    //     title: '创建时间',
-    //     key: 'createdAt'
-    // },
+
     // {
     //     title: '更新时间',
     //     key: 'updatedAt'
@@ -65,33 +62,46 @@ export const columns = [
         key: 'comment'
     },
     {
+        title: '创建时间',
+        key: 'createdAt'
+    },
+    {
         title: '操作',
         key: 'active'
-    }
+    },
+
 ];
 
 // 任务状态
 export const cronStatusArr = [
     {
-        title: '终止',
+        title: '正在执行',
+        color: 'secondary',
         key: 0
     },
     {
-        title: '正在执行',
+        title: '完成',
+        color: 'success',
         key: 1
     },
     {
-        title: '完成',
+        title: '失败',
+        color: 'error',
         key: 2
+    },
+    {
+        title: '暂停',
+        color: 'info',
+        key: 3
     }
 ];
 export const cronStatus = (value: any) => {
 
-    let title = cronStatusArr.map((item) => {
+    let title: any = cronStatusArr.filter((item) => {
         if (item.key === value) {
-            return item.title;
+            return item;
         }
     });
 
-    return title;
+    return title[0] ? title[0] : { title: '未定义状态', color: 'default' };
 };

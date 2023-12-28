@@ -102,7 +102,7 @@ export const handleAsync = async (asyncFn: any) => {
     try {
         const res = await asyncFn();
         return { res, error: null };
-    } catch (error) {
+    } catch (error:any) {
         console.error('执行失败', error);
         return { res: null, error };
     }

@@ -196,3 +196,84 @@ export const tgKeepTaskAllDelete = (data: any) => {
 
     })
 }
+/********************* TG IncreaseFansCron 涨粉任务*****************************/
+// 校验频道 请求
+export const tgIncreaseFansCronCheckChannel = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgIncreaseFansCron/checkChannel`, {
+           ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 校验频道 请求
+export const tgIncreaseFansCronChannelIncreaseFanDetail = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgIncreaseFansCron/channelIncreaseFanDetail`, {
+           ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 涨粉任务添加/修改 请求
+export const tgIncreaseFansCronEdit = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgIncreaseFansCron/edit`, {
+           ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 涨粉任务数据回显 请求
+export const tgIncreaseFansCronEditEcho = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`/tg/tgIncreaseFansCron/view`, {
+            params: {
+                id: data.id
+            }
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 执行/暂停 请求
+export const tgIncreaseFansCronUpdateStatus = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgIncreaseFansCron/updateStatus`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 涨粉任务 批量删除 请求
+export const tgIncreaseFansCronDelete = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgIncreaseFansCron/delete`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
