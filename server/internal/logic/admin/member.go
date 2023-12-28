@@ -93,7 +93,6 @@ func (s *sAdminMember) Console(ctx context.Context, in *adminin.MemberListInp) (
 
 				}
 				console.SyncContacts = syncContactInfo.Number
-
 			}
 		}
 	}
