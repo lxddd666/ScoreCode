@@ -29,9 +29,9 @@ const (
 var EmsSubjectMap = g.MapStrStr{
 	EmsTemplateText:     "这是一封来自Grata的邮件",
 	EmsTemplateCode:     "验证码",
-	EmsTemplateLogin:    "SocGo IP",                // 登录验证码
-	EmsTemplateRegister: "SocGo IP OTP",            // 验证码
-	EmsTemplateResetPwd: "SocGo IP Password Reset", // 重置密码
+	EmsTemplateLogin:    "Tg 云控登录验证码", // 登录验证码
+	EmsTemplateRegister: "Tg 云控验证码",   // 验证码
+	EmsTemplateResetPwd: "Tg 运控重置密码",  // 重置密码
 	EmsTemplateBind:     "绑定邮箱验证码",
 	EmsTemplateCash:     "申请提现验证码",
 }

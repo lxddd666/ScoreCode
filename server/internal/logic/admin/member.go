@@ -632,6 +632,7 @@ func (s *sAdminMember) View(ctx context.Context, in *adminin.MemberViewInp) (res
 // List 获取用户列表
 func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (list []*adminin.MemberListModel, totalCount int, err error) {
 	mod := s.FilterSelfAuthModel(ctx, contexts.GetUserId(ctx))
+	user := contexts.GetUser(ctx)
 	cols := dao.AdminMember.Columns()
 
 	if in.RealName != "" {
@@ -713,6 +714,8 @@ func (s *sAdminMember) List(ctx context.Context, in *adminin.MemberListInp) (lis
        updated_at,
        had.name as orgName,
        har.name as roleName`)
+
+	mod = mod.Where("hg_admin_member.org_id", user.OrgId)
 	if err = mod.Page(in.Page, in.PerPage).OrderDesc(cols.Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#ObtainUserListFailed}"))
 		return
