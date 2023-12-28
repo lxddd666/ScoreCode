@@ -302,3 +302,45 @@ export const tgIncreaseFansCronDelete = (data: any) => {
 
     })
 }
+/********************* TG Folders账号分组*****************************/
+// 账号分组 批量删除 请求
+export const tgFoldersDelete = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgFolders/delete`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 账号分组添加/修改 请求
+export const tgFoldersEdit = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.post(`/tg/tgFolders/edit`, {
+            ...data
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
+// 账号分组数据回显 请求
+export const tgFoldersView = (data: any) => {
+    return new Promise((resolve, reject) => {
+        axios.get(`/tg/tgFolders/view`, {
+            params: {
+                id: data.id
+            }
+        }).then((res: any) => {
+            resolve(res.data)
+        }).catch((err: any) => {
+            reject(err)
+        })
+
+    })
+}
