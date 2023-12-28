@@ -57,10 +57,20 @@ func (s *sTgFolders) List(ctx context.Context, in *tgin.TgFoldersListInp) (list 
 		return
 	}
 
-	if err = mod.Fields(tgin.TgFoldersListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgFolders.Columns().Id).Scan(&list); err != nil {
+	err = mod.Fields(tgin.TgFoldersListModel{}).Page(in.Page, in.PerPage).OrderDesc(dao.TgFolders.Columns().Id).Scan(&list)
+	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetListError}"))
 		return
 	}
+	for _, folder := range list {
+		num, cErr := g.Model(dao.TgUserFolders.Table()).Where(dao.TgUserFolders.Columns().FolderId, folder.Id).Count()
+		if cErr != nil {
+			err = gerror.Wrap(cErr, g.I18n().T(ctx, "{#GetCountError}"))
+			return
+		}
+		folder.MemberCount = gconv.Int64(num)
+	}
+
 	return
 }
 

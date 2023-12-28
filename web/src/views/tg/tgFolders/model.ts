@@ -129,7 +129,7 @@ export const columns = [
   },
   {
     title: '分组人数',
-    key: 'memberCunt',
+    key: 'memberCount',
   },
   {
     title: '备注',
