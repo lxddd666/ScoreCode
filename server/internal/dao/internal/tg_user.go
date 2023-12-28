@@ -34,6 +34,8 @@ type TgUserColumns struct {
 	IsOnline       string // 是否在线
 	ProxyAddress   string // 代理地址
 	PublicProxy    string // 公共代理
+	AppId          string // appId
+	AppHash        string // appHash
 	LastLoginTime  string // 上次登录时间
 	FirstLoginTime string // 首次登录时间
 	Comment        string // 备注
@@ -61,6 +63,8 @@ var tgUserColumns = TgUserColumns{
 	PublicProxy:    "public_proxy",
 	LastLoginTime:  "last_login_time",
 	FirstLoginTime: "first_login_time",
+	AppId:          "app_id",
+	AppHash:        "app_hash",
 	Comment:        "comment",
 	Session:        "session",
 	DeletedAt:      "deleted_at",

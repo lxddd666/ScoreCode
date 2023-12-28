@@ -12,7 +12,6 @@ import (
 	"hotgo/internal/consts"
 	"hotgo/internal/core/prometheus"
 	"hotgo/internal/dao"
-	"hotgo/internal/library/contexts"
 	"hotgo/internal/library/storager"
 	"hotgo/internal/model/callback"
 	"hotgo/internal/model/do"
@@ -38,12 +37,12 @@ func (s *sTgArts) TgSyncContact(ctx context.Context, inp *artsin.SyncContactInp)
 	// 检查是否登录
 	resp, err := service.Arts().SyncContact(ctx, inp, consts.TgSvc)
 	if err == nil {
-		user := contexts.GetUser(ctx)
+		//user := contexts.GetUser(ctx)
 		prometheus.InitiateSyncContactCount.WithLabelValues(gconv.String(inp.Account)).Inc()
 		prometheus.PassiveSyncContactCount.WithLabelValues(gconv.String(inp.Phone)).Inc()
 
-		prometheus.MemberSyncContact.WithLabelValues(gconv.String(user.Id))
-		prometheus.OrgSyncContact.WithLabelValues(gconv.String(user.OrgId))
+		//prometheus.MemberSyncContact.WithLabelValues(gconv.String(user.Id))
+		//prometheus.OrgSyncContact.WithLabelValues(gconv.String(user.OrgId))
 
 		if len(resp) == 0 {
 			return

@@ -127,12 +127,12 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 
 	if err = mod.
 		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
-		LeftJoin("tg_photo as tp", "tg_user.photo=tp.photo_id").
-		Fields("tg_user.*", "ham.member_username", "tp.file_url as avatar").
+		Fields("tg_user.*", "ham.member_username").FieldsEx("tg_user.proxy_address").
 		OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
 		return
 	}
+
 	for _, item := range list {
 		if item.PublicProxy == 1 {
 			item.ProxyAddress = ""
@@ -355,16 +355,16 @@ func (s *sTgUser) ImportSession(ctx context.Context, inp *tgin.ImportSessionInp)
 	}
 	fmt.Println(userList)
 	// 校验
-	//taskId, err := service.TgBatchExecutionTask().Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{entity.TgBatchExecutionTask{
-	//	Action:     consts.TG_BATCH_CHECK_LOGIN,
-	//	Parameters: gjson.New(userList),
-	//}})
-	//if err != nil {
-	//	return
-	//}
-	//res = &tgin.ImportSessionModel{}
-	//res.Count = len(sessionDetails)
-	//res.TaskId = taskId
+	taskId, err := service.TgBatchExecutionTask().Edit(ctx, &tgin.TgBatchExecutionTaskEditInp{entity.TgBatchExecutionTask{
+		Action:     consts.TG_BATCH_CHECK_LOGIN,
+		Parameters: gjson.New(userList),
+	}})
+	if err != nil {
+		return
+	}
+	res = &tgin.ImportSessionModel{}
+	res.Count = len(sessionDetails)
+	res.TaskId = taskId
 
 	return
 }
