@@ -264,12 +264,12 @@ const TgKeepTask = () => {
             case 'Add':
                 setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
                 getTableListActionFN()
-                sendMsg('添加成功')
+                // sendMsg('添加成功')
                 break
             case 'Edit':
                 setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
                 getTableListActionFN()
-                sendMsg('编辑成功')
+                // sendMsg('编辑成功')
                 break
             default:
                 break;
