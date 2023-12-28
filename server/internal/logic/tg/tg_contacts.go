@@ -175,11 +175,11 @@ func (s *sTgContacts) SyncContactCallback(ctx context.Context, in map[uint64][]*
 		for _, model := range list {
 			model.OrgId = tgUser.OrgId
 			phones = append(phones, model.Phone)
-			go func(ctx context.Context, model *tgin.TgContactsListModel) {
-				if model.Photo != "" {
-					service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Photo)})
-				}
-			}(gctx.New(), model)
+			//go func(ctx context.Context, model *tgin.TgContactsListModel) {
+			//	if model.Photo != "" {
+			//		service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Photo)})
+			//	}
+			//}(gctx.New(), model)
 			//if model.Photo != "" {
 			//	service.TgArts().TgGetUserAvatar(ctx, &tgin.TgGetUserAvatarInp{Account: phone, GetUser: gconv.Uint64(model.Phone), PhotoId: gconv.Int64(model.Photo)})
 			//}

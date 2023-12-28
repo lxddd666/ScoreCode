@@ -85,10 +85,10 @@ func (s *sTgArts) CodeLogin(ctx context.Context, phone uint64) (reqId string, er
 	if err != nil {
 		return
 	}
-	err = s.handlerSyncAccount(ctx, tgUserList)
-	if err != nil {
-		return
-	}
+	//err = s.handlerSyncAccount(ctx, tgUserList)
+	//if err != nil {
+	//	return
+	//}
 
 	req := &protobuf.RequestMessage{
 		Action: protobuf.Action_LOGIN_SINGLE,
