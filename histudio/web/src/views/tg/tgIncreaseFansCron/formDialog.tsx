@@ -109,7 +109,22 @@ const FormDialog = (props: any) => {
         channel: false,
         taskName: false,
     })
-
+    const dispatch = useDispatch()
+    const sendMsg = (msg: any = '~~', type: String = 'success') => {
+        dispatch(openSnackbar({
+            open: true,
+            message: msg,
+            variant: 'alert',
+            alert: {
+                color: type
+            },
+            close: false,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center'
+            }
+        }))
+    }
     console.log('dormDialog', open, config);
     useEffect(() => {
         setFormikValue({
@@ -126,23 +141,25 @@ const FormDialog = (props: any) => {
             console.log('value', values);
             if (config.type === 'Add') {
                 try {
-                    const res = await tgIncreaseFansCronEdit(values)
+                    const res: any = await tgIncreaseFansCronEdit(values)
                     console.log(res);
                     onChangeDialogStatus(config.type, false)
-                } catch (error) {
+                    sendMsg(res.message)
+                } catch (error: any) {
                     console.log('error', error);
-
+                    sendMsg(error.message || '添加失败', 'error')
                 }
 
             }
             if (config.type === 'Edit') {
                 try {
-                    const res = await tgIncreaseFansCronEdit(values)
+                    const res: any = await tgIncreaseFansCronEdit(values)
                     console.log(res);
                     onChangeDialogStatus(config.type, false)
-                } catch (error) {
+                    sendMsg(res.message)
+                } catch (error: any) {
                     console.log('error', error);
-
+                    sendMsg(error.message || '编辑失败', 'error')
                 }
 
             }
@@ -498,7 +515,10 @@ const EditForm = (props: any) => {
                 return sendMsg(error.message || '失败', 'error')
             }
             console.log('res执行成功', res);
-            sendMsg('校验成功')
+            const info = res?.data?.channelMsg
+            formik.setFieldValue('channelMemberCount', res?.data?.channelMsg?.channelMemberCount);
+            formik.setFieldValue('channelId', res?.data?.channelMsg?.channelId);
+            sendMsg(`频道有效,频道Title:${info.channelTitle},频道Id:${info.channelId},频道人数:${info.channelMemberCount}`)
         }
         if (type === 'fanDetail') {
             const { res, error } = await handleAsync(() => tgIncreaseFansCronChannelIncreaseFanDetail({ ...formik.values }))
@@ -506,7 +526,9 @@ const EditForm = (props: any) => {
                 return sendMsg(error.message || '失败', 'error')
             }
             console.log('res执行成功', res);
-            sendMsg('计算成功')
+            const info = res?.data
+            formik.setFieldValue('executedPlan', info.dailyIncreaseFan);
+            sendMsg('已设置涨粉计划')
         }
     }
 
@@ -562,6 +584,7 @@ const EditForm = (props: any) => {
                         name="channelMemberCount"
                         label='频道当前粉丝数'
                         value={formik.values.channelMemberCount}
+                        disabled={true}
                         onChange={(event) => {
                             const value = event.target.value;
                             formik.setFieldValue('channelMemberCount', value);
@@ -600,6 +623,7 @@ const EditForm = (props: any) => {
                         id="channelId"
                         name="channelId"
                         label='频道ID'
+                        disabled={true}
                         value={formik.values.channelId}
                         onChange={(event) => {
                             const value = event.target.value;
@@ -634,6 +658,7 @@ const EditForm = (props: any) => {
                         id="executedPlan"
                         name="executedPlan"
                         label='执行计划'
+                        disabled={true}
                         value={formik.values.executedPlan}
                         onChange={(event) => {
                             const value = event.target.value;

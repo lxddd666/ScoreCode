@@ -21,8 +21,8 @@ const initialState: DefaultRootStateProps['tg'] = {
     tgMsgList: [],
     // 聊天室 会话分组
     tgArtsFolders: [],
-    tgFoldersMessageList:[],
-    tgFoldersMeeageHistoryList:[]
+    tgFoldersMessageList: [],
+    tgFoldersMeeageHistoryList: []
 };
 
 const slice = createSlice({
@@ -70,7 +70,11 @@ const slice = createSlice({
         },
         // 聊天室 会话分组/消息队列/聊天历史
         emitTgFoldersMeeageHistoryList(state, action) {
-            state.tgFoldersMeeageHistoryList = action.payload;
+            console.log('会话分组/消息队列/聊天历史', action.payload);
+            let reversedMessages = (action.payload?.data?.list)?.reverse()
+            console.log(reversedMessages);
+
+            state.tgFoldersMeeageHistoryList = reversedMessages;
         }
     }
 });
