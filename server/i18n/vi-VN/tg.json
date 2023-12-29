@@ -83,7 +83,7 @@
   "TaskNotCreated" : "Tác vụ chưa được tạo",
   "ExportTgGroup": "Xuất khẩu nhóm tg-",
   "AddTgGroupError": "Nhóm tg mới thất bại, vui lòng thử lại sau！",
-  "GetDialogEmpty" : "Phiên chạy trống",
+  "GetDialogEmpty" : "Nhận phiên trống hoặc nhận danh sách phiên không thành công",
   "ActionNotEmpty": "Hành động không được để trống",
   "ExecutionNotEmpty": "Tham số tác vụ thực thi không được để trống",
   "ExportBatchTask": "Xuất tác vụ vận hành hàng loạt-",

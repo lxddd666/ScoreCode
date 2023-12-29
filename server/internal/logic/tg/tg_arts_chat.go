@@ -89,11 +89,12 @@ func (s *sTgArts) TgGetDialogs(ctx context.Context, account uint64) (list []*tgi
 	}
 	prometheus.AccountGetDialogList.WithLabelValues(gconv.String(account)).Inc()
 	var box tg.MessagesDialogsBox
-	err = (&bin.Buffer{Buf: resp.Data}).Decode(&box)
-	if err != nil {
-		return
-	}
-	list, err = handlerDialogList(box)
+
+	_ = (&bin.Buffer{Buf: resp.Data}).Decode(&box)
+	//if err != nil {
+	//	return
+	//}
+	list, err = handlerDialogList(ctx, box)
 	return
 }
 

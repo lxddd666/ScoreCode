@@ -83,7 +83,7 @@
   "TaskNotCreated" : "任务未创建",
   "ExportTgGroup": "导出tg分组-",
   "AddTgGroupError": "新增tg分组失败，请稍后重试！",
-  "GetDialogEmpty" : "获取会话为空",
+  "GetDialogEmpty" : "获取会话为空或获取会话列表失败",
   "ActionNotEmpty": "操作动作不能为空",
   "ExecutionNotEmpty": "执行任务参数不能为空",
   "ExportBatchTask": "导出批量操作任务-",

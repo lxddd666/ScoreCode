@@ -82,7 +82,7 @@
   "TaskNotCreated" : "任務未創建",
   "ExportTgGroup": "導出tg分組-",
   "AddTgGroupError": "新增tg分組失敗，請稍後重試！",
-  "GetDialogEmpty" : "獲取會話為空",
+  "GetDialogEmpty" : "獲取會話為空或獲取會話清單失敗",
   "ActionNotEmpty": "操作動作不能為空",
   "ExecutionNotEmpty": "執行任務參數不能為空",
   "ExportBatchTask": "匯出批次操作任務-",
@@ -91,5 +91,5 @@
   "MemberAccountCountErr": "用戶帳號不足",
   "DraftMsgClearErr": "草稿消息清除錯誤",
   "SameFolderName": "相同该公司下已经有相同名称的分组，请重新更换分组名称",
-  "GetTgUserAccountEmpty": "獲取Tg帳號為空"
+  "GetTgUserAccountEmpty": "獲取Tg帳號為空",
 }

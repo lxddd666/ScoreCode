@@ -324,7 +324,8 @@ func (s *sTgArts) login(ctx context.Context, tgUserList []*entity.TgUser) (err e
 func (s *sTgArts) SingleLogin(ctx context.Context, tgUser *entity.TgUser) (result *entity.TgUser, err error) {
 	result = tgUser
 	var sysOrg entity.SysOrg
-	err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
+	//err = service.SysOrg().Model(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
+	err = g.Model(dao.SysOrg.Table()).Ctx(ctx).WherePri(tgUser.OrgId).Scan(&sysOrg)
 	if err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetCompanyInformationFailed}"))
 		return

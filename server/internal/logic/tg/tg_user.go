@@ -25,6 +25,7 @@ import (
 	"hotgo/internal/library/hgorm/handler"
 	"hotgo/internal/model/do"
 	"hotgo/internal/model/entity"
+	"hotgo/internal/model/input/adminin"
 	"hotgo/internal/model/input/tgin"
 	"hotgo/internal/protobuf"
 	"hotgo/internal/service"
@@ -125,8 +126,17 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		mod = mod.Page(in.Page, in.PerPage)
 	}
 
+	members, _, err := service.AdminMember().List(ctx, &adminin.MemberListInp{RoleId: -1})
+	if err != nil {
+		return
+	}
+	memberIds := make([]int64, 0)
+	for _, member := range members {
+		memberIds = append(memberIds, member.Id)
+	}
 	if err = mod.
 		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
+		WhereIn("tg_user.member_id", memberIds).
 		Fields("tg_user.*", "ham.member_username").FieldsEx("tg_user.proxy_address").
 		OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
@@ -272,7 +282,7 @@ func (s *sTgUser) BatchBindMember(ctx context.Context, inp tgin.TgUserBatchBindM
 func (s *sTgUser) UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error) {
 	if _, err = s.Model(ctx, &handler.Option{FilterOrg: true}).
 		WhereIn(dao.TgUser.Columns().Id, in.Ids).
-		Data(do.TgUser{MemberId: nil}).
+		Data(g.Map{dao.TgUser.Columns().MemberId: nil}).
 		Update(); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#BindUserFailed}"))
 		return

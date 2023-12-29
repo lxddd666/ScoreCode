@@ -83,7 +83,7 @@
   "TaskNotCreated" : "Task not created",
   "ExportTgGroup": "Export tg group-",
   "AddTgGroupError": "The new tg group fails, please try again later！",
-  "GetDialogEmpty" : "Get dialog empty",
+  "GetDialogEmpty" : "Get session empty or failed to get session list",
   "ActionNotEmpty": "The action cannot be empty",
   "ExecutionNotEmpty": "Execution task parameters cannot be empty",
   "ExportBatchTask": "Export batch operation task-",

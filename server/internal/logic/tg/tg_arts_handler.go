@@ -196,9 +196,17 @@ func (s *sTgArts) isLogin(ctx context.Context, tgUser *entity.TgUser) bool {
 	return false
 }
 
-func handlerDialogList(dialogListBox tg.MessagesDialogsBox) (list []*tgin.TgDialogModel, err error) {
+func handlerDialogList(ctx context.Context, dialogListBox tg.MessagesDialogsBox) (list []*tgin.TgDialogModel, err error) {
+	if dialogListBox.Dialogs == nil {
+		err = gerror.New(g.I18n().T(ctx, "{#GetDialogEmpty}"))
+		return
+	}
 	dialogs, b := dialogListBox.Dialogs.AsModified()
 	if !b {
+		return
+	}
+	if len(dialogs.GetDialogs()) == 0 {
+		err = gerror.New(g.I18n().T(ctx, "{#GetDialogEmpty}"))
 		return
 	}
 	list = make([]*tgin.TgDialogModel, 0)

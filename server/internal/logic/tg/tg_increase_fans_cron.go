@@ -469,13 +469,13 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 		_, _ = g.Redis().SAdd(ctx, consts.TgIncreaseFansKey+takeName, fan.Phone)
 		if loginErr != nil {
 			if logID != 0 {
-				model.Data(g.Map{dao.TgIncreaseFansCronAction.Columns().Comment: loginErr.Error()}).WherePri(logID).Update()
+				model.Data(g.Map{dao.TgIncreaseFansCronAction.Columns().Comment: fan.Comment}).WherePri(logID).Update()
 			} else {
-				data.Comment = loginErr.Error()
+				data.Comment = fan.Comment
 				_, _ = model.Data(data).Insert()
 			}
 		} else if joinChannelErr != nil {
-			data.Comment = joinChannelErr.Error()
+			data.Comment = fan.Comment
 			_, _ = model.Data(data).Insert()
 		}
 	}()
@@ -485,26 +485,31 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 	loginRes, loginErr := service.TgArts().SingleLogin(ctx, fan)
 
 	if loginErr != nil {
+		fan.Comment = "login:" + loginErr.Error()
 		return
 	}
 	if loginRes.AccountStatus != int(protobuf.AccountStatus_SUCCESS) {
 		loginErr = gerror.New(g.I18n().T(ctx, "{#LogFailed}"))
+		fan.Comment = "login:" + g.I18n().T(ctx, "{#LogFailed}")
 		return
 	}
 	// 查看列表是否有该channel
 	joinFlag, loginErr := CheckHavingAccount(ctx, gconv.Uint64(fan.Phone), gconv.Int64(channelId))
 	if loginErr != nil {
+		fan.Comment = "CheckHavingAccount:" + loginErr.Error()
 		return
 	}
 	if joinFlag {
 		// 已经加入过了
 		loginErr = gerror.New(gconv.String(fan.Phone) + g.I18n().T(ctx, "{#AddChannel}"))
+		fan.Comment = "having join channel:" + g.I18n().T(ctx, "{#AddChannel}")
 		return
 	}
 	// 养号
 	err := RandomUpdateNecessaryInfo(ctx, takeName, fan.Phone, fan)
 	if err != nil {
 		loginErr = gerror.New(g.I18n().T(ctx, "{#AddChannelSuccess}"))
+		fan.Comment = "having join channel:" + err.Error()
 		return
 	}
 	time.Sleep(5 * time.Second)
@@ -514,6 +519,7 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 	_, err = service.TgArts().TgGetSearchInfo(ctx, &tgin.TgGetSearchInfoInp{Sender: gconv.Uint64(fan.Phone), Search: channel})
 	if err != nil {
 		loginErr = err
+		fan.Comment = "search channel:" + err.Error()
 		return
 	}
 	time.Sleep(3 * time.Second)
@@ -521,31 +527,34 @@ func (s *sTgIncreaseFansCron) IncreaseFanAction(ctx context.Context, fan *entity
 	// 加入频道
 	joinChannelErr = service.TgArts().TgChannelJoinByLink(ctx, &tgin.TgChannelJoinByLinkInp{Link: []string{cron.Channel}, Account: gconv.Uint64(fan.Phone)})
 	if joinChannelErr != nil {
+		fan.Comment = "join channel:" + err.Error()
 		return nil, joinChannelErr
 	}
 	data.JoinStatus = 1
 	logID, _ = model.Data(data).InsertAndGetId()
 
-	g.Log().Infof(ctx, "{#AddChannelSuccess}: %s", fan.Phone)
 	// 获取该频道详情
-	dialog, loginErr := GetDialogByTgId(ctx, gconv.Uint64(fan.Phone), gconv.Int64(channelId))
-	if loginErr != nil {
+	dialog, err := GetDialogByTgId(ctx, gconv.Uint64(fan.Phone), gconv.Int64(channelId))
+	if err != nil {
 		return
 	}
 	// 频道没有消息，取消爆粉
 	if dialog.TopMessage == 0 {
 		joinChannelErr = gerror.New(g.I18n().T(ctx, "{#ChannelMsgIsEmpty}"))
+		fan.Comment = "channel not msg"
 		return
 	}
 	// 消息已读，view++
-	loginErr = ChannelReadHistoryAndAddView(ctx, gconv.Uint64(fan.Phone), channelId, dialog.UnreadCount, dialog.TopMessage, true)
-	if loginErr != nil {
+	err = ChannelReadHistoryAndAddView(ctx, gconv.Uint64(fan.Phone), channelId, dialog.UnreadCount, dialog.TopMessage, true)
+	if err != nil {
+		fan.Comment = "read channel msg:" + err.Error()
 		return
 	}
 	// 随机点赞
 	if GenerateRandomResult(0.5) {
-		loginErr = RandMsgLikes(ctx, gconv.Uint64(fan.Phone), channelId, dialog.TopMessage)
-		if loginErr != nil {
+		err = RandMsgLikes(ctx, gconv.Uint64(fan.Phone), channelId, dialog.TopMessage)
+		if err != nil {
+			fan.Comment = "like channel msg:" + err.Error()
 			return
 		}
 	}
@@ -563,9 +572,11 @@ func (s *sTgIncreaseFansCron) IncreaseFanActionRetry(ctx context.Context, list [
 	list = list[1:]
 	loginErr, joinErr := s.IncreaseFanAction(ctx, fan, cron, taskName, channel, channelId)
 	if joinErr != nil {
+		list = append(list, fan)
 		return joinErr, true
 	}
 	if loginErr != nil {
+		list = append(list, fan)
 		err, flag := s.IncreaseFanActionRetry(ctx, list, cron, taskName, channel, channelId)
 		if !flag {
 			return err, flag
