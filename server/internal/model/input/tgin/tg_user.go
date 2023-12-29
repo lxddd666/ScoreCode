@@ -156,6 +156,7 @@ type TgUserListModel struct {
 	TgId           int64       `json:"tgId,string"           dc:"tg id"`
 	Bio            string      `json:"bio"                   dc:"个性签名"`
 	UpdatedAt      *gtime.Time `json:"updatedAt"             dc:"更新时间"`
+	FileUrl        string      `json:"fileUrl"               dc:"图片url"`
 }
 
 // TgUserExportModel 导出TG账号

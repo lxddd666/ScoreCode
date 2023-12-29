@@ -59,7 +59,7 @@ func (s *sTgUser) Model(ctx context.Context, option ...*handler.Option) *gdb.Mod
 // List 获取TG账号列表
 func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgin.TgUserListModel, totalCount int, err error) {
 	mod := s.Model(ctx)
-
+	user := contexts.GetUser(ctx)
 	//
 	if in.FolderId != 0 {
 		mod = mod.LeftJoin(dao.TgUserFolders.Table()+" uf", "tg_user."+dao.TgUser.Columns().Id+"=uf."+dao.TgUserFolders.Columns().TgUserId).
@@ -127,6 +127,7 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 	}
 
 	members, _, err := service.AdminMember().List(ctx, &adminin.MemberListInp{RoleId: -1})
+
 	if err != nil {
 		return
 	}
@@ -134,9 +135,10 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 	for _, member := range members {
 		memberIds = append(memberIds, member.Id)
 	}
+	memberIds = append(memberIds, user.Id)
 	if err = mod.
 		LeftJoin("(select id as hg_member_id, username as member_username from hg_admin_member) as ham", "ham.hg_member_id = tg_user.member_id").
-		WhereIn("tg_user.member_id", memberIds).
+		WhereIn("tg_user.member_id", memberIds).WhereOr("tg_user.member_id", nil).
 		Fields("tg_user.*", "ham.member_username").FieldsEx("tg_user.proxy_address").
 		OrderDesc(dao.TgUser.Columns().Id).Scan(&list); err != nil {
 		err = gerror.Wrap(err, g.I18n().T(ctx, "{#GetTgAccountListFailed}"))
@@ -147,6 +149,13 @@ func (s *sTgUser) List(ctx context.Context, in *tgin.TgUserListInp) (list []*tgi
 		if item.PublicProxy == 1 {
 			item.ProxyAddress = ""
 		}
+		if item.Photo == 0 {
+			continue
+		}
+		p := entity.TgPhoto{}
+		_ = g.Model(dao.TgPhoto.Table()).Fields(dao.TgPhoto.Columns().FileUrl).Where(dao.TgPhoto.Columns().PhotoId, item.Photo).Scan(p)
+		item.FileUrl = p.FileUrl
+
 	}
 	return
 }
