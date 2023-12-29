@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import Avatar from '@mui/material/Avatar';
 import styles from './messageBody.module.scss';
+import dayjs from 'dayjs'
 
 // import { useScroll } from 'utils/tools';
 
@@ -25,17 +26,27 @@ const MessageBody = (props: any) => {
                                         src="https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp"
                                     />
                                 </div>
-                                <div className={styles.lineFont}>{item.message}</div>
+                                <div className={styles.lineFont}>
+                                    {item.message}
+                                    
+                                    <div className={styles.times}>{dayjs(item?.date * 1000).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                </div>
                             </div>
                         </div>
                     ) : (
                         <div className={styles.me} key={index}>
                             <div className={styles.meBody}>
-                                <div className={styles.lineFont}>{item.message}</div>
+                                <div className={styles.lineFont}>
+                                    {item.message}
+
+                                    <div className={styles.times}>{dayjs(item?.date * 1000).format('YYYY-MM-DD HH:mm:ss')}</div>
+                                </div>
                                 <Avatar
                                     variant="rounded"
                                     src="https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp"
                                 />
+
+
                             </div>
                         </div>
                         // )}
