@@ -1,4 +1,4 @@
-import {memo, useState, useRef, useEffect, useCallback, useMemo} from "react"
+import { memo, useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { FormattedMessage } from 'react-intl';
 // import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
@@ -18,11 +18,11 @@ import {
     Tooltip,
     IconButton
 } from '@mui/material';
-import DetailsIcon from '@mui/icons-material/Details';
+// import DetailsIcon from '@mui/icons-material/Details';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import DeleteIcon from '@mui/icons-material/Delete';
+// import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch, useSelector } from 'store';
-import { useHeightComponent} from 'utils/tools';
+import { useHeightComponent } from 'utils/tools';
 // import { createFilterOptions } from '@mui/material/Autocomplete';
 // import { openSnackbar } from 'store/slices/snackbar';
 import styles from './index.module.scss';
@@ -31,17 +31,21 @@ import SearchForm from './searchFrom';
 import { getTgFoldersListAction } from 'store/slices/tg';
 import axios from 'utils/axios';
 import { columns } from './config';
-import {tgFoldersDelete, tgFoldersView} from "../../../server/tg";
-import {openSnackbar} from "../../../store/slices/snackbar";
+import { tgFoldersDelete, tgFoldersView } from "../../../server/tg";
+import { openSnackbar } from "../../../store/slices/snackbar";
 import FormDialog from "../tgFolders/formDialog";
 import useConfirm from "../../../hooks/useConfirm";
 import {
     handleAsync
 } from 'utils/tools'
+import {
+    tgUserList,
+} from 'server/tg'
 // 账号分组
 const TgFolders = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
     const [rows, setrows] = useState([]); // table rows 数据
+    const [tgUser, settgUser] = useState([])
     const [paramsPayload, setParamsPayload] = useState({
         page: 1,
         pageSize: 10,
@@ -57,22 +61,46 @@ const TgFolders = () => {
     // const navigate = useNavigate();
     const { tgFoldersList } = useSelector((state) => state.tg);
     let { height: boxHeight } = useHeightComponent(boxRef);
-
+    // 网络请求
+    useEffect(() => {
+        getTgSearchParams();
+        getTgUserParams()
+    }, []);
+    // 账号分组列表
     useEffect(() => {
         getTableListActionFN();
         console.log('tgFoldersList', tgFoldersList?.data?.list);
     }, [dispatch, paramsPayload]);
+
     // 数据赋值
     useEffect(() => {
         // getTgSearchParams();
         setrows(tgFoldersList?.data?.list || []);
         setPagetionTotle(tgFoldersList?.data?.totalCount);
     }, [tgFoldersList]);
-    // 网络请求
-    useEffect(() => {
-        getTgSearchParams();
-    }, []);
 
+    // 查询条件请求 分组选择/账号/养号任务
+    const getTgUserParams = async () => {
+        let promises = [
+            await tgUserList({ page: 1, pageSize: 999 }),
+        ];
+
+        let storedResults: any = [];
+        await Promise.allSettled(promises)
+            .then((results) => {
+                results.forEach((result: any) => {
+                    if (result.status === 'fulfilled') {
+                        console.log('Promise fulfilled: ', result.value);
+                        storedResults.push(result.value.data)
+                    } else if (result.status === 'rejected') {
+                        console.log('Promise rejected: ', result.reason);
+                    }
+                });
+            });
+        console.log(storedResults);
+
+        await settgUser(storedResults[0]?.list || []);
+    };
     // tgUser 表格数据
     const getTableListActionFN = async () => {
         await dispatch(getTgFoldersListAction(paramsPayload));
@@ -183,13 +211,15 @@ const TgFolders = () => {
     const onBtnOpenList = useCallback(async (active: String, value: any = undefined) => {
         switch (active) {
             case 'Add':
+                console.log('tgUserLists', tgUser);
+
                 setFormDialogConfig({
                     ...formDialogConfig,
                     edit: true,
                     title: '添加',
                     dialogType: 'editForm',
                     type: 'Add',
-                    params: { folderList: searchForm },
+                    params: { folderList: searchForm, accountsList: tgUser },
                 });
                 break
             case 'Edit':
@@ -203,13 +233,13 @@ const TgFolders = () => {
                     title: '编辑',
                     dialogType: 'editForm',
                     type: 'Edit',
-                    params: { folderList: searchForm, echo: res?.data },
+                    params: { folderList: searchForm, echo: res?.data, accountsList: tgUser },
                 });
                 break
             default:
                 break;
         }
-    }, [formDialogConfig, searchForm])
+    }, [formDialogConfig, searchForm, tgUser])
     // 弹窗关闭
     const onBtnCloseList = useCallback((type: String, value: any) => {
         switch (type) {
@@ -324,7 +354,7 @@ const TgFolders = () => {
                                                                 <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
                                                             </Tooltip>
                                                         </IconButton>
-                                                        <IconButton style={{ marginLeft: '5px' }}  >
+                                                        {/* <IconButton style={{ marginLeft: '5px' }}  >
                                                             <Tooltip title='删除' placement="top">
                                                                 <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
                                                             </Tooltip>
@@ -333,7 +363,7 @@ const TgFolders = () => {
                                                             <Tooltip title='详情' placement="top">
                                                                 <DetailsIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
                                                             </Tooltip>
-                                                        </IconButton>
+                                                        </IconButton> */}
                                                     </>
                                                 ) : (
                                                     ''
