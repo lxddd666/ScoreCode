@@ -93,6 +93,7 @@ const Chat = () => {
     const [showHideUserInfo, setShowHideUserInfo] = useState(false)
     const [currentUserHistoryTgId, setCurrentUserHistoryTgId] = useState('')
     const [userLists, setUserLists] = useState<any>([])
+    const [ids, setIds] = useState('')
     const textRef: any = useRef();
     const divRef: any = useRef(null);
     const dispatch = useDispatch();
@@ -164,15 +165,21 @@ const Chat = () => {
             setUserLists(tgUserList?.data?.list || [])
         }
     }, [tgUserList])
+    useEffect(() => {
+        if (ids && ids !== '') {
+            tgArtsLogin(ids)
+        }
+    }, [ids])
 
-    const tgArtsLogin = async () => {
+    const tgArtsLogin = async (ids: any = undefined) => {
         console.log('111');
 
         try {
+            let idV: any = ids ? ids : id
             const { data } = await axios.post('/tg/arts/login', {
-                id: id
+                id: idV
             })
-            console.log('routes', id, data);
+            console.log('routes', idV, data);
             if (data.code !== 0) {
                 return dispatch(openSnackbar({
                     open: true,
@@ -297,6 +304,11 @@ const Chat = () => {
     const onShowHideUserInfoClick = () => {
         setShowHideUserInfo(!showHideUserInfo)
     }
+    // tg 账号点击
+    const tgClick = (item: any) => {
+        console.log('item', item);
+        setIds(item.id)
+    }
     return (
         <div className={styles.chat}>
             {
@@ -334,8 +346,8 @@ const Chat = () => {
 
                                     <ListItem alignItems="flex-start"
                                         secondaryAction={
-                                            <Tooltip title="切换登录" placement="top">
-                                                <IconButton color="primary" aria-label="upload picture" component="span">
+                                            <Tooltip title="切换账号" placement="top">
+                                                <IconButton color="primary" aria-label="upload picture" component="span" onClick={e => tgClick(item)}>
                                                     <ReadMoreIcon />
                                                 </IconButton>
                                             </Tooltip>

@@ -25,7 +25,7 @@ import {
     Checkbox,
     ListItemText,
     FormHelperText,
-    ButtonGroup,
+    // ButtonGroup,
     // Autocomplete
 } from '@mui/material';
 import AnimateButton from 'ui-component/extended/AnimateButton';
@@ -57,7 +57,7 @@ const Item = styled(Paper)(({ theme }) => ({
 const createValidationSchema = (requiredFields: any) => {
     return yup.object().shape({
         folderName: yup.string().trim('Enter a valid folderName').required('folderName is required'),
-        id: yup.string().trim('Enter a valid id').required('id is required'),
+        // id: yup.string().trim('Enter a valid id').required('id is required'),
         // accounts: yup.array().of(
         //     yup.number().required('Action is required')
         // ).test(
@@ -73,12 +73,12 @@ const FormDialog = (props: any) => {
     const [dialogValue, setDialogValue] = useState<any>({})
     const [formikValue, setFormikValue] = useState<any>({
         id: undefined,
-        orgId:'',
-        memberId:'',
-        folderName:'',
-        memberCount:'',
+        orgId: '',
+        memberId: '',
+        folderName: '',
+        memberCount: '',
         accounts: [],
-        comment:'',
+        comment: '',
 
     })
     const [requiredFields] = useState({
@@ -131,12 +131,12 @@ const FormDialog = (props: any) => {
         formik.resetForm();
         setFormikValue({
             id: undefined,
-            orgId:'',
-            memberId:'',
-            folderName:'',
-            memberCount:'',
+            orgId: '',
+            memberId: '',
+            folderName: '',
+            memberCount: '',
             accounts: [],
-            comment:'',
+            comment: '',
 
         })
     }
@@ -151,22 +151,22 @@ const FormDialog = (props: any) => {
                         // handleImportClose();
                     }
                 }}
-                                 maxWidth="sm"
-                                 sx={{
-                                     '& .MuiDialog-paper': { width: '80%' }, // 80% 的宽度
-                                     '& .css-meoh0q-MuiPaper-root-MuiDialog-paper': { maxWidth: '1000px' }
-                                 }}
-                                 fullWidth={true}>
+                    maxWidth="sm"
+                    sx={{
+                        '& .MuiDialog-paper': { width: '80%' }, // 80% 的宽度
+                        '& .css-meoh0q-MuiPaper-root-MuiDialog-paper': { maxWidth: '1000px' }
+                    }}
+                    fullWidth={true}>
                     <DialogTitle>{config.title}</DialogTitle>
                     <DialogContent>
                         {
                             config.dialogType && config.dialogType === 'editForm'
                                 ?
                                 <EditForm changeSubmitValue={changeSubmitValue}
-                                          row={config.params}
-                                          renderField={config.renderField}
-                                          formik={formik}
-                                          handleClose={handleClose}
+                                    row={config.params}
+                                    renderField={config.renderField}
+                                    formik={formik}
+                                    handleClose={handleClose}
                                 />
                                 :
                                 <EditTable changeSubmitValue={changeSubmitValue} columns={config.columns} type={config.type} />
@@ -403,7 +403,7 @@ const MenuProps = {
 };
 const EditForm = (props: any) => {
     const { row, changeSubmitValue, formik, handleClose } = props
-    // console.log('EditForm', formik.initialValues);
+    // console.log('EditForm', row);
 
 
     const inputChange = (event: any) => {
@@ -412,24 +412,6 @@ const EditForm = (props: any) => {
             id: row?.id || undefined,
             ...formik.values
         })
-    }
-
-    const selectBtn = (event: any) => {
-        const { value } = event.target
-        console.log(value, value === '50', value === 50);
-
-        let tempArr: [] = []
-        if (value === '50') {
-            tempArr = row?.accountsList?.slice(0, 50)
-            let arr: any = []
-            tempArr?.map((item: any) => {
-                arr.push(String(item.id))
-            })
-            formik.setFieldValue('accounts', arr);
-        }
-        if (value === 'clear') {
-            formik.setFieldValue('accounts', []);
-        }
     }
 
     return (
@@ -476,85 +458,67 @@ const EditForm = (props: any) => {
                         onBlur={formik.handleBlur}
                     />
                 </Grid>
-                    {
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="folderName"
+                        name="folderName"
+                        label='分组名称'
+                        value={formik.values.folderName || ''}
+                        onChange={(event) => {
+                            const value = event.target.value;
+                            formik.setFieldValue('folderName', value);
+                        }}
+                        onBlur={formik.handleBlur}
+                        error={formik.touched.folderName && Boolean(formik.errors.folderName)}
+                        helperText={formik.touched.folderName && formik.errors.folderName}
+                    />
+                </Grid>
 
-                        <Grid item xs={12}>
-                            <FormControl sx={{ width: '100%' }} error={Boolean(formik.errors.folderId)}>
-                                <InputLabel id="demo-multiple-checkbox-label">分组名称</InputLabel>
-                                <Select
-                                    labelId="folderName"
-                                    id="folderNamev"
-                                    value={formik.values.folderName || ''}
-                                    onChange={(event) => {
-                                        const value = event.target.value;
-                                        formik.setFieldValue('folderName', value);
-                                    }}
-                                    input={<OutlinedInput label="分组名称" />}
+                <Grid item xs={12}>
+                    <FormControl sx={{ width: '100%' }} error={Boolean(formik.errors.accounts)}>
+                        <InputLabel id="demo-multiple-checkbox-label">账号</InputLabel>
+                        <Select
+                            labelId="accounts"
+                            id="accounts"
+                            multiple
+                            value={formik.values.accounts || []}
+                            onChange={(event) => {
+                                const value = event.target.value;
+                                formik.setFieldValue('accounts', value);
+                            }}
+                            input={<OutlinedInput label="账号" />}
+                            renderValue={(selected) => selected
+                                .map((value: any) => row?.accountsList?.find((item: any) => item.id === value)?.phone)
+                                .join(', ')}
+                            MenuProps={MenuProps}
 
-                                >
-                                    {row?.folderList?.map((item: any) => (
-                                        <MenuItem key={item.value} value={item.value}>
-                                            <ListItemText primary={item.title} />
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {formik.touched.folderName && formik.errors.folderName ? (
-                                    <FormHelperText>{formik.errors.folderName}</FormHelperText>
-                                ) : null}
-                            </FormControl>
-                        </Grid>
-                    }
-                    {
-                        <Grid item xs={12}>
-                        <FormControl sx={{ width: '100%' }} error={Boolean(formik.errors.accounts)}>
-                            <InputLabel id="demo-multiple-checkbox-label">账号</InputLabel>
-                            <Select
-                                labelId="accounts"
-                                id="accounts"
-                                multiple
-                                value={formik.values.accounts || []}
-                                onChange={(event) => {
-                                    const value = event.target.value;
-                                    formik.setFieldValue('accounts', value);
-                                }}
-                                input={<OutlinedInput label="账号" />}
-                                renderValue={(selected) => selected
-                                    .map((value: any) => row?.accountsList?.find((item: any) => item.id === value)?.phone)
-                                    .join(', ')}
-                                MenuProps={MenuProps}
-
-                            >
-                                {row?.accountsList?.map((item: any) => (
-                                    <MenuItem key={item.id} value={item.id}>
-                                        <Checkbox checked={formik.values.accounts?.includes(item.id)} />
-                                        <ListItemText primary={`${item.phone}-${item.firstName} ${item.lastName}`} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                            {formik.touched.accounts && formik.errors.accounts ? (
-                                <FormHelperText>{formik.errors.accounts}</FormHelperText>
-                            ) : null}
-                        </FormControl>
-                        <ButtonGroup size="small" aria-label="small button group" sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                            <Button value="50" onClick={selectBtn}>选择50个</Button>
-                            <Button value="100">选择100个</Button>
-                            <Button value="200">选择200个</Button>
-                            <Button value="clear" onClick={selectBtn}>清除</Button>
-                        </ButtonGroup>
-                    </Grid>}
-                    <Grid item xs={12}>
-                        <TextField
-                            fullWidth
-                            id="comment"
-                            name="comment"
-                            label='备注'
-                            value={formik.values.comment}
-                            onChange={inputChange}
-                            onBlur={formik.handleBlur}
-                            error={formik.touched.comment && Boolean(formik.errors.comment)}
-                            helperText={formik.touched.comment && formik.errors.comment}
-                        />
-                        </Grid>
+                        >
+                            {row?.accountsList?.map((item: any) => (
+                                <MenuItem key={item.id} value={item.id}>
+                                    <Checkbox checked={formik.values.accounts?.includes(item.id)} />
+                                    <ListItemText primary={`${item.phone}-${item.firstName} ${item.lastName}`} />
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        {formik.touched.accounts && formik.errors.accounts ? (
+                            <FormHelperText>{formik.errors.accounts}</FormHelperText>
+                        ) : null}
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <TextField
+                        fullWidth
+                        id="comment"
+                        name="comment"
+                        label='备注'
+                        value={formik.values.comment}
+                        onChange={inputChange}
+                        onBlur={formik.handleBlur}
+                        error={formik.touched.comment && Boolean(formik.errors.comment)}
+                        helperText={formik.touched.comment && formik.errors.comment}
+                    />
+                </Grid>
                 <Grid item xs={12}>
                     <Stack direction="row" justifyContent="flex-end">
                         <AnimateButton>
@@ -569,7 +533,7 @@ const EditForm = (props: any) => {
                         </AnimateButton>
                     </Stack>
                 </Grid>
-                </Grid>
+            </Grid>
         </form>
     )
 }
