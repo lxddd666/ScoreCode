@@ -1,15 +1,40 @@
 .box {
     width: 100%;
-    height: calc(100vh - 260px);
+    height: calc(100vh - 250px);
 
     .searchTop {
-        height: 100px;
+        max-height: 210px;
+        // height: 210px;
+        overflow: auto;
     }
 
     .btnList {
         display: flex;
         align-items: center;
         height: 50px;
+    }
+
+    .tablesColumns {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .info {
+            // width: 60px;
+            margin-left: 8px;
+            display: flex;
+            flex-direction: column;
+
+            .titles {
+                display: flex;
+                flex-direction: row;
+                height: 30px;
+                // justify-content: center;
+                align-items: center;
+                color: rgb(3, 90, 61);
+                // color: rgb(3, 106, 129);
+            }
+        }
     }
 
     .paginations {
@@ -21,7 +46,8 @@
         align-items: center;
     }
 }
-.dialog{
+
+.dialog {
     height: 200px;
     max-height: 300px;
     width: 100%;
@@ -29,14 +55,14 @@
     flex-direction: column;
     justify-content: space-around;
 
-    .formBox{
+    .formBox {
         margin-bottom: 15px;
         display: flex;
         flex-direction: row;
         height: 70px;
         width: 100%;
 
-        .formTitle{
+        .formTitle {
             text-align: right;
             min-width: 80px;
             line-height: 40px;
@@ -57,6 +83,39 @@
     .btn {
         margin-right: 10px;
     }
+}
+
+.tablesColumns {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .info {
+        // width: 60px;
+        margin-left: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        .titles {
+            display: flex;
+            flex-direction: row;
+            height: 30px;
+            // justify-content: center;
+            align-items: center;
+            color: rgb(3, 90, 61);
+            // color: rgb(3, 106, 129);
+        }
+    }
+}
+
+.paginations {
+    width: 100%;
+    display: flex;
+    height: 40px;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
 }
 
 // .css-19kzrtu {

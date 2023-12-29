@@ -1,0 +1,139 @@
+.box {
+    width: 100%;
+    height: calc(100vh - 250px);
+
+    .searchTop {
+        max-height: 210px;
+        // height: 210px;
+        overflow: auto;
+    }
+
+    .btnList {
+        display: flex;
+        align-items: center;
+        height: 50px;
+    }
+
+    .paginations {
+        width: 100%;
+        display: flex;
+        height: 40px;
+        justify-content: flex-end;
+        flex-direction: row;
+        align-items: center;
+    }
+}
+.dialog{
+    height: 200px;
+    max-height: 300px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    .formBox{
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: row;
+        height: 70px;
+        width: 100%;
+
+        .formTitle{
+            text-align: right;
+            min-width: 80px;
+            line-height: 40px;
+        }
+    }
+}
+
+.FormattedMessageTitle {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .css-17pmaar-MuiCardContent-root {
+        height: calc(100vh - 220px);
+    }
+
+    .btn {
+        margin-right: 10px;
+    }
+}
+
+.leftContent {
+    width: 21%;
+    float: left;
+    margin-top: 20px;
+}
+
+
+.rightContent {
+    width: 70%;
+    float: right;
+    margin-top: 20px;
+}
+
+// .css-19kzrtu {
+//     padding: 0 24px;
+//     width: calc(100vw - 440px);
+// }
+
+// .css-l63pd8-MuiButtonBase-root-MuiTab-root {
+//     margin-bottom: 50px;
+// }
+
+// .css-1r5ppdd-MuiTabs-scroller {
+//     background-color: rgba(194, 194, 205, 0.133);
+//     border-radius: 10px;
+// }
+
+// // 自定义 calssName
+
+
+
+// .tab1 {
+//     width: 100%;
+//     height: 100%;
+
+
+
+//     .tabpane01 {
+//         width: 100%;
+//         height: 100%;
+//         display: flex;
+//         flex-direction: row;
+//         overflow: auto;
+//         padding: 0 24px;
+
+
+
+//         .left {
+//             width: 30%;
+//             height: calc(100vh - 265px);
+//             border-right: 1px solid rgba($color: #000000, $alpha: 0.1);
+//             margin-right: 10px;
+
+//             :global(.css-1vzhj0j-MuiPaper-root) {
+//                 width: 90%;
+//                 // border: 1px solid rgba($color: #000000, $alpha: 0.1);
+//                 border: 1px solid rgb(127, 127, 127);
+//             }
+
+//             .leftList {
+//                 width: 90%;
+//                 display: flex;
+//                 flex-direction: column;
+
+//                 .itemBtn {
+//                     margin-top: 10px;
+//                 }
+//             }
+//         }
+
+//         .right {
+//             flex: 1;
+//             // width: 300px;
+//         }
+//     }
+// }

@@ -20,7 +20,7 @@ const SubmitDialog = (props: any) => {
     const [disabled, setDisabled] = useState(false)
     const [downDate, setDownDate] = useState(60)
     const dispatch = useDispatch()
-    console.log(open);
+    console.log(open, config,);
 
     // 提交表单
     const handleSubmit = () => {

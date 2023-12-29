@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
 import { FormattedMessage } from 'react-intl';
@@ -20,21 +20,42 @@ import {
     Checkbox,
     Chip,
     Pagination,
-    Autocomplete
+    Autocomplete,
+    Avatar,
+    Tooltip,
+    IconButton,
+    Link
 } from '@mui/material';
-import { useDispatch, useSelector } from 'store';
+// import DeleteIcon from '@mui/icons-material/Delete';
+import ChatIcon from '@mui/icons-material/Chat';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { styled } from '@mui/material/styles';
+import Badge from '@mui/material/Badge';
+import { useDispatch, useSelector, shallowEqual } from 'store';
 import { useHeightComponent } from 'utils/tools';
 import { createFilterOptions } from '@mui/material/Autocomplete';
 import { openSnackbar } from 'store/slices/snackbar';
 import styles from './index.module.scss';
 import SearchForm from './searchFrom';
-import FileUpload from './upload'
-import SubmitDialog from './submitDialog'
+import FileUpload from './upload';
+import SubmitDialog from './submitDialog';
+import AnimateButton from 'ui-component/extended/AnimateButton';
 
 import { getTgUserListAction } from 'store/slices/tg';
-import axios from 'utils/axios';
-import { columns, accountStatus, isOnline } from './conig';
 
+import axios from 'utils/axios';
+import { columns, accountStatus, isOnline } from './config';
+import FormDialog from './formDialog'
+
+import { timeAgo } from 'utils/tools'
+import {
+    tgUnUserBindUser,
+    tgUserBindUnProxy,
+    tgUserBatchLoginOut,
+    tgUserAllDelete
+} from 'server/tg'
+import useConfirm from 'hooks/useConfirm'
 const TgUser = () => {
     const [selected, setSelected] = useState<any>([]); // 多选
     const [rows, setrows] = useState([]); // table rows 数据
@@ -46,20 +67,33 @@ const TgUser = () => {
     const [searchForm, setSearchForm] = useState([]); // search Form
     const [pagetionTotle, setPagetionTotle] = useState(0); // total
     const [importOpenDialog, setImportOpenDialog] = useState(false);
-    const [handleSubmitOpen, setHandleSubmitOpen] = useState(false) // 弹窗控制
+    const [handleSubmitOpen, setHandleSubmitOpen] = useState(false); // 弹窗控制
+    const [showHide, setShowHide] = useState(false) // 展开收起
+    const [tableHeigth, setTableHeigth] = useState(150)
     const [handleSubmitOpenConfig, setHandleSubmitOpenConfig] = useState({
         title: ''
+    });
+    const [formDialogConfig, setFormDialogConfig] = useState<any>({
+        title: '',
+        edit: false,
+        selectCheck: [],
+        dialogType: undefined,
+
+        params: undefined,
+        renderField: undefined
     })
+    const [checkListIsDisable, setCheckListIsDisable] = useState(true)
     const boxRef: any = useRef();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { tgUserList } = useSelector((state) => state.tg);
+    const confirm = useConfirm(); // 弹窗
+    const { tgUserList } = useSelector((state) => state.tg, shallowEqual);
 
     let { height: boxHeight } = useHeightComponent(boxRef);
 
     useEffect(() => {
-        getTgUserListActionFN();
-        console.log('tgUserList', tgUserList?.data?.list);
+        getTableListActionFN();
+        // console.log('tgUserList', tgUserList?.data?.list);
     }, [dispatch, paramsPayload]);
     // 数据赋值
     useEffect(() => {
@@ -73,14 +107,19 @@ const TgUser = () => {
     }, []);
 
     // tgUser 表格数据
-    const getTgUserListActionFN = async () => {
+    const getTableListActionFN = async () => {
         await dispatch(getTgUserListAction(paramsPayload));
     };
     // 分组选择请求
     const getTgSearchParams = async () => {
         try {
-            const res = await axios.get(`/tg/tgFolders/list`);
-            console.log('tg分组选择请求', res);
+            const res = await axios.get(`/tg/tgFolders/list`, {
+                params: {
+                    page: 1,
+                    pageSize: 9999
+                }
+            });
+            // console.log('tg分组选择请求', res);
             let arr: any = [];
             res?.data?.data?.list.map((item: any) => {
                 arr.push({
@@ -94,14 +133,17 @@ const TgUser = () => {
             console.log('分组数据请求失败');
         }
     };
+
     // table多选all操作
     const handleSelectAllClick = (event: any) => {
         if (event.target.checked) {
             const newSelecteds = rows.map((n: any) => n.id);
             setSelected(newSelecteds);
+            setCheckListIsDisable(false)
             return;
         }
         setSelected([]);
+        setCheckListIsDisable(true)
     };
     // table多选点击操作
     const handleClick = (event: any, id: any) => {
@@ -120,20 +162,55 @@ const TgUser = () => {
         }
 
         setSelected(newSelected);
+        // console.log(newSelected, selected);
+
+        if (newSelected.length > 0) {
+            setCheckListIsDisable(false)
+        } else {
+            setCheckListIsDisable(true)
+        }
     };
     // id筛选
     const isSelected = (id: any) => selected.indexOf(id) !== -1;
 
-    const renderTable = (value: any, key: any) => {
+    const renderTable = (value: any, key: any, item: any) => {
+        // console.log(value, key, item);
+
         let temp: any = '';
-        if (key === 'accountStatus') {
+        if (key === 'firstName') {
+            temp = <div className={styles.tablesColumns}>
+                <div className={styles.avatars}>
+                    <StyledBadge
+                        overlap="circular"
+                        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                        variant="dot"
+                        badgeColor={item.isOnline === 1 ? '#44b700' : 'red'}
+                    >
+                        <Avatar alt="Remy Sharp" src={item.photo}>
+                            {item.lastName?.charAt(0)?.toUpperCase()}
+                        </Avatar>
+                    </StyledBadge>
+                </div>
+                <div className={styles.info}>
+                    <div className={styles.titles}>
+                        <p>{item.firstName}</p>
+                        <p style={{ marginLeft: '5px' }}>{item.lastName}</p>
+                    </div>
+                    <div style={{ fontSize: '12px' }}>(+) {item.phone}</div>
+                    <div style={{ fontSize: '12px' }}><Link href="" onClick={(e) => e.preventDefault()}>@{item.username}</Link></div>
+                </div>
+            </div>
+        }
+        else if (key === 'accountStatus') {
             temp = <Chip label={accountStatus(value)} color="primary" />;
         } else if (key === 'isOnline') {
-            temp = <Chip label={isOnline(value)} color="primary" />;
+            temp = <Chip label={isOnline(value)} sx={{ bgcolor: `${item.isOnline === 1 ? '#44b700' : 'red'}`, color: 'white' }} />;
+        } else if (key === 'lastLoginTime') {
+            temp = timeAgo(value)
         } else {
             temp = value;
         }
-        return temp;
+        return temp
     };
 
     // 分页事件
@@ -143,71 +220,369 @@ const TgUser = () => {
 
         setParamsPayload({ ...paramsPayload, page: pageRef.current });
     };
+    // 分页数量
+    const PaginationCount = (count: number) => {
+        return typeof count === 'number' ? Math.ceil(count / 10) : 1;
+    };
 
     // 子传父 searchForm
     const handleSearchFormData = (obj: any) => {
-        setParamsPayload({ ...paramsPayload, folderId: obj?.value, page: 1 });
+        setParamsPayload({ ...paramsPayload, ...obj, page: 1 });
     };
     const handleSetImportOpenDialog = (type: String, value: any) => {
         // setImportOpenDialog(value);
-        onBtnCloseList(type, value)
+        onBtnCloseList(type, value);
     };
 
     // 聊天室跳转
     const chatRoomToNavica = (rows: any) => {
         // console.log(rows);
-        navigate(`/tg/chat/index?id=${rows.id}`);
+        navigate(`/tg/chat/index/${rows.id}`);
+        // navigate(`/tg/chat/index/1`);
     };
     // 弹窗开启
-    const onBtnOpenList = (active: String) => {
+    const handleSubmitOpenCallback = useCallback(() => {
+        setHandleSubmitOpen(true);
+        setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' });
+    }, [handleSubmitOpen]);
+    const onBtnOpenList = (active: String, value: any = undefined) => {
+        let columns = []
         switch (active) {
             case 'import':
                 setImportOpenDialog(true);
                 break;
             case 'iphone':
-                setHandleSubmitOpen(true);
-                setHandleSubmitOpenConfig({ ...handleSubmitOpenConfig, title: '手机验证码登录' })
+                handleSubmitOpenCallback();
                 break;
+            case 'bindUser':
+                // 绑定员工开启
+                columns = [
+                    {
+                        id: 'username',
+                        numeric: false,
+                        label: '用户名',
+                        align: 'center'
+                    },
+                    {
+                        id: 'roleName',
+                        numeric: false,
+                        label: '绑定角色',
+                        align: 'center'
+                    },
+                    {
+                        id: 'orgName',
+                        numeric: false,
+                        label: '所属公司',
+                        align: 'center'
+                    },
+                    {
+                        id: 'status',
+                        numeric: false,
+                        label: '状态',
+                        align: 'center'
+                    },
+                    {
+                        id: 'lastActiveAt',
+                        numeric: false,
+                        label: '最近活跃',
+                        align: 'center'
+                    }
+                ];
+                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定用户', selectCheck: selected, columns, type: 'bindUser' });
+                break;
+            case 'bindProxy':
+                // 绑定员工开启
+                columns = [
+                    {
+                        id: 'address',
+                        numeric: false,
+                        label: '代理地址',
+                        align: 'center'
+                    },
+                    {
+                        id: 'type',
+                        numeric: false,
+                        label: '代理类型',
+                        align: 'center'
+                    },
+                    {
+                        id: 'maxConnections',
+                        numeric: false,
+                        label: '最大连接数',
+                        align: 'center'
+                    },
+                    {
+                        id: 'connectedCount',
+                        numeric: false,
+                        label: '已连接数',
+                        align: 'center'
+                    },
+                    {
+                        id: 'assignedCount',
+                        numeric: false,
+                        label: '已分配数',
+                        align: 'center'
+                    },
+                    {
+                        id: 'longTermCount',
+                        numeric: false,
+                        label: '长期未登录',
+                        align: 'center'
+                    },
+                    {
+                        id: 'region',
+                        numeric: false,
+                        label: '地区',
+                        align: 'center'
+                    },
+                    {
+                        id: 'delay',
+                        numeric: false,
+                        label: '延迟',
+                        align: 'center'
+                    },
+                    {
+                        id: 'status',
+                        numeric: false,
+                        label: '状态',
+                        align: 'center'
+                    }
+                ];
+                setFormDialogConfig({ ...formDialogConfig, edit: true, title: '绑定代理', selectCheck: selected, columns, type: 'bindProxy' });
+                break;
+            case 'Edit':
+                let renderField = {
+                    username: '用户名',
+                    firstName: '姓氏',
+                    lastName: '名字',
+                    phone: '手机号码',
+                    bio: '个性签名',
+                    comment: '备注'
+                }
+                setFormDialogConfig({
+                    ...formDialogConfig,
+                    edit: true,
+                    title: '绑定用户',
+                    dialogType: 'editForm',
+                    type: 'Edit',
+                    params: value,
+                    renderField
+                });
+                break
             default:
                 break;
         }
-    };
+    }
     // 弹窗关闭
+    const handleSubmitCloseCallback = useCallback((value: any) => {
+        setHandleSubmitOpen(value);
+    }, []);
     const onBtnCloseList = (type: String, value: any) => {
-        console.log(type, value);
+        // console.log(type, value);
 
         switch (type) {
             case 'import':
                 setImportOpenDialog(value);
                 break;
             case 'iphone':
-                setHandleSubmitOpen(value);
+                handleSubmitCloseCallback(value);
                 break;
+            case 'bindUser':
+                // 绑定员工关闭
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', selectCheck: [], type: '' });
+                getTableListActionFN()
+                break;
+            case 'bindProxy':
+                // 绑定代理关闭
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', selectCheck: [], type: '' });
+                getTableListActionFN()
+                break;
+            case 'Edit':
+                setFormDialogConfig({ ...formDialogConfig, edit: value, title: '', dialogType: '', type: '', prams: undefined });
+                getTableListActionFN()
+                break
             default:
                 break;
         }
     };
 
+    // 解绑员工操作
+    const onUnBindUserClick = () => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否解绑选中的 ${selected.length} 个员工,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUnUserBindUser({ ids: selected })
+                        console.log('解绑成功', res);
+                    } catch (error) {
+                        console.log('解绑失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 解绑代理操作
+    const onUnBindProxyClick = () => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否解绑选中的 ${selected.length} 个代理,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserBindUnProxy({ ids: selected })
+                        console.log('解绑成功', res);
+                        getTableListActionFN()
+                    } catch (error) {
+                        console.log('解绑失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 批量上线 下线 操作
+    const onBatchLoginOutClick = (type: String) => {
+        // console.log('解绑员工操作', selected);
+        confirm('警告', `是否${type === 'batchLogin' ? '上线' : '下线'}选中的 ${selected.length} 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserBatchLoginOut({ ids: selected }, type)
+                        console.log(' 批量上线 下线 操作', res);
+
+                        getTableListActionFN()
+                    } catch (error) {
+                        console.log('批量上下线失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 批量删除 操作
+    const onUserAllDeleteClick = (id: any = undefined) => {
+        confirm('警告', `是否批量删除选中的 ${selected.length} 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserAllDelete({ id: selected })
+                        console.log('批量删除', res);
+                        getTableListActionFN()
+                        setSelected([]);
+                        setCheckListIsDisable(true)
+                    } catch (error) {
+                        console.log('批量删除失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    // 单个删除 操作
+    const onUserSingleDeleteClick = (id: any) => {
+        confirm('警告', `是否删除选中的 1 个数据,确定之后不可取消,请谨慎操作。`)
+            .then(async (result) => {
+                if (result) {
+                    try {
+                        const res = await tgUserAllDelete({ id: id })
+                        console.log('批量删除', res);
+                        getTableListActionFN()
+                        setSelected([]);
+                        setCheckListIsDisable(true)
+                    } catch (error) {
+                        console.log('批量删除失败', error);
+                    }
+                } else {
+                    console.log('Cancelled!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+
+    const handleShowHide = () => {
+        setShowHide(!showHide)
+        let v = showHide ? 150 : 300
+        setTableHeigth(v)
+    }
 
     return (
         <MainCard title={<FormattedMessageTitle />} content={true}>
             <div className={styles.box} ref={boxRef}>
                 <div className={styles.searchTop}>
-                    <SearchForm top100Films={searchForm} handleSearchFormData={handleSearchFormData} />
+                    <SearchForm top100Films={searchForm} handleSearchFormData={handleSearchFormData} showHide={showHide} handleShowHide={handleShowHide} />
                 </div>
                 <div className={styles.btnList}>
                     <Stack direction="row" spacing={2}>
-                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('import')}>
-                            导入
-                        </Button>
-                        <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('iphone')}>
-                            手机验证码登录
-                        </Button>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} color="error" onClick={onUserAllDeleteClick}>
+                                批量删除
+                            </Button>
+                        </AnimateButton>
+                        {/* <AnimateButton type="slide">
+                            <Button size="small" variant="contained" >
+                                导出
+                            </Button>
+                        </AnimateButton> */}
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBtnOpenList('bindUser')} color="secondary">
+                                绑定员工
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={onUnBindUserClick} color="secondary">
+                                解绑员工
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBtnOpenList('bindProxy')} color="success">
+                                绑定代理
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={onUnBindProxyClick} color="success">
+                                解绑代理
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBatchLoginOutClick('batchLogin')} color="warning">
+                                批量上线
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" disabled={checkListIsDisable} onClick={(e) => onBatchLoginOutClick('batchLogout')} color="warning">
+                                批量下线
+                            </Button>
+                        </AnimateButton>
+                        <AnimateButton type="slide">
+                            <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('import')}>
+                                导入
+                            </Button>
+                        </AnimateButton>
+                        {/* <AnimateButton type="slide">
+                            <Button size="small" variant="contained" onClick={(e) => onBtnOpenList('iphone')}>
+                                手机验证码登录
+                            </Button>
+                        </AnimateButton> */}
                     </Stack>
                 </div>
                 <TableContainer
                     component={Paper}
-                    style={{ maxHeight: `calc(${boxHeight - 170}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
+                    style={{ maxHeight: `calc(${boxHeight - tableHeigth}px)`, borderTop: '1px solid #eaeaea', borderBottom: '1px solid #eaeaea' }}
                 >
                     <Table aria-label="simple table" sx={{ border: 1, borderColor: 'divider' }} stickyHeader={true}>
                         <TableHead>
@@ -249,53 +624,56 @@ const TgUser = () => {
                                     {columns.map((item) => {
                                         return (
                                             <TableCell align="center" key={item.key}>
-                                                {renderTable(row[item.key], item.key)}
+                                                {renderTable(row[item.key], item.key, row)}
 
-                                                {/* {item.key === 'accountStatus' ? <Chip label={accountStatus(row[item.key])} color="primary" />:''}
-                                                {item.key === 'isOnline' ? <Chip label={isOnline(row[item.key])} color="primary" /> : ''} */}
                                                 {item.key === 'active' ? (
-                                                    <Button size="small" variant="contained" onClick={(e) => chatRoomToNavica(row)}>
-                                                        聊天室
-                                                    </Button>
+                                                    <div style={item.key === 'active' ? { width: '220px' } : {}}>
+                                                        <IconButton aria-label="delete" onClick={(e) => chatRoomToNavica(row)}>
+                                                            <Tooltip title='聊天室' placement="top">
+                                                                <ChatIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        {/* <Button size="small" variant="contained">
+                                                            聊天室
+                                                        </Button> */}
+                                                        <IconButton style={{ marginLeft: '5px' }} onClick={(e) => onBtnOpenList('Edit', row)}>
+                                                            <Tooltip title='编辑' placement="top">
+                                                                <ModeEditIcon style={{ color: 'rgb(3, 106, 129)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                        <IconButton style={{ marginLeft: '5px' }} onClick={(e) => onUserSingleDeleteClick(row.id)} >
+                                                            <Tooltip title='删除' placement="top">
+                                                                <DeleteIcon style={{ color: 'rgb(159, 86, 108)', fontSize: '18px' }} />
+                                                            </Tooltip>
+                                                        </IconButton>
+                                                    </div>
                                                 ) : (
                                                     ''
                                                 )}
                                             </TableCell>
                                         );
                                     })}
-                                    {/* <TableCell align="center">{row.memberUsername}</TableCell>
-                                    <TableCell align="center">{row.username}</TableCell>
-                                    <TableCell align="center">{row.firstName}</TableCell>
-                                    <TableCell align="center">{row.phone}</TableCell>
-                                    <TableCell align="center">{row.folderId}</TableCell>
-                                    <TableCell align="center">{row.lastName}</TableCell>
-                                    <TableCell align="center">{row.accountStatus}</TableCell>
-                                    <TableCell align="center">{row.isOnline}</TableCell>
-                                    <TableCell align="center">{row.proxyAddress}</TableCell>
-                                    <TableCell align="center">{row.lastLoginTime}</TableCell>
-                                    <TableCell align="center">{row.comment}</TableCell>
-                                    <TableCell align="center">{row.createdAt}</TableCell>
-                                    <TableCell align="center">{row.updatedAt}</TableCell> */}
+
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
-                {pagetionTotle !== 0 ? (
+                {pagetionTotle && pagetionTotle !== 0 && (
                     <>
                         <div className={styles.paginations}>
                             <div>共 {pagetionTotle} 条</div>
-                            <Pagination count={10} color="primary" onChange={onPaginationChange} />
+                            <Pagination count={PaginationCount(pagetionTotle)} color="primary" onChange={onPaginationChange} />
                         </div>
                     </>
-                ) : (
-                    ''
                 )}
             </div>
 
-            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTgUserListActionFN} />
+            <ImportOpenDialog importOpenDialog={importOpenDialog} data={searchForm} setImportOpenDialog={handleSetImportOpenDialog} getTgUserListActionFN={getTableListActionFN} getTgSearchParams={getTgSearchParams} />
 
             <SubmitDialog open={handleSubmitOpen} config={handleSubmitOpenConfig} setOpenChangeDialog={handleSetImportOpenDialog} />
+
+            <FormDialog open={formDialogConfig.edit} config={formDialogConfig} onChangeDialogStatus={onBtnCloseList} />
         </MainCard>
     );
 };
@@ -313,12 +691,12 @@ const FormattedMessageTitle = () => {
 // 导入弹窗
 const filter = createFilterOptions();
 const ImportOpenDialog = (props: any) => {
-    const { importOpenDialog, setImportOpenDialog, data, getTgUserListActionFN } = props;
+    const { importOpenDialog, setImportOpenDialog, data, getTgUserListActionFN, getTgSearchParams } = props;
 
-    const [value, setValue] = useState<any>(undefined);
+    const [value, setValue] = useState<any>('');
     const [open, toggleOpen] = useState(false);
     const [dialogValue, setDialogValue] = useState({
-        title: ''
+        folderName: ''
     });
     const [selectedFile, setSelectedFile] = useState(null);
     const dispatch = useDispatch();
@@ -326,7 +704,7 @@ const ImportOpenDialog = (props: any) => {
     // dialog 弹出关闭
     const handleImportClose = () => {
         setImportOpenDialog('import', false);
-        setValue(undefined)
+        setValue('')
     };
     // dialog 提交
     const handleImportSubmit = (event: any) => {
@@ -342,7 +720,8 @@ const ImportOpenDialog = (props: any) => {
         const formData = new FormData();
         formData.append('file', selectedFile);
         formData.append('folderId', value?.value);
-        axios('http://10.8.12.88:8001/tg/tgUser/importSession', {
+        // axios('http://10.8.12.88:8001/tg/tgUser/importSession', {
+        axios('/tg/tgUser/importSession', {
             method: 'POST',
             transformRequest: [function (data, headers: any) {
                 // 去除post请求默认的Content-Type
@@ -355,7 +734,7 @@ const ImportOpenDialog = (props: any) => {
             // 处理响应
             console.log('res上传成功', res);
             setImportOpenDialog('import', false);
-            setValue(undefined)
+            setValue('')
             getTgUserListActionFN()
         }).catch(err => {
             console.log('res上传失败', err);
@@ -381,7 +760,7 @@ const ImportOpenDialog = (props: any) => {
 
     const handleClose = () => {
         setDialogValue({
-            title: ''
+            folderName: ''
         });
 
         toggleOpen(false);
@@ -396,13 +775,13 @@ const ImportOpenDialog = (props: any) => {
             setTimeout(() => {
                 toggleOpen(true);
                 setDialogValue({
-                    title: newValue
+                    folderName: newValue
                 });
             });
         } else if (newValue && newValue.inputValue) {
             toggleOpen(true);
             setDialogValue({
-                title: newValue.inputValue
+                folderName: newValue.inputValue
             });
         } else {
             setValue(newValue);
@@ -413,11 +792,24 @@ const ImportOpenDialog = (props: any) => {
     const handleSubmit = (event: any) => {
         event.preventDefault();
         let obj: any = {
-            title: dialogValue.title
+            folderName: dialogValue.folderName
         };
-        setValue(obj);
+        console.log('添加分组名称', dialogValue.folderName);
 
-        handleClose();
+        axios.post('/tg/tgFolders/edit', {
+            ...obj
+        }).then(({ data }) => {
+            console.log('添加分组', data);
+
+            // setValue('');
+            setValue('')
+            getTgSearchParams()
+            handleClose();
+        }).catch(err => {
+            console.log('添加分组失败');
+
+        })
+
     };
     // 下载模板
     const handleDownload = () => {
@@ -465,7 +857,6 @@ const ImportOpenDialog = (props: any) => {
                                 id="controllable-states-demo"
                                 options={data}
                                 getOptionLabel={(option: any) => {
-                                    // e.g value selected with enter, right from the input
                                     if (typeof option === 'string') {
                                         return option;
                                     }
@@ -477,7 +868,7 @@ const ImportOpenDialog = (props: any) => {
                                 selectOnFocus
                                 clearOnBlur
                                 handleHomeEndKeys
-                                renderOption={(props, option) => <li {...props}>{option.title}</li>}
+                                renderOption={(props, option) => <li {...props} key={option.value}>{option.title}</li>}
                                 sx={{ width: 300 }}
                                 freeSolo
                                 renderInput={(params) => <TextField {...params} label="分组选择" />}
@@ -504,11 +895,11 @@ const ImportOpenDialog = (props: any) => {
                             autoFocus
                             margin="dense"
                             id="outlined-basic"
-                            value={dialogValue.title}
+                            value={dialogValue.folderName}
                             onChange={(event) =>
                                 setDialogValue({
                                     ...dialogValue,
-                                    title: event.target.value
+                                    folderName: event.target.value
                                 })
                             }
                             label="分组名称"
@@ -518,12 +909,44 @@ const ImportOpenDialog = (props: any) => {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={handleClose}>Cancel</Button>
-                        <Button type="submit">Add</Button>
+                        <Button onClick={handleClose}>取消</Button>
+                        <Button type="submit">添加</Button>
                     </DialogActions>
                 </form>
             </Dialog>
         </>
     );
 };
+
+interface StyledBadgeProps {
+    badgeColor?: string; // 这是你的自定义属性
+}
+const StyledBadge = styled(Badge)<StyledBadgeProps>(({ theme, badgeColor }) => ({
+    '& .MuiBadge-badge': {
+        backgroundColor: badgeColor || '#44b700',
+        color: badgeColor || '#44b700',
+        boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+        '&::after': {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            borderRadius: '50%',
+            animation: 'ripple 1.2s infinite ease-in-out',
+            border: '1px solid currentColor',
+            content: '""',
+        },
+    },
+    '@keyframes ripple': {
+        '0%': {
+            transform: 'scale(.8)',
+            opacity: 1,
+        },
+        '100%': {
+            transform: 'scale(2.4)',
+            opacity: 0,
+        },
+    },
+}));
 export default memo(TgUser);

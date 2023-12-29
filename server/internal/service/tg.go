@@ -20,46 +20,42 @@ import (
 )
 
 type (
-	IManager    interface{}
-	ITgKeepTask interface {
-		// Model 养号任务ORM模型
+	ITgBatchExecutionTask interface {
+		// Model 批量操作任务ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取养号任务列表
-		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
-		// Export 导出养号任务
-		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
-		// Edit 修改/新增养号任务
-		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
-		// Delete 删除养号任务
-		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
-		// View 获取养号任务指定信息
-		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
-		// Status 更新养号任务状态
-		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
-		// Once 执行一次
-		Once(ctx context.Context, id int64) (err error)
-		// ClusterSync 集群同步
-		ClusterSync(ctx context.Context, message *gredis.Message)
-		// Run 执行
-		Run(ctx context.Context)
-		// InitTask 初始化所有任务
-		InitTask(ctx context.Context)
+		// List 获取批量操作任务列表
+		List(ctx context.Context, in *tgin.TgBatchExecutionTaskListInp) (list []*tgin.TgBatchExecutionTaskListModel, totalCount int, err error)
+		// Export 导出批量操作任务
+		Export(ctx context.Context, in *tgin.TgBatchExecutionTaskListInp) (err error)
+		// Edit 修改/新增批量操作任务
+		Edit(ctx context.Context, in *tgin.TgBatchExecutionTaskEditInp) (taskId int64, err error)
+		// Delete 删除批量操作任务
+		Delete(ctx context.Context, in *tgin.TgBatchExecutionTaskDeleteInp) (err error)
+		// View 获取批量操作任务指定信息
+		View(ctx context.Context, in *tgin.TgBatchExecutionTaskViewInp) (res *tgin.TgBatchExecutionTaskViewModel, err error)
+		// Status 更新批量操作任务状态
+		Status(ctx context.Context, in *tgin.TgBatchExecutionTaskStatusInp) (err error)
+		ImportSessionVerifyLog(ctx context.Context, inp *tgin.TgBatchExecutionTaskImportSessionLogInp) (res *tgin.TgBatchExecutionTaskImportSessionLogModel, err error)
+		// InitBatchExec 初始化批量操作
+		InitBatchExec(ctx context.Context) (err error)
+		// Run 执行任务
+		Run(ctx context.Context, task entity.TgBatchExecutionTask) (err error)
 	}
-	ITgProxy interface {
-		// Model 代理管理ORM模型
+	ITgFolders interface {
+		// Model tg分组ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取代理管理列表
-		List(ctx context.Context, in *tgin.TgProxyListInp) (list []*tgin.TgProxyListModel, totalCount int, err error)
-		// Export 导出代理管理
-		Export(ctx context.Context, in *tgin.TgProxyListInp) (err error)
-		// Edit 修改/新增代理管理
-		Edit(ctx context.Context, in *tgin.TgProxyEditInp) (err error)
-		// Delete 删除代理管理
-		Delete(ctx context.Context, in *tgin.TgProxyDeleteInp) (err error)
-		// View 获取代理管理指定信息
-		View(ctx context.Context, in *tgin.TgProxyViewInp) (res *tgin.TgProxyViewModel, err error)
-		// Status 更新代理管理状态
-		Status(ctx context.Context, in *tgin.TgProxyStatusInp) (err error)
+		// List 获取tg分组列表
+		List(ctx context.Context, in *tgin.TgFoldersListInp) (list []*tgin.TgFoldersListModel, totalCount int, err error)
+		// Export 导出tg分组
+		Export(ctx context.Context, in *tgin.TgFoldersListInp) (err error)
+		// Edit 修改/新增tg分组
+		Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err error)
+		// Delete 删除tg分组
+		Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (err error)
+		// View 获取tg分组指定信息
+		View(ctx context.Context, in *tgin.TgFoldersViewInp) (res *tgin.TgFoldersViewModel, err error)
+		// EditUserFolder 修改账号分组
+		EditUserFolder(ctx context.Context, inp tgin.TgEditeUserFolderInp) (err error)
 	}
 	ITgArts interface {
 		// TgSyncContact 同步联系人
@@ -82,7 +78,6 @@ type (
 		TgChannelJoinByLink(ctx context.Context, inp *tgin.TgChannelJoinByLinkInp) (err error)
 		// TgGetUserAvatar 获取用户头像
 		TgGetUserAvatar(ctx context.Context, inp *tgin.TgGetUserAvatarInp) (res *tgin.TgGetUserAvatarModel, err error)
-		// TgGetSearchInfo 查询
 		TgGetSearchInfo(ctx context.Context, inp *tgin.TgGetSearchInfoInp) (res []*tgin.TgGetSearchInfoModel, err error)
 		// TgReadPeerHistory 消息已读
 		TgReadPeerHistory(ctx context.Context, inp *tgin.TgReadPeerHistoryInp) (err error)
@@ -94,8 +89,15 @@ type (
 		TgUpdateUserInfo(ctx context.Context, inp *tgin.TgUpdateUserInfoInp) (err error)
 		// TgCheckUsername 校验username
 		TgCheckUsername(ctx context.Context, inp *tgin.TgCheckUsernameInp) (flag bool, err error)
-		// TgLeaveGroup 退群
 		TgLeaveGroup(ctx context.Context, inp *tgin.TgUserLeaveInp) (err error)
+		// ContactsGetLocated 获取附近的人
+		ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error)
+		// EditChannelInfo 修改频道信息
+		EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error)
+		// EditChannelInfo 获取附近的人
+		EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error)
+		// GetManageChannels 获取自己管理的频道和群
+		GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error)
 		// SyncAccount 同步账号
 		SyncAccount(ctx context.Context, phones []uint64) (result string, err error)
 		// CodeLogin 登录
@@ -126,23 +128,18 @@ type (
 		TgSendReaction(ctx context.Context, inp *tgin.TgSendReactionInp) (err error)
 		// TgSendMsgType 发送消息时候的状态
 		TgSendMsgType(ctx context.Context, inp *artsin.MsgTypeInp) (err error)
-		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
-		// GetUserChannels 获取用户群频道
-		GetUserChannels(ctx context.Context, inp *tgin.GetUserChannelsInp) (res []*tgin.TgDialogModel, err error)
 		// SaveMsgDraft 消息草稿同步
 		SaveMsgDraft(ctx context.Context, inp *tgin.MsgSaveDraftInp) (err error)
-		// ClearMsgDraft 清除消息草稿
+		// ClearMsgDraft 清除消息草稿同步
 		ClearMsgDraft(ctx context.Context, inp *tgin.ClearMsgDraftInp) (res *tgin.ClearMsgDraftResultModel, err error)
 		// DeleteMsg 删除消息
 		DeleteMsg(ctx context.Context, inp *tgin.DeleteMsgInp) (res *tgin.DeleteMsgModel, err error)
-		// ContactsGetLocated 获取附近的人
-		ContactsGetLocated(ctx context.Context, inp *tgin.ContactsGetLocatedInp) (err error)
-		// EditChannelInfo 修改频道消息
-		EditChannelInfo(ctx context.Context, inp *tgin.EditChannelInfoInp) (err error)
-		// EditChannelBannedRight 修改频道/群/超级群 禁止权限
-		EditChannelBannedRight(ctx context.Context, inp *tgin.EditChannelBannedRightsInp) (err error)
-		// GetManageChannels 获取自己管理的群和频道
-		GetManageChannels(ctx context.Context, inp *tgin.GetManageChannelsInp) (err error)
+		ConvertMsg(tgId int64, msg tg.MessageClass) (result tgin.TgMsgModel)
+		GetUserChannels(ctx context.Context, inp *tgin.GetUserChannelsInp) (res []*tgin.TgDialogModel, err error)
+	}
+	ITgArtsFolders interface {
+		// GetFolders 获取会话文件夹
+		GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error)
 	}
 	ITgContacts interface {
 		// Model 联系人管理ORM模型
@@ -177,6 +174,8 @@ type (
 		View(ctx context.Context, in *tgin.TgIncreaseFansCronViewInp) (res *tgin.TgIncreaseFansCronViewModel, err error)
 		// UpdateStatus 修改任务状态
 		UpdateStatus(ctx context.Context, in *tgin.TgIncreaseFansCronEditInp) (err error)
+		// BatchAddTask 批量创建涨粉任务
+		BatchAddTask(ctx context.Context, inp *tgin.BatchAddTaskReqInp) (res []*tgin.BatchAddTaskModel, err error)
 		// CheckChannel 获取TG频道涨粉是否可用
 		CheckChannel(ctx context.Context, in *tgin.TgCheckChannelInp) (res *tgin.TgGetSearchInfoModel, available bool, err error)
 		// ChannelIncreaseFanDetail 计算涨粉每天情况
@@ -197,17 +196,6 @@ type (
 		TgExecuteIncrease(ctx context.Context, cronTask entity.TgIncreaseFansCron, firstFlag bool) (err error, finalResult bool)
 		// GetOneOnlineAccount 获取一个在线账号
 		GetOneOnlineAccount(ctx context.Context) (uint64, error)
-		// BatchAddTask 批量创建涨粉任务
-		BatchAddTask(ctx context.Context, inp *tgin.BatchAddTaskReqInp) (res []*tgin.BatchAddTaskModel, err error)
-	}
-	ITgIncreaseFansCronAction interface {
-		// Model TG频道涨粉任务执行情况ORM模型
-		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		List(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (list []*tgin.TgIncreaseFansCronActionListModel, totalCount int, err error)
-		Export(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (err error)
-		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronActionEditInp) (err error)
-		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronActionDeleteInp) (err error)
-		View(ctx context.Context, in *tgin.TgIncreaseFansCronActionViewInp) (res *tgin.TgIncreaseFansCronActionViewModel, err error)
 	}
 	ITgMsg interface {
 		// Model 消息记录ORM模型
@@ -227,53 +215,61 @@ type (
 		// ReadMsgCallback 已读回调
 		ReadMsgCallback(ctx context.Context, readMsg callback.TgReadMsgCallback) (err error)
 	}
+	ITgProxy interface {
+		// Model 代理管理ORM模型
+		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
+		// List 获取代理管理列表
+		List(ctx context.Context, in *tgin.TgProxyListInp) (list []*tgin.TgProxyListModel, totalCount int, err error)
+		// Export 导出代理管理
+		Export(ctx context.Context, in *tgin.TgProxyListInp) (err error)
+		// Edit 修改/新增代理管理
+		Edit(ctx context.Context, in *tgin.TgProxyEditInp) (err error)
+		// Delete 删除代理管理
+		Delete(ctx context.Context, in *tgin.TgProxyDeleteInp) (err error)
+		// View 获取代理管理指定信息
+		View(ctx context.Context, in *tgin.TgProxyViewInp) (res *tgin.TgProxyViewModel, err error)
+		// Status 更新代理管理状态
+		Status(ctx context.Context, in *tgin.TgProxyStatusInp) (err error)
+	}
 	ITgUserFolders interface {
 		// Model tg账号关联分组ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
 		// List 获取tg账号关联分组列表
 		List(ctx context.Context, in *tgin.TgUserFoldersListInp) (list []*tgin.TgUserFoldersListModel, totalCount int, err error)
 	}
-	ITgArtsFolders interface {
-		// GetFolders 获取会话文件夹
-		GetFolders(ctx context.Context, account uint64) (result tg.DialogFilterClassVector, err error)
-	}
-	ITgBatchExecutionTask interface {
-		// Model 批量操作任务ORM模型
+	IManager                  interface{}
+	ITgIncreaseFansCronAction interface {
+		// Model TG频道涨粉任务执行情况ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取批量操作任务列表
-		List(ctx context.Context, in *tgin.TgBatchExecutionTaskListInp) (list []*tgin.TgBatchExecutionTaskListModel, totalCount int, err error)
-		// Export 导出批量操作任务
-		Export(ctx context.Context, in *tgin.TgBatchExecutionTaskListInp) (err error)
-		// Edit 修改/新增批量操作任务
-		Edit(ctx context.Context, in *tgin.TgBatchExecutionTaskEditInp) (taskId int64, err error)
-		// Delete 删除批量操作任务
-		Delete(ctx context.Context, in *tgin.TgBatchExecutionTaskDeleteInp) (err error)
-		// View 获取批量操作任务指定信息
-		View(ctx context.Context, in *tgin.TgBatchExecutionTaskViewInp) (res *tgin.TgBatchExecutionTaskViewModel, err error)
-		// Status 更新批量操作任务状态
-		Status(ctx context.Context, in *tgin.TgBatchExecutionTaskStatusInp) (err error)
-		// InitBatchExec 初始化批量操作
-		InitBatchExec(ctx context.Context) (err error)
-		// Run 执行任务
-		Run(ctx context.Context, task entity.TgBatchExecutionTask) (err error)
-		// ImportSessionVerifyLog 校验导入session日志
-		ImportSessionVerifyLog(ctx context.Context, t *tgin.TgBatchExecutionTaskImportSessionLogInp) (res *tgin.TgBatchExecutionTaskImportSessionLogModel, err error)
+		List(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (list []*tgin.TgIncreaseFansCronActionListModel, totalCount int, err error)
+		Export(ctx context.Context, in *tgin.TgIncreaseFansCronActionListInp) (err error)
+		Edit(ctx context.Context, in *tgin.TgIncreaseFansCronActionEditInp) (err error)
+		Delete(ctx context.Context, in *tgin.TgIncreaseFansCronActionDeleteInp) (err error)
+		View(ctx context.Context, in *tgin.TgIncreaseFansCronActionViewInp) (res *tgin.TgIncreaseFansCronActionViewModel, err error)
 	}
-	ITgFolders interface {
-		// Model tg分组ORM模型
+	ITgKeepTask interface {
+		// Model 养号任务ORM模型
 		Model(ctx context.Context, option ...*handler.Option) *gdb.Model
-		// List 获取tg分组列表
-		List(ctx context.Context, in *tgin.TgFoldersListInp) (list []*tgin.TgFoldersListModel, totalCount int, err error)
-		// Export 导出tg分组
-		Export(ctx context.Context, in *tgin.TgFoldersListInp) (err error)
-		// Edit 修改/新增tg分组
-		Edit(ctx context.Context, in *tgin.TgFoldersEditInp) (err error)
-		// Delete 删除tg分组
-		Delete(ctx context.Context, in *tgin.TgFoldersDeleteInp) (err error)
-		// View 获取tg分组指定信息
-		View(ctx context.Context, in *tgin.TgFoldersViewInp) (res *tgin.TgFoldersViewModel, err error)
-		// EditUserFolder 修改账号分组
-		EditUserFolder(ctx context.Context, inp tgin.TgEditeUserFolderInp) (err error)
+		// List 获取养号任务列表
+		List(ctx context.Context, in *tgin.TgKeepTaskListInp) (list []*tgin.TgKeepTaskListModel, totalCount int, err error)
+		// Export 导出养号任务
+		Export(ctx context.Context, in *tgin.TgKeepTaskListInp) (err error)
+		// Edit 修改/新增养号任务
+		Edit(ctx context.Context, in *tgin.TgKeepTaskEditInp) (err error)
+		// Delete 删除养号任务
+		Delete(ctx context.Context, in *tgin.TgKeepTaskDeleteInp) (err error)
+		// View 获取养号任务指定信息
+		View(ctx context.Context, in *tgin.TgKeepTaskViewInp) (res *tgin.TgKeepTaskViewModel, err error)
+		// Status 更新养号任务状态
+		Status(ctx context.Context, in *tgin.TgKeepTaskStatusInp) (err error)
+		// Once 执行一次
+		Once(ctx context.Context, id int64) (err error)
+		// ClusterSync 集群同步
+		ClusterSync(ctx context.Context, message *gredis.Message)
+		// Run 执行
+		Run(ctx context.Context)
+		// InitTask 初始化所有任务
+		InitTask(ctx context.Context)
 	}
 	ITgUser interface {
 		// Model TG账号ORM模型
@@ -290,6 +286,8 @@ type (
 		View(ctx context.Context, in *tgin.TgUserViewInp) (res *tgin.TgUserViewModel, err error)
 		// BindMember 绑定用户
 		BindMember(ctx context.Context, in *tgin.TgUserBindMemberInp) (err error)
+		// BatchBindMember 根据数量绑定用户
+		BatchBindMember(ctx context.Context, inp tgin.TgUserBatchBindMemberInp) (err error)
 		// UnBindMember 解除绑定用户
 		UnBindMember(ctx context.Context, in *tgin.TgUserUnBindMemberInp) (err error)
 		// LoginCallback 登录回调
@@ -298,118 +296,32 @@ type (
 		LogoutCallback(ctx context.Context, res []entity.TgUser) (err error)
 		// ImportSession 导入session文件
 		ImportSession(ctx context.Context, inp *tgin.ImportSessionInp) (res *tgin.ImportSessionModel, err error)
+		// TgSaveSessionMsg 保存session数据到数据库中
+		TgSaveSessionMsg(ctx context.Context, details []*tgin.TgImportSessionModel, folderId int64) (userList []entity.TgUser, err error)
+		// TgImportSessionToGrpc 导入session
+		TgImportSessionToGrpc(ctx context.Context, inp []*tgin.TgImportSessionModel) (err error)
 		// UnBindProxy 解绑代理
 		UnBindProxy(ctx context.Context, in *tgin.TgUserUnBindProxyInp) (res *tgin.TgUserUnBindProxyModel, err error)
 		// BindProxy 绑定代理
 		BindProxy(ctx context.Context, in *tgin.TgUserBindProxyInp) (res *tgin.TgUserBindProxyModel, err error)
-		// BatchBindMember 批量绑定用户
-		BatchBindMember(ctx context.Context, inp tgin.TgUserBatchBindMemberInp) (err error)
 	}
 )
 
 var (
-	localTgProxy                  ITgProxy
-	localTgMsg                    ITgMsg
-	localTgUserFolders            ITgUserFolders
-	localTgArts                   ITgArts
-	localTgContacts               ITgContacts
-	localTgIncreaseFansCron       ITgIncreaseFansCron
 	localTgIncreaseFansCronAction ITgIncreaseFansCronAction
-	localTgArtsFolders            ITgArtsFolders
-	localTgBatchExecutionTask     ITgBatchExecutionTask
-	localTgFolders                ITgFolders
+	localTgKeepTask               ITgKeepTask
 	localTgUser                   ITgUser
 	localManager                  IManager
-	localTgKeepTask               ITgKeepTask
+	localTgFolders                ITgFolders
+	localTgBatchExecutionTask     ITgBatchExecutionTask
+	localTgArtsFolders            ITgArtsFolders
+	localTgContacts               ITgContacts
+	localTgIncreaseFansCron       ITgIncreaseFansCron
+	localTgArts                   ITgArts
+	localTgProxy                  ITgProxy
+	localTgUserFolders            ITgUserFolders
+	localTgMsg                    ITgMsg
 )
-
-func TgProxy() ITgProxy {
-	if localTgProxy == nil {
-		panic("implement not found for interface ITgProxy, forgot register?")
-	}
-	return localTgProxy
-}
-
-func RegisterTgProxy(i ITgProxy) {
-	localTgProxy = i
-}
-
-func TgUserFolders() ITgUserFolders {
-	if localTgUserFolders == nil {
-		panic("implement not found for interface ITgUserFolders, forgot register?")
-	}
-	return localTgUserFolders
-}
-
-func RegisterTgUserFolders(i ITgUserFolders) {
-	localTgUserFolders = i
-}
-
-func TgArts() ITgArts {
-	if localTgArts == nil {
-		panic("implement not found for interface ITgArts, forgot register?")
-	}
-	return localTgArts
-}
-
-func RegisterTgArts(i ITgArts) {
-	localTgArts = i
-}
-
-func TgContacts() ITgContacts {
-	if localTgContacts == nil {
-		panic("implement not found for interface ITgContacts, forgot register?")
-	}
-	return localTgContacts
-}
-
-func RegisterTgContacts(i ITgContacts) {
-	localTgContacts = i
-}
-
-func TgIncreaseFansCron() ITgIncreaseFansCron {
-	if localTgIncreaseFansCron == nil {
-		panic("implement not found for interface ITgIncreaseFansCron, forgot register?")
-	}
-	return localTgIncreaseFansCron
-}
-
-func RegisterTgIncreaseFansCron(i ITgIncreaseFansCron) {
-	localTgIncreaseFansCron = i
-}
-
-func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
-	if localTgIncreaseFansCronAction == nil {
-		panic("implement not found for interface ITgIncreaseFansCronAction, forgot register?")
-	}
-	return localTgIncreaseFansCronAction
-}
-
-func RegisterTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
-	localTgIncreaseFansCronAction = i
-}
-
-func TgMsg() ITgMsg {
-	if localTgMsg == nil {
-		panic("implement not found for interface ITgMsg, forgot register?")
-	}
-	return localTgMsg
-}
-
-func RegisterTgMsg(i ITgMsg) {
-	localTgMsg = i
-}
-
-func TgArtsFolders() ITgArtsFolders {
-	if localTgArtsFolders == nil {
-		panic("implement not found for interface ITgArtsFolders, forgot register?")
-	}
-	return localTgArtsFolders
-}
-
-func RegisterTgArtsFolders(i ITgArtsFolders) {
-	localTgArtsFolders = i
-}
 
 func TgBatchExecutionTask() ITgBatchExecutionTask {
 	if localTgBatchExecutionTask == nil {
@@ -433,6 +345,83 @@ func RegisterTgFolders(i ITgFolders) {
 	localTgFolders = i
 }
 
+func TgIncreaseFansCron() ITgIncreaseFansCron {
+	if localTgIncreaseFansCron == nil {
+		panic("implement not found for interface ITgIncreaseFansCron, forgot register?")
+	}
+	return localTgIncreaseFansCron
+}
+
+func RegisterTgIncreaseFansCron(i ITgIncreaseFansCron) {
+	localTgIncreaseFansCron = i
+}
+
+func TgArts() ITgArts {
+	if localTgArts == nil {
+		panic("implement not found for interface ITgArts, forgot register?")
+	}
+	return localTgArts
+}
+
+func RegisterTgArts(i ITgArts) {
+	localTgArts = i
+}
+
+func TgArtsFolders() ITgArtsFolders {
+	if localTgArtsFolders == nil {
+		panic("implement not found for interface ITgArtsFolders, forgot register?")
+	}
+	return localTgArtsFolders
+}
+
+func RegisterTgArtsFolders(i ITgArtsFolders) {
+	localTgArtsFolders = i
+}
+
+func TgContacts() ITgContacts {
+	if localTgContacts == nil {
+		panic("implement not found for interface ITgContacts, forgot register?")
+	}
+	return localTgContacts
+}
+
+func RegisterTgContacts(i ITgContacts) {
+	localTgContacts = i
+}
+
+func TgMsg() ITgMsg {
+	if localTgMsg == nil {
+		panic("implement not found for interface ITgMsg, forgot register?")
+	}
+	return localTgMsg
+}
+
+func RegisterTgMsg(i ITgMsg) {
+	localTgMsg = i
+}
+
+func TgProxy() ITgProxy {
+	if localTgProxy == nil {
+		panic("implement not found for interface ITgProxy, forgot register?")
+	}
+	return localTgProxy
+}
+
+func RegisterTgProxy(i ITgProxy) {
+	localTgProxy = i
+}
+
+func TgUserFolders() ITgUserFolders {
+	if localTgUserFolders == nil {
+		panic("implement not found for interface ITgUserFolders, forgot register?")
+	}
+	return localTgUserFolders
+}
+
+func RegisterTgUserFolders(i ITgUserFolders) {
+	localTgUserFolders = i
+}
+
 func TgUser() ITgUser {
 	if localTgUser == nil {
 		panic("implement not found for interface ITgUser, forgot register?")
@@ -453,6 +442,17 @@ func Manager() IManager {
 
 func RegisterManager(i IManager) {
 	localManager = i
+}
+
+func TgIncreaseFansCronAction() ITgIncreaseFansCronAction {
+	if localTgIncreaseFansCronAction == nil {
+		panic("implement not found for interface ITgIncreaseFansCronAction, forgot register?")
+	}
+	return localTgIncreaseFansCronAction
+}
+
+func RegisterTgIncreaseFansCronAction(i ITgIncreaseFansCronAction) {
+	localTgIncreaseFansCronAction = i
 }
 
 func TgKeepTask() ITgKeepTask {
